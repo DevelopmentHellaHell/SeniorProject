@@ -1,9 +1,9 @@
 # DevelopmentHell
 Senior Project
 Team members:
-- Kevin Dinh (Lead)
-- Tien Nguyen
-- Darius Koroni
-- Jett Sonoda
-- Garrett Tsumaki
-- Bryan Tran
+- Kevin Dinh (Lead), @KevinDinh01
+- Tien Nguyen, @xiunhon
+- Darius Koroni, @dkoroni
+- Jett Sonoda,@ItsJustJett
+- Garrett Tsumaki, @Dseus4
+- Bryan Tran, @Bryan3838
