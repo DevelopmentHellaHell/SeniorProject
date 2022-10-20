@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "pS8Hr4DeT9ioHB3yj5as0W+K+PZrzqHz/niUjdxnNQMR2wgCjse21ZGVSpcdJ8kzelnRuIJ8oex1wNosKSlXtw==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\tsuma\\Desktop\\school\\CECS491A\\SeniorProject\\src\\mvcTesting\\mvcTesting\\mvcTesting.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\tsuma\\.nuget\\packages\\microsoft.typescript.msbuild\\4.8.4\\microsoft.typescript.msbuild.4.8.4.nupkg.sha512"
+  ],
+  "logs": []
+}
