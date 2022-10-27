@@ -5,7 +5,9 @@ VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Client", "DevelopmentHell.Hubba.Client\DevelopmentHell.Hubba.Client.csproj", "{BACE9CC4-F837-49DD-8572-EE102E1EAB1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Registration", "Registration\Registration.csproj", "{91B3FBDC-0B1D-4C1F-BA0D-99D27F8B93ED}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.Registration", "Registration\DevelopmentHell.Hubba.Registration.csproj", "{91B3FBDC-0B1D-4C1F-BA0D-99D27F8B93ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.Registration.Test", "DevelopmentHell.Hubba.Registration.Test\DevelopmentHell.Hubba.Registration.Test.csproj", "{D8E08993-9EF2-4F07-8223-E3B0991B428E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{91B3FBDC-0B1D-4C1F-BA0D-99D27F8B93ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91B3FBDC-0B1D-4C1F-BA0D-99D27F8B93ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{91B3FBDC-0B1D-4C1F-BA0D-99D27F8B93ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8E08993-9EF2-4F07-8223-E3B0991B428E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8E08993-9EF2-4F07-8223-E3B0991B428E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8E08993-9EF2-4F07-8223-E3B0991B428E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8E08993-9EF2-4F07-8223-E3B0991B428E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

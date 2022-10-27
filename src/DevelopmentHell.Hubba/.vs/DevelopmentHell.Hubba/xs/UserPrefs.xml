@@ -6,17 +6,39 @@
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workbench ActiveDocument="Registration/RegistrationManager.cs">
+    <Files>
+      <File FileName="DevelopmentHell.Hubba.Registration.Test/UnitTest1.cs" Line="48" Column="29" />
+      <File FileName="Registration/RegistrationService (copy).cs" Line="31" Column="13" />
+    </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="DevelopmentHell.Hubba" expanded="True" selected="True">
-            <Node name="DevelopmentHell.Hubba.Registration" expanded="True" />
+          <Node name="DevelopmentHell.Hubba" expanded="True">
+            <Node name="DevelopmentHell.Hubba.Registration" expanded="True">
+              <Node name="RegistrationManager.cs" selected="True" />
+            </Node>
+            <Node name="DevelopmentHell.Hubba.Registration.Test" expanded="True">
+              <Node name="Dependencies" expanded="True" />
+            </Node>
           </Node>
         </State>
       </Pad>
       <Pad Id="MonoDevelop.Debugger.WatchPad">
         <State />
+      </Pad>
+      <Pad Id="MonoDevelop.UnitTesting.TestPad">
+        <State name="__root__">
+          <Node name="DevelopmentHell.Hubba" expanded="True">
+            <Node name="DevelopmentHell.Hubba.Registration.Test" expanded="True">
+              <Node name="DevelopmentHell.Hubba.Registration.Test" expanded="True">
+                <Node name="RegistrationManagerUnitTest" expanded="True">
+                  <Node name="ShouldCheckForValidEmail" selected="True" />
+                </Node>
+              </Node>
+            </Node>
+          </Node>
+        </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
