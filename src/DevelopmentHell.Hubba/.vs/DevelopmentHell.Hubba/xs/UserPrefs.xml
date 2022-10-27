@@ -1,26 +1,24 @@
 ﻿<Properties StartupConfiguration="{BACE9CC4-F837-49DD-8572-EE102E1EAB1C}|Default">
-  <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.ItemProperties.DevelopmentHell.Hubba.Client PreferredExecutionTarget="MonoDevelop.Default" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.Workbench ActiveDocument="Registration/RegistrationManager.cs">
+  <DisabledProjects>
+    <String>Registration/DevelopmentHell.Hubba.Registration.csproj</String>
+  </DisabledProjects>
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.Workbench ActiveDocument="DevelopmentHell.Hubba.Registration.Test/RegistrationManagerUnitTest.cs">
     <Files>
-      <File FileName="DevelopmentHell.Hubba.Registration.Test/UnitTest1.cs" Line="48" Column="29" />
-      <File FileName="Registration/RegistrationService (copy).cs" Line="31" Column="13" />
+      <File FileName="DevelopmentHell.Hubba.Registration/RegistrationManager.cs" Line="11" Column="6" />
+      <File FileName="DevelopmentHell.Hubba.Registration.Test/RegistrationManagerUnitTest.cs" Line="6" Column="17" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="DevelopmentHell.Hubba" expanded="True">
-            <Node name="DevelopmentHell.Hubba.Registration" expanded="True">
-              <Node name="RegistrationManager.cs" selected="True" />
-            </Node>
-            <Node name="DevelopmentHell.Hubba.Registration.Test" expanded="True">
-              <Node name="Dependencies" expanded="True" />
-            </Node>
+            <Node name="DevelopmentHell.Hubba.Registration" expanded="True" />
+            <Node name="DevelopmentHell.Hubba.Registration.Test" expanded="True" />
           </Node>
         </State>
       </Pad>
@@ -29,17 +27,10 @@
       </Pad>
       <Pad Id="MonoDevelop.UnitTesting.TestPad">
         <State name="__root__">
-          <Node name="DevelopmentHell.Hubba" expanded="True">
-            <Node name="DevelopmentHell.Hubba.Registration.Test" expanded="True">
-              <Node name="DevelopmentHell.Hubba.Registration.Test" expanded="True">
-                <Node name="RegistrationManagerUnitTest" expanded="True">
-                  <Node name="ShouldCheckForValidEmail" selected="True" />
-                </Node>
-              </Node>
-            </Node>
-          </Node>
+          <Node name="DevelopmentHell.Hubba" expanded="True" selected="True" />
         </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.ItemProperties.DevelopmentHell.Hubba.Client PreferredExecutionTarget="MonoDevelop.Default" />
 </Properties>

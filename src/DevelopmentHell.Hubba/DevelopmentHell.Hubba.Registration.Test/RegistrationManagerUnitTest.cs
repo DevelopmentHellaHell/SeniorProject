@@ -51,7 +51,6 @@ public class RegistrationManagerUnitTest
         actual1 = user1.ValidateEmail();
         actual2 = user2.ValidateEmail();
 
-
         // Assert
         Assert.IsNotNull(user1.ValidateEmail());
         Assert.IsNotNull(user2.ValidateEmail());

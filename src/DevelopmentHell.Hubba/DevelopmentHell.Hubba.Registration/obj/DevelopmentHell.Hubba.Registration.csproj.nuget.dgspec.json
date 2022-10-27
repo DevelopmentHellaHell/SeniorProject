@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/Registration/DevelopmentHell.Hubba.Registration.csproj": {}
+    "/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Registration/DevelopmentHell.Hubba.Registration.csproj": {}
   },
   "projects": {
-    "/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/Registration/DevelopmentHell.Hubba.Registration.csproj": {
+    "/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Registration/DevelopmentHell.Hubba.Registration.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/Registration/DevelopmentHell.Hubba.Registration.csproj",
+        "projectUniqueName": "/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Registration/DevelopmentHell.Hubba.Registration.csproj",
         "projectName": "Registration",
-        "projectPath": "/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/Registration/DevelopmentHell.Hubba.Registration.csproj",
+        "projectPath": "/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Registration/DevelopmentHell.Hubba.Registration.csproj",
         "packagesPath": "/Users/xiunhon/.nuget/packages/",
-        "outputPath": "/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/Registration/obj/",
+        "outputPath": "/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Registration/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/xiunhon/.nuget/NuGet/NuGet.Config"

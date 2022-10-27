@@ -23,25 +23,15 @@
             this._passphrase = passphrase;
         }
 
-        //public bool ValidateEmail()
-        //{
-        //    //TODO: email contains 1 '@'
-        //    //var result = new Result();
-        //    if (_email.Contains('@'))
-        //    {
-        //        return true;
-        //    }
-        //    return false;
-        //}
-
         public Result ValidateEmail()
         {
-            //TODO: email contains 1 '@'
+            //TODO: email contains only 1 '@', at least '.', a-z, 0-9, no other special char
             var result = new Result();
-            if (_email.Count(x => x == '@') == 1)
+            if (_email.Count(x => x == '@') != 1) //using LINQ
             {
-                result.IsValid = true;
+                result.IsValid = false;
             }
+            result.IsValid = true;
             return result;
         }
     }

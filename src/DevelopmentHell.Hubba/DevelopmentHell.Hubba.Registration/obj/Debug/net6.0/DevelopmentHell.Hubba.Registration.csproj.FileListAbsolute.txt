@@ -10,3 +10,15 @@
 /Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/Registration/obj/Debug/net6.0/refint/Registration.dll
 /Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/Registration/obj/Debug/net6.0/Registration.pdb
 /Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/Registration/obj/Debug/net6.0/ref/Registration.dll
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Registration/bin/Debug/net6.0/Registration.deps.json
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Registration/bin/Debug/net6.0/Registration.dll
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Registration/bin/Debug/net6.0/Registration.pdb
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Registration/obj/Debug/net6.0/DevelopmentHell.Hubba.Registration.csproj.AssemblyReference.cache
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Registration/obj/Debug/net6.0/DevelopmentHell.Hubba.Registration.GeneratedMSBuildEditorConfig.editorconfig
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Registration/obj/Debug/net6.0/DevelopmentHell.Hubba.Registration.AssemblyInfoInputs.cache
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Registration/obj/Debug/net6.0/DevelopmentHell.Hubba.Registration.AssemblyInfo.cs
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Registration/obj/Debug/net6.0/DevelopmentHell.Hubba.Registration.csproj.CoreCompileInputs.cache
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Registration/obj/Debug/net6.0/Registration.dll
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Registration/obj/Debug/net6.0/refint/Registration.dll
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Registration/obj/Debug/net6.0/Registration.pdb
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Registration/obj/Debug/net6.0/ref/Registration.dll

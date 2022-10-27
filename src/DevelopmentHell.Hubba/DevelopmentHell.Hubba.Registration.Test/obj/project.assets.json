@@ -6638,8 +6638,8 @@
     },
     "Registration/1.0.0": {
       "type": "project",
-      "path": "../Registration/DevelopmentHell.Hubba.Registration.csproj",
-      "msbuildProject": "../Registration/DevelopmentHell.Hubba.Registration.csproj"
+      "path": "../DevelopmentHell.Hubba.Registration/DevelopmentHell.Hubba.Registration.csproj",
+      "msbuildProject": "../DevelopmentHell.Hubba.Registration/DevelopmentHell.Hubba.Registration.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -6678,8 +6678,8 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
-            "/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/Registration/DevelopmentHell.Hubba.Registration.csproj": {
-              "projectPath": "/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/Registration/DevelopmentHell.Hubba.Registration.csproj"
+            "/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Registration/DevelopmentHell.Hubba.Registration.csproj": {
+              "projectPath": "/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Registration/DevelopmentHell.Hubba.Registration.csproj"
             }
           }
         }

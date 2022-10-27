@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Registration\DevelopmentHell.Hubba.Registration.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.Registration\DevelopmentHell.Hubba.Registration.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="System.Linq" />
