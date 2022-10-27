@@ -18,6 +18,7 @@
         <State name="__root__">
           <Node name="DevelopmentHell.Hubba" expanded="True">
             <Node name="DevelopmentHell.Hubba.Registration" expanded="True" />
+            <Node name="DevelopmentHell.Hubba.Registration" selected="True" />
             <Node name="DevelopmentHell.Hubba.Registration.Test" expanded="True" />
           </Node>
         </State>
