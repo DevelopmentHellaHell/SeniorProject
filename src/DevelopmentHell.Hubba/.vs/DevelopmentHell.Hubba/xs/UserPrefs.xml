@@ -1,25 +1,24 @@
 ﻿<Properties StartupConfiguration="{BACE9CC4-F837-49DD-8572-EE102E1EAB1C}|Default">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <DisabledProjects>
-    <String>Registration/DevelopmentHell.Hubba.Registration.csproj</String>
-  </DisabledProjects>
   <MultiItemStartupConfigurations />
-  <MonoDevelop.Ide.Workbench ActiveDocument="DevelopmentHell.Hubba.Registration.Test/RegistrationManagerUnitTest.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="DevelopmentHell.Hubba.Registration.Test/RegistrationServiceUnitTest.cs">
     <Files>
-      <File FileName="DevelopmentHell.Hubba.Registration/RegistrationManager.cs" Line="11" Column="6" />
-      <File FileName="DevelopmentHell.Hubba.Registration.Test/RegistrationManagerUnitTest.cs" Line="6" Column="17" />
+      <File FileName="DevelopmentHell.Hubba.Registration/RegistrationManager.cs" Line="41" Column="26" />
+      <File FileName="DevelopmentHell.Hubba.Registration.Test/RegistrationManagerUnitTest.cs" Line="105" Column="1" />
+      <File FileName="DevelopmentHell.Hubba.Registration/Implementation/RegistrationService.cs" Line="8" Column="24" />
+      <File FileName="DevelopmentHell.Hubba.Registration.Test/RegistrationServiceUnitTest.cs" Line="35" Column="15" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="DevelopmentHell.Hubba" expanded="True">
-            <Node name="DevelopmentHell.Hubba.Registration" expanded="True" />
-            <Node name="DevelopmentHell.Hubba.Registration" selected="True" />
-            <Node name="DevelopmentHell.Hubba.Registration.Test" expanded="True" />
+            <Node name="DevelopmentHell.Hubba.Registration" expanded="True">
+              <Node name="Implementation" expanded="True" />
+            </Node>
+            <Node name="DevelopmentHell.Hubba.Registration.Test" expanded="True">
+              <Node name="RegistrationServiceUnitTest.cs" selected="True" />
+            </Node>
           </Node>
         </State>
       </Pad>
@@ -28,10 +27,20 @@
       </Pad>
       <Pad Id="MonoDevelop.UnitTesting.TestPad">
         <State name="__root__">
-          <Node name="DevelopmentHell.Hubba" expanded="True" selected="True" />
+          <Node name="DevelopmentHell.Hubba" expanded="True">
+            <Node name="DevelopmentHell.Hubba.Registration.Test" expanded="True">
+              <Node name="DevelopmentHell.Hubba.Registration.Test" expanded="True" />
+            </Node>
+          </Node>
         </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
+  <DisabledProjects>
+    <String>Registration/DevelopmentHell.Hubba.Registration.csproj</String>
+  </DisabledProjects>
   <MonoDevelop.Ide.ItemProperties.DevelopmentHell.Hubba.Client PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
 </Properties>

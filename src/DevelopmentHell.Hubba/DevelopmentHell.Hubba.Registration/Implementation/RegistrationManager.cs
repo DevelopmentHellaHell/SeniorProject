@@ -34,5 +34,11 @@
             result.IsValid = true;
             return result;
         }
+
+        public Result ValidatePassphrase()
+        {
+            var result = new Result();
+            return result;
+        }
     }
 }

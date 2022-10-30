@@ -7,4 +7,10 @@
     <AssemblyName>Registration</AssemblyName>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Implementation\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Implementation\" />
+  </ItemGroup>
 </Project>
