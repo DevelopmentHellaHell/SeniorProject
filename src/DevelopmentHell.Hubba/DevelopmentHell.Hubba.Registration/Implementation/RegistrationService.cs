@@ -2,31 +2,37 @@
 {
     public class RegistrationService
     {
-        public bool CheckUnusedEmail(string email)
+        public Result CheckUnusedEmail(string email)
         {
             //TODO: call Data Access to look up this email in database
-            return true;
+            var result = new Result();
+
+            return result;
         }
 
-        public String CreateAccount(String email, String passphrase)
+        public Result CreateAccount(string email, string hashedpassphrase)
         {
-            if (email == "" && passphrase == "")
+            var result = new Result();
+            if (email == "" && hashedpassphrase == "")
             {
-                return "Please enter a valid email and passphrase to register";
+                //do something
+                return result;
             }
-            if (CheckUnusedEmail(email) == false)
+            if (CheckUnusedEmail(email).IsValid == false)
             {
-                return "Email provided already exists";
+                //do something
+                return result;
             }
-            var myAccount = new Account(email, passphrase);
+            var myAccount = new Account(email, hashedpassphrase);
             //TODO: call Data Access to INSERT to database
 
-            return "Account created successfully";
+            return result;
         }
-        public string HashPassphrase(string passphrase)
+        public Result HashPassphrase(string passphrase)
         {
-
-            return "";
+            //TODO: use Crytography library
+            var result = new Result();
+            return result;
         }
     }
 }

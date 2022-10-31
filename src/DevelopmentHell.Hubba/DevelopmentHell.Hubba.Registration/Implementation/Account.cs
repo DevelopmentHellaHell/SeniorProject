@@ -7,10 +7,10 @@
         public string Username { get; set; } = string.Empty;
 
         public Account() { }
-        public Account(string email, string hashedpassphrase)
+        public Account(string email, string hashedPassphrase)
         {
             this.Email = email;
-            this.HashedPassphrase = hashedpassphrase;
+            this.HashedPassphrase = hashedPassphrase;
         }
     }
 }
