@@ -2,15 +2,15 @@
 {
     public class Account
     {
-        public String Email { get; set; }
-        public String Passphrase { get; set; }
-        public String Username { get; set; }
+        public string Email { get; set; } = string.Empty;
+        public string HashedPassphrase { get; set; } = string.Empty;
+        public string Username { get; set; } = string.Empty;
 
         public Account() { }
-        public Account(String email, String passphrase)
+        public Account(string email, string hashedpassphrase)
         {
             this.Email = email;
-            this.Passphrase = passphrase;
+            this.HashedPassphrase = hashedpassphrase;
         }
     }
 }

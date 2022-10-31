@@ -86,6 +86,17 @@ public class RegistrationManagerUnitTest
     }
 
     [TestMethod]
+    public void ShouldCheckIfConfirmPassphraseMacthes()
+    {
+        //TODO: check valid passphrase
+        // Actual
+
+        // Act
+
+        // Assert
+    }
+
+    [TestMethod]
     public void ShouldCheckForValidPassphrase()
     {
         //TODO: check valid passphrase

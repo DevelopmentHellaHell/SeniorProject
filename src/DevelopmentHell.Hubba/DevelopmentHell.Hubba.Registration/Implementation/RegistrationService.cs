@@ -2,7 +2,7 @@
 {
     public class RegistrationService
     {
-        public bool CheckUnusedEmail(String email)
+        public bool CheckUnusedEmail(string email)
         {
             //TODO: call Data Access to look up this email in database
             return true;
@@ -22,6 +22,11 @@
             //TODO: call Data Access to INSERT to database
 
             return "Account created successfully";
+        }
+        public string HashPassphrase(string passphrase)
+        {
+
+            return "";
         }
     }
 }
