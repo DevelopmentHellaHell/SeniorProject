@@ -41,9 +41,8 @@ public class RegistrationManagerUnitTest
         goodEmails.Add("joe@home.org");
         goodEmails.Add("joe@joebob.name");
         goodEmails.Add("joe@home.com");
-        goodEmails.Add("joe.bob@home.com");
+        goodEmails.Add("joe.bob@home.co");
         goodEmails.Add("joe_bob@home.com");
-        goodEmails.Add("joe-bob@home.com");
         goodEmails.Add("joe@his.home.place");
         goodEmails.Add("a@abc.org");
         goodEmails.Add("a@abc-xyz.org");
@@ -53,6 +52,7 @@ public class RegistrationManagerUnitTest
         foreach (String goodEmail in goodEmails)
         {
             var expected = new Result();
+            expected.IsValid = true;
         //Act
             var registrationManager = new RegistrationManager(goodEmail, "");
             var actual = registrationManager.ValidateEmail();
@@ -67,26 +67,9 @@ public class RegistrationManagerUnitTest
     {
         // Arrange
         List<String> badEmails = new List<String>();
-        badEmails.Add("joe"); // should fail
-        badEmails.Add("joe@home"); // should fail
-        //badEmails.Add("a@b.c"); // should fail because .c is only one character but must be 2-4 characters
-        badEmails.Add("joe-bob[at]home.com"); // should fail because [at] is not valid
-        badEmails.Add("joe.@bob.com"); // should fail because there is a dot at the end of the local-part
-        badEmails.Add(".joe@bob.com"); // should fail because there is a dot at the beginning of the local-part
-        badEmails.Add("john..doe@bob.com"); // should fail because there are two dots in the local-part
-        badEmails.Add("john.doe@bob..com"); // should fail because there are two dots in the domain
-        badEmails.Add("joe<>bob@bob.com"); // should fail because <> are not valid
-        badEmails.Add("joe&bob@bob.com"); // should fail because & is not valid
-        badEmails.Add("~joe@bob.com"); // should fail because ~ is not valid
-        badEmails.Add("joe$@bob.com"); // should fail because $ is not valid
-        badEmails.Add("joe+bob@bob.com"); // should fail because + is not valid
-        badEmails.Add("o'reilly@there.com"); // should fail because ' is not valid
-        badEmails.Add("joe@his.home.com."); // should fail because it can't end with a period
-        badEmails.Add("john.doe@bob-.com"); // should fail because there is a dash at the start of a domain part
-        badEmails.Add("john.doe@-bob.com"); // should fail because there is a dash at the end of a domain part
-        badEmails.Add("a@10.1.100.1a");  // Should fail because of the extra character
-        badEmails.Add("joe<>bob@bob.com\n"); // should fail because it end with \n
-        badEmails.Add("joe<>bob@bob.com\r"); // should fail because it ends with \r
+        badEmails.Add("joe"); 
+        badEmails.Add("joe@home"); 
+        badEmails.Add("j @@home"); 
 
         foreach (String badEmail in badEmails)
         {
@@ -102,14 +85,31 @@ public class RegistrationManagerUnitTest
     }
 
     [TestMethod]
-    public void ShouldCheckForValidPassphrase()
+    public void ShouldCheckForInvalidPassphrase()
     {
-        //TODO: check valid passphrase
-        // Actual
+        //TODO: check invalid passphrase
+        // Arrange
+        List<String> badPassphrases = new List<String>();
+        badPassphrases.Add("joe"); // length < 8
+        badPassphrases.Add("joe12345"); // no special char
+        badPassphrases.Add("joe.123@"); // no uppercase letter
+        badPassphrases.Add("JOE.123!"); // no lowercase letter
+        badPassphrases.Add("!@#$%^&*"); // no letter, number
+        badPassphrases.Add("joe!@#$%"); // no number
+        badPassphrases.Add("Joe!@#$%"); // no number
+        badPassphrases.Add("1234%^&*"); // no letter
 
-        // Act
-
-        // Assert
+        foreach (String badPassphrase in badPassphrases)
+        {
+            var expected = new Result();
+            expected.IsValid = false;
+            //Act
+            var registrationManager = new RegistrationManager(badPassphrase, "");
+            var actual = registrationManager.ValidatePassphrase();
+            //Assert
+            Assert.IsNotNull(actual);
+            Assert.IsTrue(actual.IsValid == expected.IsValid);
+        }
     }
 
     [TestMethod]
@@ -133,5 +133,6 @@ public class RegistrationManagerUnitTest
 
         // Assert
     }
-
 }
+//References:
+// Email test cases: https://www.rhyous.com/2010/06/15/csharp-email-regular-expression/
