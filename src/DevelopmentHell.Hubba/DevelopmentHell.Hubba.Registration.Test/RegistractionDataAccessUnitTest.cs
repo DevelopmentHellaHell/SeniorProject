@@ -18,7 +18,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.GetType() == expected);
         }
-
+        [TestMethod]
         public void ShouldCreateNewInstanceWithParameterCtor()
         {
             // Arrange
@@ -32,15 +32,26 @@ namespace DevelopmentHell.Hubba.Registration.Test
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.GetType() == expected);
         }
-
+        [TestMethod]
         public void ShouldRegisterNewAccountIntoDatabase()
         {
             // TODO: fill out test case
             // Arrange
+            var expected = typeof(RegistrationDataAccess);
+            var expectedTableName = "Accounts";
+            string email = @"randomEmail@random.com";
+            string passphrase = "c0o1p4s5phra53";
 
             // Act
+            var actual = new RegistrationDataAccess(expectedTableName);
+            DevelopmentHell.Hubba.SqlDataAccess.Result result = actual.RegisterAccount(email, passphrase);
+            //int account_id = (int)(result.Payload);
 
             // Assert
+            Assert.IsNotNull(actual);
+            Assert.IsTrue(actual.GetType() == expected);
+            //Assert.IsTrue((string)(actual.AccessEmail(account_id).Payload) == email);
+            //Assert.IsTrue((string)(actual.AccessPassphrase(account_id).Payload) == passphrase);
         }
         public void ShouldAccessExistingAccountInDatabase()
         {
