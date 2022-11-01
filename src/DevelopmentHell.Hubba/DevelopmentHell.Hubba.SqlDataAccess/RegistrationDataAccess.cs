@@ -81,6 +81,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             {
                 connection.Open();
 
+                // constructing the sql insert statement
                 string insertSql = "INSERT INTO " + tableName + " (";
                 foreach(Object obj in columnNames) 
                 {
@@ -103,10 +104,13 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 insertSql += columnSqlStatement+ ") VALUES ("+ valueSqlStatement +")";
                 var command = new SqlCommand(insertSql, connection);
 
+                // adding parameters for the sql statement command
                 for (int i = 0; i < values.Count; ++i)
                 {
                     command.Parameters.Add(new SqlParameter((string)(columnNames[i]), (string)(values[i])));
                 }
+
+                // executing command in try catch so SQL errors are sent to result.errormessage
                 try
                 {
                     var rows = command.ExecuteNonQuery();
