@@ -41,10 +41,13 @@ namespace DevelopmentHell.Hubba.Registration.Test
             var expectedTableName = "Accounts";
             string email = @"randomEmail@random.com";
             string passphrase = "c0o1p4s5phra53";
+            List<object> values = new List<object>();
+            values.Add(email);
+            values.Add(passphrase);
 
             // Act
             var actual = new RegistrationDataAccess(expectedTableName);
-            DevelopmentHell.Hubba.SqlDataAccess.Result result = actual.RegisterAccount(email, passphrase);
+            DevelopmentHell.Hubba.SqlDataAccess.Result result = actual.InsertNewAccount("DevelopmentHell.Hubba.Accounts", "accounts", values);
             //int account_id = (int)(result.Payload);
 
             // Assert
