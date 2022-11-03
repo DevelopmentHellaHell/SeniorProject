@@ -39,7 +39,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
             // Arrange
             var expected = typeof(RegistrationDataAccess);
             var expectedTableName = "Accounts";
-            string email = @"randomEmail@random.com";
+            string email = @"secondEmail@random.com";
             string passphrase = "c0o1p4s5phra53";
             List<object> values = new List<object>();
             values.Add(email);
@@ -48,6 +48,27 @@ namespace DevelopmentHell.Hubba.Registration.Test
             // Act
             var actual = new RegistrationDataAccess(expectedTableName);
             DevelopmentHell.Hubba.SqlDataAccess.Result result = actual.InsertNewAccount("DevelopmentHell.Hubba.Accounts", "accounts", values);
+            //int account_id = (int)(result.Payload);
+
+            // Assert
+            Assert.IsNotNull(actual);
+            Assert.IsTrue(actual.GetType() == expected);
+            //Assert.IsTrue((string)(actual.AccessEmail(account_id).Payload) == email);
+            //Assert.IsTrue((string)(actual.AccessPassphrase(account_id).Payload) == passphrase);
+        }
+        [TestMethod]
+        public void ShouldUpdateAccountInDatabase()
+        {
+            // TODO: fill out test case
+            // Arrange
+            var expected = typeof(RegistrationDataAccess);
+            var expectedTableName = "Accounts";
+            string email = @"randomEmail@random.com";
+            string username = "SuperAmazingAwesomeUsername";
+
+            // Act
+            var actual = new RegistrationDataAccess(expectedTableName);
+            DevelopmentHell.Hubba.SqlDataAccess.Result result = actual.UpdateAccountUsername("DevelopmentHell.Hubba.Accounts", "accounts", email, username);
             //int account_id = (int)(result.Payload);
 
             // Assert
