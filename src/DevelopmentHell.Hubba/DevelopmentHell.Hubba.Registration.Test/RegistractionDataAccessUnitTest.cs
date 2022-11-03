@@ -23,10 +23,11 @@ namespace DevelopmentHell.Hubba.Registration.Test
         {
             // Arrange
             var expected = typeof(RegistrationDataAccess);
+            var expectedDatabaseName = "DevelopmentHell.Hubba.Accounts";
             var expectedTableName = "Accounts";
 
             // Act
-            var actual = new RegistrationDataAccess(expectedTableName);
+            var actual = new RegistrationDataAccess(expectedDatabaseName, expectedTableName);
 
             // Assert
             Assert.IsNotNull(actual);
@@ -39,15 +40,16 @@ namespace DevelopmentHell.Hubba.Registration.Test
             // Arrange
             var expected = typeof(RegistrationDataAccess);
             var expectedTableName = "Accounts";
-            string email = @"secondEmail@random.com";
+            var expectedDatabaseName = "DevelopmentHell.Hubba.Accounts";
+            string email = @"thirdEmail@random.com";
             string passphrase = "c0o1p4s5phra53";
-            List<object> values = new List<object>();
-            values.Add(email);
-            values.Add(passphrase);
+            Dictionary<string, string> newUserAccountCredentials = new Dictionary<string, string>();
+            newUserAccountCredentials.Add("email", email);
+            newUserAccountCredentials.Add("passphrase", passphrase);
 
             // Act
-            var actual = new RegistrationDataAccess(expectedTableName);
-            DevelopmentHell.Hubba.SqlDataAccess.Result result = actual.InsertNewAccount("DevelopmentHell.Hubba.Accounts", "accounts", values);
+            var actual = new RegistrationDataAccess(expectedDatabaseName, expectedTableName);
+            DevelopmentHell.Hubba.SqlDataAccess.Result result = actual.InsertNewAccount(newUserAccountCredentials);
             //int account_id = (int)(result.Payload);
 
             // Assert
@@ -63,12 +65,14 @@ namespace DevelopmentHell.Hubba.Registration.Test
             // Arrange
             var expected = typeof(RegistrationDataAccess);
             var expectedTableName = "Accounts";
-            string email = @"randomEmail@random.com";
-            string username = "SuperAmazingAwesomeUsername";
+            var expectedDatabaseName = "DevelopmentHell.Hubba.Accounts";
+            string email = @"secondEmail@random.com";
+            string username = "secondbestusername" +
+                "";
 
             // Act
-            var actual = new RegistrationDataAccess(expectedTableName);
-            DevelopmentHell.Hubba.SqlDataAccess.Result result = actual.UpdateAccountUsername("DevelopmentHell.Hubba.Accounts", "accounts", email, username);
+            var actual = new RegistrationDataAccess(expectedDatabaseName,expectedTableName);
+            DevelopmentHell.Hubba.SqlDataAccess.Result result = actual.UpdateAccountUsername(email, username);
             //int account_id = (int)(result.Payload);
 
             // Assert
