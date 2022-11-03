@@ -11,7 +11,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             Faulty = 2
         }*/
 
-    public class RegistrationDataAccess : IDataAccessInsert
+    public class RegistrationDataAccess : IDataAccessInsert, IDataAccessUpdate
     {
         public RegistrationDataAccess()
         {
@@ -117,6 +117,83 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         }
 
+        public Result UpdateAccountUsername(string databaseName, string tableName, string email, string username)
+        {
+            var result = new Result();
+            List<Object> columnNames = new List<object>();
+            List<Object> values = new List<object>();
+
+
+            columnNames.Add("username");
+            values.Add(username);
+            result = Update(databaseName, tableName, "email", email, columnNames, values);
+            return result;
+        }
+
+        //TODO FILL THIS OUT LATER
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="databaseName"></param>
+        /// <param name="tableName"></param>
+        /// <param name="keyName"></param>
+        /// <param name="keyValue"></param>
+        /// <param name="columnNames"></param>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public Result Update(string databaseName, string tableName, string keyName, string keyValue, List<Object> columnNames, List<Object> values)
+        {
+
+            var result = new Result();
+            // TODO: CHANGE ENCRYPT TO TRUE FOR ACTUAL SERVER IMPLEMENTATION
+            var connectionString = @"Server=localhost\SQLEXPRESS;Database=" + databaseName + "; Integrated Security=True;Encrypt=False";
+
+            string columnName = string.Empty;
+            string columnSqlStatement = String.Empty;
+            string valueSqlStatement = String.Empty;
+            string value = string.Empty;
+            string parameter = string.Empty;
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                // constructing the sql insert statement
+                string insertSql = "UPDATE " + tableName + " SET " + BuildUpdateSqlString(columnNames) + " WHERE " + keyName +" = @" + keyName ;
+                Console.WriteLine(insertSql);
+                var command = new SqlCommand(insertSql, connection);
+                command.Parameters.Add(new SqlParameter(keyName, keyValue));
+
+                // adding parameters for the sql statement command
+                for (int i = 0; i < values.Count; ++i)
+                {
+                    command.Parameters.Add(new SqlParameter((string)(columnNames[i]), (string)(values[i])));
+                }
+
+                // executing command in try catch so SQL errors are sent to result.errormessage
+                try
+                {
+                    var rows = command.ExecuteNonQuery();
+                    if (rows == 1)
+                    {
+                        result.IsSuccessful = true;
+                        //result.Payload = account_id;
+                        return result;
+                    }
+                    result.IsSuccessful = false;
+                    result.ErrorMessage = $"Rows affected was not 1. It was {rows}";
+                    return result;
+                }
+                catch (Exception e)
+                {
+                    result.ErrorMessage = e.Message;
+                }
+
+                result.IsSuccessful = false;
+                return result;
+            }
+        }
+
         public Result AccessEmail(int account_id)
         {
             //TODO: RETURN EMAIL 
@@ -140,7 +217,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// </summary>
         /// <param name="columnNames">The column names corresponding to the table and values for the sql statement</param>
         /// <returns>Constructed string of column headers for use in the sql statement</returns>
-        string BuildColumnSqlString(List<object> columnNames)
+        private string BuildColumnSqlString(List<object> columnNames)
         {
             bool firstValue = true;
             StringBuilder sb = new StringBuilder();
@@ -169,7 +246,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// </summary>
         /// <param name="columnNames">The column names corresponding to the table and values for the sql statement</param>
         /// <returns>Constructed string of values for use in the sql statement</returns>
-        string BuildValueSqlString(List<object> columnNames)
+        private string BuildValueSqlString(List<object> columnNames)
         {
             bool firstValue = true;
             string columnName = string.Empty;
@@ -192,5 +269,29 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
             return sb.ToString();
         }
+        private string BuildUpdateSqlString(List<object> columnNames)
+        {
+            bool firstValue = true;
+            string columnName = string.Empty;
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < columnNames.Count; i++)
+            {
+                if (columnNames[i] is not null)
+                {
+                    columnName = (string)columnNames[i];
+                }
+                if (firstValue == true)
+                {
+                    sb.Append(columnName + " = @" + columnName);
+                    firstValue = false;
+                }
+                else
+                {
+                    sb.Append(", " +columnName + " = @" + columnName);
+                }
+            }
+            return sb.ToString();
+        }
+
     }
 }
