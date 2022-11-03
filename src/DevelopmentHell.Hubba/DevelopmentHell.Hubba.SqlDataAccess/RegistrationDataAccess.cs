@@ -23,7 +23,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// <summary>
         /// Insert an email and passphrase into the method and returns a result
         /// </summary>
-        /// <param name="dataBaseName">Name of the database that is being accessed</param>
+        /// <param name="databaseName">Name of the database that is being accessed</param>
         /// <param name="tableName">Table of the database that values are inserted into</param>
         /// <param name="values">Values added to the database. In this case it should only be email and passphrase hash</param>
         /// <returns>Result of SQL insertion statement into the Registration database of a new Account. 
@@ -31,8 +31,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// ErrorMessage contains any error codes if the insertion failed,
         /// Payload is empty
         /// </returns>
-        /// 
-        public Result InsertNewAccount(string databaseName, string tableName, List<Object> values)
+         public Result InsertNewAccount(string databaseName, string tableName, List<Object> values)
         {
             var result = new Result();
             List<Object> columnNames = new List<object>();
@@ -56,7 +55,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// <summary>
         /// This method inserts the values into the specified table at the specified database, assuming ALL VALUES ARE STRINGS
         /// </summary>
-        /// <param name="dataBaseName">Name of the database that is being accessed</param>
+        /// <param name="databaseName">Name of the database that is being accessed</param>
         /// <param name="tableName">Table of the database that values are inserted into</param>
         /// <param name="columnNames">Name of the columns that correspond to the values</param>
         /// <param name="values">List of the values being added, MUST BE STRINGS</param>
@@ -83,7 +82,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
                 // constructing the sql insert statement
                 string insertSql = "INSERT INTO " + tableName + " (" + BuildColumnSqlString(columnNames) + ") VALUES (" + BuildValueSqlString(columnNames) + ")";
-                Console.WriteLine(insertSql);
                 var command = new SqlCommand(insertSql, connection);
 
                 // adding parameters for the sql statement command
@@ -117,6 +115,18 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         }
 
+        /// <summary>
+        /// Insert a username into a corresponding email in the accounts table
+        /// </summary>
+        /// <param name="databaseName">Name of the database that is being accessed</param>
+        /// <param name="tableName">Table of the database that values are inserted into</param>
+        /// <param name="email">Values added to the database. In this case it should only be email and passphrase hash</param>
+        /// <param name="username">Values added to the database. In this case it should only be email and passphrase hash</param>
+        /// <returns>Result of SQL insertion statement into the Registration database of a new Account. 
+        /// IsSuccessful is whether the insertion succeeded,
+        /// ErrorMessage contains any error codes if the insertion failed,
+        /// Payload is empty
+        /// </returns>
         public Result UpdateAccountUsername(string databaseName, string tableName, string email, string username)
         {
             var result = new Result();
@@ -130,17 +140,20 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return result;
         }
 
-        //TODO FILL THIS OUT LATER
         /// <summary>
-        /// 
+        /// Updates the database based on the name of the database, table name, the key value pair, and whatever needs to be
+        /// set in the database.
         /// </summary>
-        /// <param name="databaseName"></param>
-        /// <param name="tableName"></param>
-        /// <param name="keyName"></param>
-        /// <param name="keyValue"></param>
-        /// <param name="columnNames"></param>
-        /// <param name="values"></param>
-        /// <returns></returns>
+        /// <param name="databaseName">Name of the database that is being accessed</param>
+        /// <param name="tableName">Table of the database that values are inserted into</param>
+        /// <param name="keyName">Name of the key being used to locate the row in the database</param>
+        /// <param name="keyValue">Value of the key being used to locate the row in the database</param>
+        /// <param name="columnNames">Names of columns which are going to be updated</param>
+        /// <param name="values">Values corresponding to the columns which are going to be updated</param>
+        /// <returns>Result of SQL update statement into the database. 
+        /// IsSuccessful is whether the insertion succeeded,
+        /// ErrorMessage contains any error codes if the insertion failed,
+        /// Payload is empty</returns>
         public Result Update(string databaseName, string tableName, string keyName, string keyValue, List<Object> columnNames, List<Object> values)
         {
 
@@ -160,7 +173,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
                 // constructing the sql insert statement
                 string insertSql = "UPDATE " + tableName + " SET " + BuildUpdateSqlString(columnNames) + " WHERE " + keyName +" = @" + keyName ;
-                Console.WriteLine(insertSql);
                 var command = new SqlCommand(insertSql, connection);
                 command.Parameters.Add(new SqlParameter(keyName, keyValue));
 
@@ -213,10 +225,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         }
 
         /// <summary>
-        /// Helper method used to construct the string which is used for column names in sql statements
+        /// Helper method used to construct the string which is used for column names in insert sql statements
         /// </summary>
-        /// <param name="columnNames">The column names corresponding to the table and values for the sql statement</param>
-        /// <returns>Constructed string of column headers for use in the sql statement</returns>
+        /// <param name="columnNames">The column names corresponding to the table and values for the insert sql statement</param>
+        /// <returns>Constructed string of column headers for use in the insert sql statement</returns>
         private string BuildColumnSqlString(List<object> columnNames)
         {
             bool firstValue = true;
@@ -242,10 +254,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         }
 
         /// <summary>
-        /// Helper method used to construct the string which is used for values in sql statements
+        /// Helper method used to construct the string which is used for values in insert sql statements
         /// </summary>
-        /// <param name="columnNames">The column names corresponding to the table and values for the sql statement</param>
-        /// <returns>Constructed string of values for use in the sql statement</returns>
+        /// <param name="columnNames">The column names corresponding to the table and values for the insert sql statement</param>
+        /// <returns>Constructed string of values for use in the insert sql statement</returns>
         private string BuildValueSqlString(List<object> columnNames)
         {
             bool firstValue = true;
@@ -269,6 +281,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
             return sb.ToString();
         }
+        /// <summary>
+        /// Helper method used to construct the string which is used for column names in update sql statements
+        /// </summary>
+        /// <param name="columnNames">The column names corresponding to the table and values for the update sql statement</param>
+        /// <returns>Constructed string of column headers for use in the update sql statement</returns>
         private string BuildUpdateSqlString(List<object> columnNames)
         {
             bool firstValue = true;
