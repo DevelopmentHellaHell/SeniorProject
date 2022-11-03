@@ -9,6 +9,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 {
     internal interface IDataAccessInsert : IDataAccess
     {
-        Result Insert(string databaseName, string tableName, List<Object> columnNames, List<Object> values);
+        Result Insert(Dictionary<string, string> sqlPairDict);
     }
 }
