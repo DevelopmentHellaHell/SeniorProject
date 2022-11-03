@@ -8,7 +8,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 {
     internal interface IDataAccessUpdate : IDataAccess
     {
-        Result Update(string keyName, string keyValue, List<Object> columnNames, List<Object> values);
+        Result Update(string keyName, string keyValue, Dictionary<string, string> sqlPairDict);
 
     }
 }

@@ -26,9 +26,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// <summary>
         /// Insert an email and passphrase into the method and returns a result
         /// </summary>
-        /// <param name="databaseName">Name of the database that is being accessed</param>
-        /// <param name="tableName">Table of the database that values are inserted into</param>
-        /// <param name="values">Values added to the database. In this case it should only be email and passphrase hash</param>
+        /// <param name="KeyValueSqlPair">Values added to the database. In this case it should only be email and passphrase hash</param>
         /// <returns>Result of SQL insertion statement into the Registration database of a new Account. 
         /// IsSuccessful is whether the insertion succeeded,
         /// ErrorMessage contains any error codes if the insertion failed,
@@ -43,10 +41,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// <summary>
         /// This method inserts the values into the specified table at the specified database, assuming ALL VALUES ARE STRINGS
         /// </summary>
-        /// <param name="databaseName">Name of the database that is being accessed</param>
-        /// <param name="tableName">Table of the database that values are inserted into</param>
-        /// <param name="columnNames">Name of the columns that correspond to the values</param>
-        /// <param name="values">List of the values being added, MUST BE STRINGS</param>
+        /// <param name="sqlPairDict">Column value pairs of information to be inserted into the database</param>
         /// <returns>Result of SQL insertion statement into the database. 
         /// IsSuccessful is whether the insertion succeeded,
         /// ErrorMessage contains any error codes if the insertion failed,
@@ -111,13 +106,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         public Result UpdateAccountUsername(string email, string username)
         {
             var result = new Result();
-            List<Object> columnNames = new List<object>();
-            List<Object> values = new List<object>();
-
-
-            columnNames.Add("username");
-            values.Add(username);
-            result = Update("email", email, columnNames, values);
+            Dictionary<string, string> sqlPairDict = new()
+            {
+                { "username", username }
+            };
+            result = Update("email", email, sqlPairDict);
             return result;
         }
 
@@ -135,32 +128,26 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// IsSuccessful is whether the insertion succeeded,
         /// ErrorMessage contains any error codes if the insertion failed,
         /// Payload is empty</returns>
-        public Result Update(string keyName, string keyValue, List<Object> columnNames, List<Object> values)
+        public Result Update(string keyName, string keyValue, Dictionary<string, string> sqlPairDict)
         {
 
             var result = new Result();
             // TODO: CHANGE ENCRYPT TO TRUE FOR ACTUAL SERVER IMPLEMENTATION
             var connectionString = @"Server=localhost\SQLEXPRESS;Database=" + _databaseName + "; Integrated Security=True;Encrypt=False";
 
-            string columnName = string.Empty;
-            string columnSqlStatement = String.Empty;
-            string valueSqlStatement = String.Empty;
-            string value = string.Empty;
-            string parameter = string.Empty;
-
             using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
 
                 // constructing the sql insert statement
-                string insertSql = "UPDATE " + _tableName + " SET " + BuildUpdateSqlString(columnNames) + " WHERE " + keyName +" = @" + keyName ;
+                string insertSql = "UPDATE " + _tableName + " SET " + BuildUpdateSqlString(sqlPairDict) + " WHERE " + keyName + " = @" + keyName;
                 var command = new SqlCommand(insertSql, connection);
                 command.Parameters.Add(new SqlParameter(keyName, keyValue));
 
                 // adding parameters for the sql statement command
-                for (int i = 0; i < values.Count; ++i)
+                foreach (var pair in sqlPairDict)
                 {
-                    command.Parameters.Add(new SqlParameter((string)(columnNames[i]), (string)(values[i])));
+                    command.Parameters.Add(new SqlParameter(pair.Key, pair.Value));
                 }
 
                 // executing command in try catch so SQL errors are sent to result.errormessage
@@ -209,7 +196,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// </summary>
         /// <param name="columnNames">The column names corresponding to the table and values for the insert sql statement</param>
         /// <returns>Constructed string of values for use in the insert sql statement</returns>
-        private string BuildInsertSqlString(Dictionary<string, string> sqlPairDict)
+        private static string BuildInsertSqlString(Dictionary<string, string> sqlPairDict)
         {
             bool firstValue = true;
             StringBuilder sbColumn = new StringBuilder();
@@ -237,25 +224,20 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// </summary>
         /// <param name="columnNames">The column names corresponding to the table and values for the update sql statement</param>
         /// <returns>Constructed string of column headers for use in the update sql statement</returns>
-        private string BuildUpdateSqlString(List<object> columnNames)
+        private static string BuildUpdateSqlString(Dictionary<string, string> sqlPairDict)
         {
             bool firstValue = true;
-            string columnName = string.Empty;
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < columnNames.Count; i++)
+            StringBuilder sb = new();
+            foreach (var pair in sqlPairDict)
             {
-                if (columnNames[i] is not null)
-                {
-                    columnName = (string)columnNames[i];
-                }
                 if (firstValue == true)
                 {
-                    sb.Append(columnName + " = @" + columnName);
+                    sb.Append(pair.Key + " = @" + pair.Key);
                     firstValue = false;
                 }
                 else
                 {
-                    sb.Append(", " +columnName + " = @" + columnName);
+                    sb.Append(", " + pair.Key + " = @" + pair.Key);
                 }
             }
             return sb.ToString();
