@@ -1,4 +1,6 @@
 ﻿using DevelopmentHell.Hubba.SqlDataAccess;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel;
+using System.Data;
 
 namespace DevelopmentHell.Hubba.Registration.Test
 {
@@ -34,12 +36,14 @@ namespace DevelopmentHell.Hubba.Registration.Test
             string passphrase = "c0o1p4s5phra53";
             DateTime last_interaction = DateTime.Now;
             bool admin_account = false;
-            Dictionary<string, object> newUserAccountCredentials = new Dictionary<string, object>();
-            newUserAccountCredentials.Add("username", username);
-            newUserAccountCredentials.Add("email", email);
-            newUserAccountCredentials.Add("passphrase", passphrase);
-            newUserAccountCredentials.Add("last_interaction", last_interaction);
-            newUserAccountCredentials.Add("admin_account", admin_account);
+            Dictionary<string, object> newUserAccountCredentials = new()
+            {
+                { "username", username },
+                { "email", email },
+                { "passphrase", passphrase },
+                { "last_interaction", last_interaction },
+                { "admin_account", admin_account }
+            };
 
             // Act
             var actual = new InsertDataAccess(connectionString);
@@ -60,11 +64,10 @@ namespace DevelopmentHell.Hubba.Registration.Test
             var expectedDatabaseName = "DevelopmentHell.Hubba.Accounts";
             var connectionString = String.Format(@"Server=localhost\SQLEXPRESS;Database={0};Integrated Security=True;Encrypt=False", expectedDatabaseName);
             string email = @"Email@random.com";
-            int age = 28;
             Tuple<string, object> key = new Tuple<string, object>("email", email);
             Dictionary<string, object> values = new()
             {
-                { "age", age }
+                { "age", 28 }
             };
 
             // Act
@@ -78,14 +81,63 @@ namespace DevelopmentHell.Hubba.Registration.Test
             //Assert.IsTrue((string)(actual.AccessEmail(account_id).Payload) == email);
             //Assert.IsTrue((string)(actual.AccessPassphrase(account_id).Payload) == passphrase);
         }
+        [TestMethod]
         public void ShouldAccessExistingAccountInDatabase()
         {
             // TODO: fill out test case
             // Arrange
+            var expected = typeof(SelectDataAccess);
+            var expectedTableName = "Accounts";
+            var expectedDatabaseName = "DevelopmentHell.Hubba.Accounts";
+            var connectionString = String.Format(@"Server=localhost\SQLEXPRESS;Database={0};Integrated Security=True;Encrypt=False", expectedDatabaseName);
+            Dictionary<string, object> values = new()
+            {
+                { "age", 28 }
+            };
+            List<string> expectedColumns = new()
+            {
+                "email",
+                "username",
+                "age"
+            };
+            string username = "coolkoala";
+            string email = @"Email@random.com";
+            string passphrase = "c0o1p4s5phra53";
+            DateTime last_interaction = DateTime.Now;
+            bool admin_account = false;
+            Dictionary<string, object> newUserAccountCredentials = new()
+            {
+                { "username", username },
+                { "email", email },
+                { "passphrase", passphrase },
+                { "last_interaction", last_interaction },
+                { "admin_account", admin_account }
+            };
+            var actualInsert = new InsertDataAccess(connectionString);
+            actualInsert.Insert(expectedTableName, newUserAccountCredentials);
+
 
             // Act
+            var actual = new SelectDataAccess(connectionString);
+            DevelopmentHell.Hubba.SqlDataAccess.Result result = actual.Select(expectedTableName, expectedColumns, values);
+            if (result is not null)
+            {
+                if (result.Payload is not null)
+                {
+                    List<List<object>> payload = (List<List<object>>)result.Payload;
+                    
+                    foreach(var row in payload)
+                    {
+                        Assert.IsTrue((string)row[0] == "Email@random.com");
+                        Assert.IsTrue((string)row[1] == "coolkoala");
+                        Assert.IsTrue((int)row[2] == 28);
+                    }
+                }
+            }
 
             // Assert
+            Assert.IsNotNull(actual);
+            Assert.IsTrue(actual.GetType() == expected);
         }
     }
 
