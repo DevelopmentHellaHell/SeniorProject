@@ -3,14 +3,6 @@ using System.Text;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
-
-    /*    public enum ResultStatus
-        {
-            Unknown = 0,
-            Success = 1,
-            Faulty = 2
-        }*/
-
     public class UpdateDataAccess
     {
         private string connectionPath;
@@ -35,7 +27,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
             catch(Exception e)
             {
-                return new Result();
+                return new Result(false, e.Message);
             }
         }
 
@@ -58,7 +50,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     insertQuery.Parameters.Add(new SqlParameter(pair.Key, (pair.Value)));
                 }
                 insertQuery.Parameters.Add(new SqlParameter(key.Item1, (key.Item2)));
-                insertQuery.CommandText = String.Format("Update {0} SET {1} WHERE {2} = {3}", table, sb.ToString(), key.Item1, key.Item1);
+                insertQuery.CommandText = String.Format("UPDATE {0} SET {1} WHERE {2} = {3}", table, sb.ToString(), key.Item1, key.Item1);
 
                 return SendQuery(insertQuery);
             }
