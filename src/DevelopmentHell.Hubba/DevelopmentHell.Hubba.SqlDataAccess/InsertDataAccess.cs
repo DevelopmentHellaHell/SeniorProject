@@ -3,11 +3,18 @@ using System.Collections.Generic;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
+    //TODO: move class Result into a new project called DevelopmentHell.Hubba.Models 
     public class Result
     {
         public bool IsSuccessful { get; set; }
-        public string ErrorMessage { get; set; } = string.Empty;
+        public string ErrorMessage { get; set; }
         public object? Payload { get; set; }
+        public Result(bool IsSuccessful = true, string ErrorMessage = "", object? Payload = null)
+        {
+            this.IsSuccessful = IsSuccessful;
+            this.ErrorMessage = ErrorMessage;
+            this.Payload = Payload;
+        }
 
     }
     public class InsertDataAccess
@@ -33,7 +40,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
             catch(Exception e)
             {
-                return new Result();
+                return new Result(false, e.Message);
             }
         }
 
