@@ -31,7 +31,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 // TODO: figure out what to fill these with
                 return new Result();
             }
-            catch
+            catch(Exception e)
             {
                 return new Result();
             }
@@ -56,7 +56,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     valueString += '@' + pair.Key;
 
 
-                    insertQuery.Parameters.Add(new SqlParameter(pair.Key, (string)(pair.Value)));
+                    insertQuery.Parameters.Add(new SqlParameter(pair.Key, (pair.Value)));
                 }
                 insertQuery.CommandText = String.Format("INSERT into {0}({1}) VALUES ({2})", table, columnString, valueString);
 

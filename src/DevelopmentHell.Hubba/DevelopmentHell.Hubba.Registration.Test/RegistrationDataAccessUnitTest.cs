@@ -29,11 +29,17 @@ namespace DevelopmentHell.Hubba.Registration.Test
             var expectedTableName = "Accounts";
             var expectedDatabaseName = "DevelopmentHell.Hubba.Accounts";
             var connectionString = String.Format(@"Server=localhost\SQLEXPRESS;Database={0};Integrated Security=True;Encrypt=False", expectedDatabaseName);
+            string username = "coolkoala";
             string email = @"Email@random.com";
             string passphrase = "c0o1p4s5phra53";
+            DateTime last_interaction = DateTime.Now;
+            bool admin_account = false;
             Dictionary<string, object> newUserAccountCredentials = new Dictionary<string, object>();
+            newUserAccountCredentials.Add("username", username);
             newUserAccountCredentials.Add("email", email);
             newUserAccountCredentials.Add("passphrase", passphrase);
+            newUserAccountCredentials.Add("last_interaction", last_interaction);
+            newUserAccountCredentials.Add("admin_account", admin_account);
 
             // Act
             var actual = new InsertDataAccess(connectionString);
@@ -54,11 +60,11 @@ namespace DevelopmentHell.Hubba.Registration.Test
             var expectedDatabaseName = "DevelopmentHell.Hubba.Accounts";
             var connectionString = String.Format(@"Server=localhost\SQLEXPRESS;Database={0};Integrated Security=True;Encrypt=False", expectedDatabaseName);
             string email = @"Email@random.com";
-            string username = "secondbestusername";
+            int age = 28;
             Tuple<string, object> key = new Tuple<string, object>("email", email);
             Dictionary<string, object> values = new()
             {
-                { "username", username }
+                { "age", age }
             };
 
             // Act

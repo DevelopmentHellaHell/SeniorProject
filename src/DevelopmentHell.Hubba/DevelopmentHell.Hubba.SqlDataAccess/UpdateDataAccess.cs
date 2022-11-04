@@ -35,8 +35,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
             catch(Exception e)
             {
-                Console.WriteLine(e.Message);
-
                 return new Result();
             }
         }
@@ -57,10 +55,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     first = false;
                     sb.Append(pair.Key + " = @" + pair.Key);
 
-                    insertQuery.Parameters.Add(new SqlParameter(pair.Key, (string)(pair.Value)));
+                    insertQuery.Parameters.Add(new SqlParameter(pair.Key, (pair.Value)));
                 }
-                insertQuery.Parameters.Add(new SqlParameter(key.Item1, (string)(key.Item2)));
-                Console.WriteLine(String.Format("Update {0} SET {1} WHERE {2} = {3}", table, sb.ToString(), key.Item1, key.Item1));
+                insertQuery.Parameters.Add(new SqlParameter(key.Item1, (key.Item2)));
                 insertQuery.CommandText = String.Format("Update {0} SET {1} WHERE {2} = {3}", table, sb.ToString(), key.Item1, key.Item1);
 
                 return SendQuery(insertQuery);
