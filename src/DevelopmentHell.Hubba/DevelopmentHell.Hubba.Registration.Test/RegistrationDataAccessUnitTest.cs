@@ -134,6 +134,19 @@ namespace DevelopmentHell.Hubba.Registration.Test
                     }
                 }
             }
+            result = actual.Select(expectedTableName, new List<string>{ "COUNT(username)"}, values);
+            if (result is not null)
+            {
+                if (result.Payload is not null)
+                {
+                    List<List<object>> payload = (List<List<object>>)result.Payload;
+
+                    foreach (var row in payload)
+                    {
+                        Assert.IsTrue((int)row[0] == 1);
+                    }
+                }
+            }
 
             // Assert
             Assert.IsNotNull(actual);
