@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DevelopmentHell.Hubba.Registration\DevelopmentHell.Hubba.Registration.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.Models\DevelopmentHell.Hubba.Models.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.SqlDataAccess\DevelopmentHell.Hubba.SqlDataAccess.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="System.Linq" />
