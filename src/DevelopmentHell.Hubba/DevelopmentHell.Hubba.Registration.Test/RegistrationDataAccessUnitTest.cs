@@ -120,6 +120,9 @@ namespace DevelopmentHell.Hubba.Registration.Test
             // Act
             var actual = new SelectDataAccess(connectionString);
             DevelopmentHell.Hubba.SqlDataAccess.Result result = actual.Select(expectedTableName, expectedColumns, values);
+            result = actual.Select(expectedTableName, new List<string>{ "COUNT(username)"}, values);
+
+            // Assert
             if (result is not null)
             {
                 if (result.Payload is not null)
@@ -134,7 +137,6 @@ namespace DevelopmentHell.Hubba.Registration.Test
                     }
                 }
             }
-            result = actual.Select(expectedTableName, new List<string>{ "COUNT(username)"}, values);
             if (result is not null)
             {
                 if (result.Payload is not null)
@@ -147,8 +149,6 @@ namespace DevelopmentHell.Hubba.Registration.Test
                     }
                 }
             }
-
-            // Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.GetType() == expected);
         }
