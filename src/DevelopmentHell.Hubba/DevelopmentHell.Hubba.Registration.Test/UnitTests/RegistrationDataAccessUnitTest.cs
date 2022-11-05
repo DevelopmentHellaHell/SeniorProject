@@ -98,8 +98,8 @@ namespace DevelopmentHell.Hubba.Registration.Test
                 "username",
                 "age"
             };
-            string username = "coolkoala";
-            string email = @"Email@random.com";
+            string username = "sillysnail";
+            string email = @"snackinglobsters@random.com";
             string passphrase = "c0o1p4s5phra53";
             DateTime last_interaction = DateTime.Now;
             bool admin_account = false;
@@ -109,7 +109,9 @@ namespace DevelopmentHell.Hubba.Registration.Test
                 { "email", email },
                 { "passphrase", passphrase },
                 { "last_interaction", last_interaction },
-                { "admin_account", admin_account }
+                { "admin_account", admin_account },
+                { "age", 28 }
+
             };
             var actualInsert = new InsertDataAccess(connectionString);
             actualInsert.Insert(expectedTableName, newUserAccountCredentials);
@@ -127,12 +129,16 @@ namespace DevelopmentHell.Hubba.Registration.Test
                 {
                     List<List<object>> payload = (List<List<object>>)result.Payload;
                     
-                    foreach(var row in payload)
-                    {
-                        Assert.IsTrue((string)row[0] == "Email@random.com");
-                        Assert.IsTrue((string)row[1] == "coolkoala");
-                        Assert.IsTrue((int)row[2] == 28);
-                    }
+                    // existing account in database
+                    Assert.IsTrue((string)payload[0][0] == "Email@random.com");
+                    Assert.IsTrue((string)payload[0][1] == "coolkoala");
+                    Assert.IsTrue((int)payload[0][2] == 28);
+
+                    // new account in database
+                    Assert.IsTrue((string)payload[1][0] == "snackinglobsters@random.com");
+                    Assert.IsTrue((string)payload[1][1] == "sillysnail");
+                    Assert.IsTrue((int)payload[1][2] == 28);
+
                 }
             }
             if (result2 is not null)
@@ -143,7 +149,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
 
                     foreach (var row in payload)
                     {
-                        Assert.IsTrue((int)row[0] == 1);
+                        Assert.IsTrue((int)row[0] == 2);
                     }
                 }
             }
