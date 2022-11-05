@@ -13,6 +13,8 @@
         public Result CreateAccount(string email, string hashedpassphrase)
         {
             var result = new Result();
+            result.IsSuccessful = false;
+
             if (email == "" && hashedpassphrase == "")
             {
                 //do something
@@ -32,6 +34,7 @@
         {
             //TODO: use Crytography library
             var result = new Result();
+            result.IsSuccessful = false;
             return result;
         }
     }

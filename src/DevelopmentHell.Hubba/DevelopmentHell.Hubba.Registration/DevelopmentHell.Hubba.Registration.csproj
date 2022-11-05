@@ -9,8 +9,13 @@
 
   <ItemGroup>
     <None Remove="Implementation\" />
+    <None Remove="Abstractions\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Implementation\" />
+    <Folder Include="Abstractions\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DevelopmentHell.Hubba.Models\DevelopmentHell.Hubba.Models.csproj" />
   </ItemGroup>
 </Project>

@@ -7,26 +7,10 @@ public class RegistrationManagerUnitTest
     public void ShouldCreateInstanceWithCtor()
     {
         // Arrange
-        var expected = typeof(RegistrationManager);
+        var expected = typeof(InputValidation);
 
         // Act
-        var actual = new RegistrationManager();
-
-        // Assert
-        Assert.IsNotNull(actual);
-        Assert.IsTrue(actual.GetType() == expected);
-    }
-
-    [TestMethod]
-    public void ShouldCreateInstanceWithParameterCtor()
-    {
-        // Arrange
-        var expected = typeof(RegistrationManager);
-        var expectedEmail = "email@gmail.com";
-        var expectedPassphrase = "somepassword";
-
-        // Act
-        var actual = new RegistrationManager(expectedEmail, expectedPassphrase);
+        var actual = new InputValidation();
 
         // Assert
         Assert.IsNotNull(actual);
@@ -54,8 +38,8 @@ public class RegistrationManagerUnitTest
             var expected = new Result();
             expected.IsValid = true;
         //Act
-            var registrationManager = new RegistrationManager(goodEmail, "");
-            var actual = registrationManager.ValidateEmail();
+            var inputValidation = new InputValidation();
+            var actual = inputValidation.ValidateEmail(goodEmail);
         //Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsValid == expected.IsValid);
@@ -76,8 +60,8 @@ public class RegistrationManagerUnitTest
             var expected = new Result();
             expected.IsValid = false;
             //Act
-            var registrationManager = new RegistrationManager(badEmail, "");
-            var actual = registrationManager.ValidateEmail();
+            var inputValidation = new InputValidation();
+            var actual = inputValidation.ValidateEmail(badEmail);
             //Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsValid == expected.IsValid);
@@ -104,34 +88,12 @@ public class RegistrationManagerUnitTest
             var expected = new Result();
             expected.IsValid = false;
             //Act
-            var registrationManager = new RegistrationManager(badPassphrase, "");
-            var actual = registrationManager.ValidatePassphrase();
+            var inputValidation = new InputValidation();
+            var actual = inputValidation.ValidatePassphrase(badPassphrase);
             //Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsValid == expected.IsValid);
         }
-    }
-
-    [TestMethod]
-    public void ShouldCreateInstanceOfRegistrationService()
-    {
-        //TODO: call RegistrationService myRegistration = new RegistrationService();
-        // Actual
-
-        // Act
-
-        // Assert
-    }
-
-    [TestMethod]
-    public void ShouldCreateNewAccountWithCreateAccount()
-    {
-        //TODO: myRegistration.CreateAccount(email, passphrase);
-        // Actual
-
-        // Act
-
-        // Assert
     }
 }
 //References:

@@ -1,0 +1,12 @@
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Models/bin/Debug/net6.0/DevelopmentHell.Hubba.Models.deps.json
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Models/bin/Debug/net6.0/DevelopmentHell.Hubba.Models.dll
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Models/bin/Debug/net6.0/DevelopmentHell.Hubba.Models.pdb
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Models/obj/Debug/net6.0/DevelopmentHell.Hubba.Models.csproj.AssemblyReference.cache
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Models/obj/Debug/net6.0/DevelopmentHell.Hubba.Models.GeneratedMSBuildEditorConfig.editorconfig
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Models/obj/Debug/net6.0/DevelopmentHell.Hubba.Models.AssemblyInfoInputs.cache
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Models/obj/Debug/net6.0/DevelopmentHell.Hubba.Models.AssemblyInfo.cs
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Models/obj/Debug/net6.0/DevelopmentHell.Hubba.Models.csproj.CoreCompileInputs.cache
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Models/obj/Debug/net6.0/DevelopmentHell.Hubba.Models.dll
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Models/obj/Debug/net6.0/refint/DevelopmentHell.Hubba.Models.dll
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Models/obj/Debug/net6.0/DevelopmentHell.Hubba.Models.pdb
+/Users/xiunhon/Documents/SeniorProject/src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Models/obj/Debug/net6.0/ref/DevelopmentHell.Hubba.Models.dll

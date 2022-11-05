@@ -20,8 +20,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DevelopmentHell.Hubba.Registration\DevelopmentHell.Hubba.Registration.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.Models\DevelopmentHell.Hubba.Models.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="System.Linq" />
+    <None Remove="UnitTests\" />
+    <None Remove="IntegrationTests\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="UnitTests\" />
+    <Folder Include="IntegrationTests\" />
   </ItemGroup>
 </Project>
