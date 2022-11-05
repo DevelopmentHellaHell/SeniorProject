@@ -1,6 +1,4 @@
-﻿using DevelopmentHell.Hubba.SqlDataAccess;
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel;
-using System.Data;
+﻿using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 
 namespace DevelopmentHell.Hubba.Registration.Test
 {
@@ -16,7 +14,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
             var connectionString = String.Format(@"Server=localhost\SQLEXPRESS;Database={0};Integrated Security=True;Encrypt=False", expectedDatabaseName);
 
             // Act
-            var actual = new UpdateDataAccess(connectionString);
+            var actual = new InsertDataAccess(connectionString);
 
             // Assert
             Assert.IsNotNull(actual);
@@ -47,7 +45,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
 
             // Act
             var actual = new InsertDataAccess(connectionString);
-            DevelopmentHell.Hubba.SqlDataAccess.Result result = actual.Insert(expectedTableName, newUserAccountCredentials);
+            DevelopmentHell.Hubba.Models.Result result = actual.Insert(expectedTableName, newUserAccountCredentials);
 
             // Assert
             Assert.IsNotNull(actual);
@@ -72,7 +70,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
 
             // Act
             var actual = new UpdateDataAccess(connectionString);
-            DevelopmentHell.Hubba.SqlDataAccess.Result result = actual.Update(expectedTableName, key, values);
+            DevelopmentHell.Hubba.Models.Result result = actual.Update(expectedTableName, key, values);
             //int account_id = (int)(result.Payload);
 
             // Assert
@@ -119,8 +117,8 @@ namespace DevelopmentHell.Hubba.Registration.Test
 
             // Act
             var actual = new SelectDataAccess(connectionString);
-            DevelopmentHell.Hubba.SqlDataAccess.Result result = actual.Select(expectedTableName, expectedColumns, values);
-            result = actual.Select(expectedTableName, new List<string>{ "COUNT(username)"}, values);
+            DevelopmentHell.Hubba.Models.Result result = actual.Select(expectedTableName, expectedColumns, values);
+            DevelopmentHell.Hubba.Models.Result result2 = actual.Select(expectedTableName, new List<string>{ "COUNT(username)"}, values);
 
             // Assert
             if (result is not null)
@@ -137,11 +135,11 @@ namespace DevelopmentHell.Hubba.Registration.Test
                     }
                 }
             }
-            if (result is not null)
+            if (result2 is not null)
             {
-                if (result.Payload is not null)
+                if (result2.Payload is not null)
                 {
-                    List<List<object>> payload = (List<List<object>>)result.Payload;
+                    List<List<object>> payload = (List<List<object>>)result2.Payload;
 
                     foreach (var row in payload)
                     {

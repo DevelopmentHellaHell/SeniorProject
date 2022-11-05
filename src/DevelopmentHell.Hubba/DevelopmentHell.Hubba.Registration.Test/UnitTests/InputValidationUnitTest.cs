@@ -1,4 +1,6 @@
 ﻿namespace DevelopmentHell.Hubba.Registration.Test;
+using DevelopmentHell.Hubba.Models;
+
 
 [TestClass]
 public class InputValidationUnitTest
@@ -36,13 +38,13 @@ public class InputValidationUnitTest
         foreach (String goodEmail in goodEmails)
         {
             var expected = new Result();
-            expected.IsValid = true;
+            expected.IsSuccessful = true;
         //Act
             var inputValidation = new InputValidation();
             var actual = inputValidation.ValidateEmail(goodEmail);
         //Assert
             Assert.IsNotNull(actual);
-            Assert.IsTrue(actual.IsValid == expected.IsValid);
+            Assert.IsTrue(actual.IsSuccessful == expected.IsSuccessful);
         }
     }
 
@@ -58,13 +60,13 @@ public class InputValidationUnitTest
         foreach (String badEmail in badEmails)
         {
             var expected = new Result();
-            expected.IsValid = false;
+            expected.IsSuccessful = false;
             //Act
             var inputValidation = new InputValidation();
             var actual = inputValidation.ValidateEmail(badEmail);
             //Assert
             Assert.IsNotNull(actual);
-            Assert.IsTrue(actual.IsValid == expected.IsValid);
+            Assert.IsTrue(actual.IsSuccessful == expected.IsSuccessful);
         }
     }
 
@@ -86,13 +88,13 @@ public class InputValidationUnitTest
         foreach (String badPassphrase in badPassphrases)
         {
             var expected = new Result();
-            expected.IsValid = false;
+            expected.IsSuccessful = false;
             //Act
             var inputValidation = new InputValidation();
             var actual = inputValidation.ValidatePassphrase(badPassphrase);
             //Assert
             Assert.IsNotNull(actual);
-            Assert.IsTrue(actual.IsValid == expected.IsValid);
+            Assert.IsTrue(actual.IsSuccessful == expected.IsSuccessful);
         }
     }
 }

@@ -1,12 +1,14 @@
 ﻿using Microsoft.Data.SqlClient;
 using System.Data;
 using System.Text;
+using DevelopmentHell.Hubba.Models;
 
-namespace DevelopmentHell.Hubba.SqlDataAccess
+
+namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
 {
     public class SelectDataAccess
     {
-        private string connectionPath; 
+        private string connectionPath;
         public SelectDataAccess(string inPath)
         {
             connectionPath = inPath;
@@ -21,15 +23,15 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     query.Connection = conn;
                     List<List<object>> payload = new();
                     conn.Open();
-                    using(SqlDataReader reader = query.ExecuteReader())
+                    using (SqlDataReader reader = query.ExecuteReader())
                     {
                         while (reader.Read())
                         {
                             List<object> row = new();
-                            IDataRecord dataRecord = (IDataRecord)reader;
-                            for(int i = 0; i < columnLength; i++)
+                            IDataRecord dataRecord = reader;
+                            for (int i = 0; i < columnLength; i++)
                             {
-                                row.Add((dataRecord[i]));
+                                row.Add(dataRecord[i]);
                             }
                             payload.Add(row);
                         }
@@ -38,7 +40,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 }
 
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 return new Result(false, e.Message);
@@ -66,7 +68,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     insertQuery.Parameters.Add(new SqlParameter(pair.Key, pair.Value));
                 }
                 first = true;
-                foreach(string column in columns)
+                foreach (string column in columns)
                 {
                     if (!first)
                     {
@@ -75,7 +77,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     first = false;
                     sbColumn.Append(column);
                 }
-                insertQuery.CommandText = String.Format("SELECT {0} FROM {1} WHERE {2}", sbColumn.ToString(), table, sbFilter.ToString());
+                insertQuery.CommandText = string.Format("SELECT {0} FROM {1} WHERE {2}", sbColumn.ToString(), table, sbFilter.ToString());
 
                 return SendQuery(insertQuery, columns.Count);
             }

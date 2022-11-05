@@ -1,4 +1,6 @@
-﻿namespace DevelopmentHell.Hubba.Registration
+﻿using DevelopmentHell.Hubba.Models;
+
+namespace DevelopmentHell.Hubba.Registration
 {
     public class RegistrationService
     {
@@ -20,7 +22,7 @@
                 //do something
                 return result;
             }
-            if (CheckUnusedEmail(email).IsValid == false)
+            if (CheckUnusedEmail(email).IsSuccessful == false)
             {
                 //do something
                 return result;

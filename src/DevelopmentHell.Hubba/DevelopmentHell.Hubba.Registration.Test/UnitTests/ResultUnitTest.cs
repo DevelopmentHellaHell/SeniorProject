@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DevelopmentHell.Hubba.Models;
+
 
 namespace DevelopmentHell.Hubba.Registration.Test;
 
@@ -20,7 +21,7 @@ public class ResultUnitTest
     }
 
     [TestMethod]
-    public void ShouldReturnCoorectIsValidValue()
+    public void ShouldReturnCoorectIsSuccessfulValue()
     {
         //Arrange
         var expectedTrue = true;
@@ -29,32 +30,33 @@ public class ResultUnitTest
         //Act
         var actual1 = new Result();
         var actual2 = new Result();
-        actual1.IsValid = true;
-        actual2.IsValid = false;
+        actual1.IsSuccessful = true;
+        actual2.IsSuccessful = false;
 
         //Assert
         Assert.IsNotNull(actual1);
         Assert.IsNotNull(actual2);
-        Assert.IsTrue(actual1.IsValid == expectedTrue);
-        Assert.IsTrue(actual2.IsValid == expectedFalse);
+        Assert.IsTrue(actual1.IsSuccessful == expectedTrue);
+        Assert.IsTrue(actual2.IsSuccessful == expectedFalse);
     }
 
     [TestMethod]
     public void ShouldReturnCorrectErrorMessage()
     {
         //Arrange
-        var expected = "Error";
+        string expected = "Error";
 
         //Act
         var actual1 = new Result();
         var actual2 = new Result();
-        actual1.IsValid = true;
-        actual2.IsValid = false;
+        actual1.IsSuccessful = true;
+        actual2.IsSuccessful = false;
         actual2.ErrorMessage = "Error";
 
         //Assert
-        Assert.IsNull(actual1.ErrorMessage);
+        Assert.IsNotNull(actual1.ErrorMessage);
         Assert.IsNotNull(actual2.ErrorMessage);
+        Assert.AreEqual(expected, actual2.ErrorMessage);
     }
 
 }

@@ -2,14 +2,14 @@
 using System.Security.Principal;
 using System.Text.RegularExpressions;
 
-namespace DevelopmentHell.Hubba.Registration
+namespace DevelopmentHell.Hubba.Models
 {
     public class InputValidation
     {
         private Result _result = new Result();
         public InputValidation()
         {
-            _result.IsValid = false;
+            _result.IsSuccessful = false;
             _result.ErrorMessage = "";
         }
 
@@ -20,7 +20,7 @@ namespace DevelopmentHell.Hubba.Registration
                 _result.ErrorMessage = "Please provide a valid email";
                 return _result;
             }
-            //result.IsValid = new EmailAddressAttribute().IsValid(Email);
+            //result.IsSuccessful = new EmailAddressAttribute().IsSuccessful(Email);
             //return result;
             string regex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
 
@@ -41,12 +41,12 @@ namespace DevelopmentHell.Hubba.Registration
                     return match.Groups[1].Value + domainName;
                 }
             }
-            catch (RegexMatchTimeoutException e)
+            catch (RegexMatchTimeoutException)
             {
                 _result.ErrorMessage = "Can't validate email";
                 return _result;
             }
-            catch (ArgumentException e)
+            catch (ArgumentException)
             {
                 _result.ErrorMessage = "Domain name is invalid";
                 return _result;
@@ -57,7 +57,7 @@ namespace DevelopmentHell.Hubba.Registration
                 if (Regex.IsMatch(email, regex,
                     RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250)))
                 {
-                    _result.IsValid = true;
+                    _result.IsSuccessful = true;
                 }
                 else
                 {
@@ -152,7 +152,7 @@ namespace DevelopmentHell.Hubba.Registration
 
             if (validationPoints == 6)
             {
-                _result.IsValid = true;
+                _result.IsSuccessful = true;
                 _result.ErrorMessage = "";
             }
             return _result;

@@ -1,6 +1,8 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
 using DevelopmentHell.Hubba.Registration.Abstractions;
+using DevelopmentHell.Hubba.Models;
+
 
 namespace DevelopmentHell.Hubba.Registration
 {
@@ -21,14 +23,14 @@ namespace DevelopmentHell.Hubba.Registration
 
             var inputValidation = new InputValidation();
 
-            if (inputValidation.ValidateEmail(email).IsValid == false)
+            if (inputValidation.ValidateEmail(email).IsSuccessful == false)
             {
-                result.IsValid = false;
+                result.IsSuccessful = false;
                 result.ErrorMessage = "Email provided is invalid. Retry or contact admin";
             }
-            if (inputValidation.ValidatePassphrase(passphrase).IsValid == false)
+            if (inputValidation.ValidatePassphrase(passphrase).IsSuccessful == false)
             {
-                result.IsValid = false;
+                result.IsSuccessful = false;
                 result.ErrorMessage = "Passphrase provided is invalid. Retry or contact admin";
             }
             result = _userRegister.CreateAccount(email, passphrase);
