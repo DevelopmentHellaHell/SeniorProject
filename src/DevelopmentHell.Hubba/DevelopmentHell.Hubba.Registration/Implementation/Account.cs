@@ -7,12 +7,6 @@
         public string Passphrase { get; set; } = string.Empty;
         public string HashedPassphrase { get; }
         public string Username { get; set; } = string.Empty;
-        public Account() { }
-        public Account(string email, string passphrase)
-        {
-            Email = email;
-            Passphrase = passphrase;
-            //HashedPassphrase = ; //implement encryption
-        }
+        public bool adminAccount { get; set; }
     }
 }

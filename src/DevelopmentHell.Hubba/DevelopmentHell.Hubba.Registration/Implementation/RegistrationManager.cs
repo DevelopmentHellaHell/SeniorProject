@@ -2,40 +2,32 @@
 using System.Text.RegularExpressions;
 using DevelopmentHell.Hubba.Registration.Abstractions;
 using DevelopmentHell.Hubba.Models;
+using System.Text.Json;
 
 
 namespace DevelopmentHell.Hubba.Registration
 {
     public class RegistrationManager
     {
-        private RegistrationService _userRegister;
+        private string _jsonString { get; set; }
 
-        public RegistrationManager() { }
-
-        public RegistrationManager(RegistrationService userRegister)
+        public RegistrationManager(string jsonString)
         {
-            _userRegister = userRegister;
+            _jsonString = jsonString;
+        }
+
+        public Result createAccount()
+        {
+            Account? newAccount = JsonSerializer.Deserialize<Account>(_jsonString);
+            newAccount.adminAccount = false;
+            String connectionString = "";
+            RegistrationService userService = new RegistrationService(newAccount, connectionString);
+
+
+            return userService.registerAccount();
+
         }
         
-        public Result Register(string email, string passphrase)
-        {
-            var result = new Result();
-
-            var inputValidation = new InputValidation();
-
-            if (inputValidation.ValidateEmail(email).IsSuccessful == false)
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Email provided is invalid. Retry or contact admin";
-            }
-            if (inputValidation.ValidatePassphrase(passphrase).IsSuccessful == false)
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Passphrase provided is invalid. Retry or contact admin";
-            }
-            result = _userRegister.CreateAccount(email, passphrase);
-            return result;
-        }
     }
 }
 // References:
