@@ -1,7 +1,7 @@
 ﻿namespace DevelopmentHell.Hubba.Registration.Test;
 
 [TestClass]
-public class RegistrationManagerUnitTest
+public class InputValidationUnitTest
 {
     [TestMethod]
     public void ShouldCreateInstanceWithCtor()
