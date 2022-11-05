@@ -47,6 +47,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         public Result Select(string table, List<string> columns, Dictionary<string, object> filters)
         {
+            //TODO add implementation for group by, order by, having
             using (SqlCommand insertQuery = new SqlCommand())
             {
 
