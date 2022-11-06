@@ -24,7 +24,7 @@ namespace DevelopmentHell.Hubba.Registration
             _connectionString = connectionString;
         }
 
-        public Result registerAccount()
+        public Result RegisterAccount()
         {
             
             var result = new Result();
@@ -32,7 +32,7 @@ namespace DevelopmentHell.Hubba.Registration
 
             var inputValidation = new InputValidation();
             //email validation
-            if (inputValidation.ValidateEmail(_account.Email).IsSuccessful == false)
+            if (inputValidation.ValidateEmail(_account.email).IsSuccessful == false)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Email provided is invalid. Retry or contact admin.";
@@ -40,7 +40,7 @@ namespace DevelopmentHell.Hubba.Registration
             }
 
             //passphrase validation
-            if (inputValidation.ValidatePassphrase(_account.Passphrase).IsSuccessful == false)
+            if (inputValidation.ValidatePassphrase(_account.passphrase).IsSuccessful == false)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Passphrase provided is invalid. Retry or contact admin.";
@@ -51,7 +51,7 @@ namespace DevelopmentHell.Hubba.Registration
             SelectDataAccess selectDAO = new SelectDataAccess(_connectionString);
             Dictionary<string, object> emailValue = new()
             {
-                { "email", _account.Email }
+                { "email", _account.email }
             };
             Result unusedEmailCheck = selectDAO.Select("Accounts", new List<String> { "COUNT(email)" }, emailValue);
 
@@ -87,20 +87,20 @@ namespace DevelopmentHell.Hubba.Registration
                 if (usernameCheck.Payload is not null)
                 {
                     List<List<object>> payload = (List<List<object>>)usernameCheck.Payload;
-                    _account.ID = (int)payload[0][0] + 1;
+                    _account.id = (int)payload[0][0] + 1;
+                    _account.username = username;
+                    _account.displayName = username + _account.id;
                 }
             }
 
+
             //generate dictionary [String (column name), Object (value)
-            var accountDictionary = new AccountDictionary(_account);
-            Dictionary<String, Object> values = accountDictionary.CreateDictionary();
+            //var accountDictionary = new AccountDictionary(_account);
+            Dictionary<String, Object> values = AccountDictionary.CreateDictionary(_account);
 
             //insert account
             InsertDataAccess insertDAO = new InsertDataAccess(_connectionString);
-            insertDAO.Insert("Accounts", values);
-            
-            
-            
+            result = insertDAO.Insert("Accounts", values);            
             return result;
             
         }
