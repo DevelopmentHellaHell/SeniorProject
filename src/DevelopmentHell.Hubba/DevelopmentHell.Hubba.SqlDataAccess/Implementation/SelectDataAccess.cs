@@ -42,7 +42,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
                 return new Result(false, e.Message);
             }
         }
