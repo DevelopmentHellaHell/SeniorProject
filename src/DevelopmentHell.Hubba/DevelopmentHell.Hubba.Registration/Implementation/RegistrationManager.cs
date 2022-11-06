@@ -19,12 +19,16 @@ namespace DevelopmentHell.Hubba.Registration
         public Result createAccount()
         {
             Account? newAccount = JsonSerializer.Deserialize<Account>(_jsonString);
+            if(newAccount is null)
+            {
+                return new Result(false, "Unable to initialize Account from JSON data");
+            }
             newAccount.adminAccount = false;
             String connectionString = @"Server=localhost\SQLEXPRESS;Database=DevelopmentHell.Hubba.Accounts;Integrated Security=True;Encrypt=False";
             RegistrationService userService = new RegistrationService(newAccount, connectionString);
 
 
-            return userService.registerAccount();
+            return userService.RegisterAccount();
 
         }
         
