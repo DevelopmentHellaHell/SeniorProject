@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DevelopmentHell.Hubba.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,13 +15,13 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
         public void createNewAccount()
         {
             // Arrange
-            var expected = typeof(String);
+            var expected = typeof(Result);
             var expectedEmail = "test@gmail.com";
-            var expectedPassphrase = "Hot";
+            var expectedPassphrase = "HottestTest";
             string jsonString =
 @"{
   ""Email"": ""test@email.com"",
-  ""Passphrase"": ""Hot""
+  ""Passphrase"": ""HottestTest""
 }
 ";
 
@@ -31,6 +32,7 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
             // Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.GetType() == expected);
+            Assert.IsTrue(actual.IsSuccessful);
         }
 
     }
