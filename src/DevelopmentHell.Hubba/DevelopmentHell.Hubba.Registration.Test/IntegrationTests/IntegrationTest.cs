@@ -17,11 +17,11 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
             // Arrange
             var expected = typeof(Result);
             var expectedEmail = "test@gmail.com";
-            var expectedPassphrase = "HottestTest";
+            var expectedPassphrase = "HottestTest .";
             string jsonString =
 @"{
-  ""Email"": ""test@email.com"",
-  ""Passphrase"": ""HottestTest""
+  ""email"": ""test@email.com"",
+  ""passphrase"": ""HottestTest .""
 }
 ";
 
