@@ -20,7 +20,7 @@ namespace DevelopmentHell.Hubba.Registration
         {
             Account? newAccount = JsonSerializer.Deserialize<Account>(_jsonString);
             newAccount.adminAccount = false;
-            String connectionString = "";
+            String connectionString = @"Server=localhost\SQLEXPRESS;Database=DevelopmentHell.Hubba.Accounts;Integrated Security=True;Encrypt=False";
             RegistrationService userService = new RegistrationService(newAccount, connectionString);
 
 
