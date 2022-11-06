@@ -18,12 +18,26 @@ namespace DevelopmentHell.Hubba.Registration.Implementation
             _account = account;
         }
 
-        public Dictionary<String, Object> CreateDictionary()
+        public Dictionary<String, Object>? JsonCreateDictionary()
         {
-
             var accountDictionary = JsonSerializer.Serialize(_account);
             return JsonSerializer.Deserialize<Dictionary<string, object>>(accountDictionary);
 
+        }
+
+        public static Dictionary<String, Object> CreateDictionary(Account account)
+        {
+            Dictionary<String, Object> accountDict = new()
+            {
+                { "id", account.id },
+                { "email", account.email },
+                { "passphrase", account.passphrase },
+                { "hashedPassphrase", account.hashedPassphrase },
+                { "username", account.username },
+                { "displayName", account.displayName },
+                { "adminAccount", account.adminAccount }
+            };
+            return accountDict;
         }
 
     }
