@@ -2,11 +2,12 @@
 {
     public class Account
     {
-        public int ID { get; set; }
-        public string Email { get; set; } = string.Empty;
-        public string Passphrase { get; set; } = string.Empty;
-        public string HashedPassphrase { get; }
-        public string Username { get; set; } = string.Empty;
+        public int id { get; set; }
+        public string email { get; set; } = string.Empty;
+        public string passphrase { get; set; } = string.Empty;
+        public string hashedPassphrase { get; set; } = string.Empty;
+        public string username { get; set; } = string.Empty;
+        public string displayName { get; set; } = string.Empty;
         public bool adminAccount { get; set; }
     }
 }
