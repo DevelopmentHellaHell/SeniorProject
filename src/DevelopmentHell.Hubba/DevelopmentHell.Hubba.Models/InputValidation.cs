@@ -86,6 +86,7 @@ namespace DevelopmentHell.Hubba.Models
             // check off each contraint, once validationPoints == 6, passphrase is valid
             var validationPoints = 0;
             _result.ErrorMessage = "Invalid passphrase.";
+            _result.IsSuccessful = false;
 
             //1) length check
             if (passphrase.Length < 7)
