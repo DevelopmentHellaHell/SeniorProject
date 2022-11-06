@@ -51,9 +51,9 @@ namespace DevelopmentHell.Hubba.Registration
             SelectDataAccess selectDAO = new SelectDataAccess(_connectionString);
             Dictionary<string, object> emailValue = new()
             {
-                { "Email", _account.Email }
+                { "email", _account.Email }
             };
-            Result unusedEmailCheck = selectDAO.Select("Accounts", new List<String> { "COUNT(Email" }, emailValue);
+            Result unusedEmailCheck = selectDAO.Select("Accounts", new List<String> { "COUNT(email)" }, emailValue);
 
             if (unusedEmailCheck is not null)
             {
