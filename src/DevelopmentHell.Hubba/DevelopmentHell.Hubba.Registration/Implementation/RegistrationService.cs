@@ -96,7 +96,8 @@ namespace DevelopmentHell.Hubba.Registration
 
             //generate dictionary [String (column name), Object (value)
             //var accountDictionary = new AccountDictionary(_account);
-            Dictionary<String, Object> values = AccountDictionary.CreateDictionary(_account);
+            //Dictionary<String, Object> values = AccountDictionary.CreateDictionary(_account);
+            Dictionary<String, Object> values = DictonaryConversion.ObjectToDictionary(_account);
 
             //insert account
             InsertDataAccess insertDAO = new InsertDataAccess(_connectionString);
