@@ -14,5 +14,8 @@ To export db schema scripts:
 to run schema script:
 - open ssms
 - make sure to delete the database you want to run the sql file for (not just table)
-- open sql file in ssms, run it
+- open sql file in ssms
+  - if running on sqlexpress, change 'MSSQL15.MSSQLSERVER' to 'MSSQL15.SQLEXPRESS' run it
+  - else if running on dev sqlserver, change 'MSSQL15.SQLEXPRESS' to 'MSSQL15.MSSQLSERVER' run it
+  - if already is the one you need, don't worry
 - close and reopen ssms and check contents of newly made db
