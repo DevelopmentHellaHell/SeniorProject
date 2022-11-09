@@ -13,10 +13,13 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 	public class LoggingDataAccess : ILoggerDataAccess
 	{
 		private InsertDataAccess _insertDataAccess;
+		private SelectDataAccess _selectDataAccess;
+		private static string _tableName = "logs";
 
 		public LoggingDataAccess(string connectionString)
 		{
 			_insertDataAccess = new InsertDataAccess(connectionString);
+			_selectDataAccess = new SelectDataAccess(connectionString);
 		}
 
 		public async Task<Result> LogData(LogLevel logLevel, Category category, string userName, string message)
@@ -30,13 +33,19 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 				{ "message", message },
 			};
 
-			var insertResult = await _insertDataAccess.Insert("logs", logDictionary).ConfigureAwait(false);
+			var insertResult = await _insertDataAccess.Insert(_tableName, logDictionary).ConfigureAwait(false);
 			if (!insertResult.IsSuccessful)
 			{
 				return insertResult;
 			}
 
 			return new Result(true);
+		}
+
+		public async Task<Result> SelectLog(List<string> columns, Dictionary<string, object> filters)
+		{
+			var selectResult = await _selectDataAccess.Select(_tableName, columns, filters).ConfigureAwait(false);
+			return selectResult;
 		}
 	}
 }
