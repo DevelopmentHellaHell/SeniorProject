@@ -1,5 +1,10 @@
 ﻿USE [master]
 GO
+
+alter database [<insert db name>] set single_user with rollback immediate
+DROP DATABASE [<insert db name>]
+GO
+
 /****** Object:  Database [DevelopmentHell.Hubba.Accounts]    Script Date: 11/9/2022 9:50:36 AM ******/
 CREATE DATABASE [DevelopmentHell.Hubba.Accounts]
  CONTAINMENT = NONE
