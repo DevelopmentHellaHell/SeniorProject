@@ -1,7 +1,7 @@
 using Microsoft.Data.SqlClient;
 using System.Collections.Generic;
 using DevelopmentHell.Hubba.Models;
-using System.Configuration;
+
 
 namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
 {
