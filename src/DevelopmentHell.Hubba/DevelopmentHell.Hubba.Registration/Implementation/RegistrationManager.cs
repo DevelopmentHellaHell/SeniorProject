@@ -16,7 +16,7 @@ namespace DevelopmentHell.Hubba.Registration
             _jsonString = jsonString;
         }
 
-        public Result createAccount()
+        public async Task<Result> createAccount()
         {
             Account? newAccount = JsonSerializer.Deserialize<Account>(_jsonString);
             if(newAccount is null)
@@ -28,7 +28,7 @@ namespace DevelopmentHell.Hubba.Registration
             RegistrationService userService = new RegistrationService(newAccount, connectionString);
 
 
-            return userService.RegisterAccount();
+            return await userService.RegisterAccount().ConfigureAwait(false);
 
         }
         

@@ -24,7 +24,7 @@ namespace DevelopmentHell.Hubba.Registration
             _connectionString = connectionString;
         }
 
-        public Result RegisterAccount()
+        public async Task<Result> RegisterAccount()
         {
             
             var result = new Result();
@@ -53,7 +53,7 @@ namespace DevelopmentHell.Hubba.Registration
             {
                 { "email", _account.email }
             };
-            Result unusedEmailCheck = selectDAO.Select("Accounts", new List<String> { "COUNT(email)" }, emailValue);
+            Result unusedEmailCheck = await selectDAO.Select("Accounts", new List<String> { "COUNT(email)" }, emailValue).ConfigureAwait(false);
 
             if (unusedEmailCheck is not null)
             {
@@ -79,10 +79,10 @@ namespace DevelopmentHell.Hubba.Registration
             {
                 { "username", username }
             };
-            Result usernameCheck = selectDAO.Select("Accounts", new List<string> { "COUNT(username)" }, usernameValue);
+            Result usernameCheck = await selectDAO.Select("Accounts", new List<string> { "COUNT(username)" }, usernameValue).ConfigureAwait(false);
 
-            //assign id to account based on username check
-            if (usernameCheck is not null)
+			//assign id to account based on username check
+			if (usernameCheck is not null)
             {
                 if (usernameCheck.Payload is not null)
                 {
@@ -96,11 +96,12 @@ namespace DevelopmentHell.Hubba.Registration
 
             //generate dictionary [String (column name), Object (value)
             //var accountDictionary = new AccountDictionary(_account);
-            Dictionary<String, Object> values = AccountDictionary.CreateDictionary(_account);
+            //Dictionary<String, Object> values = AccountDictionary.CreateDictionary(_account);
+            Dictionary<String, Object> values = DictonaryConversion.ObjectToDictionary(_account);
 
             //insert account
             InsertDataAccess insertDAO = new InsertDataAccess(_connectionString);
-            result = insertDAO.Insert("Accounts", values);            
+            result = await insertDAO.Insert("Accounts", values).ConfigureAwait(false);            
             return result;
             
         }

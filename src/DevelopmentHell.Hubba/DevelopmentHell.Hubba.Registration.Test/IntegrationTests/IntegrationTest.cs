@@ -12,7 +12,7 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
     {
         [TestMethod]
 
-        public void createNewAccount()
+        public async Task createNewAccount()
         {
             // Arrange
             var expected = typeof(Result);
@@ -27,7 +27,7 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
 
             // Act
             RegistrationManager manager = new RegistrationManager(jsonString);
-            var actual = manager.createAccount();
+            var actual = await manager.createAccount().ConfigureAwait(false);
 
             // Assert
             Assert.IsNotNull(actual);

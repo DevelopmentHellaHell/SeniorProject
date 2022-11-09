@@ -21,7 +21,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
             Assert.IsTrue(actual.GetType() == expected);
         }
         [TestMethod]
-        public void ShouldRegisterNewAccountIntoDatabase()
+        public async Task ShouldRegisterNewAccountIntoDatabase()
         {
             // TODO: fill out test case
             // Arrange
@@ -45,7 +45,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
 
             // Act
             var actual = new InsertDataAccess(connectionString);
-            DevelopmentHell.Hubba.Models.Result result = actual.Insert(expectedTableName, newUserAccountCredentials);
+            DevelopmentHell.Hubba.Models.Result result = await actual.Insert(expectedTableName, newUserAccountCredentials).ConfigureAwait(false);
 
             // Assert
             Assert.IsNotNull(actual);
@@ -53,7 +53,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
         }
 
         [TestMethod]
-        public void ShouldUpdateAccountInDatabase()
+        public async Task SouldUpdateAccountInDatabase()
         {
             // TODO: fill out test case
             // Arrange
@@ -70,7 +70,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
 
             // Act
             var actual = new UpdateDataAccess(connectionString);
-            DevelopmentHell.Hubba.Models.Result result = actual.Update(expectedTableName, key, values);
+            DevelopmentHell.Hubba.Models.Result result = await actual.Update(expectedTableName, key, values).ConfigureAwait(false);
             //int account_id = (int)(result.Payload);
 
             // Assert
@@ -80,7 +80,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
             //Assert.IsTrue((string)(actual.AccessPassphrase(account_id).Payload) == passphrase);
         }
         [TestMethod]
-        public void ShouldAccessExistingAccountInDatabase()
+        public async Task ShouldAccessExistingAccountInDatabase()
         {
             // TODO: fill out test case
             // Arrange
@@ -114,13 +114,13 @@ namespace DevelopmentHell.Hubba.Registration.Test
 
             };
             var actualInsert = new InsertDataAccess(connectionString);
-            actualInsert.Insert(expectedTableName, newUserAccountCredentials);
+            await actualInsert.Insert(expectedTableName, newUserAccountCredentials).ConfigureAwait(false);
 
 
             // Act
             var actual = new SelectDataAccess(connectionString);
-            DevelopmentHell.Hubba.Models.Result result = actual.Select(expectedTableName, expectedColumns, values);
-            DevelopmentHell.Hubba.Models.Result result2 = actual.Select(expectedTableName, new List<string>{ "COUNT(username)"}, values);
+            DevelopmentHell.Hubba.Models.Result result = await actual.Select(expectedTableName, expectedColumns, values).ConfigureAwait(false);
+            DevelopmentHell.Hubba.Models.Result result2 = await actual.Select(expectedTableName, new List<string>{ "COUNT(username)"}, values).ConfigureAwait(false);
 
             // Assert
             if (result is not null)
