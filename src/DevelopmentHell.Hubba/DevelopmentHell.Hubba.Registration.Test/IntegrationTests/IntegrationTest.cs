@@ -27,8 +27,8 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
 
             // Act
             stopwatch.Start();
-            RegistrationManager manager = new RegistrationManager(jsonString);
-            var actual = await manager.createAccount().ConfigureAwait(false);
+            RegistrationManager manager = new RegistrationManager();
+            var actual = await manager.createAccount(jsonString).ConfigureAwait(false);
             stopwatch.Stop();
             var actualTime = stopwatch.ElapsedMilliseconds / 1000;
 
@@ -68,8 +68,8 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
 
             // Act
             stopwatch.Start();
-            RegistrationManager manager = new RegistrationManager(jsonString);
-            var actual = await manager.createAccount().ConfigureAwait(false);
+            RegistrationManager manager = new RegistrationManager();
+            var actual = await manager.createAccount(jsonString).ConfigureAwait(false);
             stopwatch.Stop();
             var actualTime = stopwatch.ElapsedMilliseconds / 1000;
 
@@ -109,8 +109,8 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
 
             // Act
             stopwatch.Start();
-            RegistrationManager manager = new RegistrationManager(jsonString);
-            var actual = await manager.createAccount().ConfigureAwait(false);
+            RegistrationManager manager = new RegistrationManager();
+            var actual = await manager.createAccount(jsonString).ConfigureAwait(false);
             stopwatch.Stop();
             var actualTime = stopwatch.ElapsedMilliseconds / 1000;
 
@@ -148,8 +148,8 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
 
             // Act
             stopwatch.Start();
-            RegistrationManager manager = new RegistrationManager(jsonString);
-            var actual = await manager.createAccount().ConfigureAwait(false);
+            RegistrationManager manager = new RegistrationManager();
+            var actual = await manager.createAccount(jsonString).ConfigureAwait(false);
             stopwatch.Stop();
             var actualTime = stopwatch.ElapsedMilliseconds / 1000;
 
@@ -185,8 +185,8 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
 
             // Act
             stopwatch.Start();
-            RegistrationManager manager = new RegistrationManager(jsonString);
-            var actual = await manager.createAccount().ConfigureAwait(false);
+            RegistrationManager manager = new RegistrationManager();
+            var actual = await manager.createAccount(jsonString).ConfigureAwait(false);
             stopwatch.Stop();
             var actualTime = stopwatch.ElapsedMilliseconds / 1000;
 
@@ -222,8 +222,8 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
 
             // Act
             stopwatch.Start();
-            RegistrationManager manager = new RegistrationManager(jsonString);
-            var actual = await manager.createAccount().ConfigureAwait(false);
+            RegistrationManager manager = new RegistrationManager();
+            var actual = await manager.createAccount(jsonString).ConfigureAwait(false);
             stopwatch.Stop();
             var actualTime = stopwatch.ElapsedMilliseconds / 1000;
 
@@ -259,8 +259,8 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
 
             // Act
             stopwatch.Start();
-            RegistrationManager manager = new RegistrationManager(jsonString);
-            var actual = await manager.createAccount().ConfigureAwait(false);
+            RegistrationManager manager = new RegistrationManager();
+            var actual = await manager.createAccount(jsonString).ConfigureAwait(false);
             stopwatch.Stop();
             var actualTime = stopwatch.ElapsedMilliseconds / 1000;
 
@@ -297,8 +297,8 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
 
             // Act
             stopwatch.Start();
-            RegistrationManager manager = new RegistrationManager(jsonString);
-            var actual = await manager.createAccount().ConfigureAwait(false);
+            RegistrationManager manager = new RegistrationManager();
+            var actual = await manager.createAccount(jsonString).ConfigureAwait(false);
             stopwatch.Stop();
             var actualTime = stopwatch.ElapsedMilliseconds / 1000;
 
@@ -336,8 +336,8 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
 
             // Act
             stopwatch.Start();
-            RegistrationManager manager = new RegistrationManager(jsonString);
-            var actual = await manager.createAccount().ConfigureAwait(false);
+            RegistrationManager manager = new RegistrationManager();
+            var actual = await manager.createAccount(jsonString).ConfigureAwait(false);
             stopwatch.Stop();
             var actualTime = stopwatch.ElapsedMilliseconds / 1000;
 
@@ -374,8 +374,8 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
 
             // Act
             stopwatch.Start();
-            RegistrationManager manager = new RegistrationManager(jsonString);
-            var actual = await manager.createAccount().ConfigureAwait(false);
+            RegistrationManager manager = new RegistrationManager();
+            var actual = await manager.createAccount(jsonString).ConfigureAwait(false);
             await Task.Delay(10000);
             stopwatch.Stop();
             var actualTime = stopwatch.ElapsedMilliseconds / 1000;
@@ -417,8 +417,8 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
 
             // Act
             stopwatch.Start();
-            RegistrationManager manager = new RegistrationManager(jsonString);
-            var actual = await manager.createAccount().ConfigureAwait(false);
+            RegistrationManager manager = new RegistrationManager();
+            var actual = await manager.createAccount(jsonString).ConfigureAwait(false);
             stopwatch.Stop();
             var actualTime = stopwatch.ElapsedMilliseconds / 1000;
 

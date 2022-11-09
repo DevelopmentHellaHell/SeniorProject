@@ -6,16 +6,16 @@ namespace DevelopmentHell.Hubba.Registration
 {
     public class RegistrationManager
     {
-        private string _jsonString { get; set; }
+        
 
-        public RegistrationManager(string jsonString)
+        public RegistrationManager()
         {
-            _jsonString = jsonString;
+            
         }
 
-        public async Task<Result> createAccount()
+        public async Task<Result> createAccount(string jsonString)
         {
-            Account? newAccount = JsonSerializer.Deserialize<Account>(_jsonString);
+            Account? newAccount = JsonSerializer.Deserialize<Account>(jsonString);
             if(newAccount is null)
             {
                 return new Result(false, "Unable to initialize Account from JSON data");

@@ -8,13 +8,12 @@ namespace DevelopmentHell.Hubba.Registration
 {
     public class RegistrationService
     {
-        private Account _account;
         private static string _connectionString = String.Format(@"Server=localhost\SQLEXPRESS;Database=DevelopmentHell.Hubba.Accounts;Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["AccountServer"]);
         private RegistrationDataAccess _registrationDAO;
 
         public RegistrationService()
         {
-            _account = account;
+            
             _registrationDAO = new RegistrationDataAccess(_connectionString);
         }
 
@@ -96,7 +95,7 @@ namespace DevelopmentHell.Hubba.Registration
             account.PassphraseSalt = passphraseSalt;
 
             //generate dictionary [String (column name), Object (value)
-            Dictionary<String, Object> values = DictonaryConversion.ObjectToDictionary(_account);
+            Dictionary<String, Object> values = DictionaryConversion.ObjectToDictionary(account);
 
             //insert account
             var insertAccount = await _registrationDAO.InsertAccount(values).ConfigureAwait(false);

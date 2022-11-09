@@ -12,7 +12,8 @@ public class RegistrationManagerUnitTest
         var expected = typeof(RegistrationManager);
         var expectedJsonString = "";
         // Act
-        var actual = new RegistrationManager(expectedJsonString);
+        var actualManager = new RegistrationManager();
+        var actual = actualManager.createAccount(expectedJsonString);
 
         // Assert
         Assert.IsNotNull(actual);
