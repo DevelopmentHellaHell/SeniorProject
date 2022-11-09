@@ -42,7 +42,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			return new Result(true);
 		}
 
-		public async Task<Result> SelectLog(List<string> columns, Dictionary<string, object> filters)
+		public async Task<Result> SelectLogs(List<string> columns, Dictionary<string, object> filters)
 		{
 			var selectResult = await _selectDataAccess.Select(_tableName, columns, filters).ConfigureAwait(false);
 			return selectResult;
