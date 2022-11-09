@@ -15,7 +15,7 @@ namespace DevelopmentHell.Hubba.Logging.Implementation
             _category = category;
         }
 
-        public async Task<Result> Log(LogLevel level, string user, string message)
+        public async Task<Result> Log(LogLevel logLevel, string userName, string message)
         {
             if (message == null)
             {
@@ -27,15 +27,15 @@ namespace DevelopmentHell.Hubba.Logging.Implementation
 				return new Result(false, "Logging message was over 200 characters.");
             }
 
-            if (user.Length > 50)
+            if (userName.Length > 50)
             {
                 return new Result(false, "Logging user was over 50 characters.");
             }
 
-            var dataAccessResult = await _dataAccess.LogData(level, _category, user, message).ConfigureAwait(false);
+            var dataAccessResult = await _dataAccess.LogData(logLevel, _category, userName, message).ConfigureAwait(false);
             if (!dataAccessResult.IsSuccessful)
             {
-				return dataAccessResult; //TODO error msg
+				return dataAccessResult;
             }
 
             return new Result(true);

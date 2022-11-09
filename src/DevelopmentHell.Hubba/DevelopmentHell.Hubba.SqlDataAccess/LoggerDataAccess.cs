@@ -11,13 +11,13 @@ using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
-	public class LoggingDataAccess : ILoggerDataAccess
+	public class LoggerDataAccess : ILoggerDataAccess
 	{
 		private InsertDataAccess _insertDataAccess;
 		private SelectDataAccess _selectDataAccess;
 		private static string _tableName = "logs";
 
-		public LoggingDataAccess(string connectionString)
+		public LoggerDataAccess(string connectionString)
 		{
 			_insertDataAccess = new InsertDataAccess(connectionString);
 			_selectDataAccess = new SelectDataAccess(connectionString);
