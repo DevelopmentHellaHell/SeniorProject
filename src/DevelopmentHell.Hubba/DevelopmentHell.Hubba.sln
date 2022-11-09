@@ -21,18 +21,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CommonComponent", "CommonCo
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DS_schemas", "DS_schemas", "{F75CB884-6301-43D0-879C-B1C11673CB60}"
 	ProjectSection(SolutionItems) = preProject
-		DevelopmentHell.Hubba.Logging.sql = DevelopmentHell.Hubba.Logging.sql
 		DSREADME.txt = DSREADME.txt
 	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CommonComponent", "CommonComponent", "{6D089D73-5013-4918-9220-F6C736F4E244}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6CB953D1-49EC-4BD2-A116-3DB051F70A55}"
 	ProjectSection(SolutionItems) = preProject
 		app.config = app.config
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.Models", "DevelopmentHell.Hubba.Models\DevelopmentHell.Hubba.Models.csproj", "{FAD6C0AA-B19B-4A48-94F6-73541B72C119}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Models", "DevelopmentHell.Hubba.Models\DevelopmentHell.Hubba.Models.csproj", "{FAD6C0AA-B19B-4A48-94F6-73541B72C119}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,10 +49,6 @@ Global
 		{D8E08993-9EF2-4F07-8223-E3B0991B428E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8E08993-9EF2-4F07-8223-E3B0991B428E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8E08993-9EF2-4F07-8223-E3B0991B428E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BAED0DBE-8902-46F3-8823-CD9DA60B4966}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BAED0DBE-8902-46F3-8823-CD9DA60B4966}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BAED0DBE-8902-46F3-8823-CD9DA60B4966}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BAED0DBE-8902-46F3-8823-CD9DA60B4966}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6C8B3984-217A-4DEA-9A4D-73F301FC0893}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6C8B3984-217A-4DEA-9A4D-73F301FC0893}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C8B3984-217A-4DEA-9A4D-73F301FC0893}.Release|Any CPU.ActiveCfg = Release|Any CPU

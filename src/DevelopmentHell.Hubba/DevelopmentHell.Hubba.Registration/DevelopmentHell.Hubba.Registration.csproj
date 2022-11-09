@@ -15,6 +15,9 @@
     <Folder Include="Abstractions\" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\DevelopmentHell.Hubba.SqlDataAccess\DevelopmentHell.Hubba.SqlDataAccess.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.Models\DevelopmentHell.Hubba.Models.csproj" />
   </ItemGroup>

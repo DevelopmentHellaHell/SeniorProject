@@ -4,6 +4,7 @@ using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Configuration;
 using System.Reflection;
 using System.Security.Cryptography;
 
@@ -12,7 +13,7 @@ namespace DevelopmentHell.Hubba.Registration
     public class RegistrationService
     {
         private Account _account;
-        private static string _connectionString = @"Server=localhost\SQLEXPRESS;Database=DevelopmentHell.Hubba.Accounts;Integrated Security=True;Encrypt=False";
+        private static string _connectionString = String.Format(@"Server=localhost\SQLEXPRESS;Database=DevelopmentHell.Hubba.Accounts;Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["AccountServer"]);
         private RegistrationDataAccess _registrationDAO;
 
         public RegistrationService(Account account)
