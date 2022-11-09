@@ -8,45 +8,45 @@ namespace DevelopmentHell.Hubba.Registration
 {
     public class RegistrationService
     {
-        private Account _account;
+        
         private static string _connectionString = String.Format(@"Server=localhost\SQLEXPRESS;Database=DevelopmentHell.Hubba.Accounts;Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["AccountServer"]);
         private RegistrationDataAccess _registrationDAO;
 
-        public RegistrationService(Account account)
+        public RegistrationService()
         {
-            _account = account;
+            
             _registrationDAO = new RegistrationDataAccess(_connectionString);
         }
 
-        public async Task<Result> RegisterAccount()
+        public async Task<Result> RegisterAccount(Account account)
         {
             
             var result = new Result();
             result.IsSuccessful = false;
 
             //age validation
-            if (Implementation.BirthdateValidation.validate(_account.BirthDate).IsSuccessful == false)
+            if (Implementation.BirthdateValidation.validate(account.BirthDate).IsSuccessful == false)
             {
                 result.ErrorMessage = "Email provided is invalid. Retry or contact admin.";
-                return Implementation.BirthdateValidation.validate(_account.BirthDate);
+                return Implementation.BirthdateValidation.validate(account.BirthDate);
             }
             
             //email validation
-            if (EmailValidation.validate(_account.Email).IsSuccessful == false)
+            if (EmailValidation.validate(account.Email).IsSuccessful == false)
             {
-                return EmailValidation.validate(_account.Email);
+                return EmailValidation.validate(account.Email);
             }
 
             //passphrase validation
-            if (PassphraseValidation.validate(_account.PassphraseHash).IsSuccessful == false)
+            if (PassphraseValidation.validate(account.PassphraseHash).IsSuccessful == false)
             {
-                return PassphraseValidation.validate(_account.PassphraseHash);
+                return PassphraseValidation.validate(account.PassphraseHash);
             }
 
             //unused email
             Dictionary<string, object> emailValue = new()
             {
-                { "Email", _account.Email }
+                { "Email", account.Email }
             };
             var selectAccount = await _registrationDAO.SelectAccount(new List<String> { "COUNT(Email)" }, emailValue).ConfigureAwait(false);
 
@@ -83,20 +83,20 @@ namespace DevelopmentHell.Hubba.Registration
                 if (selectAccount.Payload is not null)
                 {
                     List<List<object>> payload = (List<List<object>>)selectAccount.Payload;
-                    _account.Id = (int)payload[0][0] + 1;
-                    _account.Username = username;
-                    tempUsername = username + _account.Id;
+                    account.Id = (int)payload[0][0] + 1;
+                    account.Username = username;
+                    tempUsername = username + account.Id;
                 }
             }
 
             //get hash and salt for passphrase
-            HashPassphrase(_account.PassphraseHash, out string passphraseHash, out string passphraseSalt);
+            HashPassphrase(account.PassphraseHash, out string passphraseHash, out string passphraseSalt);
 
-            _account.PassphraseHash = passphraseHash;
-            _account.PassphraseSalt = passphraseSalt;
+            account.PassphraseHash = passphraseHash;
+            account.PassphraseSalt = passphraseSalt;
 
             //generate dictionary [String (column name), Object (value)
-            Dictionary<String, Object> values = DictonaryConversion.ObjectToDictionary(_account);
+            Dictionary<String, Object> values = DictonaryConversion.ObjectToDictionary(account);
 
             //insert account
             var insertAccount = await _registrationDAO.InsertAccount(values).ConfigureAwait(false);
