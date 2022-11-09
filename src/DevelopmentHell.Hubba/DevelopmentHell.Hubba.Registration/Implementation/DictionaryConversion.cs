@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-public class DictonaryConversion
+public class DictionaryConversion
 {
     public static Dictionary<string, object> ObjectToDictionary(object obj)
     {
