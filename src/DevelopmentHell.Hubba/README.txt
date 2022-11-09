@@ -10,20 +10,9 @@ To export db schema scripts:
 - go to visual studio -> solution explorer -> DAL -> right click DS_schemas
 - Add -> New Item -> search "sql" -> add new sql file with name appropriate to database (i.e. "DevelopmentHell.Hubba.Logging.sql")
 - paste generated script into there
-- add the following to the top of the script (disconnects all users and drops the db):
-
-USE [master]
-GO
-
-alter database [<insert db name>] set single_user with rollback immediate
-DROP DATABASE [<insert db name>]
-GO
 
 to run schema script:
 - open ssms
 - make sure to delete the database you want to run the sql file for (not just table)
-- open sql file in ssms
-  - if running on sqlexpress, change 'MSSQL15.MSSQLSERVER' to 'MSSQL15.SQLEXPRESS' run it
-  - else if running on dev sqlserver, change 'MSSQL15.SQLEXPRESS' to 'MSSQL15.MSSQLSERVER' run it
-  - if already is the one you need, don't worry
+- open sql file in ssms, run it
 - close and reopen ssms and check contents of newly made db
