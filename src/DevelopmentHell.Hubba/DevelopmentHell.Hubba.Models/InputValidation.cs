@@ -15,6 +15,7 @@ namespace DevelopmentHell.Hubba.Models
 
         public Result ValidateEmail(string email)
         {
+            _result.IsSuccessful = false;
             if (email == string.Empty)
             {
                 _result.ErrorMessage = "Please provide a valid email";
@@ -70,6 +71,20 @@ namespace DevelopmentHell.Hubba.Models
                 _result.ErrorMessage = "Can't validate email";
                 return _result;
             }
+        }
+        
+        public Result ValidateBirthdate(DateTime birthdate)
+        {
+            DateTime today = DateTime.Now;
+            if (today.Subtract(birthdate).Days < (365*14))
+            {
+                _result.IsSuccessful = false;
+                _result.ErrorMessage = "Age requirement not reached.";
+                return _result;
+            }
+            _result.IsSuccessful = true;
+            
+            return _result;
         }
 
         public Result ValidatePassphrase(string passphrase)

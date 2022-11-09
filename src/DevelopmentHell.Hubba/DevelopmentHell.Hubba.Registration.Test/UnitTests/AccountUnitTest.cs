@@ -3,6 +3,7 @@
 [TestClass]
 public class AccountUnitTest
 {
+    /*
     [TestMethod]
     public void ShouldCreateInstanceWithCtor()
     {
@@ -32,5 +33,5 @@ public class AccountUnitTest
         Assert.IsNotNull(actual);
         Assert.IsTrue(actual.GetType() == expected);
     }
-
+    */
 }

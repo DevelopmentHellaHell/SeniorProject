@@ -17,10 +17,6 @@ public class DictonaryConversion
                 {
                     ret.Add(propName, val);
                 }
-                else
-                {
-                    ret.Add(propName, null);
-                }
             }
 
             return ret;

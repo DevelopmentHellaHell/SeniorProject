@@ -31,6 +31,15 @@ namespace DevelopmentHell.Hubba.Registration
             result.IsSuccessful = false;
 
             var inputValidation = new InputValidation();
+
+            //age validation
+            if (inputValidation.ValidateBirthdate(_account.birthDate).IsSuccessful == false)
+            {
+                return inputValidation.ValidateBirthdate(_account.birthDate);
+            }
+
+
+
             //email validation
             if (inputValidation.ValidateEmail(_account.email).IsSuccessful == false)
             {
@@ -96,8 +105,6 @@ namespace DevelopmentHell.Hubba.Registration
 
 
             //generate dictionary [String (column name), Object (value)
-            //var accountDictionary = new AccountDictionary(_account);
-            //Dictionary<String, Object> values = AccountDictionary.CreateDictionary(_account);
             Dictionary<String, Object> values = DictonaryConversion.ObjectToDictionary(_account);
 
             //insert account
@@ -111,7 +118,7 @@ namespace DevelopmentHell.Hubba.Registration
             }
 
 
-            return result;
+            return new Result(true, "", tempUsername);
             
         }
         public Result HashPassphrase(string passphrase)

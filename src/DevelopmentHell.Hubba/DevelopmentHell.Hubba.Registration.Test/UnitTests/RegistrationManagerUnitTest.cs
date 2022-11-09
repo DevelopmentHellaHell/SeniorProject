@@ -3,7 +3,7 @@
 [TestClass]
 public class RegistrationManagerUnitTest
 {
-    [TestMethod]
+    /*[TestMethod]
     public void ShouldCreateInstanceWithCtor()
     {
         // Arrange
@@ -133,6 +133,7 @@ public class RegistrationManagerUnitTest
 
         // Assert
     }
+    */
 }
 //References:
 // Email test cases: https://www.rhyous.com/2010/06/15/csharp-email-regular-expression/

@@ -3,6 +3,7 @@
 [TestClass]
 public class RegistrationServiceUnitTest
 {
+    /*
     [TestMethod]
     public void ShouldCreateInstanceWithCtor()
     {
@@ -51,5 +52,5 @@ public class RegistrationServiceUnitTest
 
         // Assert
     }
-
+    */
 }
