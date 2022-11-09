@@ -375,12 +375,12 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
             stopwatch.Start();
             RegistrationManager manager = new RegistrationManager(jsonString);
             var actual = await manager.createAccount().ConfigureAwait(false);
-            Thread.Sleep(10000);
+            await Task.Delay(10000);
             stopwatch.Stop();
             var actualTime = stopwatch.ElapsedMilliseconds / 1000;
 
             // Assert
-            //Console.WriteLine(actual.ErrorMessage);
+            Console.WriteLine(actual.ErrorMessage);
             var AssertSAO = new SelectDataAccess(@"Server=localhost\SQLEXPRESS;Database=DevelopmentHell.Hubba.Accounts;Integrated Security=True;Encrypt=False");
             Result usernameResult = await AssertSAO.Select("Accounts", new List<string>() { "Username", "Id" }, new Dictionary<string, object> { { "Email", email } });
             if (usernameResult.Payload is null || actual.Payload is null)

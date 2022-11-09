@@ -38,11 +38,12 @@ public class EmailValidationUnitTest
 
         foreach (String goodEmail in goodEmails)
         {
-            var expected = new Result();
+            var expected = new Result(true);
             expected.IsSuccessful = true;
+
         //Act
-            var inputValidation = new Models.InputValidation();
-            var actual = inputValidation.ValidateEmail(goodEmail);
+            var actual = EmailValidation.validate(goodEmail);
+
         //Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsSuccessful == expected.IsSuccessful);
@@ -60,14 +61,14 @@ public class EmailValidationUnitTest
 
         foreach (String badEmail in badEmails)
         {
-            var expected = new Result();
-            expected.IsSuccessful = false;
+            var expected = new Result(false, "Email provided is invalid. Retry or contact admin.");
+
             //Act
-            var inputValidation = new Models.InputValidation();
-            var actual = inputValidation.ValidateEmail(badEmail);
+            var actual = EmailValidation.validate(badEmail);
             //Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsSuccessful == expected.IsSuccessful);
+            Assert.IsTrue(actual.ErrorMessage == expected.ErrorMessage);
         }
     }
 }

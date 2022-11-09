@@ -12,7 +12,7 @@ public class BirthdateValidationUnitTest
     public void ValidBirthdates()
     {
         // Arrange
-        var expected = new Result(false, "Age requirement not met.");
+        var expected = new Result(true);
         List<DateTime> goodBirthdates = new List<DateTime>();
         goodBirthdates.Add(new DateTime(2000, 01, 01));
         goodBirthdates.Add(new DateTime(2008, 11, 01));
