@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Reflection;
 
 public class DictonaryConversion
 {
-	public DictionaryConversion()
-    { 
+	
 
         public static Dictionary<string, object> ObjectToDictionary(object obj)
         {
@@ -25,5 +25,4 @@ public class DictonaryConversion
 
             return ret;
         }
-    }
 }
