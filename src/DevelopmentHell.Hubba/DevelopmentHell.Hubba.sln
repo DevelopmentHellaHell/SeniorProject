@@ -21,6 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CommonComponent", "CommonCo
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DS_schemas", "DS_schemas", "{F75CB884-6301-43D0-879C-B1C11673CB60}"
 	ProjectSection(SolutionItems) = preProject
+		DevelopmentHell.Hubba.Accounts.sql = DevelopmentHell.Hubba.Accounts.sql
 		DSREADME.txt = DSREADME.txt
 	EndProjectSection
 EndProject
