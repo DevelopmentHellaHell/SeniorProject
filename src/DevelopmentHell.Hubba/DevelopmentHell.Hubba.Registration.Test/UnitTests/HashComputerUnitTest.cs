@@ -10,10 +10,10 @@ public class HashComputerUnitTest
     public void ShouldCreateInstanceWithCtor()
     {
         // Arrange
-        var expected = typeof(Result);
+        var expected = typeof(IHash);
 
         // Act
-        var actual = new Result();
+        var actual = new IHash();
 
         // Assert
         Assert.IsNotNull(actual);
@@ -21,24 +21,34 @@ public class HashComputerUnitTest
     }
 
     [TestMethod]
-    public void ShouldReturnCoorectIsSuccessfulValue()
+    public void ShouldCreateInstanceWithParameterCtor()
     {
-        //Arrange
+        // Arrange
+        var expected = typeof(IHash);
+        var expectedText = "Pet !234";
 
-        //Act
+        // Act
+        var actual = new IHash(expectedText);
 
-        //Assert
-       
+        // Assert
+        Assert.IsNotNull(actual);
+        Assert.IsTrue(actual.GetType() == expected);
     }
 
     [TestMethod]
-    public void ShouldReturnAHash()
+    public void ShouldReturnAHashResult()
     {
         //Arrange
+        var expected = new Result();
+        expected.IsSuccessful = true;
+        expected.Payload = "idryoo9nIPMvcjfHexhcFO7UxpDPQmwcE2dwtZkIf5Y=";
 
         //Act
+        var actual = new IHash("Pet !234").ComputeHash();
 
         //Assert
+        Assert.IsNotNull(actual);
+        Assert.AreEqual(actual, expected);
     }
 
 }

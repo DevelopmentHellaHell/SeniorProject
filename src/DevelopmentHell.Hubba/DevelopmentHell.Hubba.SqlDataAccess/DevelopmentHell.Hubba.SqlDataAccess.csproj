@@ -18,5 +18,4 @@
   <ItemGroup>
     <ProjectReference Include="..\DevelopmentHell.Hubba.Models\DevelopmentHell.Hubba.Models.csproj" />
   </ItemGroup>
-
 </Project>

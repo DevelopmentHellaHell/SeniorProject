@@ -5,6 +5,7 @@ using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using System.Security.Cryptography;
 
 namespace DevelopmentHell.Hubba.Registration
 {
@@ -26,17 +27,13 @@ namespace DevelopmentHell.Hubba.Registration
             var result = new Result();
             result.IsSuccessful = false;
 
-            
-
             //age validation
             if (BirthdateValidation.validate(_account.BirthDate).IsSuccessful == false)
             {
                 result.ErrorMessage = "Email provided is invalid. Retry or contact admin.";
                 return BirthdateValidation.validate(_account.BirthDate);
             }
-
-
-
+            
             //email validation
             if (EmailValidation.validate(_account.Email).IsSuccessful == false)
             {
@@ -44,9 +41,9 @@ namespace DevelopmentHell.Hubba.Registration
             }
 
             //passphrase validation
-            if (PassphraseValidation.validate(_account.Passphrase).IsSuccessful == false)
+            if (PassphraseValidation.validate(_account.Hash).IsSuccessful == false)
             {
-                return PassphraseValidation.validate(_account.Passphrase);
+                return PassphraseValidation.validate(_account.Hash);
             }
 
             //unused email
@@ -95,6 +92,11 @@ namespace DevelopmentHell.Hubba.Registration
                 }
             }
 
+            //get hash and salt for passphrase
+            HashPassphrase(_account.Hash, out string passphraseHash, out string passphraseSalt);
+
+            _account.Hash = passphraseHash;
+            _account.Salt = passphraseSalt;
 
             //generate dictionary [String (column name), Object (value)
             Dictionary<String, Object> values = DictonaryConversion.ObjectToDictionary(_account);
@@ -108,15 +110,18 @@ namespace DevelopmentHell.Hubba.Registration
             }
 
 
-            return new Result(true, "", tempUsername);
+            return new Result(true, "Account created successfully", tempUsername);
             
         }
-        public Result HashPassphrase(string passphrase)
+        public void HashPassphrase(string passphrase, out string passphraseHash, out string passphraseSalt)
         {
-            //TODO: use Crytography library
             var result = new Result();
-            result.IsSuccessful = false;
-            return result;
+            using (var hmac = new HMACSHA512())
+            {
+                passphraseSalt = Convert.ToBase64String(hmac.Key);
+                passphraseHash = Convert.ToBase64String(hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(passphrase)));
+            }
         }
+
     }
 }
