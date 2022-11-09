@@ -1,56 +1,59 @@
 ﻿using DevelopmentHell.Hubba.Registration.Implementation;
+using DevelopmentHell.Hubba.Models;
 
-namespace DevelopmentHell.Hubba.Registration.Test;
+
+namespace DevelopmentHell.Hubba.Registration.Test.UnitTests;
+
 
 [TestClass]
 public class BirthdateValidationUnitTest
 {
     [TestMethod]
-    public void ShouldCreateInstanceWithCtor()
+    public void ValidBirthdates()
     {
         // Arrange
-        var expected = typeof(BirthdateValidation);
+        var expected = new Result(true);
+        List<DateTime> goodBirthdates = new List<DateTime>();
+        goodBirthdates.Add(new DateTime(2000, 01, 01));
+        goodBirthdates.Add(new DateTime(2008, 11, 01));
+        goodBirthdates.Add(new DateTime(1995, 05, 16));
 
-        // Act
-        var actual = new BirthdateValidation();
+        foreach (DateTime goodBirthdate in goodBirthdates)
+        {
+            //Act
+            var actual = BirthdateValidation.validate(goodBirthdate);
 
-        // Assert
-        Assert.IsNotNull(actual);
-        Assert.IsTrue(actual.GetType() == expected);
+            //Assert
+            Assert.IsNotNull(actual);
+            Assert.IsTrue(actual.GetType() == expected.GetType());
+            Assert.IsTrue(actual.IsSuccessful == expected.IsSuccessful);
+        }
+        
+        
     }
 
     [TestMethod]
-    public void ShouldReturnCorrectResultForBadBirthdate()
+    public void InvalidBirthdates() //make invalid date
     {
-        //Arrange
-        var expected = new Result();
-        expected.IsSuccessful = false;
-        expected.ErrorMessage = "Age requirement not reached.";
-        var expectedBD = new DateTime(2018, 1, 1);
+        // Arrange
+        var expected = new Result(false, "Age requirement not met.");
+        List<DateTime> badBirthdates = new List<DateTime>();
+        badBirthdates.Add(DateTime.Today);
+        badBirthdates.Add(new DateTime(2018, 11, 01));
+        badBirthdates.Add(new DateTime(2018, 11, 15));
 
-        //Act
-        var actual = BirthdateValidation.validate(expectedBD);
+        foreach (DateTime badBirthdate in badBirthdates)
+        {
+            //Act
+            var actual = BirthdateValidation.validate(badBirthdate);
 
-        //Assert
-        Assert.IsNotNull(actual);
-        Assert.IsTrue(actual.IsSuccessful == expected.IsSuccessful);
-        Assert.IsTrue(actual.ErrorMessage == expected.ErrorMessage);
+            //Assert
+            Assert.IsNotNull(actual);
+            Assert.IsTrue(actual.GetType() == expected.GetType());
+            Assert.IsTrue(actual.IsSuccessful == expected.IsSuccessful);
+            Assert.IsTrue(actual.ErrorMessage == expected.ErrorMessage);
+        }
     }
-    [TestMethod]
-    public void ShouldReturnCorrectResultForGoodBirthdate()
-    {
-        //Arrange
-        var expected = new Result();
-        expected.IsSuccessful = true;
-        var expectedBD = new DateTime(1985, 12, 1);
 
-        //Act
-        var actual = BirthdateValidation.validate(expectedBD);
-
-        //Assert
-        Assert.IsNotNull(actual);
-        Assert.IsTrue(actual.IsSuccessful == expected.IsSuccessful);
-        Assert.IsTrue(actual.ErrorMessage == expected.ErrorMessage);
-    }
 }
 //References:

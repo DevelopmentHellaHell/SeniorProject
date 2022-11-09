@@ -1,6 +1,6 @@
-﻿using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
+﻿using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using System.Diagnostics;
+using DevelopmentHell.Hubba.Models;
 
 
 namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
@@ -20,7 +20,7 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
             string jsonString =
             @"{
               ""Email"": ""TestEmail1@gmail.com"",
-              ""Passphrase"": ""Test Case Reg-01"",
+              ""PassphraseHash"": ""Test Case Reg-01"",
              ""BirthDate"": ""2001-01-01""
             }";
 
@@ -61,7 +61,7 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
             string jsonString =
             @"{
               ""Email"": ""TestEmail2@gmail.com"",
-              ""Passphrase"": ""Test Case Reg-02"",
+              ""PassphraseHash"": ""Test Case Reg-02"",
              ""BirthDate"": ""2001-01-01""
             }";
 
@@ -102,7 +102,7 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
             string jsonString =
             @"{
               ""Email"": ""Test3.com"",
-              ""Passphrase"": ""Test Case Reg-03"",
+              ""PassphraseHash"": ""Test Case Reg-03"",
              ""BirthDate"": ""2001-01-01""
             }";
 
@@ -141,7 +141,7 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
             string jsonString =
             @"{
               ""Email"": ""Test4@com"",
-              ""Passphrase"": ""Test Case Reg-04"",
+              ""PassphraseHash"": ""Test Case Reg-04"",
              ""BirthDate"": ""2001-01-01""
             }";
 
@@ -178,7 +178,7 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
             string jsonString =
             @"{
               ""Email"": ""Test5@gmail."",
-              ""Passphrase"": ""Test Case Reg-05"",
+              ""PassphraseHash"": ""Test Case Reg-05"",
              ""BirthDate"": ""2001-01-01""
             }";
 
@@ -215,7 +215,7 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
             string jsonString =
             @"{
               ""Email"": ""Test6@.com"",
-              ""Passphrase"": ""Test Case Reg-06"",
+              ""PassphraseHash"": ""Test Case Reg-06"",
              ""BirthDate"": ""2001-01-01""
             }";
 
@@ -252,7 +252,7 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
             string jsonString =
             @"{
               ""Email"": ""TestEmail1@gmail.com"",
-              ""Passphrase"": ""Test Case Reg-07"",
+              ""PassphraseHash"": ""Test Case Reg-07"",
              ""BirthDate"": ""2001-01-01""
             }";
 
@@ -290,7 +290,7 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
             string jsonString =
             @"{
               ""Email"": ""TestEmail8@gmail.com"",
-              ""Passphrase"": ""Test Case Reg(08)"",
+              ""PassphraseHash"": ""Test Case Reg(08)"",
              ""BirthDate"": ""2001-01-01""
             }";
 
@@ -367,7 +367,7 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
             string jsonString =
             @"{
               ""Email"": ""TestEmail10@gmail.com"",
-              ""Passphrase"": ""Test Case Reg-10"",
+              ""PassphraseHash"": ""Test Case Reg-10"",
              ""BirthDate"": ""2001-01-01""
             }";
 
@@ -375,12 +375,12 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
             stopwatch.Start();
             RegistrationManager manager = new RegistrationManager(jsonString);
             var actual = await manager.createAccount().ConfigureAwait(false);
-            Thread.Sleep(10000);
+            await Task.Delay(10000);
             stopwatch.Stop();
             var actualTime = stopwatch.ElapsedMilliseconds / 1000;
 
             // Assert
-            //Console.WriteLine(actual.ErrorMessage);
+            Console.WriteLine(actual.ErrorMessage);
             var AssertSAO = new SelectDataAccess(@"Server=localhost\SQLEXPRESS;Database=DevelopmentHell.Hubba.Accounts;Integrated Security=True;Encrypt=False");
             Result usernameResult = await AssertSAO.Select("Accounts", new List<string>() { "Username", "Id" }, new Dictionary<string, object> { { "Email", email } });
             if (usernameResult.Payload is null || actual.Payload is null)
@@ -406,11 +406,11 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
             var expected = typeof(Result);
             var stopwatch = new Stopwatch();
             var expectedTime = 5;
-            Result expectedResult = new Result(false, "Age requirement not reached.");
+            Result expectedResult = new Result(false, "Age requirement not met.");
             string jsonString =
             @"{
               ""Email"": ""TestEmail11@gmail.com"",
-              ""Passphrase"": ""Test Case Reg-11"",
+              ""PassphraseHash"": ""Test Case Reg-11"",
              ""BirthDate"": ""2015-01-01""
             }";
 
@@ -436,6 +436,5 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
             }
         }
 
-        
     }
 }

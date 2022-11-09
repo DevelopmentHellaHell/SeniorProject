@@ -1,5 +1,6 @@
-﻿
-namespace DevelopmentHell.Hubba.Registration.Test;
+﻿using DevelopmentHell.Hubba.Models;
+
+namespace DevelopmentHell.Hubba.Registration.Test.UnitTests;
 
 [TestClass]
 public class ResultUnitTest

@@ -1,10 +1,5 @@
-﻿using DevelopmentHell.Hubba.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
+using DevelopmentHell.Hubba.Models;
 
 namespace DevelopmentHell.Hubba.Registration.Implementation
 {
@@ -23,11 +18,7 @@ namespace DevelopmentHell.Hubba.Registration.Implementation
             Result result = new Result();
             result.IsSuccessful = false;
             Regex rx = new(@"[^A-Za-z0-9.,@! -]");
-            if (rx.IsMatch(passphrase))
-            {
-                result.ErrorMessage = "Passphrase provided is invalid. Retry or contact admin.";
-                return result;
-            } else if (passphrase.Length < 8)
+            if (rx.IsMatch(passphrase) || passphrase.Length < 8)
             {
                 result.ErrorMessage = "Passphrase provided is invalid. Retry or contact admin.";
                 return result;

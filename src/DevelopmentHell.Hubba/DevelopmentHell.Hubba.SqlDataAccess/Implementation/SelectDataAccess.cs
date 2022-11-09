@@ -2,7 +2,7 @@
 using System.Data;
 using System.Text;
 using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.Registration;
+
 
 namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
 {

@@ -1,18 +1,15 @@
-﻿using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.Registration.Implementation;
+﻿using DevelopmentHell.Hubba.Registration.Implementation;
 using DevelopmentHell.Hubba.SqlDataAccess;
-using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Reflection;
+using System.Configuration;
 using System.Security.Cryptography;
+using DevelopmentHell.Hubba.Models;
 
 namespace DevelopmentHell.Hubba.Registration
 {
     public class RegistrationService
     {
         private Account _account;
-        private static string _connectionString = @"Server=localhost\SQLEXPRESS;Database=DevelopmentHell.Hubba.Accounts;Integrated Security=True;Encrypt=False";
+        private static string _connectionString = String.Format(@"Server=localhost\SQLEXPRESS;Database=DevelopmentHell.Hubba.Accounts;Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["AccountServer"]);
         private RegistrationDataAccess _registrationDAO;
 
         public RegistrationService(Account account)
@@ -23,30 +20,27 @@ namespace DevelopmentHell.Hubba.Registration
 
         public async Task<Result> RegisterAccount()
         {
-
+            
             var result = new Result();
             result.IsSuccessful = false;
 
             //age validation
             if (Implementation.BirthdateValidation.validate(_account.BirthDate).IsSuccessful == false)
             {
-                result.ErrorMessage = "Birthdate provided is invalid. Retry or contact admin.";
-                return BirthdateValidation.validate(_account.BirthDate);
+                result.ErrorMessage = "Email provided is invalid. Retry or contact admin.";
+                return Implementation.BirthdateValidation.validate(_account.BirthDate);
             }
-
+            
             //email validation
             if (EmailValidation.validate(_account.Email).IsSuccessful == false)
             {
-                result.ErrorMessage = "Email provided is invalid. Retry or contact admin.";
                 return EmailValidation.validate(_account.Email);
             }
 
             //passphrase validation
-            var passphrase = _account.PassphraseHash;
-            if (PassphraseValidation.validate(passphrase).IsSuccessful == false)
+            if (PassphraseValidation.validate(_account.PassphraseHash).IsSuccessful == false)
             {
-                result.ErrorMessage = "Passphrase provided is invalid. Retry or contact admin.";
-                return PassphraseValidation.validate(passphrase);
+                return PassphraseValidation.validate(_account.PassphraseHash);
             }
 
             //unused email
@@ -80,11 +74,11 @@ namespace DevelopmentHell.Hubba.Registration
             {
                 { "Username", username }
             };
-            selectAccount = await _registrationDAO.SelectAccount(new List<string> { "COUNT(Username)" }, usernameValue).ConfigureAwait(false);
+            selectAccount = await _registrationDAO.SelectAccount( new List<string> { "COUNT(Username)" }, usernameValue).ConfigureAwait(false);
 
             //assign id to account based on username check
             string tempUsername = "";
-            if (selectAccount is not null)
+			if (selectAccount is not null)
             {
                 if (selectAccount.Payload is not null)
                 {
@@ -95,11 +89,9 @@ namespace DevelopmentHell.Hubba.Registration
                 }
             }
 
-
             //get hash and salt for passphrase
-            HashPassphrase(passphrase, out string passphraseHash, out string passphraseSalt);
+            HashPassphrase(_account.PassphraseHash, out string passphraseHash, out string passphraseSalt);
 
-            //store Hash and Salt for passphrase
             _account.PassphraseHash = passphraseHash;
             _account.PassphraseSalt = passphraseSalt;
 
@@ -108,15 +100,16 @@ namespace DevelopmentHell.Hubba.Registration
 
             //insert account
             var insertAccount = await _registrationDAO.InsertAccount(values).ConfigureAwait(false);
-
+            
             if (insertAccount.IsSuccessful == false)
             {
+                insertAccount.ErrorMessage = "Username creation error. Please try again or contact admin.";
                 return insertAccount;
             }
 
 
             return new Result(true, "Account created successfully", tempUsername);
-
+            
         }
         public void HashPassphrase(string passphrase, out string passphraseHash, out string passphraseSalt)
         {
@@ -127,5 +120,6 @@ namespace DevelopmentHell.Hubba.Registration
                 passphraseHash = Convert.ToBase64String(hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(passphrase)));
             }
         }
+
     }
 }
