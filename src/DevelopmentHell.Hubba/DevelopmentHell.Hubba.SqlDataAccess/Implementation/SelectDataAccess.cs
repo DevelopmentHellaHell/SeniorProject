@@ -14,7 +14,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
             connectionPath = inPath;
         }
 
-        private Result SendQuery(SqlCommand query, int columnLength)
+        private async Task<Result> SendQuery(SqlCommand query, int columnLength)
         {
             try
             {
@@ -22,8 +22,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
                 {
                     query.Connection = conn;
                     List<List<object>> payload = new();
-                    conn.Open();
-                    using (SqlDataReader reader = query.ExecuteReader())
+                    await conn.OpenAsync();
+                    using (SqlDataReader reader = await query.ExecuteReaderAsync().ConfigureAwait(false))
                     {
                         while (reader.Read())
                         {
@@ -46,7 +46,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
             }
         }
 
-        public Result Select(string table, List<string> columns, Dictionary<string, object> filters)
+        public async Task<Result> Select(string table, List<string> columns, Dictionary<string, object> filters)
         {
             //TODO add implementation for group by, order by, having
             using (SqlCommand insertQuery = new SqlCommand())
@@ -78,7 +78,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
                 }
                 insertQuery.CommandText = string.Format("SELECT {0} FROM {1} WHERE {2}", sbColumn.ToString(), table, sbFilter.ToString());
 
-                return SendQuery(insertQuery, columns.Count);
+                return await SendQuery(insertQuery, columns.Count).ConfigureAwait(false);
             }
         }
 

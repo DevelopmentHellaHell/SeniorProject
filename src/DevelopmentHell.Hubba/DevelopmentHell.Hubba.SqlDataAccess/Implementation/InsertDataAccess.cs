@@ -13,7 +13,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
         {
             connectionPath = inPath;
         }
-        private Result SendQuery(SqlCommand query)
+        private async Task<Result> SendQuery(SqlCommand query)
         {
             try
             {
@@ -21,8 +21,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
                 {
                     query.Connection = conn;
 
-                    conn.Open();
-                    query.ExecuteNonQuery();
+                    await conn.OpenAsync().ConfigureAwait(false);
+                    await query.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
                 // TODO: figure out what to fill these with
                 return new Result();
@@ -33,7 +33,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
             }
         }
 
-        public Result Insert(string table, Dictionary<string, object> values)
+        public async Task<Result> Insert(string table, Dictionary<string, object> values)
         {
             using (SqlCommand insertQuery = new SqlCommand())
             {
@@ -56,7 +56,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
                 }
                 insertQuery.CommandText = string.Format("INSERT into {0}({1}) VALUES ({2})", table, columnString, valueString);
 
-                return SendQuery(insertQuery);
+                return await SendQuery(insertQuery).ConfigureAwait(false);
             }
         }
     }
