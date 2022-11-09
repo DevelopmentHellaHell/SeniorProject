@@ -17,12 +17,14 @@ namespace DevelopmentHell.Hubba.Logging.Test
         private readonly Models.LogLevel[] failureLevels = { Models.LogLevel.WARNING, Models.LogLevel.ERROR };
         private readonly Models.LogLevel[] successLevels = { Models.LogLevel.DEBUG, Models.LogLevel.INFO };
 
+		private static string expectedDatabaseName = "DevelopmentHell.Hubba.Logs";
+		private static string connectionString = String.Format(@"Server={0};Database={1};Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.Logging;Password=password", ConfigurationManager.AppSettings["LoggingServer"], expectedDatabaseName);
+		private LoggingDataAccess dataAccess = new LoggingDataAccess(connectionString);
+
 		[TestMethod]
 		public async Task ConnectionSuccessful()
 		{
 			// Arrange
-			var expectedDatabaseName = "DevelopmentHell.Hubba.Logs";
-			var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["LoggingServer"], expectedDatabaseName);
 			var sut = new Logger(new LoggingDataAccess(connectionString), Models.Category.VIEW);
 			var connectionAvailible = false;
 
@@ -36,6 +38,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 				}
 				catch (SqlException e)
 				{
+					Console.WriteLine(e.ToString());
 					connectionAvailible = false;
 				}
 			}
@@ -49,10 +52,6 @@ namespace DevelopmentHell.Hubba.Logging.Test
 		public async Task SuccessfulLogSystemSuccess()
 		{
 			// Arrange
-            var expectedDatabaseName = "DevelopmentHell.Hubba.Logs";
-            var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["LoggingServer"], expectedDatabaseName);
-            var dataAccess = new LoggingDataAccess(connectionString);
-
             foreach (var logLevel in successLevels)
             {
                 var category = Models.Category.VIEW;
@@ -78,10 +77,6 @@ namespace DevelopmentHell.Hubba.Logging.Test
         public async Task SuccessfulLogSystemFailure()
         {
 			// Arrange
-            var expectedDatabaseName = "DevelopmentHell.Hubba.Logs";
-            var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["LoggingServer"], expectedDatabaseName);
-            var dataAccess = new LoggingDataAccess(connectionString);
-
             foreach (var logLevel in failureLevels)
             {
                 var category = Models.Category.VIEW;
@@ -107,10 +102,6 @@ namespace DevelopmentHell.Hubba.Logging.Test
         public async Task SuccessfulLogUserSuccess()
         {
 			// Arrange
-            var expectedDatabaseName = "DevelopmentHell.Hubba.Logs";
-            var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["LoggingServer"], expectedDatabaseName);
-            var dataAccess = new LoggingDataAccess(connectionString);
-
             foreach (var logLevel in successLevels)
             {
                 var category = Models.Category.VIEW;
@@ -136,10 +127,6 @@ namespace DevelopmentHell.Hubba.Logging.Test
         public async Task SuccessfulLogUserFailure()
         {
 			// Arrange
-            var expectedDatabaseName = "DevelopmentHell.Hubba.Logs";
-            var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["LoggingServer"], expectedDatabaseName);
-            var dataAccess = new LoggingDataAccess(connectionString);
-
             foreach (var logLevel in failureLevels)
             {
                 var category = Models.Category.VIEW;
@@ -165,10 +152,6 @@ namespace DevelopmentHell.Hubba.Logging.Test
 		public async Task LogWithin5Seconds()
 		{
 			// Arrange
-			var expectedDatabaseName = "DevelopmentHell.Hubba.Logs";
-			var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["LoggingServer"], expectedDatabaseName);
-			var dataAccess = new LoggingDataAccess(connectionString);
-
 			var category = Models.Category.VIEW;
 			var logLevel = Models.LogLevel.INFO;
 			var userName = "System";
@@ -179,12 +162,12 @@ namespace DevelopmentHell.Hubba.Logging.Test
 
 			// Act
 			stopwatch.Start();
-			await sut.Log(logLevel, userName, message);
+			var result = await sut.Log(logLevel, userName, message);
 			stopwatch.Stop();
-			
+
 			// Assert
 			Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
-
+			Assert.IsTrue(result.IsSuccessful);
 		}
 
 		// Failure Case 2
@@ -192,10 +175,6 @@ namespace DevelopmentHell.Hubba.Logging.Test
 		public void LogWriteSuccessWithoutBlocking()
 		{
 			// Arrange
-			var expectedDatabaseName = "DevelopmentHell.Hubba.Logs";
-			var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["LoggingServer"], expectedDatabaseName);
-			var dataAccess = new LoggingDataAccess(connectionString);
-
 			var category = Models.Category.VIEW;
 			var logLevel = Models.LogLevel.INFO;
 			var userName = "System";
@@ -204,16 +183,18 @@ namespace DevelopmentHell.Hubba.Logging.Test
 
 			// Code modified from https://stackoverflow.com/questions/27409247/how-to-test-blocking-function
 			var ev = new AutoResetEvent(false);
-
+			Result actual = new Result();
 			// Act
 			ThreadPool.QueueUserWorkItem(async (e) =>
 			{
-				var actual = await sut.Log(logLevel, userName, message);
+				actual = await sut.Log(logLevel, userName, message);
+
 				(e as AutoResetEvent)!.Set();
 			}, ev);
 
 			// Assert
 			Assert.IsTrue(ev.WaitOne(1000));
+			Assert.IsTrue(actual.IsSuccessful);
 		}
 
 		// Failure Case 3
@@ -221,10 +202,6 @@ namespace DevelopmentHell.Hubba.Logging.Test
 		public async Task LogWriteSuccessWithin5Seconds()
 		{
 			// Arrange
-			var expectedDatabaseName = "DevelopmentHell.Hubba.Logs";
-			var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["LoggingServer"], expectedDatabaseName);
-			var dataAccess = new LoggingDataAccess(connectionString);
-
 			var category = Models.Category.VIEW;
 			var logLevel = Models.LogLevel.INFO;
 			var userName = "System";
@@ -271,10 +248,6 @@ namespace DevelopmentHell.Hubba.Logging.Test
 		public async Task LogWriteSuccessAccurateWithin5Seconds()
 		{
             // Arrange
-            var expectedDatabaseName = "DevelopmentHell.Hubba.Logs";
-            var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["LoggingServer"], expectedDatabaseName);
-            var dataAccess = new LoggingDataAccess(connectionString);
-
 			var category = Models.Category.VIEW;
 			var logLevel = Models.LogLevel.INFO;
 			var userName = "System";
@@ -323,10 +296,6 @@ namespace DevelopmentHell.Hubba.Logging.Test
 		public async Task LogWriteIsNotModifiable()
 		{
 			// Arrange
-			var expectedDatabaseName = "DevelopmentHell.Hubba.Logs";
-			var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["LoggingServer"], expectedDatabaseName);
-			var dataAccess = new LoggingDataAccess(connectionString);
-
 			var category = Models.Category.VIEW;
 			var logLevel = Models.LogLevel.INFO;
 			var userName = "System";

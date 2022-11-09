@@ -5,7 +5,7 @@ alter database [DevelopmentHell.Hubba.Logs] set single_user with rollback immedi
 DROP DATABASE [DevelopmentHell.Hubba.Logs]
 GO
 
-/****** Object:  Database [DevelopmentHell.Hubba.Logs]    Script Date: 11/8/2022 4:50:51 PM ******/
+/****** Object:  Database [DevelopmentHell.Hubba.Logs]    Script Date: 11/9/2022 1:42:30 PM ******/
 CREATE DATABASE [DevelopmentHell.Hubba.Logs]
  CONTAINMENT = NONE
  ON  PRIMARY 
@@ -87,18 +87,17 @@ ALTER DATABASE [DevelopmentHell.Hubba.Logs] SET QUERY_STORE = OFF
 GO
 USE [DevelopmentHell.Hubba.Logs]
 GO
-/****** Object:  Table [dbo].[Logs]    Script Date: 11/8/2022 4:50:51 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[Logs](
-	[id] [int] IDENTITY(1,1) NOT NULL,
-	[timestamp] [datetime2](3) NOT NULL,
-	[logLevel] [int] NOT NULL,
-	[category] [int] NOT NULL,
-	[userName] [nvarchar](50) NOT NULL,
-	[message] [nvarchar](200) NOT NULL,
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Timestamp] [datetime2](3) NOT NULL,
+	[LogLevel] [int] NOT NULL,
+	[Category] [int] NOT NULL,
+	[UserName] [nvarchar](50) NOT NULL,
+	[Message] [nvarchar](200) NOT NULL,
  CONSTRAINT [PK_Logs] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -109,3 +108,4 @@ USE [master]
 GO
 ALTER DATABASE [DevelopmentHell.Hubba.Logs] SET  READ_WRITE 
 GO
+

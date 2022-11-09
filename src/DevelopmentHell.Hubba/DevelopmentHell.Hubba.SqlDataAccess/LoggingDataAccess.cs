@@ -27,11 +27,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 		{
 			var logDictionary = new Dictionary<string, object>()
 			{
-				{ "timestamp", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff",CultureInfo.InvariantCulture)},
-				{ "logLevel", logLevel },
-				{ "category", category },
-				{ "userName", userName },
-				{ "message", message },
+				{ "Timestamp", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff",CultureInfo.InvariantCulture)},
+				{ "LogLevel", logLevel },
+				{ "Category", category },
+				{ "UserName", userName },
+				{ "Message", message },
 			};
 
 			var insertResult = await _insertDataAccess.Insert(_tableName, logDictionary).ConfigureAwait(false);
