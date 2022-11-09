@@ -56,7 +56,7 @@ public class InputValidationUnitTest
         List<String> badEmails = new List<String>();
         badEmails.Add("joe"); 
         badEmails.Add("joe@home"); 
-        badEmails.Add("j @@home"); 
+        badEmails.Add("j @@home");
 
         foreach (String badEmail in badEmails)
         {

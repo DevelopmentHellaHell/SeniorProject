@@ -1,5 +1,6 @@
 ﻿using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using DevelopmentHell.Hubba.Models;
+using System.Configuration;
 
 namespace DevelopmentHell.Hubba.Registration.Test
 {
@@ -91,7 +92,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
             var expected = typeof(SelectDataAccess);
             var expectedTableName = "Accounts";
             var expectedDatabaseName = "DevelopmentHell.Hubba.Accounts";
-            var connectionString = String.Format(@"Server=localhost\SQLEXPRESS;Database={0};Integrated Security=True;Encrypt=False", expectedDatabaseName);
+            var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["AccountServer"],expectedDatabaseName);
             Dictionary<string, object> values = new()
             {
                 { "age", 28 }
@@ -112,13 +113,15 @@ namespace DevelopmentHell.Hubba.Registration.Test
                 { "username", username },
                 { "email", email },
                 { "passphrase", passphrase },
-                { "last_interaction", last_interaction },
-                { "admin_account", admin_account },
-                { "age", 28 }
+                { "lastInteraction", last_interaction },
+                { "adminAccount", admin_account },
+                { "birthDate", 28 }
 
             };
             var actualInsert = new InsertDataAccess(connectionString);
-            await actualInsert.Insert(expectedTableName, newUserAccountCredentials).ConfigureAwait(false);
+            var insertResult = await actualInsert.Insert(expectedTableName, newUserAccountCredentials).ConfigureAwait(false);
+            Console.WriteLine(insertResult.ErrorMessage);
+            Assert.IsTrue(insertResult.IsSuccessful);
 
 
             // Act

@@ -101,7 +101,7 @@ namespace DevelopmentHell.Hubba.Models
             //.,@!-
 
             Regex rx = new(@"[^A-Za-z0-9.,@! -]");
-            if (rx.IsMatch(passphrase))
+            if (rx.IsMatch(passphrase) || passphrase.Length <= 8)
             {
                 _result.IsSuccessful = false;
                 _result.ErrorMessage = "Passphrase provided is invalid. Retry or contact admin.";
