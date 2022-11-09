@@ -3,6 +3,8 @@ using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using System.Configuration;
 using System.Diagnostics;
+using System.Drawing.Printing;
+using System.Globalization;
 using System.Reflection;
 
 namespace DevelopmentHell.Hubba.Logging.Test
@@ -42,8 +44,9 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			var sut = new Logger(dataAccess, category);
 			
 			var stopwatch = new Stopwatch();
-			
+
 			// Act
+			var startTime = DateTime.UtcNow;
 			stopwatch.Start();
 			var actual = await sut.Log(logLevel, userName, message);
 			stopwatch.Stop();
@@ -60,7 +63,19 @@ namespace DevelopmentHell.Hubba.Logging.Test
 				{ "message", message },
 			});
 
-			Assert.IsTrue(dbCheck.Payload!.Count >= 1);
+			bool foundWithinTime = false;
+			foreach (List<object> row in (dbCheck.Payload as List<List<object>>)!)
+			{
+				var now = Convert.ToDateTime((DateTime?)row[1]);
+				var timeDiff = now.Subtract(startTime).TotalSeconds;
+                if (0 <= timeDiff && timeDiff < 5)
+				{
+					foundWithinTime = true;
+					break;
+				}
+			}
+			Assert.IsTrue(foundWithinTime);
+			Assert.IsTrue((dbCheck.Payload as List<List<object>>)!.Count >= 1);
 
         }
 	}

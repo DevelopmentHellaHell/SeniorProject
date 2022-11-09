@@ -89,7 +89,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[Logs](
 	[id] [int] IDENTITY(1,1) NOT NULL,
-	[timestamp] [datetime] NOT NULL,
+	[timestamp] [datetime2](3) NOT NULL,
 	[logLevel] [int] NOT NULL,
 	[category] [int] NOT NULL,
 	[userName] [nvarchar](50) NOT NULL,

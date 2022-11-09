@@ -4,6 +4,7 @@ using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 		{
 			var logDictionary = new Dictionary<string, object>()
 			{
-				{ "timestamp", DateTime.Now },
+				{ "timestamp", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff",CultureInfo.InvariantCulture)},
 				{ "logLevel", logLevel },
 				{ "category", category },
 				{ "userName", userName },
