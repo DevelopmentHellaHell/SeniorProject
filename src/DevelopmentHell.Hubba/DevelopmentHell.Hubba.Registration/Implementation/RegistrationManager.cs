@@ -24,13 +24,10 @@ namespace DevelopmentHell.Hubba.Registration
                 return new Result(false, "Unable to initialize Account from JSON data");
             }
             newAccount.AdminAccount = false;
-            RegistrationService userService = new RegistrationService();
+            RegistrationService userService = new RegistrationService(newAccount);
 
-
-            return await userService.RegisterAccount(newAccount).ConfigureAwait(false);
-
+            return await userService.RegisterAccount().ConfigureAwait(false);
         }
-        
     }
 }
 // References:

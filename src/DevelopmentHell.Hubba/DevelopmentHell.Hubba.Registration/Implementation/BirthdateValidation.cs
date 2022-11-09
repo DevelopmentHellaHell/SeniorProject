@@ -13,6 +13,7 @@ namespace DevelopmentHell.Hubba.Registration.Implementation
         {
             Result result = new Result();
             result.IsSuccessful = false;
+
             DateTime today = DateTime.Now;
             if (today.Subtract(birthdate).Days < (365 * 14))
             {

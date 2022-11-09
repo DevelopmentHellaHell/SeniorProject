@@ -1,6 +1,5 @@
 ﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
-using System.Configuration;
 using System.Diagnostics;
 
 
@@ -34,7 +33,7 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
 
             // Assert
             Console.WriteLine(actual.ErrorMessage);
-            var AssertSAO = new SelectDataAccess(String.Format(@"Server={0};Database=DevelopmentHell.Hubba.Accounts;Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["AccountServer"]));
+            var AssertSAO = new SelectDataAccess(@"Server=localhost\SQLEXPRESS;Database=DevelopmentHell.Hubba.Accounts;Integrated Security=True;Encrypt=False");
             Result usernameResult = await AssertSAO.Select("Accounts", new List<string>() { "Username", "Id" }, new Dictionary<string, object> { { "Email", email } });
             if (usernameResult.Payload is null || actual.Payload is null)
             {
@@ -74,7 +73,7 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
             var actualTime = stopwatch.ElapsedMilliseconds / 1000;
 
             // Assert
-            var AssertSAO = new SelectDataAccess(String.Format(@"Server={0};Database=DevelopmentHell.Hubba.Accounts;Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["AccountServer"]));
+            var AssertSAO = new SelectDataAccess(@"Server=localhost\SQLEXPRESS;Database=DevelopmentHell.Hubba.Accounts;Integrated Security=True;Encrypt=False");
             Result usernameResult = await AssertSAO.Select("Accounts", new List<string>() { "Username", "Id" }, new Dictionary<string, object> { { "Email", email } });
             if (usernameResult.Payload is null || actual.Payload is null)
             {
@@ -382,8 +381,7 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
 
             // Assert
             //Console.WriteLine(actual.ErrorMessage);
-            var AssertSAO = new SelectDataAccess(String.Format(@"Server={0};Database=DevelopmentHell.Hubba.Accounts;Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["AccountServer"]));
-            
+            var AssertSAO = new SelectDataAccess(@"Server=localhost\SQLEXPRESS;Database=DevelopmentHell.Hubba.Accounts;Integrated Security=True;Encrypt=False");
             Result usernameResult = await AssertSAO.Select("Accounts", new List<string>() { "Username", "Id" }, new Dictionary<string, object> { { "Email", email } });
             if (usernameResult.Payload is null || actual.Payload is null)
             {

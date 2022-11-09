@@ -30,4 +30,7 @@
     <None Remove="UnitTests\" />
     <None Remove="IntegrationTests\" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="UnitTests\InputValidationUnitTest.cs" />
+  </ItemGroup>
 </Project>

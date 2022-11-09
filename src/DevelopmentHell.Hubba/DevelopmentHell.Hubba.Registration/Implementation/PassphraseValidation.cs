@@ -10,7 +10,6 @@ namespace DevelopmentHell.Hubba.Registration.Implementation
 {
     public class PassphraseValidation
     {
-
         //passphrase satisfies length and format
         //length: min 8 character
         //format: valid characters:

@@ -13,7 +13,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
             // Arrange
             var expected = typeof(InsertDataAccess);
             var expectedDatabaseName = "DevelopmentHell.Hubba.Accounts";
-            var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["AccountServer"], expectedDatabaseName);
+            var connectionString = String.Format(@"Server=localhost\SQLEXPRESS;Database={0};Integrated Security=True;Encrypt=False", expectedDatabaseName);
 
             // Act
             var actual = new InsertDataAccess(connectionString);
@@ -31,7 +31,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
             var expected = typeof(InsertDataAccess);
             var expectedTableName = "Accounts";
             var expectedDatabaseName = "DevelopmentHell.Hubba.Accounts";
-            var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["AccountServer"], expectedDatabaseName);
+            var connectionString = String.Format(@"Server=localhost\SQLEXPRESS;Database={0};Integrated Security=True;Encrypt=False", expectedDatabaseName);
             string username = "coolkoala";
             string email = @"Email@random.com";
             string passphrase = "c0o1p4s5phra53";
@@ -65,7 +65,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
             var expected = typeof(UpdateDataAccess);
             var expectedTableName = "Accounts";
             var expectedDatabaseName = "DevelopmentHell.Hubba.Accounts";
-            var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["AccountServer"], expectedDatabaseName);
+            var connectionString = String.Format(@"Server=localhost\SQLEXPRESS;Database={0};Integrated Security=True;Encrypt=False", expectedDatabaseName);
             string email = @"Email@random.com";
             Tuple<string, object> key = new Tuple<string, object>("email", email);
             Dictionary<string, object> values = new()
