@@ -14,7 +14,7 @@ namespace DevelopmentHell.Hubba.Registration.Implementation
 {
     public class UsernameGeneration
     {
-        private string[] animals = {"Cat", "Dog", "Elephant", "Serval", "Ocelot", "Giraffe", "Caracal", "Saiga", "Viper", "Macaw", "Bear", "Margay",
+        private readonly string[] _animals = {"Cat", "Dog", "Elephant", "Serval", "Ocelot", "Giraffe", "Caracal", "Saiga", "Viper", "Macaw", "Bear", "Margay",
             "Ferret", "Tapir", "Agouti", "Fringehead", "Markhor", "Kookaburra", "Kingfisher", "Langur", "Baboon", "Mandrill",
             "Vulture", "Buzzard", "Avocet", "Albatross", "Dragon", "Lemur", "Sifaka", "Cockroach", "Fossa", "Otter", "Raccoon", "Quail", "Emu",
             "Rhea", "Cassowary", "Pademelon", "Barracuda", "Owl", "Alpaca", "Paca", "Gemsbok", "Eel", "Cheetah", "Catfish",
@@ -23,7 +23,7 @@ namespace DevelopmentHell.Hubba.Registration.Implementation
             "Lobster", "Crab", "Orca", "Civet", "Barb", "Dugong", "Cow", "Woodpecker", "Wombat", "Penguin", "Newt", "Toad", "Shark", "Okapi", "Fish",
             "Krait", "Boa" };
 
-        private string[] adjectives = {"other", "new", "good", "high", "old", "great", "big", "American", "small", "large", "national",
+        private readonly string[] _adjectives = {"other", "new", "good", "high", "old", "great", "big", "American", "small", "large", "national",
             "young", "different", "little", "important", "political", "bad", "real", "best", "social", "only", "low", "early", "human", "local", "late",
             "hard", "major", "better", "economic", "strong", "whole", "free", "military", "true", "federal", "international", "full", "special",
             "easy", "clear", "recent", "certain", "personal", "open", "red", "difficult", "available", "likely", "short", "single", "medical", "current",
@@ -31,7 +31,7 @@ namespace DevelopmentHell.Hubba.Registration.Implementation
             "ready", "simple", "left", "physical", "general", "environmental", "financial", "blue", "democratic", "dark", "various", "entire", "close", "legal",
             "religious", "cold", "final", "main", "green", "nice", "huge", "popular", "traditional", "cultural"};
 
-        private string username;
+        private string? _username;
 
         public String generateUsername()
         {
@@ -39,23 +39,23 @@ namespace DevelopmentHell.Hubba.Registration.Implementation
 
             //adjective
 
-            string adjective = adjectives[random.Next(adjectives.Length)];
-            username += adjective.ToLower() + '.';
+            string adjective = _adjectives[random.Next(_adjectives.Length)];
+            _username += adjective.ToLower() + '.';
 
             //animal
             for (int i = 0; i < 2; i++)
             {
-                string animal = animals[random.Next(animals.Length)];
-                while (username != null && animal == username.Remove(username.Length - 1, 1))
+                string animal = _animals[random.Next(_animals.Length)];
+                while (_username != null && animal == _username.Remove(_username.Length - 1, 1))
                 {
-                    animal = animals[random.Next(animals.Length)];
+                    animal = _animals[random.Next(_animals.Length)];
                 }
-                username += animal.ToLower() + '.';
+                _username += animal.ToLower() + '.';
             }
-            username = username.Remove(username.Length - 1, 1);
+            _username = _username.Remove(_username.Length - 1, 1);
 
 
-            return username;
+            return _username;
         }
 
 
