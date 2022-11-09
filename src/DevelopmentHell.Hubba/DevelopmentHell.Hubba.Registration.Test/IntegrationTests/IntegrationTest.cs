@@ -20,8 +20,9 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
             var expectedPassphrase = "HottestTest .";
             string jsonString =
 @"{
-  ""email"": ""test@email.com"",
-  ""passphrase"": ""HottestTest .""
+    ""email"": ""test@email.com"",
+    ""passphrase"": ""HottestTest ."",
+    ""birthDate"": ""2001-04-14""
 }
 ";
 
@@ -30,6 +31,7 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
             var actual = await manager.createAccount().ConfigureAwait(false);
 
             // Assert
+            Console.WriteLine(actual.ErrorMessage);
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.GetType() == expected);
             Assert.IsTrue(actual.IsSuccessful);

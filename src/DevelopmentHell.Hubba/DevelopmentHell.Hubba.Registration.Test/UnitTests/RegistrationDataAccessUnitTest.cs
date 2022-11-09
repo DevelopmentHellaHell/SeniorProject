@@ -1,4 +1,5 @@
 ﻿using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
+using DevelopmentHell.Hubba.Models;
 
 namespace DevelopmentHell.Hubba.Registration.Test
 {
@@ -19,6 +20,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
             // Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.GetType() == expected);
+
         }
         [TestMethod]
         public async Task ShouldRegisterNewAccountIntoDatabase()
@@ -32,24 +34,26 @@ namespace DevelopmentHell.Hubba.Registration.Test
             string username = "coolkoala";
             string email = @"Email@random.com";
             string passphrase = "c0o1p4s5phra53";
-            DateTime last_interaction = DateTime.Now;
+            int id = 5;
+            DateTime lastInteraction = DateTime.Now;
             bool admin_account = false;
             Dictionary<string, object> newUserAccountCredentials = new()
             {
                 { "username", username },
                 { "email", email },
                 { "passphrase", passphrase },
-                { "last_interaction", last_interaction },
-                { "admin_account", admin_account }
+                { "lastInteraction", lastInteraction },
+                { "id", id}
             };
 
             // Act
             var actual = new InsertDataAccess(connectionString);
-            DevelopmentHell.Hubba.Models.Result result = await actual.Insert(expectedTableName, newUserAccountCredentials).ConfigureAwait(false);
+            Result result = await actual.Insert(expectedTableName, newUserAccountCredentials).ConfigureAwait(false);
 
             // Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.GetType() == expected);
+            Assert.IsTrue(result.IsSuccessful);
         }
 
         [TestMethod]

@@ -81,7 +81,8 @@ namespace DevelopmentHell.Hubba.Registration
             };
             Result usernameCheck = await selectDAO.Select("Accounts", new List<string> { "COUNT(username)" }, usernameValue).ConfigureAwait(false);
 
-			//assign id to account based on username check
+            //assign id to account based on username check
+            string tempUsername = "";
 			if (usernameCheck is not null)
             {
                 if (usernameCheck.Payload is not null)
@@ -89,7 +90,7 @@ namespace DevelopmentHell.Hubba.Registration
                     List<List<object>> payload = (List<List<object>>)usernameCheck.Payload;
                     _account.id = (int)payload[0][0] + 1;
                     _account.username = username;
-                    _account.displayName = username + _account.id;
+                    tempUsername = username + _account.id;
                 }
             }
 
@@ -101,7 +102,15 @@ namespace DevelopmentHell.Hubba.Registration
 
             //insert account
             InsertDataAccess insertDAO = new InsertDataAccess(_connectionString);
-            result = await insertDAO.Insert("Accounts", values).ConfigureAwait(false);            
+            Result insertAccount = await insertDAO.Insert("accounts", values).ConfigureAwait(false);
+            if (insertAccount.IsSuccessful == false)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = insertAccount.ErrorMessage;
+                return result;
+            }
+
+
             return result;
             
         }
