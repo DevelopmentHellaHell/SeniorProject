@@ -23,11 +23,8 @@ namespace DevelopmentHell.Hubba.Registration
             newAccount.AdminAccount = false;
             RegistrationService userService = new RegistrationService(newAccount);
 
-
             return await userService.RegisterAccount().ConfigureAwait(false);
-
         }
-        
     }
 }
 // References:
