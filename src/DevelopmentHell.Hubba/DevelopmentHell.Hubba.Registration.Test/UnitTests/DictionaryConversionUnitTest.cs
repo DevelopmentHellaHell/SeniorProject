@@ -41,7 +41,12 @@ public class DictionaryConversionUnitTest
 
         //Assert
         Assert.IsNotNull(actual);
-        Assert.IsTrue(actual.Equals(expected));
+
+        foreach (var item in actual)
+        {
+            Assert.IsTrue(actual.Keys.Contains(item.Key));
+            Assert.IsTrue(actual[item.Key] == item.Value);
+        }
     }
 
 }
