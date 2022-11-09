@@ -5,7 +5,7 @@ alter database [DevelopmentHell.Hubba.Accounts] set single_user with rollback im
 DROP DATABASE [DevelopmentHell.Hubba.Accounts]
 GO
 
-/****** Object:  Database [DevelopmentHell.Hubba.Accounts]    Script Date: 11/9/2022 9:50:36 AM ******/
+/****** Object:  Database [DevelopmentHell.Hubba.Accounts]    Script Date: 11/9/2022 3:02:29 PM ******/
 CREATE DATABASE [DevelopmentHell.Hubba.Accounts]
  CONTAINMENT = NONE
  ON  PRIMARY 
@@ -87,17 +87,18 @@ ALTER DATABASE [DevelopmentHell.Hubba.Accounts] SET QUERY_STORE = OFF
 GO
 USE [DevelopmentHell.Hubba.Accounts]
 GO
-/****** Object:  Table [dbo].[Accounts]    Script Date: 11/9/2022 9:50:36 AM ******/
+/****** Object:  Table [dbo].[Accounts]    Script Date: 11/9/2022 3:02:29 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[Accounts](
-	[Username] [varchar](30) NOT NULL,
+	[Username] [varchar](50) NOT NULL,
 	[Id] [int] NOT NULL,
-	[Email] [varchar](30) NOT NULL,
-	[Passphrase] [varchar](30) NOT NULL,
-	[DisplayName] [varchar](30) NULL,
+	[Email] [varchar](320) NOT NULL,
+	[PassphraseHash] [varchar](256) NOT NULL,
+	[PassphraseSalt] [varchar](256) NOT NULL,
+	[DisplayName] [varchar](80) NULL,
 	[CreationTime] [datetime] NOT NULL,
 	[LastLogIn] [datetime] NULL,
 	[AdminAccount] [bit] NOT NULL,
