@@ -32,7 +32,6 @@ namespace DevelopmentHell.Hubba.Logging.Test
 		public async Task WriteSuccessResponseButNoUpdate()
 		{
             // Arrange
-            var expected = typeof(Logger);
             var expectedDatabaseName = "DevelopmentHell.Hubba.Logs";
             var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["LoggingServer"], expectedDatabaseName);
             var dataAccess = new LoggingDataAccess(connectionString);
@@ -55,7 +54,6 @@ namespace DevelopmentHell.Hubba.Logging.Test
             Assert.IsTrue(actual.IsSuccessful);
 			Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
 
-			var dbChecker = new SelectDataAccess(connectionString);
 			var dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new Dictionary<string, object> {
 				{ "category", category },
 				{ "logLevel", logLevel },
