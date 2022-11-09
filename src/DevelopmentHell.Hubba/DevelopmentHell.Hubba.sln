@@ -26,9 +26,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{BA73200D-6D9E-40CC-8F07-A52F40C3FDC2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Logging.Test", "DevelopmentHell.Hubba.Logging.Test\DevelopmentHell.Hubba.Logging.Test.csproj", "{B8A07CDE-585C-4739-80B0-D751407F60D9}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.Configs", "AppConfig\DevelopmentHell.Hubba.Configs.csproj", "{8E179524-F962-4D33-9FBB-20D0D9D6D138}"
-EndProject
+EndProjectSection
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
