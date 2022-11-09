@@ -12,6 +12,9 @@ namespace DevelopmentHell.Hubba.Logging.Test
 	[TestClass]
 	public class IntegrationTests
 	{
+        private readonly Models.LogLevel[] failureLevels = { Models.LogLevel.WARNING, Models.LogLevel.ERROR };
+        private readonly Models.LogLevel[] successLevels = { Models.LogLevel.DEBUG, Models.LogLevel.INFO };
+
 		[TestMethod]
 		public async Task TestMethod1()
 		{
@@ -29,6 +32,114 @@ namespace DevelopmentHell.Hubba.Logging.Test
 		}
 
 		[TestMethod]
+		public async Task SuccessfulLogSystemSuccess()
+		{
+            var expectedDatabaseName = "DevelopmentHell.Hubba.Logs";
+            var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["LoggingServer"], expectedDatabaseName);
+            var dataAccess = new LoggingDataAccess(connectionString);
+
+            foreach (var logLevel in successLevels)
+            {
+                var category = Models.Category.VIEW;
+                var userName = "System";
+                var message = "test";
+                var sut = new Logger(dataAccess, category);
+
+                var stopwatch = new Stopwatch();
+
+                // Act
+                stopwatch.Start();
+                var actual = await sut.Log(logLevel, userName, message);
+                stopwatch.Stop();
+
+                // Assert
+                Assert.IsTrue(actual.IsSuccessful);
+                Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
+            }
+        }
+
+        [TestMethod]
+        public async Task SuccessfulLogSystemFailure()
+        {
+            var expectedDatabaseName = "DevelopmentHell.Hubba.Logs";
+            var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["LoggingServer"], expectedDatabaseName);
+            var dataAccess = new LoggingDataAccess(connectionString);
+
+            foreach (var logLevel in failureLevels)
+            {
+                var category = Models.Category.VIEW;
+                var userName = "System";
+                var message = "test";
+                var sut = new Logger(dataAccess, category);
+
+                var stopwatch = new Stopwatch();
+
+                // Act
+                stopwatch.Start();
+                var actual = await sut.Log(logLevel, userName, message);
+                stopwatch.Stop();
+
+                // Assert
+                Assert.IsTrue(actual.IsSuccessful);
+                Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
+            }
+        }
+
+        [TestMethod]
+        public async Task SuccessfulLogUserSuccess()
+        {
+            var expectedDatabaseName = "DevelopmentHell.Hubba.Logs";
+            var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["LoggingServer"], expectedDatabaseName);
+            var dataAccess = new LoggingDataAccess(connectionString);
+
+            foreach (var logLevel in successLevels)
+            {
+                var category = Models.Category.VIEW;
+                var userName = "User1";
+                var message = "test";
+                var sut = new Logger(dataAccess, category);
+
+                var stopwatch = new Stopwatch();
+
+                // Act
+                stopwatch.Start();
+                var actual = await sut.Log(logLevel, userName, message);
+                stopwatch.Stop();
+
+                // Assert
+                Assert.IsTrue(actual.IsSuccessful);
+                Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
+            }
+        }
+
+        [TestMethod]
+        public async Task SuccessfulLogUserFailure()
+        {
+            var expectedDatabaseName = "DevelopmentHell.Hubba.Logs";
+            var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["LoggingServer"], expectedDatabaseName);
+            var dataAccess = new LoggingDataAccess(connectionString);
+
+            foreach (var logLevel in failureLevels)
+            {
+                var category = Models.Category.VIEW;
+                var userName = "User1";
+                var message = "test";
+                var sut = new Logger(dataAccess, category);
+
+                var stopwatch = new Stopwatch();
+
+                // Act
+                stopwatch.Start();
+                var actual = await sut.Log(logLevel, userName, message);
+                stopwatch.Stop();
+
+                // Assert
+                Assert.IsTrue(actual.IsSuccessful);
+                Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
+            }
+        }
+
+        [TestMethod]
 		public async Task WriteSuccessResponseButNoUpdate()
 		{
             // Arrange
@@ -66,7 +177,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			{
 				var now = Convert.ToDateTime((DateTime?)row[1]);
 				var timeDiff = now.Subtract(startTime).TotalSeconds;
-                if (0 <= timeDiff && timeDiff < 5)
+                if (0 <= timeDiff)
 				{
 					foundWithinTime = true;
 					break;
