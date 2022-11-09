@@ -1,2 +1,4 @@
-src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Client/bin
-src/DevelopmentHell.Hubba/DevelopmentHell.Hubba.Client/obj
+bin/
+obj/
+v17/
+fileContentIndex/
