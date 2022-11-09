@@ -74,7 +74,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
 
             // Act
             var actual = new UpdateDataAccess(connectionString);
-            DevelopmentHell.Hubba.Models.Result result = await actual.Update(expectedTableName, key, values).ConfigureAwait(false);
+            Result result = await actual.Update(expectedTableName, key, values).ConfigureAwait(false);
             //int account_id = (int)(result.Payload);
 
             // Assert
@@ -123,8 +123,8 @@ namespace DevelopmentHell.Hubba.Registration.Test
 
             // Act
             var actual = new SelectDataAccess(connectionString);
-            DevelopmentHell.Hubba.Models.Result result = await actual.Select(expectedTableName, expectedColumns, values).ConfigureAwait(false);
-            DevelopmentHell.Hubba.Models.Result result2 = await actual.Select(expectedTableName, new List<string>{ "COUNT(username)"}, values).ConfigureAwait(false);
+            Result result = await actual.Select(expectedTableName, expectedColumns, values).ConfigureAwait(false);
+            Result result2 = await actual.Select(expectedTableName, new List<string>{ "COUNT(username)"}, values).ConfigureAwait(false);
 
             // Assert
             if (result is not null)

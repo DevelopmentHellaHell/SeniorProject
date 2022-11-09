@@ -1,6 +1,4 @@
-﻿using DevelopmentHell.Hubba.Models;
-
-
+﻿
 namespace DevelopmentHell.Hubba.Registration.Test;
 
 [TestClass]

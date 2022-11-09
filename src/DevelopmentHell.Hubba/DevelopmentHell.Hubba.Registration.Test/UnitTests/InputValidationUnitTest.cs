@@ -1,6 +1,7 @@
 ﻿namespace DevelopmentHell.Hubba.Registration.Test;
-using DevelopmentHell.Hubba.Models;
 
+using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.Registration.Implementation;
 
 [TestClass]
 public class InputValidationUnitTest
@@ -40,7 +41,7 @@ public class InputValidationUnitTest
             var expected = new Result();
             expected.IsSuccessful = true;
         //Act
-            var inputValidation = new InputValidation();
+            var inputValidation = new Models.InputValidation();
             var actual = inputValidation.ValidateEmail(goodEmail);
         //Assert
             Assert.IsNotNull(actual);
@@ -62,7 +63,7 @@ public class InputValidationUnitTest
             var expected = new Result();
             expected.IsSuccessful = false;
             //Act
-            var inputValidation = new InputValidation();
+            var inputValidation = new Models.InputValidation();
             var actual = inputValidation.ValidateEmail(badEmail);
             //Assert
             Assert.IsNotNull(actual);
@@ -90,7 +91,7 @@ public class InputValidationUnitTest
             var expected = new Result();
             expected.IsSuccessful = false;
             //Act
-            var inputValidation = new InputValidation();
+            var inputValidation = new Models.InputValidation();
             var actual = inputValidation.ValidatePassphrase(badPassphrase);
             //Assert
             Assert.IsNotNull(actual);

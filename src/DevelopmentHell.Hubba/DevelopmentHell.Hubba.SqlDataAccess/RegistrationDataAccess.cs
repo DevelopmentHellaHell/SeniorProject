@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using DevelopmentHell.Hubba.Models;
 using Microsoft.Identity.Client;
-
+using DevelopmentHell.Hubba.Registration;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {

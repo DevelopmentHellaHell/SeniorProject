@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Security.Principal;
 using System.Text.RegularExpressions;
+using DevelopmentHell.Hubba.Registration;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace DevelopmentHell.Hubba.Models
@@ -73,18 +74,18 @@ namespace DevelopmentHell.Hubba.Models
                 return _result;
             }
         }
-        
+
         public Result ValidateBirthdate(DateTime birthdate)
         {
             DateTime today = DateTime.Now;
-            if (today.Subtract(birthdate).Days < (365*14))
+            if (today.Subtract(birthdate).Days < (365 * 14))
             {
                 _result.IsSuccessful = false;
                 _result.ErrorMessage = "Age requirement not reached.";
                 return _result;
             }
             _result.IsSuccessful = true;
-            
+
             return _result;
         }
 
@@ -108,7 +109,7 @@ namespace DevelopmentHell.Hubba.Models
             }
             _result.IsSuccessful = true;
             return _result;
-            
+
         }
     }
 }

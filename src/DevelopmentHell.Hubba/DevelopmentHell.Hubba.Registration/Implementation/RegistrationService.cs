@@ -28,10 +28,10 @@ namespace DevelopmentHell.Hubba.Registration
             result.IsSuccessful = false;
 
             //age validation
-            if (BirthdateValidation.validate(_account.BirthDate).IsSuccessful == false)
+            if (Implementation.BirthdateValidation.validate(_account.BirthDate).IsSuccessful == false)
             {
                 result.ErrorMessage = "Email provided is invalid. Retry or contact admin.";
-                return BirthdateValidation.validate(_account.BirthDate);
+                return Implementation.BirthdateValidation.validate(_account.BirthDate);
             }
             
             //email validation

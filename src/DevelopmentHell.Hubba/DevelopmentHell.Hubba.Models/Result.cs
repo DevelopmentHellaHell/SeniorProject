@@ -1,4 +1,4 @@
-﻿namespace DevelopmentHell.Hubba.Models
+﻿namespace DevelopmentHell.Hubba.Registration
 {
     public class Result
     {
