@@ -104,7 +104,7 @@ namespace DevelopmentHell.Hubba.Registration
             _account.PassphraseSalt = passphraseSalt;
 
             //generate dictionary [String (column name), Object (value)
-            Dictionary<String, Object> values = DictonaryConversion.ObjectToDictionary(_account);
+            Dictionary<String, Object> values = DictionaryConversion.ObjectToDictionary(_account);
 
             //insert account
             var insertAccount = await _registrationDAO.InsertAccount(values).ConfigureAwait(false);

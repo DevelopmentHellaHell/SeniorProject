@@ -10,10 +10,10 @@ public class DictionaryConversionUnitTest
     public void ShouldCreateInstanceWithCtor()
     {
         // Arrange
-        var expected = typeof(DictonaryConversion);
+        var expected = typeof(DictionaryConversion);
 
         // Act
-        var actual = new DictonaryConversion();
+        var actual = new DictionaryConversion();
 
         // Assert
         Assert.IsNotNull(actual);
@@ -24,10 +24,25 @@ public class DictionaryConversionUnitTest
     public void ShouldReturnACorrectConvertion()
     {
         //Arrange
+        var acc = new Account { Email = "jo@gmail.com" };
+        Dictionary<string, object> expected = new()
+        {
+            { "Id", 0},
+            { "Email", "jo@gmail.com"},
+            { "PassphraseHash", ""},
+            { "PassphraseSalt", ""},
+            { "Username", ""},
+            { "DisplayName", ""},
+            { "AdminAccount", false},
+            { "BirthDate", new DateTime()},
+        };
 
         //Act
+        var actual = DictionaryConversion.ObjectToDictionary(acc);
 
         //Assert
+        Assert.IsNotNull(actual);
+        Assert.IsTrue(actual == expected);
     }
 
 }
