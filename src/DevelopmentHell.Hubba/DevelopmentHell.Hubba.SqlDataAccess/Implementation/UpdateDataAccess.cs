@@ -52,7 +52,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
                     insertQuery.Parameters.Add(new SqlParameter(pair.Key, pair.Value));
                 }
                 insertQuery.Parameters.Add(new SqlParameter(key.Item1, key.Item2));
-                insertQuery.CommandText = string.Format("UPDATE {0} SET {1} WHERE {2} = {3}", table, sb.ToString(), key.Item1, key.Item1);
+                insertQuery.CommandText = string.Format("UPDATE {0} SET {1} WHERE {2} = {3}", table, sb.ToString(), key.Item1, key.Item2);
 
                 return await SendQuery(insertQuery).ConfigureAwait(false);
             }
