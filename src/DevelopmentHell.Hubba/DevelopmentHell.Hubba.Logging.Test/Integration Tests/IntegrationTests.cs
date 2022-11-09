@@ -1,6 +1,7 @@
 using DevelopmentHell.Hubba.Logging.Implementation;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
+using System.Configuration;
 using System.Reflection;
 
 namespace DevelopmentHell.Hubba.Logging.Test
@@ -14,7 +15,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			// Arrange
 			var expected = typeof(Logger);
 			var expectedDatabaseName = "DevelopmentHell.Hubba.Logs";
-			var connectionString = String.Format(@"Server=.;Database={0};Integrated Security=True;Encrypt=False", expectedDatabaseName);
+			var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["LoggingServer"], expectedDatabaseName);
 			var sut = new Logger(new LoggingDataAccess(connectionString), Models.Category.VIEW);
 
 			// Act
@@ -30,8 +31,8 @@ namespace DevelopmentHell.Hubba.Logging.Test
             // Arrange
             var expected = typeof(Logger);
             var expectedDatabaseName = "DevelopmentHell.Hubba.Logs";
-            var connectionString = String.Format(@"Server=.;Database={0};Integrated Security=True;Encrypt=False", expectedDatabaseName);
-			var dataAccess = new LoggingDataAccess(connectionString);
+            var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["LoggingServer"], expectedDatabaseName);
+            var dataAccess = new LoggingDataAccess(connectionString);
             var sut = new Logger(dataAccess, Models.Category.VIEW);
 
             // Act
