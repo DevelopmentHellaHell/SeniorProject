@@ -1,27 +1,23 @@
 ﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Registration.Implementation;
+using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
 namespace DevelopmentHell.Hubba.Registration
 {
     public class RegistrationService
     {
-        public Result CheckUnusedEmail(string email)
-        {
-            //TODO: call Data Access to look up this email in database
-            var result = new Result();
-
-            return result;
-        }
         private Account _account;
-        private string _connectionString;
+        private static string _connectionString = @"Server=localhost\SQLEXPRESS;Database=DevelopmentHell.Hubba.Accounts;Integrated Security=True;Encrypt=False";
+        private RegistrationDataAccess _registrationDAO;
 
-        public RegistrationService(Account account, string connectionString)
+        public RegistrationService(Account account)
         {
             _account = account;
-            _connectionString = connectionString;
+            _registrationDAO = new RegistrationDataAccess(_connectionString);
         }
 
         public async Task<Result> RegisterAccount()
@@ -30,45 +26,41 @@ namespace DevelopmentHell.Hubba.Registration
             var result = new Result();
             result.IsSuccessful = false;
 
-            var inputValidation = new InputValidation();
+            
 
             //age validation
-            if (inputValidation.ValidateBirthdate(_account.birthDate).IsSuccessful == false)
+            if (BirthdateValidation.validate(_account.BirthDate).IsSuccessful == false)
             {
-                return inputValidation.ValidateBirthdate(_account.birthDate);
+                result.ErrorMessage = "Email provided is invalid. Retry or contact admin.";
+                return BirthdateValidation.validate(_account.BirthDate);
             }
 
 
 
             //email validation
-            if (inputValidation.ValidateEmail(_account.email).IsSuccessful == false)
+            if (EmailValidation.validate(_account.Email).IsSuccessful == false)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Email provided is invalid. Retry or contact admin.";
-                return result;
+                return EmailValidation.validate(_account.Email);
             }
 
             //passphrase validation
-            if (inputValidation.ValidatePassphrase(_account.passphrase).IsSuccessful == false)
+            if (PassphraseValidation.validate(_account.Passphrase).IsSuccessful == false)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Passphrase provided is invalid. Retry or contact admin.";
-                return result;
+                return PassphraseValidation.validate(_account.Passphrase);
             }
 
             //unused email
-            SelectDataAccess selectDAO = new SelectDataAccess(_connectionString);
             Dictionary<string, object> emailValue = new()
             {
-                { "email", _account.email }
+                { "Email", _account.Email }
             };
-            Result unusedEmailCheck = await selectDAO.Select("Accounts", new List<String> { "COUNT(email)" }, emailValue).ConfigureAwait(false);
+            var selectAccount = await _registrationDAO.SelectAccount(new List<String> { "COUNT(Email)" }, emailValue).ConfigureAwait(false);
 
-            if (unusedEmailCheck is not null)
+            if (selectAccount is not null)
             {
-                if (unusedEmailCheck.Payload is not null)
+                if (selectAccount.Payload is not null)
                 {
-                    List<List<object>> payload = (List<List<object>>)unusedEmailCheck.Payload;
+                    List<List<object>> payload = (List<List<object>>)selectAccount.Payload;
                     if ((int)payload[0][0] > 0)
                     {
                         result.IsSuccessful = false;
@@ -86,20 +78,20 @@ namespace DevelopmentHell.Hubba.Registration
             //username check
             Dictionary<string, object> usernameValue = new()
             {
-                { "username", username }
+                { "Username", username }
             };
-            Result usernameCheck = await selectDAO.Select("Accounts", new List<string> { "COUNT(username)" }, usernameValue).ConfigureAwait(false);
+            selectAccount = await _registrationDAO.SelectAccount( new List<string> { "COUNT(Username)" }, usernameValue).ConfigureAwait(false);
 
             //assign id to account based on username check
             string tempUsername = "";
-			if (usernameCheck is not null)
+			if (selectAccount is not null)
             {
-                if (usernameCheck.Payload is not null)
+                if (selectAccount.Payload is not null)
                 {
-                    List<List<object>> payload = (List<List<object>>)usernameCheck.Payload;
-                    _account.id = (int)payload[0][0] + 1;
-                    _account.username = username;
-                    tempUsername = username + _account.id;
+                    List<List<object>> payload = (List<List<object>>)selectAccount.Payload;
+                    _account.Id = (int)payload[0][0] + 1;
+                    _account.Username = username;
+                    tempUsername = username + _account.Id;
                 }
             }
 
@@ -108,13 +100,11 @@ namespace DevelopmentHell.Hubba.Registration
             Dictionary<String, Object> values = DictonaryConversion.ObjectToDictionary(_account);
 
             //insert account
-            InsertDataAccess insertDAO = new InsertDataAccess(_connectionString);
-            Result insertAccount = await insertDAO.Insert("accounts", values).ConfigureAwait(false);
+            var insertAccount = await _registrationDAO.InsertAccount(values).ConfigureAwait(false);
+            
             if (insertAccount.IsSuccessful == false)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = insertAccount.ErrorMessage;
-                return result;
+                return insertAccount;
             }
 
 

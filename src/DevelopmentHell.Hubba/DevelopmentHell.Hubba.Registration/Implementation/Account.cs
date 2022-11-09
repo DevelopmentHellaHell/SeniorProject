@@ -2,15 +2,14 @@
 {
     public class Account
     {
-        public int id { get; set; }
-        public string email { get; set; }
-        public string passphrase { get; set; }
-        //public string hashedPassphrase { get; set; } = string.Empty;
-        public string username { get; set; }
-        public string? displayName { get; set; } = string.Empty;
-        public bool adminAccount { get; set; } = false;
-        public DateTime birthDate { get; set; }
-        public DateTime? lastLogIn { get; set; } 
+        public int Id { get; set; }
+        public string Email { get; set; } = string.Empty;
+        public string Passphrase { get; set; } = string.Empty;
+        public string Username { get; set; } = string.Empty;
+        public string? DisplayName { get; set; } = string.Empty;
+        public bool AdminAccount { get; set; } = false;
+        public DateTime BirthDate { get; set; }
+        public DateTime? LastLogIn { get; set; } 
 
     }
 }

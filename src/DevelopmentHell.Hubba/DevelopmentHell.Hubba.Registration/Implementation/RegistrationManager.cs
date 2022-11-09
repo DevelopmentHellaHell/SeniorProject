@@ -23,9 +23,8 @@ namespace DevelopmentHell.Hubba.Registration
             {
                 return new Result(false, "Unable to initialize Account from JSON data");
             }
-            newAccount.adminAccount = false;
-            String connectionString = @"Server=localhost\SQLEXPRESS;Database=DevelopmentHell.Hubba.Accounts;Integrated Security=True;Encrypt=False";
-            RegistrationService userService = new RegistrationService(newAccount, connectionString);
+            newAccount.AdminAccount = false;
+            RegistrationService userService = new RegistrationService(newAccount);
 
 
             return await userService.RegisterAccount().ConfigureAwait(false);

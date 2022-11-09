@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Security.Principal;
 using System.Text.RegularExpressions;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace DevelopmentHell.Hubba.Models
 {
@@ -91,87 +92,23 @@ namespace DevelopmentHell.Hubba.Models
         {
             //passphrase satisfies length and format
             //length: min 8 character
-            //format: contains valid characters:
+            //format: valid characters:
             //blank space
             //a - z
             //A - Z
             //0 - 9
             //.,@!-
 
-            // check off each contraint, once validationPoints == 6, passphrase is valid
-            var validationPoints = 0;
-            _result.ErrorMessage = "Invalid passphrase.";
-            _result.IsSuccessful = false;
-
-            //1) length check
-            if (passphrase.Length < 7)
+            Regex rx = new(@"[^A-Za-z0-9.,@! -]");
+            if (rx.IsMatch(passphrase))
             {
+                _result.IsSuccessful = false;
+                _result.ErrorMessage = "Passphrase provided is invalid. Retry or contact admin.";
                 return _result;
             }
-            validationPoints++;
-
-            //2) blank space
-            if (!passphrase.Contains(' '))
-            {
-                return _result;
-            }
-            validationPoints++;
-
-            //3) a-z
-            foreach (var c in passphrase)
-            {
-                if (c >= 'a' && c <= 'z')
-                {
-                    validationPoints++;
-                    break;
-                }
-            }
-            if (validationPoints != 3)
-            {
-                return _result;
-            }
-
-            //4) A-Z
-            foreach (var c in passphrase)
-            {
-                if (c >= 'a' && c <= 'z')
-                {
-                    validationPoints++;
-                    break;
-                }
-            }
-            if (validationPoints != 4)
-            {
-                return _result;
-            }
-
-            //5) 0-9
-            foreach (var c in passphrase)
-            {
-                if (c >= 'a' && c <= 'z')
-                {
-                    validationPoints++;
-                    break;
-                }
-            }
-            if (validationPoints != 5)
-            {
-                return _result;
-            }
-            //6) .,@!-
-            char[] special = { ' ', '.', ',', '@', '!', '-' };
-            if (passphrase.IndexOfAny(special) == -1)
-            {
-                return _result;
-            }
-            validationPoints++;
-
-            if (validationPoints == 6)
-            {
-                _result.IsSuccessful = true;
-                _result.ErrorMessage = "";
-            }
+            _result.IsSuccessful = true;
             return _result;
+            
         }
     }
 }
