@@ -88,16 +88,16 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[Accounts](
-	[Username] [varchar](30) NOT NULL,
-	[Id] [int] NOT NULL,
-	[Email] [varchar](30) NOT NULL,
-	[Passphrase] [varchar](30) NOT NULL,
-	[DisplayName] [varchar](30) NULL,
-	[CreationTime] [datetime] NOT NULL,
-	[LastLogIn] [datetime] NULL,
-	[AdminAccount] [bit] NOT NULL,
-	[PhoneNumber] [varchar](10) NULL,
-	[BirthDate] [datetime] NOT NULL,
+	[username] [varchar](30) NOT NULL,
+	[id] [int] NOT NULL,
+	[email] [varchar](30) NOT NULL,
+	[passphrase] [varchar](30) NOT NULL,
+	[displayName] [varchar](30) NULL,
+	[creationTime] [datetime] NOT NULL,
+	[lastLogIn] [datetime] NULL,
+	[adminAccount] [bit] NOT NULL,
+	[phoneNumber] [varchar](10) NULL,
+	[birthDate] [datetime] NOT NULL,
  CONSTRAINT [accounts_pk] PRIMARY KEY CLUSTERED 
 (
 	[Username] ASC,
