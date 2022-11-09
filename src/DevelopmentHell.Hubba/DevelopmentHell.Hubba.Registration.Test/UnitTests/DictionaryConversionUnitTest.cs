@@ -21,7 +21,7 @@ public class DictionaryConversionUnitTest
     }
 
     [TestMethod]
-    public void ShouldReturnACorrectConvertion()
+    public void ShouldReturnACorrectConversion()
     {
         //Arrange
         var acc = new Account { Email = "jo@gmail.com" };
@@ -32,7 +32,6 @@ public class DictionaryConversionUnitTest
             { "PassphraseHash", ""},
             { "PassphraseSalt", ""},
             { "Username", ""},
-            { "DisplayName", ""},
             { "AdminAccount", false},
             { "BirthDate", new DateTime()},
         };
@@ -42,7 +41,7 @@ public class DictionaryConversionUnitTest
 
         //Assert
         Assert.IsNotNull(actual);
-        Assert.IsTrue(actual == expected);
+        Assert.IsTrue(actual.Equals(expected));
     }
 
 }
