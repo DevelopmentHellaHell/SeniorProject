@@ -42,7 +42,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
             {
                 var category = Models.Category.VIEW;
                 var userName = "System";
-                var message = "test";
+                var message = "test1";
                 var sut = new Logger(dataAccess, category);
 
                 var stopwatch = new Stopwatch();
@@ -69,7 +69,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
             {
                 var category = Models.Category.VIEW;
                 var userName = "System";
-                var message = "test";
+                var message = "test2";
                 var sut = new Logger(dataAccess, category);
 
                 var stopwatch = new Stopwatch();
@@ -96,7 +96,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
             {
                 var category = Models.Category.VIEW;
                 var userName = "User1";
-                var message = "test";
+                var message = "test3";
                 var sut = new Logger(dataAccess, category);
 
                 var stopwatch = new Stopwatch();
@@ -123,7 +123,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
             {
                 var category = Models.Category.VIEW;
                 var userName = "User1";
-                var message = "test";
+                var message = "test4";
                 var sut = new Logger(dataAccess, category);
 
                 var stopwatch = new Stopwatch();
@@ -150,35 +150,36 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			var category = Models.Category.VIEW;
 			var logLevel = Models.LogLevel.INFO;
 			var userName = "System";
-			var message = "test";
+			var message = "test5";
 			var sut = new Logger(dataAccess, category);
 			
 			var stopwatch = new Stopwatch();
 
 			// Act
 			var startTime = DateTime.UtcNow;
-			stopwatch.Start();
-			var actual = await sut.Log(logLevel, userName, message);
-			stopwatch.Stop();
+            await Task.Delay(100);
+            stopwatch.Start();
+            var actual = await sut.Log(logLevel, userName, message);
+            stopwatch.Stop();
 
             // Assert
             Assert.IsTrue(actual.IsSuccessful);
 			Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
 
-			var dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new Dictionary<string, object> {
+            var dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new Dictionary<string, object> {
 				{ "category", category },
 				{ "logLevel", logLevel },
 				{ "userName", userName },
 				{ "message", message },
 			});
 
-			bool foundWithinTime = false;
+            bool foundWithinTime = false;
 			foreach (List<object> row in (dbCheck.Payload as List<List<object>>)!)
 			{
 				var now = Convert.ToDateTime((DateTime?)row[1]);
 				var timeDiff = now.Subtract(startTime).TotalSeconds;
                 if (0 <= timeDiff)
-				{
+                {
 					foundWithinTime = true;
 					break;
 				}
