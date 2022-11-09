@@ -1,12 +1,8 @@
-﻿using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.Registration.Implementation;
+﻿using DevelopmentHell.Hubba.Registration.Implementation;
 using DevelopmentHell.Hubba.SqlDataAccess;
-using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Configuration;
-using System.Reflection;
 using System.Security.Cryptography;
+using DevelopmentHell.Hubba.Models;
 
 namespace DevelopmentHell.Hubba.Registration
 {
@@ -42,9 +38,9 @@ namespace DevelopmentHell.Hubba.Registration
             }
 
             //passphrase validation
-            if (PassphraseValidation.validate(_account.Hash).IsSuccessful == false)
+            if (PassphraseValidation.validate(_account.PassphraseHash).IsSuccessful == false)
             {
-                return PassphraseValidation.validate(_account.Hash);
+                return PassphraseValidation.validate(_account.PassphraseHash);
             }
 
             //unused email
@@ -94,10 +90,10 @@ namespace DevelopmentHell.Hubba.Registration
             }
 
             //get hash and salt for passphrase
-            HashPassphrase(_account.Hash, out string passphraseHash, out string passphraseSalt);
+            HashPassphrase(_account.PassphraseHash, out string passphraseHash, out string passphraseSalt);
 
-            _account.Hash = passphraseHash;
-            _account.Salt = passphraseSalt;
+            _account.PassphraseHash = passphraseHash;
+            _account.PassphraseSalt = passphraseSalt;
 
             //generate dictionary [String (column name), Object (value)
             Dictionary<String, Object> values = DictonaryConversion.ObjectToDictionary(_account);
@@ -107,6 +103,7 @@ namespace DevelopmentHell.Hubba.Registration
             
             if (insertAccount.IsSuccessful == false)
             {
+                insertAccount.ErrorMessage = "Username creation error. Please try again or contact admin.";
                 return insertAccount;
             }
 

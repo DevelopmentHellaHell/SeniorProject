@@ -1,4 +1,4 @@
-﻿namespace DevelopmentHell.Hubba.Registration.Test;
+﻿namespace DevelopmentHell.Hubba.Registration.Test.UnitTests;
 
 [TestClass]
 public class AccountUnitTest

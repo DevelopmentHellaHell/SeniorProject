@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DevelopmentHell.Hubba.Models;
 
 namespace DevelopmentHell.Hubba.Registration.Implementation
 {
@@ -16,7 +17,7 @@ namespace DevelopmentHell.Hubba.Registration.Implementation
             DateTime today = DateTime.Now;
             if (today.Subtract(birthdate).Days < (365 * 14))
             {
-                result.ErrorMessage = "Age requirement not reached.";
+                result.ErrorMessage = "Age requirement not met.";
                 return result;
             }
             result.IsSuccessful = true;

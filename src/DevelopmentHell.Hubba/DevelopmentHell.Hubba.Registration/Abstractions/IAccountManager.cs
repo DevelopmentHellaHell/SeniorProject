@@ -1,9 +1,4 @@
-﻿using System;
-using System.Globalization;
-using System.Text.RegularExpressions;
-using DevelopmentHell.Hubba.Models;
-
-
+﻿using DevelopmentHell.Hubba.Models;
 namespace DevelopmentHell.Hubba.Registration.Abstractions
 {
     public interface IAccountManager
