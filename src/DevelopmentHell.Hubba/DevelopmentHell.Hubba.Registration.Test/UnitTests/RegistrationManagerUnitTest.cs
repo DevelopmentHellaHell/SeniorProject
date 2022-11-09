@@ -19,17 +19,5 @@ public class RegistrationManagerUnitTest
         Assert.IsNotNull(actual);
         Assert.IsTrue(actual.GetType() == expected);
     }
-
-
-    [TestMethod]
-    public void ShouldCreateNewAccountWithCreateAccount()
-    {
-        //TODO: myRegistration.CreateAccount();
-        // Actual
-
-        // Act
-
-        // Assert
-    }
 }
 //References:

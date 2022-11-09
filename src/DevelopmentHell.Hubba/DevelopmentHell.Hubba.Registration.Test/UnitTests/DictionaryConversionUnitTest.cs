@@ -24,14 +24,12 @@ public class DictionaryConversionUnitTest
     public void ShouldReturnACorrectConversion()
     {
         //Arrange
-        var acc = new Account { Email = "jo@gmail.com" };
+        var acc = new Account { Email = "jo@gmail.com", PassphraseHash = "testing password", Username = "test username" };
         Dictionary<string, object> expected = new()
         {
-            { "Id", 0},
             { "Email", "jo@gmail.com"},
-            { "PassphraseHash", ""},
-            { "PassphraseSalt", ""},
-            { "Username", ""},
+            { "PassphraseHash", "testing password"},
+            { "Username", "test username"},
             { "AdminAccount", false},
             { "BirthDate", new DateTime()},
         };
