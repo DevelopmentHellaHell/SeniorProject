@@ -19,14 +19,14 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			_insertDataAccess = new InsertDataAccess(connectionString);
 		}
 
-		public async Task<Result> LogData(LogLevel logLevel, Category category, string user, string message)
+		public async Task<Result> LogData(LogLevel logLevel, Category category, string userName, string message)
 		{
 			var logDictionary = new Dictionary<string, object>()
 			{
 				{ "timestamp", DateTime.Now },
-				{ "log_level", logLevel },
+				{ "logLevel", logLevel },
 				{ "category", category },
-				{ "account_id", user },
+				{ "userName", userName },
 				{ "message", message },
 			};
 
