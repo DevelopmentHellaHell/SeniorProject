@@ -1,26 +1,8 @@
-sequenceDiagram
-%% @outputScale(5)
-    autonumber
-    actor u as User
-    participant v as Registration View
-    participant m as Registration Manager
-    participant d as Database
-    participant l as Logging
 
-    u->>+v: choose Register
-    v-->>-u: Registration view
-
-    u->>+v: enter input
-    v->>+m: register(uname:string, lname:string, fname:string, email:string, pw:string):void
-    loop validation
-        m-->>+m: isValid(uname:string, email:string, pw:string):bool
-    end
-    m->>+d: isExisted(uname:string,email:string):bool
-    d-->>-m: isExisted() == True
-    m-->>-v: isValid() == False
-    v-->>-u: show error
-
-    d-->>+v: isExisted() == False
-    u->>+v: choose Submit
-    v->>d: (6) save(uname:string, lname:string, fname:string, email:string, pw:string):void
-    d->>l: log(time:timestamp, category:enum, userid:int)
+graph LR
+    U[User] -->|input| V(Registration View)
+    V --> C{Registration Controller}
+    C <--> |email validation|D[Database]
+    C -->|Valid email| M[Registration Model]
+    C -->|Invalid email| V
+    M -->|insert|D

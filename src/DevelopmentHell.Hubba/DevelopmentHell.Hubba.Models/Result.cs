@@ -3,9 +3,9 @@
     public class Result
     {
         public bool IsSuccessful { get; set; }
-        public string ErrorMessage { get; set; }
+        public string? ErrorMessage { get; set; }
         public object? Payload { get; set; }
-        public Result(bool IsSuccessful = true, string ErrorMessage = "", object? Payload = null)
+        public Result(bool IsSuccessful = true, string? ErrorMessage = "", object? Payload = null)
         {
             this.IsSuccessful = IsSuccessful;
             this.ErrorMessage = ErrorMessage;
