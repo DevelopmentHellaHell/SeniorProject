@@ -7,13 +7,14 @@ namespace DevelopmentHell.Hubba.Registration.Test
     [TestClass]
     public class RegistrationSqlDataAccessUnitTest
     {
-        [TestMethod]
+		private static string expectedDatabaseName = "DevelopmentHell.Hubba.Accounts";
+		private static string connectionString = String.Format(@"Server={0};Database={1};Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.Registration;Password=password", ConfigurationManager.AppSettings["AccountServer"], expectedDatabaseName);
+
+		[TestMethod]
         public void ShouldCreateNewInstanceWithParameterCtor()
         {
             // Arrange
             var expected = typeof(InsertDataAccess);
-            var expectedDatabaseName = "DevelopmentHell.Hubba.Accounts";
-            var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["AccountServer"], expectedDatabaseName);
 
             // Act
             var actual = new InsertDataAccess(connectionString);
@@ -30,8 +31,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
             // Arrange
             var expected = typeof(InsertDataAccess);
             var expectedTableName = "Accounts";
-            var expectedDatabaseName = "DevelopmentHell.Hubba.Accounts";
-            var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["AccountServer"], expectedDatabaseName);
+           
             string username = "coolkoala";
             string email = @"Email@random.com";
             string passphrase = "c0o1p4s5phra53";
@@ -64,8 +64,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
             // Arrange
             var expected = typeof(UpdateDataAccess);
             var expectedTableName = "Accounts";
-            var expectedDatabaseName = "DevelopmentHell.Hubba.Accounts";
-            var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["AccountServer"], expectedDatabaseName);
+            
             string email = @"Email@random.com";
             Tuple<string, object> key = new Tuple<string, object>("email", email);
             Dictionary<string, object> values = new()
@@ -91,8 +90,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
             // Arrange
             var expected = typeof(SelectDataAccess);
             var expectedTableName = "Accounts";
-            var expectedDatabaseName = "DevelopmentHell.Hubba.Accounts";
-            var connectionString = String.Format(@"Server={0};Database={1};Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["AccountServer"], expectedDatabaseName);
+            
             Dictionary<string, object> values = new()
             {
                 { "age", 28 }

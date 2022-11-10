@@ -6,10 +6,13 @@ using DevelopmentHell.Hubba.Models;
 
 namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
 {
-    [TestClass]
+	[TestClass]
     public class IntegrationTest
     {
-        [TestMethod]
+		private static string expectedDatabaseName = "DevelopmentHell.Hubba.Accounts";
+		private static string connectionString = String.Format(@"Server={0};Database={1};Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.Registration;Password=password", ConfigurationManager.AppSettings["AccountServer"], expectedDatabaseName);
+
+		[TestMethod]
 
         public async Task Reg01()
         {
@@ -34,7 +37,7 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
 
             // Assert
             Console.WriteLine(actual.ErrorMessage);
-            var AssertSAO = new SelectDataAccess(String.Format(@"Server={0};Database=DevelopmentHell.Hubba.Accounts;Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["AccountServer"]));
+            var AssertSAO = new SelectDataAccess(connectionString);
             Result usernameResult = await AssertSAO.Select("Accounts", new List<string>() { "Username", "Id" }, new Dictionary<string, object> { { "Email", email } });
             if (usernameResult.Payload is null || actual.Payload is null)
             {
@@ -74,7 +77,7 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
             var actualTime = stopwatch.ElapsedMilliseconds / 1000;
 
             // Assert
-            var AssertSAO = new SelectDataAccess(String.Format(@"Server={0};Database=DevelopmentHell.Hubba.Accounts;Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["AccountServer"]));
+            var AssertSAO = new SelectDataAccess(connectionString);
             Result usernameResult = await AssertSAO.Select("Accounts", new List<string>() { "Username", "Id" }, new Dictionary<string, object> { { "Email", email } });
             if (usernameResult.Payload is null || actual.Payload is null)
             {
@@ -382,7 +385,7 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
 
             // Assert
             Console.WriteLine(actual.ErrorMessage);
-            var AssertSAO = new SelectDataAccess(String.Format(@"Server={0};Database=DevelopmentHell.Hubba.Accounts;Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["AccountServer"]));
+            var AssertSAO = new SelectDataAccess(connectionString);
             Result usernameResult = await AssertSAO.Select("Accounts", new List<string>() { "Username", "Id" }, new Dictionary<string, object> { { "Email", email } });
             if (usernameResult.Payload is null || actual.Payload is null)
             {
