@@ -35,16 +35,20 @@ namespace DevelopmentHell.Hubba.Registration.Test
             string username = "coolkoala";
             string email = @"Email@random.com";
             string passphrase = "c0o1p4s5phra53";
+            DateTime birthDate = new DateTime(2000, 01, 01);
             int id = 5;
             DateTime lastInteraction = DateTime.Now;
-            bool admin_account = false;
+            bool adminAccount = false;
             Dictionary<string, object> newUserAccountCredentials = new()
             {
-                { "username", username },
-                { "email", email },
-                { "passphrase", passphrase },
-                { "lastInteraction", lastInteraction },
-                { "id", id}
+                { "Username", username },
+                { "Email", email },
+                { "PassphraseHash", "ShouldRegisterNewAccountIntoDatabaseHASH"},
+                { "PassphraseSalt", "ShouldRegisterNewAccountIntoDatabaseSALT" },
+                { "LastLogin", lastInteraction },
+                { "Id", id},
+                { "BirthDate", birthDate },
+                { "AdminAccount", adminAccount }
             };
 
             // Act
@@ -54,6 +58,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
             // Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.GetType() == expected);
+            Console.WriteLine(result.ErrorMessage);
             Assert.IsTrue(result.IsSuccessful);
         }
 
@@ -97,23 +102,26 @@ namespace DevelopmentHell.Hubba.Registration.Test
             };
             List<string> expectedColumns = new()
             {
-                "email",
-                "username",
-                "age"
+                "Email",
+                "Username",
+                "BirthDate"
             };
             string username = "sillysnail";
             string email = @"snackinglobsters@random.com";
             string passphrase = "c0o1p4s5phra53";
-            DateTime last_interaction = DateTime.Now;
-            bool admin_account = false;
+            DateTime lastLogin = DateTime.Now;
+            DateTime birthDate = new DateTime(2000, 01, 01);
+            bool adminAccount = false;
             Dictionary<string, object> newUserAccountCredentials = new()
             {
-                { "username", username },
-                { "email", email },
-                { "passphrase", passphrase },
-                { "lastInteraction", last_interaction },
-                { "adminAccount", admin_account },
-                { "birthDate", 28 }
+                { "Id", 99 },
+                { "Username", username },
+                { "Email", email },
+                { "PassphraseHash", "ShouldAccessExistingAccountInDatabaseHASH"},
+                { "PassphraseSalt", "ShouldAccessExistingAccountInDatabaseSALT" },
+                { "LastLogin", lastLogin },
+                { "AdminAccount", adminAccount },
+                { "BirthDate", birthDate }
 
             };
             var actualInsert = new InsertDataAccess(connectionString);
