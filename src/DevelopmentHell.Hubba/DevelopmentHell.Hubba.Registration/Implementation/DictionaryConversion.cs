@@ -3,6 +3,7 @@ using System.Reflection;
 
 public class DictionaryConversion
 {
+    //Source: https://stackoverflow.com/questions/9210428/how-can-i-convert-a-class-into-dictionarystring-string
     public static Dictionary<string, object> ObjectToDictionary(object obj)
     {
         Dictionary<string, object> ret = new Dictionary<string, object>();
