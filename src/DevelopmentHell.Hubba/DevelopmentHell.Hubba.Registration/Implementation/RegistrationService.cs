@@ -8,8 +8,8 @@ namespace DevelopmentHell.Hubba.Registration
 {
     public class RegistrationService
     {
-        private static string _connectionString = String.Format(@"Server={0};Database=DevelopmentHell.Hubba.Accounts;Integrated Security=True;Encrypt=False", ConfigurationManager.AppSettings["AccountServer"]);
-        private RegistrationDataAccess _registrationDAO;
+        private static string _connectionString = String.Format(@"Server={0};Database=DevelopmentHell.Hubba.Accounts;Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.Registration;Password=password", ConfigurationManager.AppSettings["AccountServer"]);
+		private RegistrationDataAccess _registrationDAO;
 
         public RegistrationService()
         {
