@@ -17,8 +17,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5A528968
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "Clients", "{0E8013DB-F597-49E1-9C90-367A98C5BE69}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Models", "DevelopmentHell.Hubba.Models\DevelopmentHell.Hubba.Models.csproj", "{782796E1-7337-4714-85BE-3C8513481EAB}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CommonComponent", "CommonComponent", "{AF8ADA89-9511-4DF9-B861-281AC81D112D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DAL", "DAL", "{374ED57B-DF41-443B-ACB3-D48D59039C48}"
@@ -78,10 +76,6 @@ Global
 		{B8A07CDE-585C-4739-80B0-D751407F60D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8A07CDE-585C-4739-80B0-D751407F60D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8A07CDE-585C-4739-80B0-D751407F60D9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{782796E1-7337-4714-85BE-3C8513481EAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{782796E1-7337-4714-85BE-3C8513481EAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{782796E1-7337-4714-85BE-3C8513481EAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{782796E1-7337-4714-85BE-3C8513481EAB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
