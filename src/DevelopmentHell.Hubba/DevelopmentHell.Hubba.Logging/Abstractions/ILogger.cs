@@ -9,6 +9,6 @@ namespace DevelopmentHell.Hubba.Logging.Abstractions
 {
 	public interface ILogger
 	{
-		public Task<Result> Log(LogLevel level, string userName, string message);
+		public Task<Result> Log(LogLevel level, Category category, string userName, string message);
 	}
 }

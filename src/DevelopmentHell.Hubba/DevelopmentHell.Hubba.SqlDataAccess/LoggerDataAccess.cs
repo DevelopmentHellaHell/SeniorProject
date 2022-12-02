@@ -4,6 +4,7 @@ using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -15,7 +16,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 	{
 		private InsertDataAccess _insertDataAccess;
 		private SelectDataAccess _selectDataAccess;
-		private static string _tableName = "logs";
+		private readonly string _tableName = ConfigurationManager.AppSettings["LoggingServer"];
 
 		public LoggerDataAccess(string connectionString)
 		{
