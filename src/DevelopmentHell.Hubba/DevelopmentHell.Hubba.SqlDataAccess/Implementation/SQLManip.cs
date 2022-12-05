@@ -8,14 +8,14 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
 {
     public struct Comparator
     {
-        public Comparator(string key, string operation, object value)
+        public Comparator(object key, string operation, object value)
         {
             Key = key;
             Op = operation;
             Value = value;
         }
 
-        public string Key { get; }
+        public object Key { get; }
         public string Op { get; }
         public object Value { get; }
     }
