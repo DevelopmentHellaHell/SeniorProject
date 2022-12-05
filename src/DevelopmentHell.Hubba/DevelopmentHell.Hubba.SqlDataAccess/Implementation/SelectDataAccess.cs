@@ -63,7 +63,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
                     first = false;
                     sbFilter.Append($"{filter.Key} {filter.Op} @{filter.Key}");
 
-                    insertQuery.Parameters.Add(new SqlParameter(filter.Key, filter.Value));
+                    insertQuery.Parameters.Add(new SqlParameter(filter.Key.ToString(), filter.Value.ToString()));
                 }
                 first = true;
                 foreach (string column in columns)
