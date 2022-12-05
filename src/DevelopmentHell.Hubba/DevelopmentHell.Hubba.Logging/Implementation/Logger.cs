@@ -22,16 +22,6 @@ namespace DevelopmentHell.Hubba.Logging.Implementation
 				return new Result(true);
             }
 
-            if (message.Length > 200)
-            {
-				return new Result(false, "Logging message was over 200 characters.");
-            }
-
-            if (userName.Length > 50)
-            {
-                return new Result(false, "Logging user was over 50 characters.");
-            }
-
             var dataAccessResult = await _dataAccess.LogData(logLevel, _category, userName, message).ConfigureAwait(false);
             if (!dataAccessResult.IsSuccessful)
             {
