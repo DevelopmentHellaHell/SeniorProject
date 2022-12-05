@@ -221,9 +221,9 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			Assert.IsTrue(actual.IsSuccessful);
 			Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
 
-			var dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new Dictionary<string, object>()
+			var dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new List<Comparator>
 			{
-				{ "message", message }
+				new Comparator("message", "=", message)
 			}).ConfigureAwait(false);
 
 			var payload = (dbCheck.Payload as List<List<object>>)!;
@@ -267,11 +267,11 @@ namespace DevelopmentHell.Hubba.Logging.Test
             Assert.IsTrue(actual.IsSuccessful);
 			Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
 
-            var dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new Dictionary<string, object> {
-				{ "category", category },
-				{ "logLevel", logLevel },
-				{ "userName", userName },
-				{ "message", message },
+            var dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new List<Comparator> {
+				new Comparator("category", "=", category),
+				new Comparator("logLevel", "=", logLevel),
+				new Comparator("userName", "=", userName),
+				new Comparator("message", "=", message)
 			}).ConfigureAwait(false);
 
             var payload = (dbCheck.Payload as List<List<object>>)!;
@@ -308,12 +308,12 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			var actual = await sut.Log(logLevel, userName, message);
 
 			// Assert
-			var dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new Dictionary<string, object> {
-				{ "category", category },
-				{ "logLevel", logLevel },
-				{ "userName", userName },
-				{ "message", message },
-			}).ConfigureAwait(false);
+			var dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new List<Comparator> {
+                new Comparator("category", "=", category),
+                new Comparator("logLevel", "=", logLevel),
+                new Comparator("userName", "=", userName),
+                new Comparator("message", "=", message)
+            }).ConfigureAwait(false);
 
 			var payload = (dbCheck.Payload as List<List<object>>)!;
 			Assert.IsTrue(payload.Count >= 1);

@@ -96,9 +96,9 @@ namespace DevelopmentHell.Hubba.Registration.Test
             var expected = typeof(SelectDataAccess);
             var expectedTableName = "Accounts";
             
-            Dictionary<string, object> values = new()
+            List<Comparator> values = new()
             {
-                { "age", 28 }
+                new ("age", "=", 28)
             };
             List<string> expectedColumns = new()
             {
