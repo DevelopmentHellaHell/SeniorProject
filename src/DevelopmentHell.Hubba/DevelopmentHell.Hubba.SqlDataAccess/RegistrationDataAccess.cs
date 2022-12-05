@@ -8,7 +8,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
     {
         private InsertDataAccess _insertDataAccess;
         private SelectDataAccess _selectDataAccess;
-        private static string _tableName = "Accounts";
+        private static string _tableName = "UserAccounts";
 
         public RegistrationDataAccess(string connectionString)
         {
@@ -22,7 +22,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
            return insertResult!;
         }
         
-        public async Task<Result> SelectAccount(List<string> query, Dictionary<string, object> values)
+        public async Task<Result> SelectAccount(List<string> query, List<Comparator> values)
         {
             var selectResult = await _selectDataAccess.Select(_tableName, query, values).ConfigureAwait(false);
             return selectResult!;

@@ -221,7 +221,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			Assert.IsTrue(actual.IsSuccessful);
 			Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
 
-			var dbCheck = await dataAccess.SelectLogs(new() { "id", "timestamp" }, new () {new("message","=",message)});
+			var dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new () {new("message","=",message)});
 
 			var payload = (dbCheck.Payload as List<List<object>>)!;
 			Assert.IsTrue(payload.Count >= 1);
@@ -264,7 +264,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
             Assert.IsTrue(actual.IsSuccessful);
 			Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
 
-            var dbCheck = await dataAccess.SelectLogs(new() { "id", "timestamp" }, new() {
+            var dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new() {
 				new("category", "=", category),
 				new("logLevel", "=", logLevel),
 				new("userName", "=", userName),
@@ -305,11 +305,11 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			var actual = await sut.Log(logLevel, userName, message);
 
 			// Assert
-			var dbCheck = await dataAccess.SelectLogs(new() { "id", "timestamp" }, new() {
-                new("category", "=", category),
-                new("logLevel", "=", logLevel),
-                new("userName", "=", userName),
-                new("message", "=", message)
+			var dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new List<Comparator> {
+                new Comparator("category", "=", category),
+                new Comparator("logLevel", "=", logLevel),
+                new Comparator("userName", "=", userName),
+                new Comparator("message", "=", message)
             }).ConfigureAwait(false);
 
 			var payload = (dbCheck.Payload as List<List<object>>)!;

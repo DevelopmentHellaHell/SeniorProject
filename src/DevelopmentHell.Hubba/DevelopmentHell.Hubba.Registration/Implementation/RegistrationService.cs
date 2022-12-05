@@ -3,6 +3,7 @@ using DevelopmentHell.Hubba.SqlDataAccess;
 using System.Configuration;
 using System.Security.Cryptography;
 using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 
 namespace DevelopmentHell.Hubba.Registration
 {
@@ -43,7 +44,7 @@ namespace DevelopmentHell.Hubba.Registration
             }
 
             //unused email
-            var selectAccount = await _registrationDAO.SelectAccount(new() { "COUNT(Email)" }, new(){ new( "Email", "=", account.Email ) }).ConfigureAwait(false);
+            var selectAccount = await _registrationDAO.SelectAccount(new List<String> { "COUNT(Email)" }, new(){ new( "Email", "=", account.Email ) }).ConfigureAwait(false);
 
             if (selectAccount is not null)
             {
@@ -65,11 +66,7 @@ namespace DevelopmentHell.Hubba.Registration
 
 
             //username check
-            Dictionary<string, object> usernameValue = new()
-            {
-                { "Username", username }
-            };
-            selectAccount = await _registrationDAO.SelectAccount( new List<string> { "COUNT(Username)" }, usernameValue).ConfigureAwait(false);
+            selectAccount = await _registrationDAO.SelectAccount( new() { "COUNT(Username)" }, new(){ new("Username","=",username) }).ConfigureAwait(false);
 
             //assign id to account based on username check
             string tempUsername = "";
