@@ -24,17 +24,19 @@ public class EmailValidationUnitTest
     public void ShouldCheckForValidEmail()
     {
         // Arrange
-        List<String> goodEmails = new List<String>();
-        goodEmails.Add("joe@home.org");
-        goodEmails.Add("joe@joebob.name");
-        goodEmails.Add("joe@home.com");
-        goodEmails.Add("joe.bob@home.co");
-        goodEmails.Add("joe_bob@home.com");
-        goodEmails.Add("joe@his.home.place");
-        goodEmails.Add("a@abc.org");
-        goodEmails.Add("a@abc-xyz.org");
-        goodEmails.Add("a@192.168.0.1");
-        goodEmails.Add("a@10.1.100.1");
+        List<String> goodEmails = new()
+        {
+            "joe@home.org",
+            "joe@joebob.name",
+            "joe@home.com",
+            "joe.bob@home.co",
+            "joe_bob@home.com",
+            "joe@his.home.place",
+            "a@abc.org",
+            "a@abc-xyz.org",
+            "a@192.168.0.1",
+            "a@10.1.100.1"
+        };
 
         foreach (String goodEmail in goodEmails)
         {

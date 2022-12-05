@@ -37,10 +37,12 @@ public class BirthdateValidationUnitTest
     {
         // Arrange
         var expected = new Result(false, "Age requirement not met.");
-        List<DateTime> badBirthdates = new List<DateTime>();
-        badBirthdates.Add(DateTime.Today);
-        badBirthdates.Add(new DateTime(2018, 11, 01));
-        badBirthdates.Add(new DateTime(2018, 11, 15));
+        List<DateTime> badBirthdates = new()
+        {
+            DateTime.Today,
+            new(2018, 11, 01),
+            new(2018, 11, 15)
+        };
 
         foreach (DateTime badBirthdate in badBirthdates)
         {

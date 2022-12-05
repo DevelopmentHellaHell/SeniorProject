@@ -43,11 +43,7 @@ namespace DevelopmentHell.Hubba.Registration
             }
 
             //unused email
-            Dictionary<string, object> emailValue = new()
-            {
-                { "Email", account.Email }
-            };
-            var selectAccount = await _registrationDAO.SelectAccount(new List<String> { "COUNT(Email)" }, emailValue).ConfigureAwait(false);
+            var selectAccount = await _registrationDAO.SelectAccount(new() { "COUNT(Email)" }, new(){ new( "Email", "=", account.Email ) }).ConfigureAwait(false);
 
             if (selectAccount is not null)
             {
