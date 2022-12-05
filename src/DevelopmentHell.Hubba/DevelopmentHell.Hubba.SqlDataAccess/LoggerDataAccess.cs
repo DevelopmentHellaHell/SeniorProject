@@ -1,13 +1,7 @@
 ﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
-using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
@@ -47,7 +41,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			return new Result(true);
 		}
 
-		public async Task<Result> SelectLogs(List<string> columns, Dictionary<string, object> filters)
+		public async Task<Result> SelectLogs(List<string> columns, List<Comparator> filters)
 		{
 			var selectResult = await _selectDataAccess.Select(_tableName, columns, filters).ConfigureAwait(false);
 			return selectResult;
