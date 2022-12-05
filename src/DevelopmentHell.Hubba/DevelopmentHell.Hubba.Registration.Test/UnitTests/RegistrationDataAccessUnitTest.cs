@@ -7,7 +7,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
     [TestClass]
     public class RegistrationSqlDataAccessUnitTest
     {
-		private static string expectedDatabaseName = "DevelopmentHell.Hubba.Accounts";
+		private static string expectedDatabaseName = "DevelopmentHell.Hubba.Users";
 		private static string connectionString = String.Format(@"Server={0};Database={1};Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.Registration;Password=password", ConfigurationManager.AppSettings["AccountServer"], expectedDatabaseName);
 
 		[TestMethod]
@@ -30,7 +30,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
             // TODO: fill out test case
             // Arrange
             var expected = typeof(InsertDataAccess);
-            var expectedTableName = "Accounts";
+            var expectedTableName = "UserAccounts";
            
             string username = "coolkoala";
             string email = @"Email@random.com";
@@ -68,7 +68,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
             // TODO: fill out test case
             // Arrange
             var expected = typeof(UpdateDataAccess);
-            var expectedTableName = "Accounts";
+            var expectedTableName = "UserAccounts";
             
             string email = @"Email@random.com";
             Tuple<string, object> key = new Tuple<string, object>("email", email);
@@ -94,7 +94,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
             // TODO: fill out test case
             // Arrange
             var expected = typeof(SelectDataAccess);
-            var expectedTableName = "Accounts";
+            var expectedTableName = "UserAccounts";
             
             Dictionary<string, object> values = new()
             {

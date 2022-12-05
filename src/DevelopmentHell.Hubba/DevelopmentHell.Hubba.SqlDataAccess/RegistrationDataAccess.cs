@@ -8,7 +8,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
     {
         private InsertDataAccess _insertDataAccess;
         private SelectDataAccess _selectDataAccess;
-        private static string _tableName = "Accounts";
+        private static string _tableName = "UserAccounts";
 
         public RegistrationDataAccess(string connectionString)
         {
