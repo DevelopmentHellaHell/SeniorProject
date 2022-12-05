@@ -25,9 +25,13 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
 		public async Task<Result> LogData(LogLevel logLevel, Category category, string userName, string message)
 		{
+			if (!Enum.IsDefined(typeof(Category), category)) {
+				return new Result(false, String.Format(@"{0} is not in Category Enum.", category));
+			}
+
 			var logDictionary = new Dictionary<string, object>()
 			{
-				{ "Timestamp", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff",CultureInfo.InvariantCulture)},
+				{ "Timestamp", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture)},
 				{ "LogLevel", logLevel },
 				{ "Category", category },
 				{ "UserName", userName },
