@@ -23,8 +23,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DAL", "DAL", "{374ED57B-DF4
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DS_schemas", "DS_schemas", "{F75CB884-6301-43D0-879C-B1C11673CB60}"
 	ProjectSection(SolutionItems) = preProject
-		DSREADME.txt = DSREADME.txt
+		DevelopmentHell.Hubba.Logging.sql = DevelopmentHell.Hubba.Logging.sql
 		DevelopmentHell.Hubba.Users.sql = DevelopmentHell.Hubba.Users.sql
+		DSREADME.txt = DSREADME.txt
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Models", "DevelopmentHell.Hubba.Models\DevelopmentHell.Hubba.Models.csproj", "{583B5DFF-1EA8-4EAF-99F2-0DC064FEA9F5}"
