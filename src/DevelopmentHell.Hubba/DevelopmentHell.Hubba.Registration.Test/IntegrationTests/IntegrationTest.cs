@@ -38,7 +38,7 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
             // Assert
             Console.WriteLine(actual.ErrorMessage);
             var AssertSAO = new SelectDataAccess(connectionString);
-            Result usernameResult = await AssertSAO.Select("Accounts", new List<string>() { "Username", "Id" }, new Dictionary<string, object> { { "Email", email } });
+            Result usernameResult = await AssertSAO.Select("Accounts", new List<string>() { "Username", "Id" }, new () { new(  "Email","=", email ) });
             if (usernameResult.Payload is null || actual.Payload is null)
             {
                 Assert.IsTrue(false);
@@ -78,7 +78,7 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
 
             // Assert
             var AssertSAO = new SelectDataAccess(connectionString);
-            Result usernameResult = await AssertSAO.Select("Accounts", new List<string>() { "Username", "Id" }, new Dictionary<string, object> { { "Email", email } });
+            Result usernameResult = await AssertSAO.Select("Accounts", new List<string>() { "Username", "Id" }, new() { new("Email","=", email)});
             if (usernameResult.Payload is null || actual.Payload is null)
             {
                 Assert.IsTrue(false);
@@ -386,7 +386,7 @@ namespace DevelopmentHell.Hubba.Registration.Test.IntegrationTests
             // Assert
             Console.WriteLine(actual.ErrorMessage);
             var AssertSAO = new SelectDataAccess(connectionString);
-            Result usernameResult = await AssertSAO.Select("Accounts", new List<string>() { "Username", "Id" }, new Dictionary<string, object> { { "Email", email } });
+            Result usernameResult = await AssertSAO.Select("Accounts", new List<string>() { "Username", "Id" }, new() { new(  "Email","=", email )});
             if (usernameResult.Payload is null || actual.Payload is null)
             {
                 Assert.IsTrue(false);
