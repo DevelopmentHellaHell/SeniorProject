@@ -32,26 +32,38 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
             }
         }
 
-        public async Task<Result> Update(string table, Tuple<string, object> key, Dictionary<string, object> values)
+        public async Task<Result> Update(string table, List<Comparator> filters, Dictionary<string, object> values)
         {
             using (SqlCommand insertQuery = new SqlCommand())
             {
 
                 bool first = true;
-                StringBuilder sb = new();
+                StringBuilder valueSb = new();
+                StringBuilder filterSb = new();
                 foreach (var pair in values)
                 {
                     if (!first)
                     {
-                        sb.Append(", ");
+                        valueSb.Append(", ");
                     }
                     first = false;
-                    sb.Append(pair.Key + " = @" + pair.Key);
+                    valueSb.Append(pair.Key + " = @" + pair.Key);
 
                     insertQuery.Parameters.Add(new SqlParameter(pair.Key, pair.Value));
                 }
-                insertQuery.Parameters.Add(new SqlParameter(key.Item1, key.Item2));
-                insertQuery.CommandText = string.Format("UPDATE {0} SET {1} WHERE {2} = {3}", table, sb.ToString(), key.Item1, key.Item2);
+                foreach (var filter in filters)
+                {
+
+                    if (!first)
+                    {
+                        filterSb.Append(", ");
+                    }
+                    first = false;
+                    filterSb.Append($"{filter.Key} {filter.Op} @{filter.Value}");
+
+                    insertQuery.Parameters.Add(new SqlParameter(filter.Key.ToString(), filter.Value.ToString()));
+                }
+                insertQuery.CommandText = string.Format("UPDATE {0} SET {1} WHERE {2}", table, valueSb.ToString(), filterSb.ToString());
 
                 return await SendQuery(insertQuery).ConfigureAwait(false);
             }
