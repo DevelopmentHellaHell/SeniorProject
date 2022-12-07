@@ -51,6 +51,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
 
                     insertQuery.Parameters.Add(new SqlParameter(pair.Key, pair.Value));
                 }
+                first = true;
                 foreach (var filter in filters)
                 {
 
@@ -59,7 +60,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
                         filterSb.Append(", ");
                     }
                     first = false;
-                    filterSb.Append($"{filter.Key} {filter.Op} @{filter.Value}");
+                    filterSb.Append($"{filter.Key} {filter.Op} @{filter.Key}");
 
                     insertQuery.Parameters.Add(new SqlParameter(filter.Key.ToString(), filter.Value.ToString()));
                 }

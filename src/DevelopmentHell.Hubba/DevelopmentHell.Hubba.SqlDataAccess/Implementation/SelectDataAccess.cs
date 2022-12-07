@@ -76,7 +76,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
                     sbColumn.Append(column);
                 }
                 insertQuery.CommandText = $"SELECT {sbColumn.ToString()} FROM {source} WHERE {sbFilter.ToString()}";
-
                 return await SendQuery(insertQuery, columns.Count).ConfigureAwait(false);
             }
         }

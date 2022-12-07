@@ -23,8 +23,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DAL", "DAL", "{374ED57B-DF4
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DS_schemas", "DS_schemas", "{F75CB884-6301-43D0-879C-B1C11673CB60}"
 	ProjectSection(SolutionItems) = preProject
-		DevelopmentHell.Hubba.Accounts.sql = DevelopmentHell.Hubba.Accounts.sql
 		DSREADME.txt = DSREADME.txt
+		DevelopmentHell.Hubba.Users.sql = DevelopmentHell.Hubba.Users.sql
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Models", "DevelopmentHell.Hubba.Models\DevelopmentHell.Hubba.Models.csproj", "{583B5DFF-1EA8-4EAF-99F2-0DC064FEA9F5}"
@@ -38,11 +38,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		app.config = app.config
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.OneTimePassword", "OneTimePass\DevelopmentHell.Hubba.OneTimePassword.csproj", "{ACAE2FD7-72BB-4E31-95DE-5E8206C8FF08}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.OneTimePassword", "OneTimePass\DevelopmentHell.Hubba.OneTimePassword.csproj", "{ACAE2FD7-72BB-4E31-95DE-5E8206C8FF08}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.Mailing", "DevelopmentHell.Hubba.Mailing\DevelopmentHell.Hubba.Mailing.csproj", "{2C5D2919-A293-4FFA-B565-B6FDA01B6000}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Mailing", "DevelopmentHell.Hubba.Mailing\DevelopmentHell.Hubba.Mailing.csproj", "{2C5D2919-A293-4FFA-B565-B6FDA01B6000}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.Encryption", "DevelopmentHell.Hubba.Encryption\DevelopmentHell.Hubba.Encryption.csproj", "{82B9B36C-D9DC-44AA-9A25-9029366ED034}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Encryption", "DevelopmentHell.Hubba.Encryption\DevelopmentHell.Hubba.Encryption.csproj", "{82B9B36C-D9DC-44AA-9A25-9029366ED034}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

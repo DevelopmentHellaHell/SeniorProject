@@ -2,12 +2,6 @@
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using System.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Net.WebRequestMethods;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
@@ -17,7 +11,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         private SelectDataAccess _selectDataAccess;
         private DeleteDataAccess _deleteDataAccess;
         private InsertDataAccess _insertDataAccess;
-        private readonly string _tableName = ConfigurationManager.AppSettings["OTPTable"]!;
+        private readonly string _tableName = "UserOTPs";
 
         public OTPDataAccess(string connectionString)
         {
@@ -26,32 +20,33 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             _deleteDataAccess = new(connectionString);
             _updateDataAccess = new(connectionString);
         }
-        public async Task<Result> NewOTP(int accountId, string encryptedOTP)
+        public async Task<Result> NewOTP(int accountId, byte[] encryptedOTP)
         {
-            var accountCheck = _selectDataAccess.Select(_tableName, new List<string>() { "*" }, new List<Comparator>() { new("UserAccountId", "=", accountId) }).Result.Payload;
-            if ( ((List<Object>)accountCheck!).Count > 0)
+            var accountCheck = await _selectDataAccess.Select(_tableName, new List<string>() { "*" }, new List<Comparator>() { new("UserAccountId", "=", accountId) }).ConfigureAwait(false);
+            Console.WriteLine(accountCheck.ErrorMessage);
+            if ( ((List<List<Object>>)accountCheck.Payload!).Count > 0)
             {
-                return await Update(accountId, encryptedOTP).ConfigureAwait(false);
+				return await Update(accountId, encryptedOTP).ConfigureAwait(false);
             }
             else
             {
                 return await Insert(accountId, encryptedOTP).ConfigureAwait(false);
             }
         }
-        private async Task<Result> Insert(int accountId, string encryptedOTP)
+        private async Task<Result> Insert(int accountId, byte[] encryptedOTP)
         {
             return await _insertDataAccess.Insert(_tableName, new() {
                 { "UserAccountID", accountId },
-                { "Expiration", DateTime.UtcNow.AddSeconds(Convert.ToDouble(ConfigurationManager.AppSettings["OTPExpirationOffsetSeconds"]!)) },
-                { "UserOTP", encryptedOTP }
+                { "Expiration", DateTime.UtcNow.AddSeconds(Convert.ToDouble(120)) },
+                { "Passphrase", encryptedOTP }
             }).ConfigureAwait(false);
         }
-        private async Task<Result> Update(int accountId, string encryptedOTP)
+        private async Task<Result> Update(int accountId, byte[] encryptedOTP)
         {
-            DateTime expirationDateTime = DateTime.UtcNow.AddSeconds(Convert.ToDouble(ConfigurationManager.AppSettings["OTPExpirationOffsetSeconds"]!));
-            Result updateResult = await _updateDataAccess.Update("UserOTP", new() { new("UserAccountId","=",accountId) }, new()
+            DateTime expirationDateTime = DateTime.UtcNow.AddSeconds(Convert.ToDouble(120));
+            Result updateResult = await _updateDataAccess.Update(_tableName, new() { new("UserAccountId","=",accountId) }, new()
             {
-                { "ExpirationDateTime", expirationDateTime },
+                { "Expiration", expirationDateTime },
                 { "Passphrase", encryptedOTP },
             }).ConfigureAwait(false);
             return updateResult;
@@ -61,13 +56,13 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             DateTime now = DateTime.UtcNow;
             Result selectResult = await _selectDataAccess.Select(
-                SQLManip.InnerJoinTables(new Joiner("UserOTP", "UserAccount", "Email", "Email")),
+                SQLManip.InnerJoinTables(new Joiner("UserOTP", "UserAccount", "UserAccountId", "Id")),
                 new() { "*" },
                 new()
                 {
                     new("Passphrase", "=", encryptedOTP),
                     new("UserAccountId", "=", accountId),
-                    new(now, "<", "UserOTP.ExpirationDateTime")
+                    new(now, "<", "Expiration")
                 }
             ).ConfigureAwait(false);
             return selectResult;
