@@ -5,9 +5,6 @@ using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using Microsoft.Data.SqlClient;
 using System.Configuration;
 using System.Diagnostics;
-using System.Drawing.Printing;
-using System.Globalization;
-using System.Reflection;
 
 namespace DevelopmentHell.Hubba.Logging.Test
 {
@@ -323,7 +320,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 				if (0 <= timeDiff)
 				{
 					updateResult = await new UpdateDataAccess(connectionString).Update("logs",
-						new Tuple<string, object>("id", row[0]),
+						new() { new("id", "=", row[0]) },
 						new Dictionary<string, object>()
 						{
 							{ "message", "newTestMessage" },

@@ -20,19 +20,17 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
                 using (SqlConnection conn = new SqlConnection(connectionPath))
                 {
                     query.Connection = conn;
-                    List<List<object>> payload = new();
+                    List<object> payload = new();
                     await conn.OpenAsync();
                     using (SqlDataReader reader = await query.ExecuteReaderAsync().ConfigureAwait(false))
                     {
                         while (reader.Read())
                         {
-                            List<object> row = new();
                             IDataRecord dataRecord = reader;
                             for (int i = 0; i < columnLength; i++)
                             {
-                                row.Add(dataRecord[i]);
+                                payload.Add(dataRecord[i]);
                             }
-                            payload.Add(row);
                         }
                         return new Result(true, "", payload);
                     }
@@ -76,7 +74,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
                     sbColumn.Append(column);
                 }
                 insertQuery.CommandText = $"SELECT {sbColumn.ToString()} FROM {source} WHERE {sbFilter.ToString()}";
-
                 return await SendQuery(insertQuery, columns.Count).ConfigureAwait(false);
             }
         }

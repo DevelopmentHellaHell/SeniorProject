@@ -1,53 +1,32 @@
 ﻿using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
-using System.Configuration;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
-	public class AuthenticationDataAccess
+	public class AuthenticationDataAccess : IAuthenticationDataAccess
 	{
 		private SelectDataAccess _selectDataAccess;
-		private UpdateDataAccess _updateDataAccess;
+		private readonly string _tableName = "UserAccounts";
 
-		public AuthenticationDataAccess(string connectionString)
+		public AuthenticationDataAccess (string connectionString)
 		{
 			_selectDataAccess = new SelectDataAccess(connectionString);
-			_updateDataAccess = new UpdateDataAccess(connectionString);
 		}
 
-		public async Task<Result> SelectUserAccount(string email, string password)
+ 		public async Task<Result> SelectUserAccount(string email, string passwordHash, string passwordSalt)
 		{
-			Result selectResult = await _selectDataAccess.Select("UserAccount", new List<string> { "Id" }, new()
-			{
-				new("Email", "=", email),
-				new("Password", "=", password),
-			}).ConfigureAwait(false);
-			return selectResult;
-		}
-
-		public async Task<Result> CreateUserOTP(string email, string passphrase)
-		{
-			DateTime expirationDateTime = DateTime.UtcNow.AddSeconds(Convert.ToDouble(ConfigurationManager.AppSettings["OTPExpirationOffsetSeconds"]!));
-			Result updateResult = await _updateDataAccess.Update("UserOTP", new Tuple<string, object>("Email", email), new Dictionary<string, object>
-			{
-				{ "ExpirationDateTime", expirationDateTime },
-				{ "Passphrase", passphrase },
-			}).ConfigureAwait(false);
-			return updateResult;
-		}
-
-		public async Task<Result> SelectUserOTP(string otp, string email)
-		{
-			DateTime now = DateTime.UtcNow;
-			Result selectResult = await _selectDataAccess.Select(
-				TableManip.InnerJoinTables("UserOTP", "UserAccount", "Email", "Email"),
-				new() { "*" },
-				new()
+			var selectResult = await _selectDataAccess.Select(
+				_tableName,
+				new List<string>() { "Id" },
+				new List<Comparator>()
 				{
-					new("passphrase", "=", otp),
-					new("UserOTP.email", "=", email),
-					new(now, "<", "UserOTP.ExpirationDateTime")
-				});
+					new Comparator("Email", "=", email),
+					new Comparator("PasswordHash", "=", passwordHash),
+					new Comparator("PasswordSalt", "=", passwordSalt)
+				}
+			).ConfigureAwait(false);
+
 			return selectResult;
 		}
 	}
