@@ -4,7 +4,7 @@ using System.Configuration;
 
 namespace DevelopmentHell.Hubba.Mailing
 {
-    public class Emailer
+    public class EmailService
     {
         public static bool SendEmail(string email, string subject, string body)
         {

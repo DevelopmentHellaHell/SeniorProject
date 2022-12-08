@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace DevelopmentHell.Hubba.Encryption
+namespace DevelopmentHell.Hubba.Cryptography
 {
     public class Encryption
     {

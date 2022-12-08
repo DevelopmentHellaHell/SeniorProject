@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -7,14 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\DevelopmentHell.Hubba.Encryption\DevelopmentHell.Hubba.Cryptography.csproj" />
-    <ProjectReference Include="..\DevelopmentHell.Hubba.Mailing\DevelopmentHell.Hubba.EmailService.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.Models\DevelopmentHell.Hubba.Models.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.SqlDataAccess\DevelopmentHell.Hubba.SqlDataAccess.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.Validaition\DevelopmentHell.Hubba.Validaition.csproj" />
   </ItemGroup>
 
 </Project>

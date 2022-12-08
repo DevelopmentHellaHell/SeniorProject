@@ -22,7 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DevelopmentHell.Hubba.Models\DevelopmentHell.Hubba.Models.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.SqlDataAccess\DevelopmentHell.Hubba.SqlDataAccess.csproj" />
-    <ProjectReference Include="..\DevelopmentHell.Hubba.Registration\DevelopmentHell.Hubba.Registration.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.Registration\DevelopmentHell.Hubba.RegistrationService.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.Registration\DevelopmentHell.Hubba.Registration.csproj" />
   </ItemGroup>
   <ItemGroup>
