@@ -1,10 +1,5 @@
 ﻿using DevelopmentHell.Hubba.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.Cryptography
 {
@@ -23,7 +18,7 @@ namespace DevelopmentHell.Hubba.Cryptography
 		public static Result HashString(string text)
 		{
 			var result = new Result();
-			using (var hmac = new HMACSHA512())
+			using (var hmac = new HMACSHA512(new Byte[] { 1, 2, 3 })) // TODO: TEMP KEY
 			{
 				var salt = Convert.ToBase64String(hmac.Key);
 				var hash = Convert.ToBase64String(hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(text)));

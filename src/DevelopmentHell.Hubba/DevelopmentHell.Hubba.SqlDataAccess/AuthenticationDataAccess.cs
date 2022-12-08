@@ -26,7 +26,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 					new Comparator("PasswordSalt", "=", passwordSalt)
 				}
 			).ConfigureAwait(false);
-
 			return selectResult;
 		}
 	}
