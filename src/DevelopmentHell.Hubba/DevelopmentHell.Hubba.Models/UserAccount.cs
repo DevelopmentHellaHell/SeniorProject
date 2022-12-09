@@ -2,9 +2,9 @@
 {
 	public class UserAccount
 	{
-		public int? Id { get; set; }
-		public string? Email { get; set; }
-		public string? PasswordHash { get; set; }
-		public string? PasswordSalt { get; set; }
+		int Id { get; set; }
+		string Email { get; set; }
+		string PasswordHash { get; set; }
+		string PasswordSalt { get; set; }
 	}
 }

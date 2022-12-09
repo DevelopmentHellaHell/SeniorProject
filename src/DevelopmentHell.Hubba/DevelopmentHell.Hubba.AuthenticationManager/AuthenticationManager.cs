@@ -22,9 +22,9 @@ namespace DevelopmentHell.Hubba.AuthenticationManager
 				return result;
 			}
 
-			UserAccount account = result.Payload!;
+			UserAccount account = result.Payload;
 			var otpManager = new OTPService(_connectionString);
-			var otp = otpManager.NewOTP((int)account.Id!).Result.Payload!.ToString()!;
+			var otp = otpManager.NewOTP(account.Id).Result.Payload!.ToString()!;
 
 			var sendOTPResult = otpManager.SendOTP(email, otp);
 			if (!sendOTPResult)

@@ -8,6 +8,6 @@
 
     public class Result<T> : Result
     {
-		public T? Payload { get; set; }
+		public T Payload { get; set; }
 	}
 }

@@ -52,6 +52,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Valid
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.AuthenticationManager", "DevelopmentHell.Hubba.AuthenticationManager\DevelopmentHell.Hubba.AuthenticationManager.csproj", "{E593013E-7F89-4DCC-95D6-2C30D9122C58}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.UserService", "UserService\DevelopmentHell.Hubba.UserService.csproj", "{01EC28CE-9326-4E27-BD37-F534038A7A4A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -102,6 +104,10 @@ Global
 		{E593013E-7F89-4DCC-95D6-2C30D9122C58}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E593013E-7F89-4DCC-95D6-2C30D9122C58}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E593013E-7F89-4DCC-95D6-2C30D9122C58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01EC28CE-9326-4E27-BD37-F534038A7A4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01EC28CE-9326-4E27-BD37-F534038A7A4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01EC28CE-9326-4E27-BD37-F534038A7A4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01EC28CE-9326-4E27-BD37-F534038A7A4A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -121,6 +127,7 @@ Global
 		{0CD11C43-E081-4B40-907C-5620E1EB6DE1} = {AF8ADA89-9511-4DF9-B861-281AC81D112D}
 		{8B96D365-954B-4C24-A2DC-74E1D593C0AD} = {33222376-EAA6-4A44-A1D7-B6DB5BE1E13B}
 		{E593013E-7F89-4DCC-95D6-2C30D9122C58} = {B0CA7BBB-28E5-4E0B-8469-CB306F709D85}
+		{01EC28CE-9326-4E27-BD37-F534038A7A4A} = {33222376-EAA6-4A44-A1D7-B6DB5BE1E13B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E49330E5-F92F-4990-A904-E75E376A2656}
