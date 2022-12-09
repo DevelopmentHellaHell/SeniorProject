@@ -20,7 +20,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 		public async Task<Result> LogData(LogLevel logLevel, Category category, string userName, string message)
 		{
 			if (!Enum.IsDefined(typeof(Category), category)) {
-				return new Result(false, String.Format(@"{0} is not in Category Enum.", category));
+				return new Result()
+				{
+					IsSuccessful = false,
+					ErrorMessage = String.Format(@"{0} is not in Category Enum.", category),
+				};
 			}
 
 			var logDictionary = new Dictionary<string, object>()
@@ -38,7 +42,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 				return insertResult;
 			}
 
-			return new Result(true);
+			return new Result()
+			{
+				IsSuccessful = true,
+			};
 		}
 
 		public async Task<Result> SelectLogs(List<string> columns, List<Comparator> filters)

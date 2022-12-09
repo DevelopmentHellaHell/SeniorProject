@@ -9,6 +9,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
 {
 	public interface IAuthenticationDataAccess
 	{
-		Task<Result> SelectUserAccount(string email, string passwordHash, string passwordSalt);
+		Task<Result<UserAccount>> SelectUserAccount(string email, string passwordHash, string passwordSalt);
 	}
 }

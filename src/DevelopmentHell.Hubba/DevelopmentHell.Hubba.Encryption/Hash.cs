@@ -15,9 +15,9 @@ namespace DevelopmentHell.Hubba.Cryptography
 	}
 	public class Hash
 	{
-		public static Result HashString(string text)
+		public static Result<HashResult> HashString(string text)
 		{
-			var result = new Result();
+			var result = new Result<HashResult>();
 			using (var hmac = new HMACSHA512(new Byte[] { 1, 2, 3 })) // TODO: TEMP KEY
 			{
 				var salt = Convert.ToBase64String(hmac.Key);
