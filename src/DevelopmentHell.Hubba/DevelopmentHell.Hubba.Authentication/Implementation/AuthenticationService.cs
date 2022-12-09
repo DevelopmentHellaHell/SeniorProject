@@ -14,12 +14,16 @@ namespace DevelopmentHell.Hubba.Authentication.Implementation
 		{
 			_dao = new AuthenticationDataAccess(connectionString);
 		}
-		public async Task<Result> AuthenticateCredentials(string email, string password)
+		public async Task<Result<UserAccount>> AuthenticateCredentials(string email, string password)
 		{
 			if (!Validation.ValidateEmail(email).IsSuccessful ||
 				!Validation.ValidatePassword(password).IsSuccessful)
 			{
-				return new Result(false, "The email or password provided is invalid.");
+				return new Result<UserAccount>()
+				{
+					IsSuccessful = false,
+					ErrorMessage = "The email or password provided is invalid.",
+				};
 			}
 
 			var hashResult = Cryptography.Hash.HashString(password).Payload as HashResult;

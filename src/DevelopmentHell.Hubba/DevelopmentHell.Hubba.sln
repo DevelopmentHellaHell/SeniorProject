@@ -4,13 +4,6 @@ VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Client", "DevelopmentHell.Hubba.Client\DevelopmentHell.Hubba.Client.csproj", "{BACE9CC4-F837-49DD-8572-EE102E1EAB1C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.RegistrationService", "DevelopmentHell.Hubba.Registration\DevelopmentHell.Hubba.RegistrationService.csproj", "{91B3FBDC-0B1D-4C1F-BA0D-99D27F8B93ED}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Registration.Test", "DevelopmentHell.Hubba.Registration.Test\DevelopmentHell.Hubba.Registration.Test.csproj", "{D8E08993-9EF2-4F07-8223-E3B0991B428E}"
-	ProjectSection(ProjectDependencies) = postProject
-		{6C8B3984-217A-4DEA-9A4D-73F301FC0893} = {6C8B3984-217A-4DEA-9A4D-73F301FC0893}
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.SqlDataAccess", "DevelopmentHell.Hubba.SqlDataAccess\DevelopmentHell.Hubba.SqlDataAccess.csproj", "{6C8B3984-217A-4DEA-9A4D-73F301FC0893}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5A528968-95F9-4E5A-98CB-501EE0759FDC}"
@@ -53,11 +46,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Managers", "Managers", "{40
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CommonComponents", "CommonComponents", "{B0CA7BBB-28E5-4E0B-8469-CB306F709D85}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.AuthenticationService", "DevelopmentHell.Hubba.Authentication\DevelopmentHell.Hubba.AuthenticationService.csproj", "{0CD11C43-E081-4B40-907C-5620E1EB6DE1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.AuthenticationService", "DevelopmentHell.Hubba.Authentication\DevelopmentHell.Hubba.AuthenticationService.csproj", "{0CD11C43-E081-4B40-907C-5620E1EB6DE1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.Validaition", "DevelopmentHell.Hubba.Validaition\DevelopmentHell.Hubba.Validaition.csproj", "{8B96D365-954B-4C24-A2DC-74E1D593C0AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Validaition", "DevelopmentHell.Hubba.Validaition\DevelopmentHell.Hubba.Validaition.csproj", "{8B96D365-954B-4C24-A2DC-74E1D593C0AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.AuthenticationManager", "DevelopmentHell.Hubba.AuthenticationManager\DevelopmentHell.Hubba.AuthenticationManager.csproj", "{E593013E-7F89-4DCC-95D6-2C30D9122C58}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.AuthenticationManager", "DevelopmentHell.Hubba.AuthenticationManager\DevelopmentHell.Hubba.AuthenticationManager.csproj", "{E593013E-7F89-4DCC-95D6-2C30D9122C58}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,14 +62,6 @@ Global
 		{BACE9CC4-F837-49DD-8572-EE102E1EAB1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BACE9CC4-F837-49DD-8572-EE102E1EAB1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BACE9CC4-F837-49DD-8572-EE102E1EAB1C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{91B3FBDC-0B1D-4C1F-BA0D-99D27F8B93ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{91B3FBDC-0B1D-4C1F-BA0D-99D27F8B93ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{91B3FBDC-0B1D-4C1F-BA0D-99D27F8B93ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{91B3FBDC-0B1D-4C1F-BA0D-99D27F8B93ED}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D8E08993-9EF2-4F07-8223-E3B0991B428E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D8E08993-9EF2-4F07-8223-E3B0991B428E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D8E08993-9EF2-4F07-8223-E3B0991B428E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D8E08993-9EF2-4F07-8223-E3B0991B428E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6C8B3984-217A-4DEA-9A4D-73F301FC0893}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6C8B3984-217A-4DEA-9A4D-73F301FC0893}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C8B3984-217A-4DEA-9A4D-73F301FC0893}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -123,8 +108,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{BACE9CC4-F837-49DD-8572-EE102E1EAB1C} = {0E8013DB-F597-49E1-9C90-367A98C5BE69}
-		{91B3FBDC-0B1D-4C1F-BA0D-99D27F8B93ED} = {AF8ADA89-9511-4DF9-B861-281AC81D112D}
-		{D8E08993-9EF2-4F07-8223-E3B0991B428E} = {5A528968-95F9-4E5A-98CB-501EE0759FDC}
 		{6C8B3984-217A-4DEA-9A4D-73F301FC0893} = {374ED57B-DF41-443B-ACB3-D48D59039C48}
 		{AF8ADA89-9511-4DF9-B861-281AC81D112D} = {33222376-EAA6-4A44-A1D7-B6DB5BE1E13B}
 		{F75CB884-6301-43D0-879C-B1C11673CB60} = {374ED57B-DF41-443B-ACB3-D48D59039C48}

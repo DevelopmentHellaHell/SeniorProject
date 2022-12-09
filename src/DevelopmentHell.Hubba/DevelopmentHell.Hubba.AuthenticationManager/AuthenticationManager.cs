@@ -22,22 +22,24 @@ namespace DevelopmentHell.Hubba.AuthenticationManager
 				return result;
 			}
 
-			var accountRow = (List<object>)result.Payload!;
-			if (accountRow!.Count <= 0)
-			{
-				return new Result(false, "No account rows returned");
-			}
-			var accountId = Convert.ToInt32(accountRow[0].ToString());
+			UserAccount account = result.Payload!;
 			var otpManager = new OTPService(_connectionString);
-			var otp = otpManager.NewOTP(accountId).Result.Payload!.ToString()!;
+			var otp = otpManager.NewOTP((int)account.Id!).Result.Payload!.ToString()!;
 
 			var sendOTPResult = otpManager.SendOTP(email, otp);
 			if (!sendOTPResult)
 			{
-				return new Result(false, "Could not email OTP.");
+				return new Result()
+				{
+					IsSuccessful = false,
+					ErrorMessage = "Could not send otp.",
+				};
 			}
 
-			return new Result(true);
+			return new Result()
+			{
+				IsSuccessful = true,
+			};
 		}
 	}
 }
