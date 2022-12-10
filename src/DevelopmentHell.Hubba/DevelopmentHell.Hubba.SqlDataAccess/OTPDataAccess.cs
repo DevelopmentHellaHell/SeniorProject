@@ -2,6 +2,7 @@
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using System.Configuration;
+using System.Text;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
@@ -22,8 +23,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         }
         public async Task<Result> NewOTP(int accountId, byte[] encryptedOTP)
         {
-            var accountCheck = await _selectDataAccess.Select(_tableName, new List<string>() { "*" }, new List<Comparator>() { new("UserAccountId", "=", accountId) }).ConfigureAwait(false);
-            if ( ((List<object>)accountCheck.Payload!).Count > 0)
+            Result<List<object>> accountCheck = await _selectDataAccess.Select(_tableName, new List<string>() { "*" }, new List<Comparator>() { new("UserAccountId", "=", accountId) }).ConfigureAwait(false);
+            if (accountCheck.Payload.Count > 0)
             {
 				return await Update(accountId, encryptedOTP).ConfigureAwait(false);
             }
@@ -51,25 +52,56 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return updateResult;
         }
 
-        public async Task<Result> Check(int accountId, string encryptedOTP)
+        public async Task<Result<byte[]>> GetOTP(int accountId)
         {
             DateTime now = DateTime.UtcNow;
-            Result selectResult = await _selectDataAccess.Select(
-                SQLManip.InnerJoinTables(new Joiner("UserOTP", "UserAccount", "UserAccountId", "Id")),
-                new() { "*" },
+            Result<List<object>> selectResult = await _selectDataAccess.Select(
+			    SQLManip.InnerJoinTables(new Joiner("UserOTPs", "UserAccount", "UserAccountId", "Id")),
+                new() { "Passphrase" },
                 new()
                 {
-                    new("Passphrase", "=", encryptedOTP),
                     new("UserAccountId", "=", accountId),
                     new(now, "<", "Expiration")
                 }
             ).ConfigureAwait(false);
-            return selectResult;
-        }
 
-        public async Task<Result> Delete(int accountId)
+            Result<byte[]> result = new Result<byte[]>();
+			if (!selectResult.IsSuccessful)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = selectResult.ErrorMessage;
+				return result;
+			}
+
+			List<object> payload = selectResult.Payload;
+			if (payload.Count <= 0)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "No UserOTP selected with email and time.";
+				return result;
+			}
+
+			if (payload.Count > 1)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Multiple UserOTPs selected.";
+				return result;
+			}
+
+            result.IsSuccessful = true;
+            result.Payload = Encoding.UTF8.GetBytes(payload[0] as string)!;
+            return result;
+		}
+
+		public async Task<Result> Delete(int accountId)
         {
-            return await _deleteDataAccess.Delete(_tableName, new() { new("UserAccountId", "=", accountId) }).ConfigureAwait(false);
+            return await _deleteDataAccess.Delete(
+                _tableName,
+                new List<Comparator>()
+                {
+                    new("UserAccountId", "=", accountId)
+                }
+            ).ConfigureAwait(false);
         }
     }
 }

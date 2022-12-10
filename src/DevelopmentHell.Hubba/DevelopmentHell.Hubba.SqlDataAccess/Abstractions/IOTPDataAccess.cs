@@ -10,7 +10,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
     public interface IOTPDataAccess
     {
         Task<Result> NewOTP(int accountId, byte[] encryptedOTP);
-        Task<Result> Check(int accountId, string encryptedOTP);
+        //Task<Result> Check(int accountId, string encryptedOTP);
+        Task<Result<byte[]>> GetOTP(int accountId);
         Task<Result> Delete(int accountId);
     }
 }

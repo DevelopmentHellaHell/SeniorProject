@@ -23,13 +23,9 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service
 			byte[] aesKey = Encoding.ASCII.GetBytes("gVkYp2s5v8y/B?E(H+MbQeThWmZq4t6w"); // TODO: move to config
 			Random random = new((int)(DateTime.UtcNow.Ticks << 4 >> 4));
 			string otp = new(Enumerable.Repeat(validChars, 8).Select(s => s[random.Next(s.Length)]).ToArray());
-			byte[] eotp;
-			using (AesManaged aes = new AesManaged())
-			{
-				eotp = EncryptionService.Encrypt(aes, otp, aesKey, aes.IV);
-			}
+			byte[] eotp = EncryptionService.Encrypt(otp, aesKey);
 
-			var result = await _dataAccess.NewOTP(accountId, eotp).ConfigureAwait(false);
+			Result result = await _dataAccess.NewOTP(accountId, eotp).ConfigureAwait(false);
 			return new Result<string>()
 			{
 				IsSuccessful = result.IsSuccessful,
@@ -38,11 +34,35 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service
 			};
 		}
 
-		//public async Task<Result> CheckOTP(int accountId, string otp)
-		//{
-		//    Cryptography.Encryption.Encrypt()
-		//    _dataAccess.Check(accountId, )
-		//}
+		public async Task<Result> CheckOTP(int accountId, string otp)
+		{
+			string userFriendlyErrorMessage = "The email or password provided is invalid.";
+			Result result = new Result();
+			byte[] aesKey = Encoding.ASCII.GetBytes("gVkYp2s5v8y/B?E(H+MbQeThWmZq4t6w"); // TODO: move to config
+
+			Result<byte[]> getResult = await _dataAccess.GetOTP(accountId);
+			if (!getResult.IsSuccessful)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = userFriendlyErrorMessage;
+				return result;
+			}
+			byte[] eotpDb = getResult.Payload;
+			string otpDb = EncryptionService.Decrypt(eotpDb, aesKey);
+
+			// TEMP
+			Console.WriteLine($"INPUT OTP: {otp}, DECRYPTED OTP FROM DB: {otpDb}");
+
+			if (otp != otpDb)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = userFriendlyErrorMessage;
+				return result;
+			}
+
+			result.IsSuccessful = true;
+			return result;
+		}
 
 		public Result SendOTP(string email, string otp)
 		{

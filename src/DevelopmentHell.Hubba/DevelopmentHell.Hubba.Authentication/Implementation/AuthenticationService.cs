@@ -16,19 +16,28 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 
 		public async Task<Result<int>> AuthenticateCredentials(string email, string password)
 		{
-
+			string userFriendlyErrorMessage = "The email or password provided is invalid.";
 			Result<int> result = new Result<int>();
+
 			if (!ValidationService.ValidateEmail(email).IsSuccessful ||
 				!ValidationService.ValidatePassword(password).IsSuccessful)
 			{
 				result.IsSuccessful = false;
-				result.ErrorMessage = "The email or password provided is invalid.";
+				result.ErrorMessage = userFriendlyErrorMessage;
 				return result;
 			}
 
 			HashData hashData = HashService.HashString(password).Payload;
 			Result<int> getResult = await _dao.GetUserAccountIdByCredentials(email, hashData).ConfigureAwait(false);
-			return getResult;
+			if (!getResult.IsSuccessful) {
+				result.IsSuccessful = false;
+				result.ErrorMessage = userFriendlyErrorMessage;
+				return result;
+			}
+
+			result.IsSuccessful = true;
+			result.Payload = getResult.Payload;
+			return result;
 		}
 	}
 }

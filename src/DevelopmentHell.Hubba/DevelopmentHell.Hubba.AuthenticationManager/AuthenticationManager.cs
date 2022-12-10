@@ -8,11 +8,13 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 	public class AuthenticationManager
 	{
 		private IAuthenticatonService _authenticationService;
+		private OTPService _otpService;
 		private readonly string _connectionString = "Server=.;Database=DevelopmentHell.Hubba.Users;Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.User;Password=password";
 
 		public AuthenticationManager()
 		{
 			_authenticationService = new AuthenticationService(_connectionString);
+			_otpService = new OTPService(_connectionString);
 		}
 
 		public async Task<Result> Login(string email, string password)
@@ -28,11 +30,10 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 			}
 
 			int accountId = authenticateResult.Payload;
-			OTPService otpService = new OTPService(_connectionString);
-			Result<string> otpResult = await otpService.NewOTP(accountId).ConfigureAwait(false);
+			Result<string> otpResult = await _otpService.NewOTP(accountId).ConfigureAwait(false);
 			string otp = otpResult.Payload.ToString();
 
-			Result sendOTPResult = otpService.SendOTP(email, otp);
+			Result sendOTPResult = _otpService.SendOTP(email, otp);
 			if (!sendOTPResult.IsSuccessful)
 			{
 				result.IsSuccessful = false;
@@ -41,6 +42,14 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 			}
 
 			result.IsSuccessful = true;
+			return result;
+		}
+
+		public async Task<Result> AuthenticateOTP(string otp)
+		{
+			Result result = new Result();
+
+			//var checkResult = await _otpService // TODO
 			return result;
 		}
 	}

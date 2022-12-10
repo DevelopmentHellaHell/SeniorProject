@@ -39,14 +39,14 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			if (payload.Count <= 0)
 			{
 				result.IsSuccessful = false;
-				result.ErrorMessage = "No UserAccount selected with credentials.";
+				result.ErrorMessage = "No UserAccounts selected with email and password.";
 				return result;
 			}
 
 			if (payload.Count > 1)
 			{
 				result.IsSuccessful = false;
-				result.ErrorMessage = "Multiple UserAccounts selected with credentials, please contact administrator.";
+				result.ErrorMessage = "Mutliple UserAccounts selected with email and password.";
 				return result;
 			}
 
@@ -79,14 +79,14 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			if (payload.Count <= 0)
 			{
 				result.IsSuccessful = false;
-				result.ErrorMessage = "No UserAccount selected with email.";
+				result.ErrorMessage = "No UserAccounts selected with email.";
 				return result;
 			}
 
 			if (payload.Count > 1)
 			{
 				result.IsSuccessful = false;
-				result.ErrorMessage = "Multiple UserAccounts selected with email, please contact administrator.";
+				result.ErrorMessage = "Multiple UserAccounts selected with email.";
 				return result;
 			}
 
