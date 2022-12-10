@@ -1,22 +1,28 @@
 ﻿using System.Security.Cryptography;
+using System.Text;
 
 namespace DevelopmentHell.Hubba.Cryptography
 {
     public class Encryption
     {
-        public static byte[] Encrypt(AesManaged aes, string plainText, byte[] Key, byte[] IV)
-        {
-            byte[] encrypted;
-            // Create a new AesManaged.
+        //TODO: move to config file
+        private static readonly byte[] _aesKey = Encoding.ASCII.GetBytes("gVkYp2s5v8y/B?E(H+MbQeThWmZq4t6w");
+        //private static readonly byte[] _aesIV = Encoding.ASCII.GetBytes("")
 
-            // Create encryptor
-            ICryptoTransform encryptor = aes.CreateEncryptor(Key, IV);
+        private static Aes _alg = Aes.Create();
+
+        public static byte[] Encrypt(string plainText)
+        {
+
+            byte[] encrypted;
+            
+            _alg.Key = _aesKey;
+            ICryptoTransform encryptor = _alg.CreateEncryptor();
+
             // Create MemoryStream
             using (MemoryStream ms = new MemoryStream())
             {
-                // Create crypto stream using the CryptoStream class. This class is the key to encryption
-                // and encrypts and decrypts data from any given stream. In this case, we will pass a memory stream
-                // to encrypt
+                // Create crypto stream using the CryptoStream class.
                 using (CryptoStream cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
                 {
                     // Create StreamWriter and write data to a stream
@@ -28,6 +34,28 @@ namespace DevelopmentHell.Hubba.Cryptography
 
             // Return encrypted data
             return encrypted;
+        }
+        public static string Decrypt(byte[] encrypted)
+        {
+            string output;
+
+            _alg.Key = _aesKey;
+            ICryptoTransform decryptor = _alg.CreateDecryptor();
+
+            // Create MemoryStream
+            using (MemoryStream ms = new MemoryStream())
+            {
+                // Create crypto stream using the CryptoStream class.
+                using (CryptoStream cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Write))
+                {
+                    // Create StreamWriter and write data to a stream
+                    using (StreamReader sr = new StreamReader(cs))
+                        output = sr.ReadToEnd();
+                }
+            }
+
+            // Return encrypted data
+            return output;
         }
     }
 }

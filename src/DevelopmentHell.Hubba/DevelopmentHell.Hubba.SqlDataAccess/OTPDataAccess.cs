@@ -52,17 +52,16 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return updateResult;
         }
 
-        public async Task<Result> Check(int accountId, string encryptedOTP)
+        public async Task<Result> Check(int accountId)
         {
             DateTime now = DateTime.UtcNow;
             Result selectResult = await _selectDataAccess.Select(
                 SQLManip.InnerJoinTables(new Joiner("UserOTP", "UserAccount", "UserAccountId", "Id")),
-                new() { "*" },
+                new() { "Passphrase" },
                 new()
                 {
-                    new("Passphrase", "=", encryptedOTP),
                     new("UserAccountId", "=", accountId),
-                    new(now, "<", "Expiration")
+                    new("Expiration", ">", now)
                 }
             ).ConfigureAwait(false);
             return selectResult;

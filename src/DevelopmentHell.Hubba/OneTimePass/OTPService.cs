@@ -11,6 +11,7 @@ namespace DevelopmentHell.Hubba.OneTimePassword
     {
         const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         private OTPDataAccess _dataAccess;
+        //TODO: move to config file
         public OTPService(string connectionString)
         {
             _dataAccess = new OTPDataAccess(connectionString);
@@ -19,25 +20,31 @@ namespace DevelopmentHell.Hubba.OneTimePassword
         // return value: payload of string containing the otp
         public async Task<Result> NewOTP(int accountId)
         {
-            byte[] aesKey = Encoding.ASCII.GetBytes("gVkYp2s5v8y/B?E(H+MbQeThWmZq4t6w");
 			Random random = new( (int)((DateTime.UtcNow.Ticks << 4) >> 4 ) );
             string otp = new(Enumerable.Repeat(validChars, 8).Select(s => s[random.Next(s.Length)]).ToArray());
             byte[] eotp;
-			using (AesManaged aes = new AesManaged())
-            {
-				eotp = Cryptography.Encryption.Encrypt(aes, otp, aesKey, aes.IV);
-            }
-            //TODO: write to db
+
+			eotp = Cryptography.Encryption.Encrypt(otp);
+
             var result = await _dataAccess.NewOTP(accountId, eotp).ConfigureAwait(false);
             Console.WriteLine(result.ErrorMessage);
 			return new Result(result.IsSuccessful, result.ErrorMessage, otp);
         }
 
-        //public async Task<Result> CheckOTP(int accountId, string otp)
-        //{
-        //    Cryptography.Encryption.Encrypt()
-        //    _dataAccess.Check(accountId, )
-        //}
+        public async Task<Result> CheckOTP(int accountId, string otp)
+        {
+            var checkResult = (await _dataAccess.Check(accountId)).Payload;
+            if (checkResult is null)
+            {
+                return new Result(false, "Could not find an OTP associated with given account ID");
+            }
+            var uotp = Cryptography.Encryption.Decrypt(((List<byte[]>)(checkResult))[0]);
+            if (otp != uotp)
+            {
+                return new Result(false, "OTP associated with given account ID does not match given otp");
+            }
+            return new Result(true);
+        }
 
         public bool SendOTP(string email, string otp)
         {
