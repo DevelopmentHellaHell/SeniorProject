@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DevelopmentHell.Hubba.AuthenticationManager\DevelopmentHell.Hubba.AuthenticationManager.csproj" />
     <ProjectReference Include="..\OneTimePass\DevelopmentHell.Hubba.OneTimePassword.csproj" />
   </ItemGroup>
 

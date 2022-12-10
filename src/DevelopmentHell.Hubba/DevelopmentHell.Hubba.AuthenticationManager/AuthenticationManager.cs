@@ -7,7 +7,7 @@ namespace DevelopmentHell.Hubba.AuthenticationManager
 	public class AuthenticationManager
 	{
 		private AuthenticationService _authenticationService;
-		private readonly string _connectionString = "";
+		private readonly string _connectionString = "Server=.;Database=DevelopmentHell.Hubba.Users;Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.User;Password=password";
 
 		public AuthenticationManager()
 		{
@@ -18,15 +18,17 @@ namespace DevelopmentHell.Hubba.AuthenticationManager
 		{
 			var result = await _authenticationService.AuthenticateCredentials(email, password).ConfigureAwait(false);
 			if (!result.IsSuccessful)
-			{
+			{ 
 				return result;
 			}
 
 			var accountRow = (List<object>)result.Payload!;
+			if (accountRow!.Count <= 0)
+			{
+				return new Result(false, "No account rows returned");
+			}
 			var accountId = Convert.ToInt32(accountRow[0].ToString());
-			string expectedDatabaseName = "DevelopmentHell.Hubba.Users";
-			string connectionString = String.Format(@"Server=.;Database={0};Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.User;Password=password", expectedDatabaseName);
-			var otpManager = new OTPService(connectionString);
+			var otpManager = new OTPService(_connectionString);
 			var otp = otpManager.NewOTP(accountId).Result.Payload!.ToString()!;
 
 			var sendOTPResult = otpManager.SendOTP(email, otp);
