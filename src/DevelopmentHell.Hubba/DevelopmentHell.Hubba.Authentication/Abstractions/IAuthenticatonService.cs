@@ -1,9 +1,9 @@
 ﻿using DevelopmentHell.Hubba.Models;
 
-namespace DevelopmentHell.Hubba.Authentication.Abstractions
+namespace DevelopmentHell.Hubba.Authentication.Service.Abstractions
 {
 	public interface IAuthenticatonService
 	{
-		public Task<Result<UserAccount>> AuthenticateCredentials(string email, string password);
+		Task<Result<int>> AuthenticateCredentials(string email, string password);
 	}
 }

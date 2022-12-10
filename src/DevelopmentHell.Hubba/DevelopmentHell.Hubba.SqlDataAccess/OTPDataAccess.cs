@@ -23,7 +23,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         public async Task<Result> NewOTP(int accountId, byte[] encryptedOTP)
         {
             var accountCheck = await _selectDataAccess.Select(_tableName, new List<string>() { "*" }, new List<Comparator>() { new("UserAccountId", "=", accountId) }).ConfigureAwait(false);
-            Console.WriteLine(accountCheck.ErrorMessage);
             if ( ((List<object>)accountCheck.Payload!).Count > 0)
             {
 				return await Update(accountId, encryptedOTP).ConfigureAwait(false);

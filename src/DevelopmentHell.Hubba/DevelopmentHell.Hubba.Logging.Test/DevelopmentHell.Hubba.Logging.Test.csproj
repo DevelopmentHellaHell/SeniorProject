@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DevelopmentHell.Hubba.Logging\DevelopmentHell.Hubba.LoggingService.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.Logging\DevelopmentHell.Hubba.Logging.Service.csproj" />
   </ItemGroup>
 
 </Project>

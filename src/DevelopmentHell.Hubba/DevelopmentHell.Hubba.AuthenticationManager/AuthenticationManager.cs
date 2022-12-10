@@ -1,12 +1,13 @@
-﻿using DevelopmentHell.Hubba.Authentication.Implementation;
-using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.OneTimePassword;
+﻿using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.Authentication.Service.Implementation;
+using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
+using DevelopmentHell.Hubba.OneTimePassword.Service;
 
-namespace DevelopmentHell.Hubba.AuthenticationManager
+namespace DevelopmentHell.Hubba.Authentication.Manager
 {
 	public class AuthenticationManager
 	{
-		private AuthenticationService _authenticationService;
+		private IAuthenticatonService _authenticationService;
 		private readonly string _connectionString = "Server=.;Database=DevelopmentHell.Hubba.Users;Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.User;Password=password";
 
 		public AuthenticationManager()
@@ -16,30 +17,31 @@ namespace DevelopmentHell.Hubba.AuthenticationManager
 
 		public async Task<Result> Login(string email, string password)
 		{
-			var result = await _authenticationService.AuthenticateCredentials(email, password).ConfigureAwait(false);
-			if (!result.IsSuccessful)
-			{ 
+			Result result = new Result();
+
+			Result<int> authenticateResult = await _authenticationService.AuthenticateCredentials(email, password).ConfigureAwait(false);
+			if (!authenticateResult.IsSuccessful)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = authenticateResult.ErrorMessage;
 				return result;
 			}
 
-			UserAccount account = result.Payload;
-			var otpManager = new OTPService(_connectionString);
-			var otp = otpManager.NewOTP(account.Id).Result.Payload!.ToString()!;
+			int accountId = authenticateResult.Payload;
+			OTPService otpService = new OTPService(_connectionString);
+			Result<string> otpResult = await otpService.NewOTP(accountId).ConfigureAwait(false);
+			string otp = otpResult.Payload.ToString();
 
-			var sendOTPResult = otpManager.SendOTP(email, otp);
-			if (!sendOTPResult)
+			Result sendOTPResult = otpService.SendOTP(email, otp);
+			if (!sendOTPResult.IsSuccessful)
 			{
-				return new Result()
-				{
-					IsSuccessful = false,
-					ErrorMessage = "Could not send otp.",
-				};
+				result.IsSuccessful = false;
+				result.ErrorMessage = sendOTPResult.ErrorMessage;
+				return result;
 			}
 
-			return new Result()
-			{
-				IsSuccessful = true,
-			};
+			result.IsSuccessful = true;
+			return result;
 		}
 	}
 }

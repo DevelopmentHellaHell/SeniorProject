@@ -17,9 +17,12 @@ namespace DevelopmentHell.Hubba.Logging.Implementation
 
         public async Task<Result> Log(LogLevel logLevel, string userName, string message)
         {
+            Result result = new Result();
+
             if (message == null)
             {
-				return new Result(true);
+                result.IsSuccessful = true;
+				return result;
             }
 
             var dataAccessResult = await _dataAccess.LogData(logLevel, _category, userName, message).ConfigureAwait(false);
@@ -28,7 +31,8 @@ namespace DevelopmentHell.Hubba.Logging.Implementation
 				return dataAccessResult;
             }
 
-            return new Result(true);
+            result.IsSuccessful = true;
+            return result;
         }
     }
 }

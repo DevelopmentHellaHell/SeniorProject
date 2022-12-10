@@ -2,9 +2,9 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace DevelopmentHell.Hubba.Validaition
+namespace DevelopmentHell.Hubba.Validation.Service
 {
-	public class Validation
+	public class ValidationService
 	{
 		public static Result ValidateEmail(string email)
 		{
@@ -89,6 +89,6 @@ namespace DevelopmentHell.Hubba.Validaition
 			result.IsSuccessful = true;
 			return result;
 		}
-		
+
 	}
 }

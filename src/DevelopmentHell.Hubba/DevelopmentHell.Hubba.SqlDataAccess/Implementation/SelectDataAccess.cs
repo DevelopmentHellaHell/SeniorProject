@@ -13,7 +13,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
             connectionPath = inPath;
         }
 
-        private async Task<Result<object>> SendQuery(SqlCommand query, int columnLength)
+        private async Task<Result<List<object>>> SendQuery(SqlCommand query, int columnLength)
         {
             try
             {
@@ -32,7 +32,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
                                 payload.Add(dataRecord[i]);
                             }
                         }
-                        return new Result<object>()
+                        return new Result<List<object>>()
                         {
                             IsSuccessful = true,
                             Payload = payload,
@@ -43,7 +43,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
             }
             catch (Exception e)
             {
-                return new Result<object>()
+                return new Result<List<object>>()
                 {
                     IsSuccessful = false,
                     ErrorMessage = e.Message,
@@ -51,7 +51,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
             }
         }
 
-        public async Task<Result<object>> Select(string source, List<string> columns, List<Comparator> filters)
+        public async Task<Result<List<object>>> Select(string source, List<string> columns, List<Comparator> filters)
         {
             //TODO add implementation for group by, order by, having
             using (SqlCommand insertQuery = new SqlCommand())

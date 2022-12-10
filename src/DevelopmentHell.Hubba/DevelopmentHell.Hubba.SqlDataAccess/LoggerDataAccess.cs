@@ -48,7 +48,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			};
 		}
 
-		public async Task<Result> SelectLogs(List<string> columns, List<Comparator> filters)
+		public async Task<Result<List<object>>> SelectLogs(List<string> columns, List<Comparator> filters)
 		{
 			var selectResult = await _selectDataAccess.Select(_tableName, columns, filters).ConfigureAwait(false);
 			return selectResult;
