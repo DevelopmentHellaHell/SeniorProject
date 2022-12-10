@@ -3,7 +3,6 @@ using System.Data;
 using System.Text;
 using DevelopmentHell.Hubba.Models;
 
-
 namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
 {
     public class SelectDataAccess
@@ -46,7 +45,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
             }
         }
 
-        public async Task<Result> Select(string table, List<string> columns, Dictionary<string, object> filters)
+        public async Task<Result> Select(string source, List<string> columns, List<Comparator> filters)
         {
             //TODO add implementation for group by, order by, having
             using (SqlCommand insertQuery = new SqlCommand())
@@ -55,16 +54,16 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
                 bool first = true;
                 StringBuilder sbFilter = new();
                 StringBuilder sbColumn = new();
-                foreach (var pair in filters)
+                foreach (var filter in filters)
                 {
                     if (!first)
                     {
                         sbFilter.Append(" AND ");
                     }
                     first = false;
-                    sbFilter.Append(pair.Key + " = @" + pair.Key);
+                    sbFilter.Append($"{filter.Key} {filter.Op} @{filter.Key}");
 
-                    insertQuery.Parameters.Add(new SqlParameter(pair.Key, pair.Value));
+                    insertQuery.Parameters.Add(new SqlParameter(filter.Key.ToString(), filter.Value.ToString()));
                 }
                 first = true;
                 foreach (string column in columns)
@@ -76,8 +75,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
                     first = false;
                     sbColumn.Append(column);
                 }
-                insertQuery.CommandText = string.Format("SELECT {0} FROM {1} WHERE {2}", sbColumn.ToString(), table, sbFilter.ToString());
-
+                insertQuery.CommandText = $"SELECT {sbColumn.ToString()} FROM {source} WHERE {sbFilter.ToString()}";
                 return await SendQuery(insertQuery, columns.Count).ConfigureAwait(false);
             }
         }

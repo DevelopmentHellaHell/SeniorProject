@@ -1,8 +1,0 @@
-
-graph LR
-    U[User] -->|input| V(Registration View)
-    V --> C{Registration Controller}
-    C <--> |email validation|D[Database]
-    C -->|Valid email| M[Registration Model]
-    C -->|Invalid email| V
-    M -->|insert|D

@@ -5,9 +5,6 @@ using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using Microsoft.Data.SqlClient;
 using System.Configuration;
 using System.Diagnostics;
-using System.Drawing.Printing;
-using System.Globalization;
-using System.Reflection;
 
 namespace DevelopmentHell.Hubba.Logging.Test
 {
@@ -221,10 +218,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			Assert.IsTrue(actual.IsSuccessful);
 			Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
 
-			var dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new Dictionary<string, object>()
-			{
-				{ "message", message }
-			}).ConfigureAwait(false);
+			var dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new () {new("message","=",message)});
 
 			var payload = (dbCheck.Payload as List<List<object>>)!;
 			Assert.IsTrue(payload.Count >= 1);
@@ -267,11 +261,11 @@ namespace DevelopmentHell.Hubba.Logging.Test
             Assert.IsTrue(actual.IsSuccessful);
 			Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
 
-            var dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new Dictionary<string, object> {
-				{ "category", category },
-				{ "logLevel", logLevel },
-				{ "userName", userName },
-				{ "message", message },
+            var dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new() {
+				new("category", "=", category),
+				new("logLevel", "=", logLevel),
+				new("userName", "=", userName),
+				new("message", "=", message)
 			}).ConfigureAwait(false);
 
             var payload = (dbCheck.Payload as List<List<object>>)!;
@@ -308,12 +302,12 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			var actual = await sut.Log(logLevel, category, userName, message);
 
 			// Assert
-			var dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new Dictionary<string, object> {
-				{ "category", category },
-				{ "logLevel", logLevel },
-				{ "userName", userName },
-				{ "message", message },
-			}).ConfigureAwait(false);
+			var dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new List<Comparator> {
+                new Comparator("category", "=", category),
+                new Comparator("logLevel", "=", logLevel),
+                new Comparator("userName", "=", userName),
+                new Comparator("message", "=", message)
+            }).ConfigureAwait(false);
 
 			var payload = (dbCheck.Payload as List<List<object>>)!;
 			Assert.IsTrue(payload.Count >= 1);
@@ -326,7 +320,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 				if (0 <= timeDiff)
 				{
 					updateResult = await new UpdateDataAccess(connectionString).Update("logs",
-						new Tuple<string, object>("id", row[0]),
+						new() { new("id", "=", row[0]) },
 						new Dictionary<string, object>()
 						{
 							{ "message", "newTestMessage" },

@@ -1,14 +1,8 @@
 ﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
-using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
@@ -26,9 +20,13 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
 		public async Task<Result> LogData(LogLevel logLevel, Category category, string userName, string message)
 		{
+			if (!Enum.IsDefined(typeof(Category), category)) {
+				return new Result(false, String.Format(@"{0} is not in Category Enum.", category));
+			}
+
 			var logDictionary = new Dictionary<string, object>()
 			{
-				{ "Timestamp", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff",CultureInfo.InvariantCulture)},
+				{ "Timestamp", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture)},
 				{ "LogLevel", logLevel },
 				{ "Category", category },
 				{ "UserName", userName },
@@ -44,7 +42,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			return new Result(true);
 		}
 
-		public async Task<Result> SelectLogs(List<string> columns, Dictionary<string, object> filters)
+		public async Task<Result> SelectLogs(List<string> columns, List<Comparator> filters)
 		{
 			var selectResult = await _selectDataAccess.Select(_tableName, columns, filters).ConfigureAwait(false);
 			return selectResult;
