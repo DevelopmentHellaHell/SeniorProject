@@ -1,9 +1,14 @@
 ﻿using DevelopmentHell.Hubba.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace DevelopmentHell.Hubba.Logging.Service.Abstractions
+namespace DevelopmentHell.Hubba.Logging.Abstractions
 {
 	public interface ILogger
 	{
-		Task<Result> Log(LogLevel level, string userName, string message);
+		public Task<Result> Log(LogLevel level, Category category, string userName, string message);
 	}
 }
