@@ -1,6 +1,6 @@
-﻿using System.Net.Mail;
+﻿using DevelopmentHell.Hubba.Models;
 using System.Net;
-using DevelopmentHell.Hubba.Models;
+using System.Net.Mail;
 
 namespace DevelopmentHell.Hubba.Emailing.Service
 {

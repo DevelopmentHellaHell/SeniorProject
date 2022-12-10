@@ -8,12 +8,13 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 		private InsertDataAccess _insertDataAccess;
 		private SelectDataAccess _selectDataAccess;
 		private DeleteDataAccess _deleteDataAccess;
-		public UserAccountDataAccess(string connectionString) {
+		public UserAccountDataAccess(string connectionString)
+		{
 			_insertDataAccess = new InsertDataAccess(connectionString);
 			_selectDataAccess = new SelectDataAccess(connectionString);
 			_deleteDataAccess = new DeleteDataAccess(connectionString);
 		}
-		
+
 		public async Task<Result<int>> GetUserAccountIdByCredentials(string email, HashData password)
 		{
 			Result<List<object>> selectResult = await _selectDataAccess.Select(

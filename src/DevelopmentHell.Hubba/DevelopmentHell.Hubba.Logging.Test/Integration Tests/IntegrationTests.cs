@@ -11,8 +11,8 @@ namespace DevelopmentHell.Hubba.Logging.Test
 	[TestClass]
 	public class IntegrationTests
 	{
-        private readonly Models.LogLevel[] failureLevels = { Models.LogLevel.WARNING, Models.LogLevel.ERROR };
-        private readonly Models.LogLevel[] successLevels = { Models.LogLevel.DEBUG, Models.LogLevel.INFO };
+		private readonly Models.LogLevel[] failureLevels = { Models.LogLevel.WARNING, Models.LogLevel.ERROR };
+		private readonly Models.LogLevel[] successLevels = { Models.LogLevel.DEBUG, Models.LogLevel.INFO };
 
 		private static string expectedDatabaseName = "DevelopmentHell.Hubba.Logs";
 		private static string connectionString = String.Format(@"Server={0};Database={1};Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.Logging;Password=password", ConfigurationManager.AppSettings["LoggingServer"], expectedDatabaseName);
@@ -49,100 +49,100 @@ namespace DevelopmentHell.Hubba.Logging.Test
 		public async Task SuccessfulLogSystemSuccess()
 		{
 			// Arrange
-            foreach (var logLevel in successLevels)
-            {
-                var category = Models.Category.VIEW;
-                var userName = "System";
-                var message = "test1";
-                var sut = new Logger(dataAccess, category);
+			foreach (var logLevel in successLevels)
+			{
+				var category = Models.Category.VIEW;
+				var userName = "System";
+				var message = "test1";
+				var sut = new Logger(dataAccess, category);
 
-                var stopwatch = new Stopwatch();
+				var stopwatch = new Stopwatch();
 
-                // Act
-                stopwatch.Start();
-                var actual = await sut.Log(logLevel, userName, message);
-                stopwatch.Stop();
+				// Act
+				stopwatch.Start();
+				var actual = await sut.Log(logLevel, userName, message);
+				stopwatch.Stop();
 
-                // Assert
-                Assert.IsTrue(actual.IsSuccessful);
-                Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
-            }
-        }
+				// Assert
+				Assert.IsTrue(actual.IsSuccessful);
+				Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
+			}
+		}
 
 		// Success Case 2
 		[TestMethod]
-        public async Task SuccessfulLogSystemFailure()
-        {
+		public async Task SuccessfulLogSystemFailure()
+		{
 			// Arrange
-            foreach (var logLevel in failureLevels)
-            {
-                var category = Models.Category.VIEW;
-                var userName = "System";
-                var message = "test2";
-                var sut = new Logger(dataAccess, category);
+			foreach (var logLevel in failureLevels)
+			{
+				var category = Models.Category.VIEW;
+				var userName = "System";
+				var message = "test2";
+				var sut = new Logger(dataAccess, category);
 
-                var stopwatch = new Stopwatch();
+				var stopwatch = new Stopwatch();
 
-                // Act
-                stopwatch.Start();
-                var actual = await sut.Log(logLevel, userName, message);
-                stopwatch.Stop();
+				// Act
+				stopwatch.Start();
+				var actual = await sut.Log(logLevel, userName, message);
+				stopwatch.Stop();
 
-                // Assert
-                Assert.IsTrue(actual.IsSuccessful);
-                Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
-            }
-        }
+				// Assert
+				Assert.IsTrue(actual.IsSuccessful);
+				Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
+			}
+		}
 
 		// Success Case 3
 		[TestMethod]
-        public async Task SuccessfulLogUserSuccess()
-        {
+		public async Task SuccessfulLogUserSuccess()
+		{
 			// Arrange
-            foreach (var logLevel in successLevels)
-            {
-                var category = Models.Category.VIEW;
-                var userName = "User1";
-                var message = "test3";
-                var sut = new Logger(dataAccess, category);
+			foreach (var logLevel in successLevels)
+			{
+				var category = Models.Category.VIEW;
+				var userName = "User1";
+				var message = "test3";
+				var sut = new Logger(dataAccess, category);
 
-                var stopwatch = new Stopwatch();
+				var stopwatch = new Stopwatch();
 
-                // Act
-                stopwatch.Start();
-                var actual = await sut.Log(logLevel, userName, message);
-                stopwatch.Stop();
+				// Act
+				stopwatch.Start();
+				var actual = await sut.Log(logLevel, userName, message);
+				stopwatch.Stop();
 
-                // Assert
-                Assert.IsTrue(actual.IsSuccessful);
-                Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
-            }
-        }
+				// Assert
+				Assert.IsTrue(actual.IsSuccessful);
+				Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
+			}
+		}
 
 		// Success Case 4
-        [TestMethod]
-        public async Task SuccessfulLogUserFailure()
-        {
+		[TestMethod]
+		public async Task SuccessfulLogUserFailure()
+		{
 			// Arrange
-            foreach (var logLevel in failureLevels)
-            {
-                var category = Models.Category.VIEW;
-                var userName = "User1";
-                var message = "test4";
-                var sut = new Logger(dataAccess, category);
+			foreach (var logLevel in failureLevels)
+			{
+				var category = Models.Category.VIEW;
+				var userName = "User1";
+				var message = "test4";
+				var sut = new Logger(dataAccess, category);
 
-                var stopwatch = new Stopwatch();
+				var stopwatch = new Stopwatch();
 
-                // Act
-                stopwatch.Start();
-                var actual = await sut.Log(logLevel, userName, message);
-                stopwatch.Stop();
+				// Act
+				stopwatch.Start();
+				var actual = await sut.Log(logLevel, userName, message);
+				stopwatch.Stop();
 
-                // Assert
-                Assert.IsTrue(actual.IsSuccessful);
-                Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
-            }
-        }
+				// Assert
+				Assert.IsTrue(actual.IsSuccessful);
+				Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
+			}
+		}
 
 		// Failure Case 1
 		[TestMethod]
@@ -218,7 +218,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			Assert.IsTrue(actual.IsSuccessful);
 			Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
 
-			Result<List<object>> dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new () {new("message","=",message)}).ConfigureAwait(false);
+			Result<List<object>> dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new() { new("message", "=", message) }).ConfigureAwait(false);
 
 			List<object> payload = dbCheck.Payload!;
 			Assert.IsTrue(payload.Count >= 1);
@@ -237,31 +237,31 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			Assert.IsTrue(foundWithinTime);
 		}
 
-        // Failure Case 4
+		// Failure Case 4
 		[TestMethod]
 		public async Task LogWriteSuccessAccurateWithin5Seconds()
 		{
-            // Arrange
+			// Arrange
 			var category = Models.Category.VIEW;
 			var logLevel = Models.LogLevel.INFO;
 			var userName = "System";
 			var message = "test8";
 			var sut = new Logger(dataAccess, category);
-			
+
 			var stopwatch = new Stopwatch();
 
 			// Act
 			var startTime = DateTime.UtcNow;
-            await Task.Delay(100);
-            stopwatch.Start();
-            var actual = await sut.Log(logLevel, userName, message);
-            stopwatch.Stop();
+			await Task.Delay(100);
+			stopwatch.Start();
+			var actual = await sut.Log(logLevel, userName, message);
+			stopwatch.Stop();
 
-            // Assert
-            Assert.IsTrue(actual.IsSuccessful);
+			// Assert
+			Assert.IsTrue(actual.IsSuccessful);
 			Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
 
-            Result<List<object>> dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new() {
+			Result<List<object>> dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new() {
 				new("category", "=", category),
 				new("logLevel", "=", logLevel),
 				new("userName", "=", userName),
@@ -276,14 +276,14 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			{
 				var now = Convert.ToDateTime((DateTime?)row[1]);
 				var timeDiff = now.Subtract(startTime).TotalSeconds;
-                if (0 <= timeDiff)
-                {
+				if (0 <= timeDiff)
+				{
 					foundWithinTime = true;
 					break;
 				}
 			}
 			Assert.IsTrue(foundWithinTime);
-        }
+		}
 
 		// Failure Case 5
 		[TestMethod]
@@ -303,11 +303,11 @@ namespace DevelopmentHell.Hubba.Logging.Test
 
 			// Assert
 			Result<List<object>> dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new List<Comparator> {
-                new Comparator("category", "=", category),
-                new Comparator("logLevel", "=", logLevel),
-                new Comparator("userName", "=", userName),
-                new Comparator("message", "=", message)
-            }).ConfigureAwait(false);
+				new Comparator("category", "=", category),
+				new Comparator("logLevel", "=", logLevel),
+				new Comparator("userName", "=", userName),
+				new Comparator("message", "=", message)
+			}).ConfigureAwait(false);
 
 			List<object> payload = dbCheck.Payload;
 			Assert.IsTrue(payload.Count >= 1);

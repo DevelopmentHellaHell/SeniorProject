@@ -1,7 +1,7 @@
-﻿using DevelopmentHell.Hubba.SqlDataAccess;
-using DevelopmentHell.Hubba.Models;
+﻿using DevelopmentHell.Hubba.Cryptography.Service;
 using DevelopmentHell.Hubba.Emailing.Service;
-using DevelopmentHell.Hubba.Cryptography.Service;
+using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.SqlDataAccess;
 
 namespace DevelopmentHell.Hubba.OneTimePassword.Service
 

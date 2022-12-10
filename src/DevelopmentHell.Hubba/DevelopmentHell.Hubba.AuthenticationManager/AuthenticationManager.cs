@@ -1,6 +1,6 @@
-﻿using DevelopmentHell.Hubba.Models;
+﻿using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.Authentication.Service.Implementation;
-using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
+using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.OneTimePassword.Service;
 
 namespace DevelopmentHell.Hubba.Authentication.Manager

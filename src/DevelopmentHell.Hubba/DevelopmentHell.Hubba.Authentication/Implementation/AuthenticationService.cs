@@ -29,7 +29,8 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 
 			HashData hashData = HashService.HashString(password).Payload;
 			Result<int> getResult = await _dao.GetUserAccountIdByCredentials(email, hashData).ConfigureAwait(false);
-			if (!getResult.IsSuccessful) {
+			if (!getResult.IsSuccessful)
+			{
 				result.IsSuccessful = false;
 				result.ErrorMessage = userFriendlyErrorMessage;
 				return result;

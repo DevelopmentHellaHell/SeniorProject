@@ -19,7 +19,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
 		public async Task<Result> LogData(LogLevel logLevel, Category category, string userName, string message)
 		{
-			if (!Enum.IsDefined(typeof(Category), category)) {
+			if (!Enum.IsDefined(typeof(Category), category))
+			{
 				return new Result()
 				{
 					IsSuccessful = false,

@@ -44,14 +44,14 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 return result;
             }
 
-			if (selectResult.Payload.Count <= 0)
-			{
-				return await Insert(accountId, encryptedOTP, expiration).ConfigureAwait(false);
-			} 
+            if (selectResult.Payload.Count <= 0)
+            {
+                return await Insert(accountId, encryptedOTP, expiration).ConfigureAwait(false);
+            }
             else
             {
-				return await Update(accountId, encryptedOTP, expiration).ConfigureAwait(false);
-			}
+                return await Update(accountId, encryptedOTP, expiration).ConfigureAwait(false);
+            }
         }
         private async Task<Result> Insert(int accountId, byte[] encryptedOTP, DateTime expiration)
         {
@@ -63,8 +63,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         }
         private async Task<Result> Update(int accountId, byte[] encryptedOTP, DateTime expiration)
         {
-            
-            Result updateResult = await _updateDataAccess.Update(_tableName, new() { new("UserAccountId","=",accountId) }, new()
+
+            Result updateResult = await _updateDataAccess.Update(_tableName, new() { new("UserAccountId", "=", accountId) }, new()
             {
                 { "Expiration", expiration },
                 { "Passphrase", encryptedOTP },
@@ -76,7 +76,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             DateTime now = DateTime.UtcNow;
             Result<List<object>> selectResult = await _selectDataAccess.Select(
-			    _tableName,
+                _tableName,
                 new() { "Passphrase" },
                 new()
                 {
@@ -86,34 +86,34 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             ).ConfigureAwait(false);
 
             Result<byte[]> result = new Result<byte[]>();
-			if (!selectResult.IsSuccessful)
-			{
-				result.IsSuccessful = false;
-				result.ErrorMessage = selectResult.ErrorMessage;
-				return result;
-			}
+            if (!selectResult.IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = selectResult.ErrorMessage;
+                return result;
+            }
 
-			List<object> payload = selectResult.Payload;
-			if (payload.Count <= 0)
-			{
-				result.IsSuccessful = false;
-				result.ErrorMessage = "No UserOTP selected with email and time.";
-				return result;
-			}
+            List<object> payload = selectResult.Payload;
+            if (payload.Count <= 0)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "No UserOTP selected with email and time.";
+                return result;
+            }
 
-			if (payload.Count > 1)
-			{
-				result.IsSuccessful = false;
-				result.ErrorMessage = "Multiple UserOTPs selected.";
-				return result;
-			}
+            if (payload.Count > 1)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Multiple UserOTPs selected.";
+                return result;
+            }
 
             result.IsSuccessful = true;
             result.Payload = (byte[])(payload[0]);
             return result;
-		}
+        }
 
-		public async Task<Result> Delete(int accountId)
+        public async Task<Result> Delete(int accountId)
         {
             return await _deleteDataAccess.Delete(
                 _tableName,

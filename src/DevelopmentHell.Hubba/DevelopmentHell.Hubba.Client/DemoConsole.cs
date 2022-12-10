@@ -14,7 +14,7 @@ namespace DevelopmentHell.Hubba.Client
 
 		private static UserAccountDataAccess userAccountDataAccess = new UserAccountDataAccess(connectionString);
 		private static OTPDataAccess otpDataAccess = new OTPDataAccess(connectionString);
-		
+
 		public static async Task Main(string[] args)
 		{
 			string email;

@@ -6,8 +6,8 @@
 		public string? ErrorMessage { get; set; }
 	}
 
-    public class Result<T> : Result
-    {
+	public class Result<T> : Result
+	{
 		public T Payload { get; set; }
 	}
 }
