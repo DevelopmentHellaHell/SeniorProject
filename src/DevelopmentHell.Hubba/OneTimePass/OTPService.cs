@@ -22,8 +22,9 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service
 			Random random = new((int)(DateTime.UtcNow.Ticks << 4 >> 4));
 			string otp = new(Enumerable.Repeat(validChars, 8).Select(s => s[random.Next(s.Length)]).ToArray());
 			byte[] eotp = EncryptionService.Encrypt(otp);
+			DateTime expiration = DateTime.UtcNow.AddSeconds(Convert.ToDouble(120));
 
-			Result result = await _dataAccess.NewOTP(accountId, eotp).ConfigureAwait(false);
+			Result result = await _dataAccess.NewOTP(accountId, eotp, expiration).ConfigureAwait(false);
 			return new Result<string>()
 			{
 				IsSuccessful = result.IsSuccessful,

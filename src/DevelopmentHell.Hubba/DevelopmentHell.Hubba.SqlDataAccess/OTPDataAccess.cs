@@ -21,32 +21,54 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             _deleteDataAccess = new(connectionString);
             _updateDataAccess = new(connectionString);
         }
-        public async Task<Result> NewOTP(int accountId, byte[] encryptedOTP)
+        public async Task<Result> NewOTP(int accountId, byte[] encryptedOTP, DateTime expiration)
         {
-            Result<List<object>> accountCheck = await _selectDataAccess.Select(_tableName, new List<string>() { "*" }, new List<Comparator>() { new("UserAccountId", "=", accountId) }).ConfigureAwait(false);
-            if (accountCheck.Payload.Count > 0)
+            Result result = new Result();
+
+            Result<List<object>> selectResult = await _selectDataAccess.Select(_tableName,
+                new List<string>() { "UserAccountId" },
+                new List<Comparator>() {
+                    new("UserAccountId", "=", accountId)
+                }
+            ).ConfigureAwait(false);
+
+            if (!selectResult.IsSuccessful)
             {
-				return await Update(accountId, encryptedOTP).ConfigureAwait(false);
+                result.IsSuccessful = false;
+                result.ErrorMessage = selectResult.ErrorMessage;
+                return result;
             }
+
+            if (selectResult.Payload.Count > 1)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Multiple UserOTPs selected.";
+                return result;
+            }
+
+			if (selectResult.Payload.Count <= 0)
+			{
+				return await Insert(accountId, encryptedOTP, expiration).ConfigureAwait(false);
+			} 
             else
             {
-                return await Insert(accountId, encryptedOTP).ConfigureAwait(false);
-            }
+				return await Update(accountId, encryptedOTP, expiration).ConfigureAwait(false);
+			}
         }
-        private async Task<Result> Insert(int accountId, byte[] encryptedOTP)
+        private async Task<Result> Insert(int accountId, byte[] encryptedOTP, DateTime expiration)
         {
             return await _insertDataAccess.Insert(_tableName, new() {
                 { "UserAccountID", accountId },
-                { "Expiration", DateTime.UtcNow.AddSeconds(Convert.ToDouble(120)) },
+                { "Expiration", expiration },
                 { "Passphrase", encryptedOTP }
             }).ConfigureAwait(false);
         }
-        private async Task<Result> Update(int accountId, byte[] encryptedOTP)
+        private async Task<Result> Update(int accountId, byte[] encryptedOTP, DateTime expiration)
         {
-            DateTime expirationDateTime = DateTime.UtcNow.AddSeconds(Convert.ToDouble(120));
+            
             Result updateResult = await _updateDataAccess.Update(_tableName, new() { new("UserAccountId","=",accountId) }, new()
             {
-                { "Expiration", expirationDateTime },
+                { "Expiration", expiration },
                 { "Passphrase", encryptedOTP },
             }).ConfigureAwait(false);
             return updateResult;
