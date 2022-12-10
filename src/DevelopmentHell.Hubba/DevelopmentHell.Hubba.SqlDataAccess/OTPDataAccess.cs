@@ -56,7 +56,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             DateTime now = DateTime.UtcNow;
             Result<List<object>> selectResult = await _selectDataAccess.Select(
-			    SQLManip.InnerJoinTables(new Joiner("UserOTPs", "UserAccount", "UserAccountId", "Id")),
+			    _tableName,
                 new() { "Passphrase" },
                 new()
                 {

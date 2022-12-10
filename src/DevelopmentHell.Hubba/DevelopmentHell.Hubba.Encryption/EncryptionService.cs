@@ -17,7 +17,8 @@ namespace DevelopmentHell.Hubba.Cryptography.Service
             byte[] encrypted;
 
             _alg.Key = _aesKey;
-            ICryptoTransform encryptor = _alg.CreateEncryptor();
+			_alg.Padding = PaddingMode.Zeros;
+			ICryptoTransform encryptor = _alg.CreateEncryptor();
 
             // Create MemoryStream
             using (MemoryStream ms = new MemoryStream())
@@ -40,6 +41,7 @@ namespace DevelopmentHell.Hubba.Cryptography.Service
             string output;
 
             _alg.Key = _aesKey;
+            _alg.Padding = PaddingMode.Zeros;
             ICryptoTransform decryptor = _alg.CreateDecryptor();
 
             // Create MemoryStream
@@ -54,8 +56,8 @@ namespace DevelopmentHell.Hubba.Cryptography.Service
                 }
             }
 
-            // Return encrypted data
-            return output;
-        }
+			// Return encrypted data
+			return output.Replace("\0", String.Empty);
+		}
     }
 }

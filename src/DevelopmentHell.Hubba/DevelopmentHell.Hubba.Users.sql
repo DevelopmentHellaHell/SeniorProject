@@ -193,7 +193,7 @@ GO
 CREATE TABLE [dbo].[UserOTPs](
 	[UserAccountId] [int] NOT NULL,
 	[Expiration] [datetime] NULL,
-	[Passphrase] [binary](32) NULL,
+	[Passphrase] [binary](16) NULL,
  CONSTRAINT [PK_UserOTPs] PRIMARY KEY CLUSTERED 
 (
 	[UserAccountId] ASC

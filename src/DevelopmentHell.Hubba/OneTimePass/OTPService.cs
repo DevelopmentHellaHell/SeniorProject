@@ -17,7 +17,6 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service
 			_dataAccess = new OTPDataAccess(connectionString);
 		}
 
-		// return value: payload of string containing the otp
 		public async Task<Result<string>> NewOTP(int accountId)
 		{
 			Random random = new((int)(DateTime.UtcNow.Ticks << 4 >> 4));
@@ -35,7 +34,7 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service
 
 		public async Task<Result> CheckOTP(int accountId, string otp)
 		{
-			string userFriendlyErrorMessage = "The email or password provided is invalid.";
+			string userFriendlyErrorMessage = "The OTP provided is invalid.";
 			Result result = new Result();
 
 			Result<byte[]> getResult = await _dataAccess.GetOTP(accountId);
@@ -47,9 +46,6 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service
 			}
 			byte[] eotpDb = getResult.Payload;
 			string otpDb = EncryptionService.Decrypt(eotpDb);
-
-			// TEMP
-			Console.WriteLine($"INPUT OTP: {otp}, DECRYPTED OTP FROM DB: {otpDb}");
 
 			if (otp != otpDb)
 			{
