@@ -2,6 +2,8 @@
 using DevelopmentHell.Hubba.Authentication.Service.Implementation;
 using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.OneTimePassword.Service;
+using DevelopmentHell.Hubba.SqlDataAccess;
+using Azure.Core;
 
 namespace DevelopmentHell.Hubba.Authentication.Manager
 {
@@ -17,9 +19,9 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 			_otpService = new OTPService(_connectionString);
 		}
 
-		public async Task<Result> Login(string email, string password)
+		public async Task<Result<int>> Login(string email, string password)
 		{
-			Result result = new Result();
+			Result<int> result = new Result<int>();
 
 			Result<int> authenticateResult = await _authenticationService.AuthenticateCredentials(email, password).ConfigureAwait(false);
 			if (!authenticateResult.IsSuccessful)
@@ -42,15 +44,14 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 			}
 
 			result.IsSuccessful = true;
+			result.Payload = accountId;
 			return result;
 		}
 
-		public async Task<Result> AuthenticateOTP(string otp)
+		public async Task<Result> AuthenticateOTP(int accountId, string otp)
 		{
-			Result result = new Result();
 
-			//var checkResult = await _otpService // TODO
-			return result;
+			return await _otpService.CheckOTP(accountId, otp).ConfigureAwait(false);
 		}
 	}
 }

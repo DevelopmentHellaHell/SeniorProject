@@ -32,6 +32,7 @@ while (true)
 	}
 }
 
+Result<int> loginResult;
 while (true)
 {
 	Console.WriteLine("\nLogin");
@@ -39,10 +40,10 @@ while (true)
 	email = Console.ReadLine() ?? "";
 	Console.Write("Password: ");
 	password = Console.ReadLine() ?? "";
-	var loginResult = await authenticationManager.Login(email, password).ConfigureAwait(false);
+	loginResult = await authenticationManager.Login(email, password).ConfigureAwait(false);
 	if (loginResult.IsSuccessful)
 	{
-		Console.WriteLine("Login Success!");
+		Console.WriteLine("Login Success! Sending OTP.");
 		break;
 	}
 	else
@@ -62,6 +63,23 @@ if (getResult.IsSuccessful)
 } else
 {
 	Console.WriteLine(getResult.ErrorMessage);
+}
+
+string otp;
+while (true)
+{
+    Console.WriteLine("\nOne Time Password Entry");
+    otp = Console.ReadLine() ?? "";
+	Result otpResult = await authenticationManager.AuthenticateOTP(loginResult.Payload, otp);
+    if (otpResult.IsSuccessful)
+    {
+        Console.WriteLine("OTP Login Success!");
+        break;
+    }
+    else
+    {
+        Console.WriteLine(otpResult.ErrorMessage);
+    }
 }
 
 int accountId = getResult.Payload;
