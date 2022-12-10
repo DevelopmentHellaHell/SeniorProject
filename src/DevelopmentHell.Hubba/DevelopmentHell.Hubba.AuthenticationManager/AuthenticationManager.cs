@@ -1,43 +1,56 @@
-﻿using DevelopmentHell.Hubba.Authentication.Implementation;
-using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.OneTimePassword;
+﻿using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.Authentication.Service.Implementation;
+using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
+using DevelopmentHell.Hubba.OneTimePassword.Service;
 
-namespace DevelopmentHell.Hubba.AuthenticationManager
+namespace DevelopmentHell.Hubba.Authentication.Manager
 {
 	public class AuthenticationManager
 	{
-		private AuthenticationService _authenticationService;
+		private IAuthenticatonService _authenticationService;
+		private OTPService _otpService;
 		private readonly string _connectionString = "Server=.;Database=DevelopmentHell.Hubba.Users;Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.User;Password=password";
 
 		public AuthenticationManager()
 		{
 			_authenticationService = new AuthenticationService(_connectionString);
+			_otpService = new OTPService(_connectionString);
 		}
 
 		public async Task<Result> Login(string email, string password)
 		{
-			var result = await _authenticationService.AuthenticateCredentials(email, password).ConfigureAwait(false);
-			if (!result.IsSuccessful)
-			{ 
+			Result result = new Result();
+
+			Result<int> authenticateResult = await _authenticationService.AuthenticateCredentials(email, password).ConfigureAwait(false);
+			if (!authenticateResult.IsSuccessful)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = authenticateResult.ErrorMessage;
 				return result;
 			}
 
-			var accountRow = (List<object>)result.Payload!;
-			if (accountRow!.Count <= 0)
-			{
-				return new Result(false, "No account rows returned");
-			}
-			var accountId = Convert.ToInt32(accountRow[0].ToString());
-			var otpManager = new OTPService(_connectionString);
-			var otp = otpManager.NewOTP(accountId).Result.Payload!.ToString()!;
+			int accountId = authenticateResult.Payload;
+			Result<string> otpResult = await _otpService.NewOTP(accountId).ConfigureAwait(false);
+			string otp = otpResult.Payload.ToString();
 
-			var sendOTPResult = otpManager.SendOTP(email, otp);
-			if (!sendOTPResult)
+			Result sendOTPResult = _otpService.SendOTP(email, otp);
+			if (!sendOTPResult.IsSuccessful)
 			{
-				return new Result(false, "Could not email OTP.");
+				result.IsSuccessful = false;
+				result.ErrorMessage = sendOTPResult.ErrorMessage;
+				return result;
 			}
 
-			return new Result(true);
+			result.IsSuccessful = true;
+			return result;
+		}
+
+		public async Task<Result> AuthenticateOTP(string otp)
+		{
+			Result result = new Result();
+
+			//var checkResult = await _otpService // TODO
+			return result;
 		}
 	}
 }

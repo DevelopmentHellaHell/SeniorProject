@@ -1,34 +1,43 @@
 ﻿using System.Net.Mail;
 using System.Net;
-using System.Configuration;
+using DevelopmentHell.Hubba.Models;
 
-namespace DevelopmentHell.Hubba.Mailing
+namespace DevelopmentHell.Hubba.Emailing.Service
 {
-    public class EmailService
-    {
-        public static bool SendEmail(string email, string subject, string body)
-        {
-            MailAddress to = new MailAddress(email); //enter user's email address here
-            MailAddress from = new MailAddress("noreply.Hubba@gmail.com"); // TODO: config
-            MailMessage message = new MailMessage(from, to);
-            message.Subject = subject; //title of email
-            message.Body = body; //write body of email here
-            SmtpClient client = new SmtpClient("smtp.gmail.com", 587)
-            {
-                Credentials = new NetworkCredential("noreply.Hubba@gmail.com", "gdpayrbhauajfmok"), // TODO: config
+	public class EmailService
+	{
+		private static readonly string companyEmail = "noreply.Hubba@gmail.com"; // TODO: config
+		private static readonly string companyPassword = "gdpayrbhauajfmok"; // TODO: config
 
-				EnableSsl = true
-            };
-            try
-            {
-                client.Send(message);
-                return true;
-            }
-            catch (SmtpException ex)
-            {
-                Console.WriteLine(ex.ToString());
-                return false;
-            }
-        }
-    }
+		public static Result SendEmail(string email, string subject, string body)
+		{
+			SmtpClient client = new SmtpClient("smtp.gmail.com", 587)
+			{
+				Credentials = new NetworkCredential(companyEmail, companyPassword),
+
+				EnableSsl = true,
+			};
+
+			MailAddress to = new MailAddress(email);
+			MailAddress from = new MailAddress(companyEmail);
+
+			MailMessage message = new MailMessage(from, to);
+			message.Subject = subject;
+			message.Body = body;
+
+			Result result = new Result();
+			try
+			{
+				client.Send(message);
+				result.IsSuccessful = true;
+				return result;
+			}
+			catch (SmtpException ex)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = ex.ToString();
+				return result;
+			}
+		}
+	}
 }

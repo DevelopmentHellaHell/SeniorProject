@@ -27,11 +27,18 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
                     await query.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
                 // TODO: figure out what to fill these with
-                return new Result();
+                return new Result()
+                {
+                    IsSuccessful = true,
+                };
             }
             catch (Exception e)
             {
-                return new Result(false, e.Message);
+                return new Result()
+                {
+                    IsSuccessful = false,
+                    ErrorMessage = e.Message,
+                };
             }
         }
 
@@ -41,7 +48,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
             //TODO add implementation for group by, order by, having
             using (SqlCommand insertQuery = new SqlCommand())
             {
-
                 bool first = true;
                 StringBuilder sbFilter = new();
                 foreach (var filter in filters)

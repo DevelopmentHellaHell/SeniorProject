@@ -218,9 +218,9 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			Assert.IsTrue(actual.IsSuccessful);
 			Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
 
-			var dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new () {new("message","=",message)});
+			Result<List<object>> dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new () {new("message","=",message)}).ConfigureAwait(false);
 
-			var payload = (dbCheck.Payload as List<List<object>>)!;
+			List<object> payload = dbCheck.Payload!;
 			Assert.IsTrue(payload.Count >= 1);
 
 			bool foundWithinTime = false;
@@ -261,14 +261,14 @@ namespace DevelopmentHell.Hubba.Logging.Test
             Assert.IsTrue(actual.IsSuccessful);
 			Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
 
-            var dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new() {
+            Result<List<object>> dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new() {
 				new("category", "=", category),
 				new("logLevel", "=", logLevel),
 				new("userName", "=", userName),
 				new("message", "=", message)
 			}).ConfigureAwait(false);
 
-            var payload = (dbCheck.Payload as List<List<object>>)!;
+			List<object> payload = dbCheck.Payload;
 			Assert.IsTrue(payload.Count >= 1);
 
 			bool foundWithinTime = false;
@@ -302,17 +302,20 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			var actual = await sut.Log(logLevel, userName, message);
 
 			// Assert
-			var dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new List<Comparator> {
+			Result<List<object>> dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new List<Comparator> {
                 new Comparator("category", "=", category),
                 new Comparator("logLevel", "=", logLevel),
                 new Comparator("userName", "=", userName),
                 new Comparator("message", "=", message)
             }).ConfigureAwait(false);
 
-			var payload = (dbCheck.Payload as List<List<object>>)!;
+			List<object> payload = dbCheck.Payload;
 			Assert.IsTrue(payload.Count >= 1);
 
-			Result updateResult = new Result(IsSuccessful: false);
+			Result updateResult = new Result()
+			{
+				IsSuccessful = false,
+			};
 			foreach (List<object> row in payload)
 			{
 				var now = Convert.ToDateTime((DateTime?)row[1]);

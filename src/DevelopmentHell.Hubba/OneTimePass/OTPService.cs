@@ -2,53 +2,69 @@
 using System.Text;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.Mailing;
+using DevelopmentHell.Hubba.Emailing.Service;
+using DevelopmentHell.Hubba.Cryptography.Service;
 
-namespace DevelopmentHell.Hubba.OneTimePassword
+namespace DevelopmentHell.Hubba.OneTimePassword.Service
 
 {
-    public class OTPService
-    {
-        const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-        private OTPDataAccess _dataAccess;
-        //TODO: move to config file
-        public OTPService(string connectionString)
-        {
-            _dataAccess = new OTPDataAccess(connectionString);
-        }
+	public class OTPService
+	{
+		private static readonly string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+		private OTPDataAccess _dataAccess;
+		public OTPService(string connectionString)
+		{
+			_dataAccess = new OTPDataAccess(connectionString);
+		}
 
-        // return value: payload of string containing the otp
-        public async Task<Result> NewOTP(int accountId)
-        {
-			Random random = new( (int)((DateTime.UtcNow.Ticks << 4) >> 4 ) );
-            string otp = new(Enumerable.Repeat(validChars, 8).Select(s => s[random.Next(s.Length)]).ToArray());
-            byte[] eotp;
+		// return value: payload of string containing the otp
+		public async Task<Result<string>> NewOTP(int accountId)
+		{
+			Random random = new((int)(DateTime.UtcNow.Ticks << 4 >> 4));
+			string otp = new(Enumerable.Repeat(validChars, 8).Select(s => s[random.Next(s.Length)]).ToArray());
+			byte[] eotp = EncryptionService.Encrypt(otp);
 
-			eotp = Cryptography.Encryption.Encrypt(otp);
+			Result result = await _dataAccess.NewOTP(accountId, eotp).ConfigureAwait(false);
+			return new Result<string>()
+			{
+				IsSuccessful = result.IsSuccessful,
+				ErrorMessage = result.ErrorMessage,
+				Payload = otp,
+			};
+		}
 
-            var result = await _dataAccess.NewOTP(accountId, eotp).ConfigureAwait(false);
-            Console.WriteLine(result.ErrorMessage);
-			return new Result(result.IsSuccessful, result.ErrorMessage, otp);
-        }
+		public async Task<Result> CheckOTP(int accountId, string otp)
+		{
+			string userFriendlyErrorMessage = "The email or password provided is invalid.";
+			Result result = new Result();
 
-        public async Task<Result> CheckOTP(int accountId, string otp)
-        {
-            var checkResult = (await _dataAccess.Check(accountId)).Payload;
-            if (checkResult is null)
-            {
-                return new Result(false, "Could not find an OTP associated with given account ID");
-            }
-            var uotp = Cryptography.Encryption.Decrypt(((List<byte[]>)(checkResult))[0]);
-            if (otp != uotp)
-            {
-                return new Result(false, "OTP associated with given account ID does not match given otp");
-            }
-            return new Result(true);
-        }
+			Result<byte[]> getResult = await _dataAccess.GetOTP(accountId);
+			if (!getResult.IsSuccessful)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = userFriendlyErrorMessage;
+				return result;
+			}
+			byte[] eotpDb = getResult.Payload;
+			string otpDb = EncryptionService.Decrypt(eotpDb);
 
-        public bool SendOTP(string email, string otp)
-        {
-            return EmailService.SendEmail(email, "Hubba Authentication", $"Your one time password is: {otp}.");
-        }
-    }
+			// TEMP
+			Console.WriteLine($"INPUT OTP: {otp}, DECRYPTED OTP FROM DB: {otpDb}");
+
+			if (otp != otpDb)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = userFriendlyErrorMessage;
+				return result;
+			}
+
+			result.IsSuccessful = true;
+			return result;
+		}
+
+		public Result SendOTP(string email, string otp)
+		{
+			return EmailService.SendEmail(email, "Hubba Authentication", $"Your one time password is: {otp}.");
+		}
+	}
 }
