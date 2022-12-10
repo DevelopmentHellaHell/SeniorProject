@@ -81,7 +81,7 @@ namespace DevelopmentHell.Hubba.Validation.Service
 			Result result = new Result();
 			result.IsSuccessful = false;
 			Regex rx = new(@"[^A-Za-z0-9.,@! -]");
-			if (rx.IsMatch(password) || password.Length < 8)
+			if (rx.IsMatch(password) || password.Length < 8 || password.Length > 127)
 			{
 				result.ErrorMessage = "Password provided is invalid. Retry or contact admin.";
 				return result;
