@@ -30,7 +30,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 }
             ).ConfigureAwait(false);
 
-            if (!selectResult.IsSuccessful)
+            if (!selectResult.IsSuccessful || selectResult.Payload is null)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = selectResult.ErrorMessage;
@@ -86,7 +86,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             ).ConfigureAwait(false);
 
             Result<byte[]> result = new Result<byte[]>();
-            if (!selectResult.IsSuccessful)
+            if (!selectResult.IsSuccessful || selectResult.Payload is null)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = selectResult.ErrorMessage;

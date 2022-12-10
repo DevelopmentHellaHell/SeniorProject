@@ -177,6 +177,9 @@ CREATE TABLE [dbo].[UserAccounts](
 	[Email] [varchar](320) NOT NULL,
 	[PasswordHash] [varchar](256) NOT NULL,
 	[PasswordSalt] [varchar](256) NOT NULL,
+	[LoginAttempts] [int] NOT NULL,
+	[FailureTime] [datetime] NULL,
+	[Disabled] [bit] NOT NULL,
  CONSTRAINT [PK_UserAccounts] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC

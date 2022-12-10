@@ -37,7 +37,7 @@ namespace DevelopmentHell.Hubba.Client
 				else
 				{
 					Console.WriteLine(registerResult.ErrorMessage);
-					Result<int> getUserAccountResult = await userAccountDataAccess.GetUserAccountIdByEmail(email).ConfigureAwait(false);
+					Result<int> getUserAccountResult = await userAccountDataAccess.GetId(email).ConfigureAwait(false);
 					if (getUserAccountResult.IsSuccessful)
 					{
 						await Delete(getUserAccountResult.Payload).ConfigureAwait(false);
@@ -96,7 +96,7 @@ namespace DevelopmentHell.Hubba.Client
 		public static async Task<bool> Delete(int accountId)
 		{
 			Result deleteOTPResult = await otpDataAccess.Delete(accountId).ConfigureAwait(false);
-			Result deleteAccountResult = await userAccountDataAccess.DeleteUserAccount(accountId).ConfigureAwait(false);
+			Result deleteAccountResult = await userAccountDataAccess.Delete(accountId).ConfigureAwait(false);
 			if (deleteOTPResult.IsSuccessful && deleteAccountResult.IsSuccessful)
 			{
 				Console.WriteLine("Delete Success!");

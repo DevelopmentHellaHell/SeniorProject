@@ -32,9 +32,15 @@ namespace DevelopmentHell.Hubba.Registration.Service.Implementation
 				return result;
 			}
 
-			Result<int> getResult = await _dao.GetUserAccountIdByEmail(email).ConfigureAwait(false);
-			if (getResult.IsSuccessful)
+			Result<int> getResult = await _dao.GetId(email).ConfigureAwait(false);
+			if (!getResult.IsSuccessful)
 			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Error, please contact a system administrator.";
+				return result;
+			}
+
+			if (getResult.Payload != 0) {
 				result.IsSuccessful = false;
 				result.ErrorMessage = "An account with that email already exists.";
 				return result;
