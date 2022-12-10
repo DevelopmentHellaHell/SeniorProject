@@ -9,12 +9,12 @@ namespace DevelopmentHell.Hubba.Registration
 {
     public class RegistrationManager
     {
-		private static string _loggerConnectionString = String.Format(@"Server={0};Database=DevelopmentHell.Hubba.Logging;Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.Registration;Password=password", ConfigurationManager.AppSettings["LoggingServer"]);
+		private readonly string _loggerConnectionString = String.Format(@"Server={0};Database=DevelopmentHell.Hubba.Logging;Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.Registration;Password=password", ConfigurationManager.AppSettings["LoggingServer"]);
         private Logger _logger;
 
 		public RegistrationManager()
         {
-            _logger = new Logger(new LoggerDataAccess(_loggerConnectionString), Category.BUSINESS);
+            _logger = new Logger(new LoggerDataAccess(_loggerConnectionString));
         }
 
         public async Task<Result> createAccount(string jsonString)
@@ -35,7 +35,7 @@ namespace DevelopmentHell.Hubba.Registration
             
             if (stopwatch.ElapsedMilliseconds > 5000)
             {
-                await _logger.Log(LogLevel.WARNING, "System", String.Format(@"Elapsed time of account creation was greater than 5 seconds. Took {0} ms", stopwatch.ElapsedMilliseconds)).ConfigureAwait(false);
+                await _logger.Log(LogLevel.WARNING, Category.BUSINESS, "System", String.Format(@"Elapsed time of account creation was greater than 5 seconds. Took {0} ms", stopwatch.ElapsedMilliseconds)).ConfigureAwait(false);
             }
 			return registerAccountResult;
         }

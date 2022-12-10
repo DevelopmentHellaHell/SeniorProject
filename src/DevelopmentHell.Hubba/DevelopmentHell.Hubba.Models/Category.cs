@@ -8,10 +8,11 @@ namespace DevelopmentHell.Hubba.Models
 {
 	public enum Category
 	{
-		VIEW = 0,
-		BUSINESS = 1,
-		SERVER = 2,
-		DATA = 3,
-		DATASTORE = 4,
+		DEFAULT = 0,
+		VIEW = 1,
+		BUSINESS = 2,
+		SERVER = 3,
+		DATA = 4,
+		DATASTORE = 5,
 	}
 }

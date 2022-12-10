@@ -22,7 +22,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 		public async Task ConnectionSuccessful()
 		{
 			// Arrange
-			var sut = new Logger(new LoggerDataAccess(connectionString), Models.Category.VIEW);
+			var sut = new Logger(new LoggerDataAccess(connectionString));
 			var connectionAvailible = false;
 
 			// Act
@@ -54,13 +54,13 @@ namespace DevelopmentHell.Hubba.Logging.Test
                 var category = Models.Category.VIEW;
                 var userName = "System";
                 var message = "test1";
-                var sut = new Logger(dataAccess, category);
+                var sut = new Logger(dataAccess);
 
                 var stopwatch = new Stopwatch();
 
                 // Act
                 stopwatch.Start();
-                var actual = await sut.Log(logLevel, userName, message);
+                var actual = await sut.Log(logLevel, category, userName, message);
                 stopwatch.Stop();
 
                 // Assert
@@ -79,13 +79,13 @@ namespace DevelopmentHell.Hubba.Logging.Test
                 var category = Models.Category.VIEW;
                 var userName = "System";
                 var message = "test2";
-                var sut = new Logger(dataAccess, category);
+                var sut = new Logger(dataAccess);
 
                 var stopwatch = new Stopwatch();
 
                 // Act
                 stopwatch.Start();
-                var actual = await sut.Log(logLevel, userName, message);
+                var actual = await sut.Log(logLevel, category, userName, message);
                 stopwatch.Stop();
 
                 // Assert
@@ -104,13 +104,13 @@ namespace DevelopmentHell.Hubba.Logging.Test
                 var category = Models.Category.VIEW;
                 var userName = "User1";
                 var message = "test3";
-                var sut = new Logger(dataAccess, category);
+                var sut = new Logger(dataAccess);
 
                 var stopwatch = new Stopwatch();
 
                 // Act
                 stopwatch.Start();
-                var actual = await sut.Log(logLevel, userName, message);
+                var actual = await sut.Log(logLevel, category, userName, message);
                 stopwatch.Stop();
 
                 // Assert
@@ -129,13 +129,13 @@ namespace DevelopmentHell.Hubba.Logging.Test
                 var category = Models.Category.VIEW;
                 var userName = "User1";
                 var message = "test4";
-                var sut = new Logger(dataAccess, category);
+                var sut = new Logger(dataAccess);
 
                 var stopwatch = new Stopwatch();
 
                 // Act
                 stopwatch.Start();
-                var actual = await sut.Log(logLevel, userName, message);
+                var actual = await sut.Log(logLevel, category, userName, message);
                 stopwatch.Stop();
 
                 // Assert
@@ -153,13 +153,13 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			var logLevel = Models.LogLevel.INFO;
 			var userName = "System";
 			var message = "test5";
-			var sut = new Logger(dataAccess, category);
+			var sut = new Logger(dataAccess);
 
 			var stopwatch = new Stopwatch();
 
 			// Act
 			stopwatch.Start();
-			var result = await sut.Log(logLevel, userName, message);
+			var result = await sut.Log(logLevel, category, userName, message);
 			stopwatch.Stop();
 
 			// Assert
@@ -176,7 +176,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			var logLevel = Models.LogLevel.INFO;
 			var userName = "System";
 			var message = "test6";
-			var sut = new Logger(dataAccess, category);
+			var sut = new Logger(dataAccess);
 
 			// Code modified from https://stackoverflow.com/questions/27409247/how-to-test-blocking-function
 			var ev = new AutoResetEvent(false);
@@ -184,7 +184,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			// Act
 			ThreadPool.QueueUserWorkItem(async (e) =>
 			{
-				actual = await sut.Log(logLevel, userName, message);
+				actual = await sut.Log(logLevel, category, userName, message);
 
 				(e as AutoResetEvent)!.Set();
 			}, ev);
@@ -203,7 +203,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			var logLevel = Models.LogLevel.INFO;
 			var userName = "System";
 			var message = "test7";
-			var sut = new Logger(dataAccess, category);
+			var sut = new Logger(dataAccess);
 
 			var stopwatch = new Stopwatch();
 
@@ -211,7 +211,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			var startTime = DateTime.UtcNow;
 			await Task.Delay(100);
 			stopwatch.Start();
-			var actual = await sut.Log(logLevel, userName, message);
+			var actual = await sut.Log(logLevel, category, userName, message);
 			stopwatch.Stop();
 
 			// Assert
@@ -246,7 +246,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			var logLevel = Models.LogLevel.INFO;
 			var userName = "System";
 			var message = "test8";
-			var sut = new Logger(dataAccess, category);
+			var sut = new Logger(dataAccess);
 			
 			var stopwatch = new Stopwatch();
 
@@ -254,7 +254,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			var startTime = DateTime.UtcNow;
             await Task.Delay(100);
             stopwatch.Start();
-            var actual = await sut.Log(logLevel, userName, message);
+            var actual = await sut.Log(logLevel, category, userName, message);
             stopwatch.Stop();
 
             // Assert
@@ -294,12 +294,12 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			var logLevel = Models.LogLevel.INFO;
 			var userName = "System";
 			var message = "test9";
-			var sut = new Logger(dataAccess, category);
+			var sut = new Logger(dataAccess);
 
 			// Act
 			var startTime = DateTime.UtcNow;
 			await Task.Delay(100);
-			var actual = await sut.Log(logLevel, userName, message);
+			var actual = await sut.Log(logLevel, category, userName, message);
 
 			// Assert
 			var dbCheck = await dataAccess.SelectLogs(new List<string>() { "id", "timestamp" }, new List<Comparator> {
