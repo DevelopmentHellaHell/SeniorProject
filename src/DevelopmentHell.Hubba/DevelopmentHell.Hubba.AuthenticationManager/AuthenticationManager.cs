@@ -2,8 +2,6 @@
 using DevelopmentHell.Hubba.Authentication.Service.Implementation;
 using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.OneTimePassword.Service;
-using DevelopmentHell.Hubba.SqlDataAccess;
-using Azure.Core;
 
 namespace DevelopmentHell.Hubba.Authentication.Manager
 {

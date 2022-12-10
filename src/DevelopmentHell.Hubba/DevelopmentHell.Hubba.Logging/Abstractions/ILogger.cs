@@ -1,11 +1,6 @@
 ﻿using DevelopmentHell.Hubba.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DevelopmentHell.Hubba.Logging.Abstractions
+namespace DevelopmentHell.Hubba.Logging.Service.Abstractions
 {
 	public interface ILogger
 	{

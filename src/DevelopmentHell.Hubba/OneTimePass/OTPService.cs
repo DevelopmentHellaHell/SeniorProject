@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography;
-using System.Text;
-using DevelopmentHell.Hubba.SqlDataAccess;
+﻿using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Emailing.Service;
 using DevelopmentHell.Hubba.Cryptography.Service;

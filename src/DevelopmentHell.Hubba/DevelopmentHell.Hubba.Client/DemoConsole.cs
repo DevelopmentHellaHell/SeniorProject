@@ -1,6 +1,4 @@
-﻿// See https://aka.ms/new-Console-template for more information
-
-using DevelopmentHell.Hubba.Authentication.Manager;
+﻿using DevelopmentHell.Hubba.Authentication.Manager;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Registration.Manager;
 using DevelopmentHell.Hubba.SqlDataAccess;
