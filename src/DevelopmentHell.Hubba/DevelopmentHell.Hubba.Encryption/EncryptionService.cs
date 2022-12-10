@@ -6,8 +6,7 @@ namespace DevelopmentHell.Hubba.Cryptography.Service
 	public class EncryptionService
 	{
         //TODO: move to config file
-        private static readonly byte[] _aesKey = Encoding.ASCII.GetBytes("gVkYp2s5v8y/B?E(H+MbQeThWmZq4t6w");
-        //private static readonly byte[] _aesIV = Encoding.ASCII.GetBytes("")
+        private static readonly byte[] _cryptographyKey = Encoding.ASCII.GetBytes("gVkYp2s5v8y/B?E(H+MbQeThWmZq4t6w");
 
         private static Aes _alg = Aes.Create();
 
@@ -16,7 +15,7 @@ namespace DevelopmentHell.Hubba.Cryptography.Service
 
             byte[] encrypted;
 
-            _alg.Key = _aesKey;
+            _alg.Key = _cryptographyKey;
 			_alg.Padding = PaddingMode.Zeros;
 			ICryptoTransform encryptor = _alg.CreateEncryptor();
 
@@ -40,7 +39,7 @@ namespace DevelopmentHell.Hubba.Cryptography.Service
         {
             string output;
 
-            _alg.Key = _aesKey;
+            _alg.Key = _cryptographyKey;
             _alg.Padding = PaddingMode.Zeros;
             ICryptoTransform decryptor = _alg.CreateDecryptor();
 
