@@ -1,4 +1,5 @@
 ﻿using DevelopmentHell.Hubba.Authentication.Manager;
+using DevelopmentHell.Hubba.Logging.Service.Implementation;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Registration.Manager;
 using DevelopmentHell.Hubba.SqlDataAccess;
@@ -19,20 +20,23 @@ namespace DevelopmentHell.Hubba.Client
 			string UserAccountsTable         = ConfigurationManager.AppSettings["UserAccountsTable"]!;
 			string OTPTable                  = ConfigurationManager.AppSettings["OTPTable"]!;
 			string LoggingServer             = ConfigurationManager.AppSettings["LoggingServer"]!;
-			string LoggingTable              = ConfigurationManager.AppSettings["LoggingTable"]!;
+			string LoggingDatabase           = ConfigurationManager.AppSettings["LoggingDatabase"]!;
+			string LoggingDataAccessUser     = ConfigurationManager.AppSettings["LoggingDataAccessUser"]!;
+			string LoggingDataAccessPass     = ConfigurationManager.AppSettings["LoggingDataAccessPass"]!;
+			string LogsTable                 = ConfigurationManager.AppSettings["LogsTable"]!;
 			string OTPExpirationOffsetSeconds= ConfigurationManager.AppSettings["OTPExpirationOffsetSeconds"]!;
 			string HubbaEmailAddress         = ConfigurationManager.AppSettings["HubbaEmailAddress"]!;
 			string HubbaEmailPassword        = ConfigurationManager.AppSettings["HubbaEmailPassword"]!;
 			string AESKey                    = ConfigurationManager.AppSettings["AESKey"]!;
-            string connectionString = $"Server={AccountServer};Database={AccountDatabase};Encrypt=false;User Id={AccountDataAccessUser};Password={AccountDataAccessPass}";
-			RegistrationManager registrationmanager = new RegistrationManager(connectionString, UserAccountsTable);
-			AuthenticationManager authenticationManager = new AuthenticationManager(connectionString,UserAccountsTable,OTPTable);
-			UserAccountDataAccess userAccountDataAccess = new UserAccountDataAccess(connectionString, UserAccountsTable);
-			OTPDataAccess otpDataAccess = new OTPDataAccess(connectionString, OTPTable);
+            string usersConnectionString     = $"Server={AccountServer};Database={AccountDatabase};Encrypt=false;User Id={AccountDataAccessUser};Password={AccountDataAccessPass}";
+			string logsConnectionString      = $"Server={LoggingServer};Database={LoggingDatabase};Encrypt=false;User Id={LoggingDataAccessUser};Password={LoggingDataAccessPass}";
+			LoggerService loggerService = new LoggerService(new LoggerDataAccess(logsConnectionString, LogsTable));
+			RegistrationManager registrationmanager = new RegistrationManager(usersConnectionString, UserAccountsTable, loggerService);
+			AuthenticationManager authenticationManager = new AuthenticationManager(usersConnectionString, UserAccountsTable, OTPTable, loggerService);
+			UserAccountDataAccess userAccountDataAccess = new UserAccountDataAccess(usersConnectionString, UserAccountsTable);
+			OTPDataAccess otpDataAccess = new OTPDataAccess(usersConnectionString, OTPTable);
 
-
-			Console.WriteLine(ConfigurationManager.AppSettings["AccountServer"]);
-
+			string dummyIp = "192.0.2.0";
 			string email;
 			string password;
 			while (true)
@@ -74,7 +78,7 @@ namespace DevelopmentHell.Hubba.Client
 				email = Console.ReadLine() ?? "";
 				Console.Write("Password: ");
 				password = Console.ReadLine() ?? "";
-				Result<int> loginResult = await authenticationManager.Login(email, password).ConfigureAwait(false);
+				Result<int> loginResult = await authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
 				if (loginResult.IsSuccessful)
 				{
 					accountId = loginResult.Payload;

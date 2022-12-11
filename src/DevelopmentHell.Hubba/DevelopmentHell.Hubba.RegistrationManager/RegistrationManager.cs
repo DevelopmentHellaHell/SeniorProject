@@ -1,4 +1,5 @@
-﻿using DevelopmentHell.Hubba.Models;
+﻿using DevelopmentHell.Hubba.Logging.Service.Abstractions;
+using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Implementation;
 
@@ -7,10 +8,11 @@ namespace DevelopmentHell.Hubba.Registration.Manager
 	public class RegistrationManager
 	{
 		private IRegistrationService _registrationService;
-
-		public RegistrationManager(string connectionString, string accountsTableName)
+		private ILoggerService _loggerService;
+		public RegistrationManager(string connectionString, string accountsTableName, ILoggerService loggerService)
 		{
-			_registrationService = new RegistrationService(connectionString,accountsTableName);
+			_registrationService = new RegistrationService(connectionString, accountsTableName, loggerService);
+			_loggerService = loggerService;
 		}
 
 		public async Task<Result> Register(string email, string password)
@@ -24,6 +26,8 @@ namespace DevelopmentHell.Hubba.Registration.Manager
 				result.ErrorMessage = registerResult.ErrorMessage;
 				return result;
 			}
+
+			_loggerService.Log(LogLevel.INFO, Category.BUSINESS, "RegistrationManager.Register", $"New registered user: {email}.");
 
 			result.IsSuccessful = true;
 			return result;

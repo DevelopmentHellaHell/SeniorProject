@@ -1,5 +1,6 @@
 ﻿using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.Authentication.Service.Implementation;
+using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.OneTimePassword.Service;
 
@@ -9,19 +10,19 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 	{
 		private IAuthenticatonService _authenticationService;
 		private OTPService _otpService;
-		private readonly string _connectionString = "Server=.;Database=DevelopmentHell.Hubba.Users;Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.User;Password=password";
-
-		public AuthenticationManager(string connectionString, string authenticationTableName, string otpTableName)
+		private ILoggerService _loggerService;
+		public AuthenticationManager(string connectionString, string authenticationTableName, string otpTableName, ILoggerService loggerService)
 		{
-			_authenticationService = new AuthenticationService(connectionString,authenticationTableName);
+			_authenticationService = new AuthenticationService(connectionString,authenticationTableName, loggerService);
 			_otpService = new OTPService(connectionString,otpTableName);
+			_loggerService = loggerService;
 		}
 
-		public async Task<Result<int>> Login(string email, string password)
+		public async Task<Result<int>> Login(string email, string password, string ipAddress)
 		{
 			Result<int> result = new Result<int>();
 
-			Result<int> authenticateResult = await _authenticationService.AuthenticateCredentials(email, password).ConfigureAwait(false);
+			Result<int> authenticateResult = await _authenticationService.AuthenticateCredentials(email, password, ipAddress).ConfigureAwait(false);
 			if (!authenticateResult.IsSuccessful)
 			{
 				result.IsSuccessful = false;
@@ -31,7 +32,7 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 
 			int accountId = authenticateResult.Payload;
 			Result<string> otpResult = await _otpService.NewOTP(accountId).ConfigureAwait(false);
-			string otp = otpResult.Payload.ToString();
+			string otp = otpResult.Payload!.ToString();
 
 			Result sendOTPResult = _otpService.SendOTP(email, otp);
 			if (!sendOTPResult.IsSuccessful)
