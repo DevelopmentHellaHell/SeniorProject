@@ -22,7 +22,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 		public async Task ConnectionSuccessful()
 		{
 			// Arrange
-			var sut = new Logger(new LoggerDataAccess(connectionString));
+			var sut = new LoggerService(new LoggerDataAccess(connectionString));
 			var connectionAvailible = false;
 
 			// Act
@@ -54,7 +54,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
                 var category = Models.Category.VIEW;
                 var userName = "System";
                 var message = "test1";
-                var sut = new Logger(dataAccess);
+                var sut = new LoggerService(dataAccess);
 
                 var stopwatch = new Stopwatch();
 
@@ -79,7 +79,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
                 var category = Models.Category.VIEW;
                 var userName = "System";
                 var message = "test2";
-                var sut = new Logger(dataAccess);
+                var sut = new LoggerService(dataAccess);
 
                 var stopwatch = new Stopwatch();
 
@@ -104,7 +104,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
                 var category = Models.Category.VIEW;
                 var userName = "User1";
                 var message = "test3";
-                var sut = new Logger(dataAccess);
+                var sut = new LoggerService(dataAccess);
 
                 var stopwatch = new Stopwatch();
 
@@ -129,7 +129,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
                 var category = Models.Category.VIEW;
                 var userName = "User1";
                 var message = "test4";
-                var sut = new Logger(dataAccess);
+                var sut = new LoggerService(dataAccess);
 
                 var stopwatch = new Stopwatch();
 
@@ -153,7 +153,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			var logLevel = Models.LogLevel.INFO;
 			var userName = "System";
 			var message = "test5";
-			var sut = new Logger(dataAccess);
+			var sut = new LoggerService(dataAccess);
 
 			var stopwatch = new Stopwatch();
 
@@ -176,7 +176,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			var logLevel = Models.LogLevel.INFO;
 			var userName = "System";
 			var message = "test6";
-			var sut = new Logger(dataAccess);
+			var sut = new LoggerService(dataAccess);
 
 			// Code modified from https://stackoverflow.com/questions/27409247/how-to-test-blocking-function
 			var ev = new AutoResetEvent(false);
@@ -203,7 +203,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			var logLevel = Models.LogLevel.INFO;
 			var userName = "System";
 			var message = "test7";
-			var sut = new Logger(dataAccess);
+			var sut = new LoggerService(dataAccess);
 
 			var stopwatch = new Stopwatch();
 
@@ -246,7 +246,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			var logLevel = Models.LogLevel.INFO;
 			var userName = "System";
 			var message = "test8";
-			var sut = new Logger(dataAccess);
+			var sut = new LoggerService(dataAccess);
 			
 			var stopwatch = new Stopwatch();
 
@@ -294,7 +294,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			var logLevel = Models.LogLevel.INFO;
 			var userName = "System";
 			var message = "test9";
-			var sut = new Logger(dataAccess);
+			var sut = new LoggerService(dataAccess);
 
 			// Act
 			var startTime = DateTime.UtcNow;
