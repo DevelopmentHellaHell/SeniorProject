@@ -1,4 +1,5 @@
 ﻿using DevelopmentHell.Hubba.Cryptography.Service;
+using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess;
@@ -9,10 +10,12 @@ namespace DevelopmentHell.Hubba.Registration.Service.Implementation
 	public class RegistrationService : IRegistrationService
 	{
 		private IUserAccountDataAccess _dao;
+		private ILoggerService _loggerService;
 
-		public RegistrationService(string connectionString, string tableName)
+		public RegistrationService(string connectionString, string tableName, ILoggerService loggerService)
 		{
 			_dao = new UserAccountDataAccess(connectionString, tableName);
+			_loggerService = loggerService;
 		}
 
 		public async Task<Result> RegisterAccount(string email, string password)

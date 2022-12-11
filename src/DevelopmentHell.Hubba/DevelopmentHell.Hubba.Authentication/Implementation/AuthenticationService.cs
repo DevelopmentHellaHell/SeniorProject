@@ -1,5 +1,6 @@
 ﻿using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service;
+using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Validation.Service;
@@ -9,12 +10,14 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 	public class AuthenticationService : IAuthenticatonService
 	{
 		private IUserAccountDataAccess _dao;
-		public AuthenticationService(string connectionString, string tableName)
+		private ILoggerService _loggerService;
+		public AuthenticationService(string connectionString, string tableName, ILoggerService loggerService)
 		{
 			_dao = new UserAccountDataAccess(connectionString, tableName);
+			_loggerService = loggerService;
 		}
 
-		public async Task<Result<int>> AuthenticateCredentials(string email, string password)
+		public async Task<Result<int>> AuthenticateCredentials(string email, string password, string ipAddress)
 		{
 			Result<int> result = new Result<int>();
 
@@ -48,6 +51,9 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 
 					int loginAttempts = (int)loginAttemptData.LoginAttempts!;
 					DateTime? activeFailureTime = loginAttemptData.FailureTime is null ? null : DateTime.Parse(loginAttemptData.FailureTime!.ToString()!);
+
+					_loggerService.Log(LogLevel.INFO, Category.BUSINESS, "AuthenticationService.AuthenticateCredentials", $"{ipAddress} attempted to log in to {email} using the wrong password. (Attempt {loginAttempts + 1})");
+
 					// Current time is greater than stored time
 					// Reset login attempts
 					if (activeFailureTime is not null && currentTime.CompareTo(activeFailureTime) > 0)
