@@ -5,7 +5,7 @@ alter database [DevelopmentHell.Hubba.Logs] set single_user with rollback immedi
 DROP DATABASE [DevelopmentHell.Hubba.Logs]
 GO
 
-/****** Object:  Database [DevelopmentHell.Hubba.Logs]    Script Date: 11/9/2022 1:42:30 PM ******/
+/****** Object:  Database [DevelopmentHell.Hubba.Logs]    Script Date: 12/1/2022 8:33:28 PM ******/
 CREATE DATABASE [DevelopmentHell.Hubba.Logs]
  CONTAINMENT = NONE
  ON  PRIMARY 
@@ -87,6 +87,35 @@ ALTER DATABASE [DevelopmentHell.Hubba.Logs] SET QUERY_STORE = OFF
 GO
 USE [DevelopmentHell.Hubba.Logs]
 GO
+/****** Object:  Table [dbo].[Categories]    Script Date: 12/1/2022 8:33:28 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Categories](
+	[Id] [int] NOT NULL,
+	[Name] [nvarchar](20) NOT NULL,
+ CONSTRAINT [PK_Categories] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Levels]    Script Date: 12/1/2022 8:33:28 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Levels](
+	[Id] [int] NOT NULL,
+	[Name] [nvarchar](20) NOT NULL,
+ CONSTRAINT [PK_Levels] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Logs]    Script Date: 12/1/2022 8:33:28 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -104,8 +133,39 @@ CREATE TABLE [dbo].[Logs](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+INSERT [dbo].[Categories] ([Id], [Name]) VALUES (0, N'DEFAULT')
+GO
+INSERT [dbo].[Categories] ([Id], [Name]) VALUES (1, N'VIEW')
+GO
+INSERT [dbo].[Categories] ([Id], [Name]) VALUES (2, N'BUSINESS')
+GO
+INSERT [dbo].[Categories] ([Id], [Name]) VALUES (3, N'SERVER')
+GO
+INSERT [dbo].[Categories] ([Id], [Name]) VALUES (4, N'DATA')
+GO
+INSERT [dbo].[Categories] ([Id], [Name]) VALUES (5, N'DATASTORE')
+GO
+INSERT [dbo].[Levels] ([Id], [Name]) VALUES (0, N'DEFAULT')
+GO
+INSERT [dbo].[Levels] ([Id], [Name]) VALUES (1, N'INFO')
+GO
+INSERT [dbo].[Levels] ([Id], [Name]) VALUES (2, N'DEBUG')
+GO
+INSERT [dbo].[Levels] ([Id], [Name]) VALUES (3, N'WARNING')
+GO
+INSERT [dbo].[Levels] ([Id], [Name]) VALUES (4, N'ERROR')
+GO
+ALTER TABLE [dbo].[Logs]  WITH CHECK ADD  CONSTRAINT [FK_Logs_Categories] FOREIGN KEY([category])
+REFERENCES [dbo].[Categories] ([Id])
+GO
+ALTER TABLE [dbo].[Logs] CHECK CONSTRAINT [FK_Logs_Categories]
+GO
+ALTER TABLE [dbo].[Logs]  WITH CHECK ADD  CONSTRAINT [FK_Logs_Levels] FOREIGN KEY([logLevel])
+REFERENCES [dbo].[Levels] ([Id])
+GO
+ALTER TABLE [dbo].[Logs] CHECK CONSTRAINT [FK_Logs_Levels]
+GO
 USE [master]
 GO
 ALTER DATABASE [DevelopmentHell.Hubba.Logs] SET  READ_WRITE 
 GO
-

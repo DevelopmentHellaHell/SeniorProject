@@ -1,6 +1,7 @@
 ﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
+using System.Configuration;
 using System.Globalization;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
@@ -9,7 +10,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 	{
 		private InsertDataAccess _insertDataAccess;
 		private SelectDataAccess _selectDataAccess;
-		private static string _tableName;
+		private readonly string _tableName;
 
 		public LoggerDataAccess(string connectionString, string tableName)
 		{

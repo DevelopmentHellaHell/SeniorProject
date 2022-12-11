@@ -33,23 +33,29 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service
 
 		public async Task<Result> CheckOTP(int accountId, string otp)
 		{
-			string userFriendlyErrorMessage = "The OTP provided is invalid.";
 			Result result = new Result();
 
 			Result<byte[]> getResult = await _dataAccess.GetOTP(accountId);
 			if (!getResult.IsSuccessful)
 			{
 				result.IsSuccessful = false;
-				result.ErrorMessage = userFriendlyErrorMessage;
+				result.ErrorMessage = "Error, please contact system administrator.";
 				return result;
 			}
+
+			if (getResult.Payload is null) {
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Invalid OTP.";
+				return result;
+			}
+
 			byte[] eotpDb = getResult.Payload;
 			string otpDb = EncryptionService.Decrypt(eotpDb);
 
 			if (otp != otpDb)
 			{
 				result.IsSuccessful = false;
-				result.ErrorMessage = userFriendlyErrorMessage;
+				result.ErrorMessage = "Invalid OTP.";
 				return result;
 			}
 

@@ -95,13 +95,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
 
             List<object> payload = selectResult.Payload;
-            if (payload.Count <= 0)
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "No UserOTP selected with email and time.";
-                return result;
-            }
-
             if (payload.Count > 1)
             {
                 result.IsSuccessful = false;
@@ -110,7 +103,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
 
             result.IsSuccessful = true;
-            result.Payload = (byte[])(payload[0]);
+            if (payload.Count > 0) result.Payload = (byte[])(payload[0]);
             return result;
         }
 
