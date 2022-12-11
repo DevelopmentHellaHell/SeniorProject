@@ -9,18 +9,20 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 		private SelectDataAccess _selectDataAccess;
 		private DeleteDataAccess _deleteDataAccess;
 		private UpdateDataAccess _updateDataAccess;
-		public UserAccountDataAccess(string connectionString)
+		private string _tableName;
+		public UserAccountDataAccess(string connectionString, string tableName)
 		{
 			_insertDataAccess = new InsertDataAccess(connectionString);
 			_selectDataAccess = new SelectDataAccess(connectionString);
 			_deleteDataAccess = new DeleteDataAccess(connectionString);
 			_updateDataAccess = new UpdateDataAccess(connectionString);
+			_tableName = tableName;
 		}
 
 		public async Task<Result> CreateUserAccount(string email, HashData password)
 		{
 			Result insertResult = await _insertDataAccess.Insert(
-				"UserAccounts",
+				_tableName,
 				new Dictionary<string, object>()
 				{
 					{ "Email", email },
@@ -40,7 +42,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			Result<int> result = new Result<int>();
 
 			Result<List<object>> selectResult = await _selectDataAccess.Select(
-				"UserAccounts",
+				_tableName,
 				new List<string>() { "Id" },
 				new List<Comparator>()
 				{
@@ -73,7 +75,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			Result<int> result = new Result<int>();
 
 			Result<List<object>> selectResult = await _selectDataAccess.Select(
-				"UserAccounts",
+				_tableName,
 				new List<string>() { "Id" },
 				new List<Comparator>()
 				{
@@ -108,7 +110,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			Result<UserAccount> result = new Result<UserAccount>();
 
 			Result<List<object>> selectResult = await _selectDataAccess.Select(
-				"UserAccounts",
+				_tableName,
 				new List<string>() { "LoginAttempts", "FailureTime" },
 				new List<Comparator>()
 				{
@@ -143,7 +145,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			Result<bool> result = new Result<bool>();
 
 			Result<List<object>> selectResult = await _selectDataAccess.Select(
-				"UserAccounts",
+				_tableName,
 				new List<string>() { "Disabled" },
 				new List<Comparator>()
 				{
@@ -181,7 +183,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			}
 
 			Result updateResult = await _updateDataAccess.Update(
-				"UserAccounts",
+				_tableName,
 				new List<Comparator>()
 				{
 					new Comparator("Id", "=", userAccount.Id),
@@ -195,7 +197,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 		public async Task<Result> Delete(int id)
 		{
 			Result deleteResult = await _deleteDataAccess.Delete(
-				"UserAccounts",
+				_tableName,
 				new List<Comparator>()
 				{
 					new Comparator("Id", "=", id),

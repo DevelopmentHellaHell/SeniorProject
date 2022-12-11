@@ -2,21 +2,37 @@
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Registration.Manager;
 using DevelopmentHell.Hubba.SqlDataAccess;
+using System.Configuration;
 
 namespace DevelopmentHell.Hubba.Client
 {
 	public class DemoClass
 	{
-		private static RegistrationManager registrationmanager = new RegistrationManager();
-		private static AuthenticationManager authenticationManager = new AuthenticationManager();
-
-		private static string connectionString = "Server=.;Database=DevelopmentHell.Hubba.Users;Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.User;Password=password";
-
-		private static UserAccountDataAccess userAccountDataAccess = new UserAccountDataAccess(connectionString);
-		private static OTPDataAccess otpDataAccess = new OTPDataAccess(connectionString);
+		
 
 		public static async Task Main(string[] args)
 		{
+			string AccountServer             = ConfigurationManager.AppSettings["AccountServer"]!;
+			string AccountDatabase           = ConfigurationManager.AppSettings["AccountDatabase"]!;
+			string AccountDataAccessUser     = ConfigurationManager.AppSettings["AccountDataAccessUser"]!;
+			string AccountDataAccessPass     = ConfigurationManager.AppSettings["AccountDataAccessPass"]!;
+			string UserAccountsTable         = ConfigurationManager.AppSettings["UserAccountsTable"]!;
+			string OTPTable                  = ConfigurationManager.AppSettings["OTPTable"]!;
+			string LoggingServer             = ConfigurationManager.AppSettings["LoggingServer"]!;
+			string LoggingTable              = ConfigurationManager.AppSettings["LoggingTable"]!;
+			string OTPExpirationOffsetSeconds= ConfigurationManager.AppSettings["OTPExpirationOffsetSeconds"]!;
+			string HubbaEmailAddress         = ConfigurationManager.AppSettings["HubbaEmailAddress"]!;
+			string HubbaEmailPassword        = ConfigurationManager.AppSettings["HubbaEmailPassword"]!;
+			string AESKey                    = ConfigurationManager.AppSettings["AESKey"]!;
+            string connectionString = $"Server={AccountServer};Database={AccountDatabase};Encrypt=false;User Id={AccountDataAccessUser};Password={AccountDataAccessPass}";
+			RegistrationManager registrationmanager = new RegistrationManager(connectionString, UserAccountsTable);
+			AuthenticationManager authenticationManager = new AuthenticationManager(connectionString,UserAccountsTable,OTPTable);
+			UserAccountDataAccess userAccountDataAccess = new UserAccountDataAccess(connectionString, UserAccountsTable);
+			OTPDataAccess otpDataAccess = new OTPDataAccess(connectionString, OTPTable);
+
+
+			Console.WriteLine(ConfigurationManager.AppSettings["AccountServer"]);
+
 			string email;
 			string password;
 			while (true)
@@ -40,7 +56,7 @@ namespace DevelopmentHell.Hubba.Client
 					Result<int> getUserAccountResult = await userAccountDataAccess.GetId(email).ConfigureAwait(false);
 					if (getUserAccountResult.IsSuccessful)
 					{
-						await Delete(getUserAccountResult.Payload).ConfigureAwait(false);
+						await Delete(getUserAccountResult.Payload, otpDataAccess, userAccountDataAccess).ConfigureAwait(false);
 					}
 					else
 					{
@@ -90,10 +106,10 @@ namespace DevelopmentHell.Hubba.Client
 				}
 			}
 
-			await Delete(accountId).ConfigureAwait(false);
+			await Delete(accountId, otpDataAccess, userAccountDataAccess).ConfigureAwait(false);
 		}
 
-		public static async Task<bool> Delete(int accountId)
+		public static async Task<bool> Delete(int accountId, OTPDataAccess otpDataAccess,UserAccountDataAccess userAccountDataAccess)
 		{
 			Result deleteOTPResult = await otpDataAccess.Delete(accountId).ConfigureAwait(false);
 			Result deleteAccountResult = await userAccountDataAccess.Delete(accountId).ConfigureAwait(false);

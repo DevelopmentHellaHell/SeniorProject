@@ -10,9 +10,9 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service
 	{
 		private static readonly string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 		private OTPDataAccess _dataAccess;
-		public OTPService(string connectionString)
+		public OTPService(string connectionString, string tableName)
 		{
-			_dataAccess = new OTPDataAccess(connectionString);
+			_dataAccess = new OTPDataAccess(connectionString, tableName);
 		}
 
 		public async Task<Result<string>> NewOTP(int accountId)

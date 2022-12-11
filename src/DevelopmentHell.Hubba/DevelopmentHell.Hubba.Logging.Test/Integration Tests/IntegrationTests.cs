@@ -16,13 +16,13 @@ namespace DevelopmentHell.Hubba.Logging.Test
 
 		private static string expectedDatabaseName = "DevelopmentHell.Hubba.Logs";
 		private static string connectionString = String.Format(@"Server={0};Database={1};Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.Logging;Password=password", ConfigurationManager.AppSettings["LoggingServer"], expectedDatabaseName);
-		private LoggerDataAccess dataAccess = new LoggerDataAccess(connectionString);
+		private LoggerDataAccess dataAccess = new LoggerDataAccess(connectionString, ConfigurationManager.AppSettings["LoggingTable"]!);
 
 		[TestMethod]
 		public async Task ConnectionSuccessful()
 		{
 			// Arrange
-			var sut = new Logger(new LoggerDataAccess(connectionString), Models.Category.VIEW);
+			var sut = new Logger(new LoggerDataAccess(connectionString, ConfigurationManager.AppSettings["LoggingTable"]!), Models.Category.VIEW);
 			var connectionAvailible = false;
 
 			// Act

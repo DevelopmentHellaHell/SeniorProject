@@ -10,9 +10,9 @@ namespace DevelopmentHell.Hubba.Registration.Service.Implementation
 	{
 		private IUserAccountDataAccess _dao;
 
-		public RegistrationService(string connectionString)
+		public RegistrationService(string connectionString, string tableName)
 		{
-			_dao = new UserAccountDataAccess(connectionString);
+			_dao = new UserAccountDataAccess(connectionString, tableName);
 		}
 
 		public async Task<Result> RegisterAccount(string email, string password)

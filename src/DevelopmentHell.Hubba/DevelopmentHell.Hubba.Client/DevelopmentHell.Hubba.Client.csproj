@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DevelopmentHell.Hubba.AuthenticationManager\DevelopmentHell.Hubba.Authentication.Manager.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.RegistrationManager\DevelopmentHell.Hubba.Registration.Manager.csproj" />
   </ItemGroup>

@@ -11,10 +11,10 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 		private OTPService _otpService;
 		private readonly string _connectionString = "Server=.;Database=DevelopmentHell.Hubba.Users;Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.User;Password=password";
 
-		public AuthenticationManager()
+		public AuthenticationManager(string connectionString, string authenticationTableName, string otpTableName)
 		{
-			_authenticationService = new AuthenticationService(_connectionString);
-			_otpService = new OTPService(_connectionString);
+			_authenticationService = new AuthenticationService(connectionString,authenticationTableName);
+			_otpService = new OTPService(connectionString,otpTableName);
 		}
 
 		public async Task<Result<int>> Login(string email, string password)

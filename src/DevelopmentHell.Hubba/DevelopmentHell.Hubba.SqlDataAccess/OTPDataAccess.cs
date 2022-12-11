@@ -10,14 +10,15 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         private SelectDataAccess _selectDataAccess;
         private DeleteDataAccess _deleteDataAccess;
         private InsertDataAccess _insertDataAccess;
-        private readonly string _tableName = "UserOTPs";
+        private readonly string _tableName;
 
-        public OTPDataAccess(string connectionString)
+        public OTPDataAccess(string connectionString, string tableName)
         {
             _insertDataAccess = new(connectionString);
             _selectDataAccess = new(connectionString);
             _deleteDataAccess = new(connectionString);
             _updateDataAccess = new(connectionString);
+            _tableName = tableName;
         }
         public async Task<Result> NewOTP(int accountId, byte[] encryptedOTP, DateTime expiration)
         {

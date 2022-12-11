@@ -9,12 +9,13 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 	{
 		private InsertDataAccess _insertDataAccess;
 		private SelectDataAccess _selectDataAccess;
-		private static string _tableName = "logs";
+		private static string _tableName;
 
-		public LoggerDataAccess(string connectionString)
+		public LoggerDataAccess(string connectionString, string tableName)
 		{
 			_insertDataAccess = new InsertDataAccess(connectionString);
 			_selectDataAccess = new SelectDataAccess(connectionString);
+			_tableName = tableName;
 		}
 
 		public async Task<Result> LogData(LogLevel logLevel, Category category, string userName, string message)

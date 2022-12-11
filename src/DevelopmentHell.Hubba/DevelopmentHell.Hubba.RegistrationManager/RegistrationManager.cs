@@ -7,11 +7,10 @@ namespace DevelopmentHell.Hubba.Registration.Manager
 	public class RegistrationManager
 	{
 		private IRegistrationService _registrationService;
-		private readonly string _connectionString = "Server=.;Database=DevelopmentHell.Hubba.Users;Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.User;Password=password";
 
-		public RegistrationManager()
+		public RegistrationManager(string connectionString, string accountsTableName)
 		{
-			_registrationService = new RegistrationService(_connectionString);
+			_registrationService = new RegistrationService(connectionString,accountsTableName);
 		}
 
 		public async Task<Result> Register(string email, string password)

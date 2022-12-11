@@ -9,9 +9,9 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 	public class AuthenticationService : IAuthenticatonService
 	{
 		private IUserAccountDataAccess _dao;
-		public AuthenticationService(string connectionString)
+		public AuthenticationService(string connectionString, string tableName)
 		{
-			_dao = new UserAccountDataAccess(connectionString);
+			_dao = new UserAccountDataAccess(connectionString, tableName);
 		}
 
 		public async Task<Result<int>> AuthenticateCredentials(string email, string password)
