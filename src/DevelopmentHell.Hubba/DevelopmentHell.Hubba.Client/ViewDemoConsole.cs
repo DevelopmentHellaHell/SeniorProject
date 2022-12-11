@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Configuration;
+﻿using System.Configuration;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Registration.Manager;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Authentication.Manager;
-using Microsoft.Identity.Client;
-using static System.Net.WebRequestMethods;
+using DevelopmentHell.Hubba.Logging.Service.Implementation;
+using DevelopmentHell.Hubba.OneTimePassword.Service.Implementation;
+using DevelopmentHell.Hubba.Registration.Service.Implementation;
+using DevelopmentHell.Hubba.Authentication.Service.Implementation;
 
 namespace DevelopmentHell.Hubba.Client
 {
@@ -17,25 +14,43 @@ namespace DevelopmentHell.Hubba.Client
     {
         public static async Task Main()
         {
-            string AccountServer = ConfigurationManager.AppSettings["AccountServer"]!;
-            string AccountDatabase = ConfigurationManager.AppSettings["AccountDatabase"]!;
-            string AccountDataAccessUser = ConfigurationManager.AppSettings["AccountDataAccessUser"]!;
-            string AccountDataAccessPass = ConfigurationManager.AppSettings["AccountDataAccessPass"]!;
-            string UserAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
-            string OTPTable = ConfigurationManager.AppSettings["OTPTable"]!;
-            string LoggingServer = ConfigurationManager.AppSettings["LoggingServer"]!;
-            string LoggingTable = ConfigurationManager.AppSettings["LoggingTable"]!;
-            string OTPExpirationOffsetSeconds = ConfigurationManager.AppSettings["OTPExpirationOffsetSeconds"]!;
-            string HubbaEmailAddress = ConfigurationManager.AppSettings["HubbaEmailAddress"]!;
-            string HubbaEmailPassword = ConfigurationManager.AppSettings["HubbaEmailPassword"]!;
-            string AESKey = ConfigurationManager.AppSettings["AESKey"]!;
-            string connectionString = $"Server={AccountServer};Database={AccountDatabase};Encrypt=false;User Id={AccountDataAccessUser};Password={AccountDataAccessPass}";
-            RegistrationManager registrationmanager = new RegistrationManager(connectionString, UserAccountsTable);
-            AuthenticationManager authenticationManager = new AuthenticationManager(connectionString, UserAccountsTable, OTPTable);
-            UserAccountDataAccess userAccountDataAccess = new UserAccountDataAccess(connectionString, UserAccountsTable);
-            OTPDataAccess otpDataAccess = new OTPDataAccess(connectionString, OTPTable);
+			string AccountServer = ConfigurationManager.AppSettings["AccountServer"]!;
+			string AccountDatabase = ConfigurationManager.AppSettings["AccountDatabase"]!;
+			string AccountDataAccessUser = ConfigurationManager.AppSettings["AccountDataAccessUser"]!;
+			string AccountDataAccessPass = ConfigurationManager.AppSettings["AccountDataAccessPass"]!;
+			string UserAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
+			string OTPTable = ConfigurationManager.AppSettings["OTPTable"]!;
+			string LoggingServer = ConfigurationManager.AppSettings["LoggingServer"]!;
+			string LoggingDatabase = ConfigurationManager.AppSettings["LoggingDatabase"]!;
+			string LoggingDataAccessUser = ConfigurationManager.AppSettings["LoggingDataAccessUser"]!;
+			string LoggingDataAccessPass = ConfigurationManager.AppSettings["LoggingDataAccessPass"]!;
+			string LogsTable = ConfigurationManager.AppSettings["LogsTable"]!;
+			string OTPExpirationOffsetSeconds = ConfigurationManager.AppSettings["OTPExpirationOffsetSeconds"]!;
+			string HubbaEmailAddress = ConfigurationManager.AppSettings["HubbaEmailAddress"]!;
+			string HubbaEmailPassword = ConfigurationManager.AppSettings["HubbaEmailPassword"]!;
+			string AESKey = ConfigurationManager.AppSettings["AESKey"]!;
+			string usersConnectionString = $"Server={AccountServer};Database={AccountDatabase};Encrypt=false;User Id={AccountDataAccessUser};Password={AccountDataAccessPass}";
+			string logsConnectionString = $"Server={LoggingServer};Database={LoggingDatabase};Encrypt=false;User Id={LoggingDataAccessUser};Password={LoggingDataAccessPass}";
+			LoggerService loggerService = new LoggerService(new LoggerDataAccess(logsConnectionString, LogsTable));
+			RegistrationManager registrationmanager = new RegistrationManager(
+				new RegistrationService(
+					new UserAccountDataAccess(usersConnectionString, UserAccountsTable),
+					loggerService),
+				loggerService);
+			AuthenticationManager authenticationManager = new AuthenticationManager(
+				new AuthenticationService(
+					new UserAccountDataAccess(usersConnectionString, UserAccountsTable),
+					loggerService),
+				new OTPService(
+					new OTPDataAccess(usersConnectionString, OTPTable)
+					),
+				loggerService);
+			// TEMP: To delete data
+			UserAccountDataAccess userAccountDataAccess = new UserAccountDataAccess(usersConnectionString, UserAccountsTable);
+			OTPDataAccess otpDataAccess = new OTPDataAccess(usersConnectionString, OTPTable);
 
-            string? cached_email = null;
+			string dummyIp = "192.0.2.0";
+			string? cached_email = null;
 
             async Task<bool> Register()
             {
@@ -73,7 +88,7 @@ namespace DevelopmentHell.Hubba.Client
                 string email = Console.ReadLine() ?? "";
                 Console.Write("Password: ");
                 string password = Console.ReadLine() ?? "";
-                Result<int> loginResult = await authenticationManager.Login(email, password).ConfigureAwait(false);
+                Result<int> loginResult = await authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
                 if (loginResult.IsSuccessful)
                 {
                     cached_email = email;
@@ -101,12 +116,17 @@ namespace DevelopmentHell.Hubba.Client
                 if (otpresult.IsSuccessful)
                 {
                     Console.WriteLine("OTP Login Success!");
-                    return;
+					await Home();
+					return;
                 }
                 else
                 {
                     Console.WriteLine($"[ERROR]: {otpresult.ErrorMessage}");
                 }
+            }
+            async Task Home()
+            {
+                Surround("Home View");
             }
             async Task<bool> DeleteLogin()
             {
@@ -154,6 +174,14 @@ namespace DevelopmentHell.Hubba.Client
                 }
                 return true;
             }
+			void Surround(string text, char character = '-', int spacing = 1)
+            {
+                int textLength = text.Length;
+                int barLength = textLength + spacing * 2 + 2;
+                Console.WriteLine(new String(character, barLength));
+                Console.WriteLine($"{character}{new String(' ', spacing)}{text}{new String(' ', spacing)}{character}");
+                Console.WriteLine(new String(character, barLength));
+            }
 
             while (true)
             {
@@ -164,7 +192,7 @@ namespace DevelopmentHell.Hubba.Client
                 Console.WriteLine("5:Delete OTP Entry");
                 Console.WriteLine("6:Delete Login and OTP Entry");
                 Console.WriteLine("7:Exit");
-                Console.WriteLine("Choose view to access:");
+                Console.Write("Choose view to access:");
 
                 string choice = Console.ReadLine() ?? "";
                 int intChoice;
@@ -185,15 +213,15 @@ namespace DevelopmentHell.Hubba.Client
                 switch(intChoice)
                 {
                     case 1:
-                        Console.WriteLine("\nRegistration");
+                        Surround("Registration View");
                         await Register();
                         break;
                     case 2:
-                        Console.WriteLine("\nLogin");
+						Surround("Login View");
                         await Login();
                         break;
                     case 3:
-                        Console.WriteLine("\nOTP Entry");
+                        Surround("OTP Entry View");
                         await OtpEntry();
                         break;
                     case 4:
@@ -201,7 +229,7 @@ namespace DevelopmentHell.Hubba.Client
                         await DeleteLogin();
                         break;
                     case 5:
-                        Console.WriteLine("\nDelete OTP Entry");
+						Console.WriteLine("\nDelete OTP Entry");
                         await DeleteOtp();
                         break;
                     case 6:
@@ -213,7 +241,7 @@ namespace DevelopmentHell.Hubba.Client
                         Console.WriteLine("\nGoodbye");
                         return;
                     default:
-                        Console.WriteLine("Invalid input, try again\n");
+						Console.WriteLine("Invalid input, try again\n");
                         break;
 
                 }
