@@ -9,9 +9,9 @@ namespace DevelopmentHell.Hubba.Registration.Manager
 	{
 		private IRegistrationService _registrationService;
 		private ILoggerService _loggerService;
-		public RegistrationManager(string connectionString, string accountsTableName, ILoggerService loggerService)
+		public RegistrationManager(IRegistrationService registrationService, ILoggerService loggerService)
 		{
-			_registrationService = new RegistrationService(connectionString, accountsTableName, loggerService);
+			_registrationService = registrationService;
 			_loggerService = loggerService;
 		}
 

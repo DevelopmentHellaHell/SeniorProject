@@ -1,20 +1,19 @@
 ﻿using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
-using DevelopmentHell.Hubba.Authentication.Service.Implementation;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.OneTimePassword.Service;
+using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
 
 namespace DevelopmentHell.Hubba.Authentication.Manager
 {
-	public class AuthenticationManager
+    public class AuthenticationManager
 	{
-		private IAuthenticatonService _authenticationService;
-		private OTPService _otpService;
+		private IAuthenticationService _authenticationService;
+		private IOTPService _otpService;
 		private ILoggerService _loggerService;
-		public AuthenticationManager(string connectionString, string authenticationTableName, string otpTableName, ILoggerService loggerService)
+		public AuthenticationManager(IAuthenticationService authenticationService, IOTPService otpService, ILoggerService loggerService)
 		{
-			_authenticationService = new AuthenticationService(connectionString,authenticationTableName, loggerService);
-			_otpService = new OTPService(connectionString,otpTableName);
+			_authenticationService = authenticationService;
+			_otpService = otpService;
 			_loggerService = loggerService;
 		}
 

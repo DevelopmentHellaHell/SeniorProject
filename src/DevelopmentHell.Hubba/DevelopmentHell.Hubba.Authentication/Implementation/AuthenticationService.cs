@@ -7,13 +7,13 @@ using DevelopmentHell.Hubba.Validation.Service;
 
 namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 {
-	public class AuthenticationService : IAuthenticatonService
+	public class AuthenticationService : IAuthenticationService
 	{
 		private IUserAccountDataAccess _dao;
 		private ILoggerService _loggerService;
-		public AuthenticationService(string connectionString, string tableName, ILoggerService loggerService)
+		public AuthenticationService(IUserAccountDataAccess dao, ILoggerService loggerService)
 		{
-			_dao = new UserAccountDataAccess(connectionString, tableName);
+			_dao = dao;
 			_loggerService = loggerService;
 		}
 

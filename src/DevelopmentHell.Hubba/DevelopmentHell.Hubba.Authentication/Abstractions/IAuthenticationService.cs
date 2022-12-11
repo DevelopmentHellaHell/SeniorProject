@@ -2,7 +2,7 @@
 
 namespace DevelopmentHell.Hubba.Authentication.Service.Abstractions
 {
-	public interface IAuthenticatonService
+	public interface IAuthenticationService
 	{
 		Task<Result<int>> AuthenticateCredentials(string email, string password, string ipAddress);
 	}

@@ -1,7 +1,10 @@
 ﻿using DevelopmentHell.Hubba.Authentication.Manager;
+using DevelopmentHell.Hubba.Authentication.Service.Implementation;
 using DevelopmentHell.Hubba.Logging.Service.Implementation;
 using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.OneTimePassword.Service.Implementation;
 using DevelopmentHell.Hubba.Registration.Manager;
+using DevelopmentHell.Hubba.Registration.Service.Implementation;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using System.Configuration;
 
@@ -31,8 +34,20 @@ namespace DevelopmentHell.Hubba.Client
             string usersConnectionString     = $"Server={AccountServer};Database={AccountDatabase};Encrypt=false;User Id={AccountDataAccessUser};Password={AccountDataAccessPass}";
 			string logsConnectionString      = $"Server={LoggingServer};Database={LoggingDatabase};Encrypt=false;User Id={LoggingDataAccessUser};Password={LoggingDataAccessPass}";
 			LoggerService loggerService = new LoggerService(new LoggerDataAccess(logsConnectionString, LogsTable));
-			RegistrationManager registrationmanager = new RegistrationManager(usersConnectionString, UserAccountsTable, loggerService);
-			AuthenticationManager authenticationManager = new AuthenticationManager(usersConnectionString, UserAccountsTable, OTPTable, loggerService);
+			RegistrationManager registrationmanager = new RegistrationManager(
+				new RegistrationService(
+					new UserAccountDataAccess(usersConnectionString, UserAccountsTable),
+					loggerService),
+				loggerService);
+			AuthenticationManager authenticationManager = new AuthenticationManager(
+				new AuthenticationService(
+					new UserAccountDataAccess(usersConnectionString, UserAccountsTable),
+					loggerService),
+				new OTPService(
+					new OTPDataAccess(usersConnectionString, OTPTable)
+					),
+				loggerService);
+			// TEMP: To delete data
 			UserAccountDataAccess userAccountDataAccess = new UserAccountDataAccess(usersConnectionString, UserAccountsTable);
 			OTPDataAccess otpDataAccess = new OTPDataAccess(usersConnectionString, OTPTable);
 

@@ -12,9 +12,9 @@ namespace DevelopmentHell.Hubba.Registration.Service.Implementation
 		private IUserAccountDataAccess _dao;
 		private ILoggerService _loggerService;
 
-		public RegistrationService(string connectionString, string tableName, ILoggerService loggerService)
+		public RegistrationService(IUserAccountDataAccess dao, ILoggerService loggerService)
 		{
-			_dao = new UserAccountDataAccess(connectionString, tableName);
+			_dao = dao;
 			_loggerService = loggerService;
 		}
 
