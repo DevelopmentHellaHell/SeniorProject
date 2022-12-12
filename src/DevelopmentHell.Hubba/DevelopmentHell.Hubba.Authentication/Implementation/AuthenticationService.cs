@@ -111,7 +111,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 			if (getDisabledResult.Payload)
 			{
 				result.IsSuccessful = false;
-				result.ErrorMessage = "This account has temporarily been disabled.";
+				result.ErrorMessage = "Account disabled. Perform account recovery or contact system admin.";
 				return result;
 			}
 			

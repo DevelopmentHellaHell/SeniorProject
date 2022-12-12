@@ -130,18 +130,12 @@ namespace DevelopmentHell.Hubba.Client
             }
             async Task<bool> DeleteLogin()
             {
-                if (! await Login())
+                if (!await Login())
                 {
                     Console.WriteLine("Unable to log into account");
                     return false;
                 }
                 int accountId = (await userAccountDataAccess.GetId(cached_email).ConfigureAwait(false)).Payload;
-                Console.WriteLine();
-                Console.Write("Email: ");
-                string email = Console.ReadLine() ?? "";
-                Console.Write("Password: ");
-                string password = Console.ReadLine() ?? "";
-
                 Result deleteAccountResult = await userAccountDataAccess.Delete(accountId).ConfigureAwait(false);
                 if (deleteAccountResult.IsSuccessful)
                 {
