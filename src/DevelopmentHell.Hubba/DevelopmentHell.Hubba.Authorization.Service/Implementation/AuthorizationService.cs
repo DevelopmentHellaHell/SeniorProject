@@ -1,38 +1,37 @@
 ﻿using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
+using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
+using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
 {
     public class AuthorizationService : IAuthorizationService
     {
-        private AuthorizationDataAccess _authorizationDataAccess;
-        private UserAccountDataAccess _userAccountDataAccess;
+        private IAuthorizationDataAccess _authorizationDataAccess;
+        private IUserAccountDataAccess _userAccountDataAccess;
         private GenericIdentity _identity;
         private IPrincipal _principal;
+		private ILoggerService _loggerService;
 
-        public AuthorizationService(GenericIdentity identity, IPrincipal principal, AuthorizationDataAccess authorizationDataAccess, UserAccountDataAccess userAccountDataAccess)
+		public AuthorizationService(GenericIdentity identity, IPrincipal principal, IAuthorizationDataAccess authorizationDataAccess, IUserAccountDataAccess userAccountDataAccess, ILoggerService loggerService)
         {
             _identity = identity;
             _principal = principal;
             _authorizationDataAccess = authorizationDataAccess;
             _userAccountDataAccess = userAccountDataAccess;
+            _loggerService = loggerService;
         }
 
-        public async Task<Result<bool>> CheckAccess (string email, string claimRequested)
+        public async Task<Result<bool>> CheckAccess(string email, string claimRequested)
         {
             Result<bool> output = new();
 
             Result<List<Role>> roleResult = await _authorizationDataAccess.GetRoles((await _userAccountDataAccess.GetId(email).ConfigureAwait(false)).Payload).ConfigureAwait(false);
             if (!roleResult.IsSuccessful || roleResult.Payload is null)
             {
+                _loggerService.Log(LogLevel.INFO, Category.BUSINESS, "AuthorizationService.CheckAccess", $"{email} failed access {claimRequested}.");
                 output.IsSuccessful = false;
                 output.ErrorMessage = roleResult.ErrorMessage ?? "Unable to select roles from given email";
                 return output;

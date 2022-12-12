@@ -14,40 +14,31 @@ namespace DevelopmentHell.Hubba.Client
     {
         public static async Task Main()
         {
-			string AccountServer = ConfigurationManager.AppSettings["AccountServer"]!;
-			string AccountDatabase = ConfigurationManager.AppSettings["AccountDatabase"]!;
-			string AccountDataAccessUser = ConfigurationManager.AppSettings["AccountDataAccessUser"]!;
-			string AccountDataAccessPass = ConfigurationManager.AppSettings["AccountDataAccessPass"]!;
+			string UsersConnectionString = ConfigurationManager.AppSettings["UserConnectionString"]!;
 			string UserAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
 			string OTPTable = ConfigurationManager.AppSettings["OTPTable"]!;
-			string LoggingServer = ConfigurationManager.AppSettings["LoggingServer"]!;
-			string LoggingDatabase = ConfigurationManager.AppSettings["LoggingDatabase"]!;
-			string LoggingDataAccessUser = ConfigurationManager.AppSettings["LoggingDataAccessUser"]!;
-			string LoggingDataAccessPass = ConfigurationManager.AppSettings["LoggingDataAccessPass"]!;
+
+			string LogsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
 			string LogsTable = ConfigurationManager.AppSettings["LogsTable"]!;
-			string OTPExpirationOffsetSeconds = ConfigurationManager.AppSettings["OTPExpirationOffsetSeconds"]!;
-			string HubbaEmailAddress = ConfigurationManager.AppSettings["HubbaEmailAddress"]!;
-			string HubbaEmailPassword = ConfigurationManager.AppSettings["HubbaEmailPassword"]!;
-			string AESKey = ConfigurationManager.AppSettings["AESKey"]!;
-			string usersConnectionString = $"Server={AccountServer};Database={AccountDatabase};Encrypt=false;User Id={AccountDataAccessUser};Password={AccountDataAccessPass}";
-			string logsConnectionString = $"Server={LoggingServer};Database={LoggingDatabase};Encrypt=false;User Id={LoggingDataAccessUser};Password={LoggingDataAccessPass}";
-			LoggerService loggerService = new LoggerService(new LoggerDataAccess(logsConnectionString, LogsTable));
+
+            Console.WriteLine(UsersConnectionString);
+			LoggerService loggerService = new LoggerService(new LoggerDataAccess(LogsConnectionString, LogsTable));
 			RegistrationManager registrationmanager = new RegistrationManager(
 				new RegistrationService(
-					new UserAccountDataAccess(usersConnectionString, UserAccountsTable),
+					new UserAccountDataAccess(UsersConnectionString, UserAccountsTable),
 					loggerService),
 				loggerService);
 			AuthenticationManager authenticationManager = new AuthenticationManager(
 				new AuthenticationService(
-					new UserAccountDataAccess(usersConnectionString, UserAccountsTable),
+					new UserAccountDataAccess(UsersConnectionString, UserAccountsTable),
 					loggerService),
 				new OTPService(
-					new OTPDataAccess(usersConnectionString, OTPTable)
+					new OTPDataAccess(UsersConnectionString, OTPTable)
 					),
 				loggerService);
 			// TEMP: To delete data
-			UserAccountDataAccess userAccountDataAccess = new UserAccountDataAccess(usersConnectionString, UserAccountsTable);
-			OTPDataAccess otpDataAccess = new OTPDataAccess(usersConnectionString, OTPTable);
+			UserAccountDataAccess userAccountDataAccess = new UserAccountDataAccess(UsersConnectionString, UserAccountsTable);
+			OTPDataAccess otpDataAccess = new OTPDataAccess(UsersConnectionString, OTPTable);
 
 			string dummyIp = "192.0.2.0";
 			string? cached_email = null;
