@@ -24,7 +24,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             Result result = new Result();
 
-            Result<List<object>> selectResult = await _selectDataAccess.Select(_tableName,
+            Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(_tableName,
                 new List<string>() { "UserAccountId" },
                 new List<Comparator>() {
                     new("UserAccountId", "=", accountId)
@@ -76,7 +76,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         public async Task<Result<byte[]>> GetOTP(int accountId)
         {
             DateTime now = DateTime.UtcNow;
-            Result<List<object>> selectResult = await _selectDataAccess.Select(
+            Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
                 new() { "Passphrase" },
                 new()
@@ -94,7 +94,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 return result;
             }
 
-            List<object> payload = selectResult.Payload;
+            List<Dictionary<string, object>> payload = selectResult.Payload;
             if (payload.Count > 1)
             {
                 result.IsSuccessful = false;
@@ -103,7 +103,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
 
             result.IsSuccessful = true;
-            if (payload.Count > 0) result.Payload = (byte[])(payload[0]);
+            if (payload.Count > 0) result.Payload = (byte[])(payload[0]["Passphrase"]);
             return result;
         }
 

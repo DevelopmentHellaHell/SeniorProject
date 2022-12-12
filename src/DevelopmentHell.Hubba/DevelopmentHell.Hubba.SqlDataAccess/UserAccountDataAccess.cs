@@ -41,7 +41,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 		{
 			Result<int> result = new Result<int>();
 
-			Result<List<object>> selectResult = await _selectDataAccess.Select(
+            Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
 				_tableName,
 				new List<string>() { "Id" },
 				new List<Comparator>()
@@ -57,7 +57,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 				return result;
 			}
 
-			List<object> payload = selectResult.Payload;
+			List<Dictionary<string,object>> payload = selectResult.Payload;
 			if (payload.Count > 1)
 			{
 				result.IsSuccessful = false;
@@ -66,7 +66,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			}
 
 			result.IsSuccessful = true;
-			if (payload.Count > 0) result.Payload = (int)payload[0];
+			if (payload.Count > 0) result.Payload = (int)payload[0]["Id"];
 			return result;
 		}
 
@@ -74,7 +74,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 		{
 			Result<int> result = new Result<int>();
 
-			Result<List<object>> selectResult = await _selectDataAccess.Select(
+			Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
 				_tableName,
 				new List<string>() { "Id" },
 				new List<Comparator>()
@@ -92,7 +92,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 				return result;
 			}
 
-			List<object> payload = selectResult.Payload;
+			List<Dictionary<string, object>> payload = selectResult.Payload;
 			if (payload.Count > 1)
 			{
 				result.IsSuccessful = false;
@@ -101,7 +101,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			}
 
 			result.IsSuccessful = true;
-			if (payload.Count > 0) result.Payload = (int)payload[0];
+			if (payload.Count > 0) result.Payload = (int)payload[0]["Id"];
 			return result;
 		}
 
@@ -109,7 +109,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 		{
 			Result<UserAccount> result = new Result<UserAccount>();
 
-			Result<List<object>> selectResult = await _selectDataAccess.Select(
+			Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
 				_tableName,
 				new List<string>() { "LoginAttempts", "FailureTime" },
 				new List<Comparator>()
@@ -124,7 +124,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 				return result;
 			}
 
-			List<object> payload = selectResult.Payload;
+			List<Dictionary<string, object>> payload = selectResult.Payload;
 			if (payload.Count > 2)
 			{
 				result.IsSuccessful = false;
@@ -134,8 +134,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
 			result.IsSuccessful = true;
 			if (payload.Count > 0) result.Payload = new UserAccount() {
-				LoginAttempts = (int)payload[0],
-				FailureTime = payload[1] == DBNull.Value ? null : payload[1],
+				LoginAttempts = (int)payload[0]["LoginAttempts"],
+				FailureTime = payload[0]["FailureTime"] == DBNull.Value ? null : payload[0]["FailureTime"],
 			};
 			return result;
 		}
@@ -144,7 +144,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 		{
 			Result<bool> result = new Result<bool>();
 
-			Result<List<object>> selectResult = await _selectDataAccess.Select(
+			Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
 				_tableName,
 				new List<string>() { "Disabled" },
 				new List<Comparator>()
@@ -159,7 +159,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 				return result;
 			}
 
-			List<object> payload = selectResult.Payload;
+			List<Dictionary<string, object>> payload = selectResult.Payload;
 			if (payload.Count > 1)
 			{
 				result.IsSuccessful = false;
@@ -168,7 +168,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			}
 
 			result.IsSuccessful = true;
-			if (payload.Count > 0) result.Payload = (bool)payload[0];
+			if (payload.Count > 0) result.Payload = (bool)payload[0]["Disabled"];
 			return result;
 		}
 

@@ -13,26 +13,28 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
 			connectionPath = inPath;
 		}
 
-		private async Task<Result<List<object>>> SendQuery(SqlCommand query, int columnLength)
+		private async Task<Result<List<Dictionary<string,object>>>> SendQuery(SqlCommand query)
 		{
 			try
 			{
 				using (SqlConnection conn = new SqlConnection(connectionPath))
 				{
 					query.Connection = conn;
-					List<object> payload = new();
+					List<Dictionary<string,object>> payload = new();
 					await conn.OpenAsync();
 					using (SqlDataReader reader = await query.ExecuteReaderAsync().ConfigureAwait(false))
 					{
 						while (reader.Read())
 						{
+							Dictionary<string, object> nextLine = new();
 							IDataRecord dataRecord = reader;
-							for (int i = 0; i < columnLength; i++)
+							for (int i = 0; i < dataRecord.FieldCount; i++)
 							{
-								payload.Add(dataRecord[i]);
+								nextLine.Add(reader.GetName(i), dataRecord.GetValue(i));
 							}
+							payload.Add(nextLine);
 						}
-						return new Result<List<object>>()
+						return new Result<List<Dictionary<string, object>>>()
 						{
 							IsSuccessful = true,
 							Payload = payload,
@@ -43,7 +45,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
 			}
 			catch (Exception e)
 			{
-				return new Result<List<object>>()
+				return new Result<List<Dictionary<string, object>>>()
 				{
 					IsSuccessful = false,
 					ErrorMessage = e.Message,
@@ -51,7 +53,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
 			}
 		}
 
-		public async Task<Result<List<object>>> Select(string source, List<string> columns, List<Comparator> filters)
+		public async Task<Result<List<Dictionary<string, object>>>> Select(string source, List<string> columns, List<Comparator> filters)
 		{
 			//TODO add implementation for group by, order by, having
 			using (SqlCommand insertQuery = new SqlCommand())
@@ -82,7 +84,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
 					sbColumn.Append(column);
 				}
 				insertQuery.CommandText = $"SELECT {sbColumn.ToString()} FROM {source} WHERE {sbFilter.ToString()}";
-				return await SendQuery(insertQuery, columns.Count).ConfigureAwait(false);
+				return await SendQuery(insertQuery).ConfigureAwait(false);
 			}
 		}
 
