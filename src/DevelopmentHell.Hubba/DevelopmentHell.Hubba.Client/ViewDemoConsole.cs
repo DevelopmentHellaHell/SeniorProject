@@ -15,35 +15,38 @@ namespace DevelopmentHell.Hubba.Client
         public static async Task Main()
         {
 			string UserAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
-			string OTPTable = ConfigurationManager.AppSettings["UserOTPsTable"]!;
+			string UserOTPsTable = ConfigurationManager.AppSettings["UserOTPsTable"]!;
             string UserSessionsTable = ConfigurationManager.AppSettings["UserSessionsTable"]!;
 			string LogsTable = ConfigurationManager.AppSettings["LogsTable"]!;
 			string AESKey = ConfigurationManager.AppSettings["AESKey"]!;
-			string usersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
-            string logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
+			string UsersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
+            string LogsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
 
-            LoggerService loggerService = new LoggerService(new LoggerDataAccess(logsConnectionString, LogsTable));
+            LoggerService loggerService = new LoggerService(new LoggerDataAccess(LogsConnectionString, LogsTable));
 			RegistrationManager registrationmanager = new RegistrationManager(
 				new RegistrationService(
 					new UserAccountDataAccess(UsersConnectionString, UserAccountsTable),
-					loggerService),
-				loggerService);
+					loggerService
+                ),
+				loggerService
+            );
 			AuthenticationManager authenticationManager = new AuthenticationManager(
 				new AuthenticationService(
-					new UserAccountDataAccess(usersConnectionString, UserAccountsTable), 
+					new UserAccountDataAccess(UsersConnectionString, UserAccountsTable), 
 					loggerService,
-                    new UserSessionDataAccess(usersConnectionString, UserSessionsTable)
+                    new UserSessionDataAccess(UsersConnectionString, UserSessionsTable)
                 ),
 				new OTPService(
 					new OTPDataAccess(UsersConnectionString, UserOTPsTable)
-					),
-				loggerService);
+				),
+				loggerService
+            );
 			// TEMP: To delete data
 			UserAccountDataAccess userAccountDataAccess = new UserAccountDataAccess(UsersConnectionString, UserAccountsTable);
 			OTPDataAccess otpDataAccess = new OTPDataAccess(UsersConnectionString, UserOTPsTable);
 
 			string dummyIp = "192.0.2.0";
-			string? cached_email = null;
+			string? cachedEmail = null;
             AuthCookieTicket? cookiedTicket = null;
 
             async Task<bool> Register()
@@ -85,7 +88,7 @@ namespace DevelopmentHell.Hubba.Client
                 Result<AuthCookieTicket> loginResult = await authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
                 if (loginResult.IsSuccessful)
                 {
-                    cached_email = email;
+                    cachedEmail = email;
                     cookiedTicket = loginResult.Payload;
                     Console.WriteLine("Login Success! Sending OTP...");
                     return true;
@@ -98,7 +101,7 @@ namespace DevelopmentHell.Hubba.Client
             }
             async Task OtpEntry()
             {
-                if (cached_email == null)
+                if (cachedEmail == null)
                 {
                     Console.WriteLine("User has not logged in recently, redirecting to Login view");
                     await Login();
@@ -107,7 +110,7 @@ namespace DevelopmentHell.Hubba.Client
                 Console.WriteLine();
                 Console.Write("OTP: ");
                 string otp = Console.ReadLine() ?? "";
-                Result otpresult = await authenticationManager.AuthenticateOTP((await userAccountDataAccess.GetId(cached_email).ConfigureAwait(false)).Payload, otp);
+                Result otpresult = await authenticationManager.AuthenticateOTP((await userAccountDataAccess.GetId(cachedEmail).ConfigureAwait(false)).Payload, otp);
                 if (otpresult.IsSuccessful)
                 {
                     Console.WriteLine("OTP Login Success!");
@@ -130,7 +133,7 @@ namespace DevelopmentHell.Hubba.Client
                     Console.WriteLine("Unable to log into account");
                     return false;
                 }
-                int accountId = (await userAccountDataAccess.GetId(cached_email).ConfigureAwait(false)).Payload;
+                int accountId = (await userAccountDataAccess.GetId(cachedEmail).ConfigureAwait(false)).Payload;
                 Result deleteAccountResult = await userAccountDataAccess.Delete(accountId).ConfigureAwait(false);
                 if (deleteAccountResult.IsSuccessful)
                 {
@@ -150,7 +153,7 @@ namespace DevelopmentHell.Hubba.Client
                     Console.WriteLine("Unable to log into account");
                     return false;
                 }
-                int accountId = (await userAccountDataAccess.GetId(cached_email).ConfigureAwait(false)).Payload;
+                int accountId = (await userAccountDataAccess.GetId(cachedEmail).ConfigureAwait(false)).Payload;
                 Result deleteOTPResult = await otpDataAccess.Delete(accountId).ConfigureAwait(false);
                 if (deleteOTPResult.IsSuccessful)
                 {
@@ -173,7 +176,7 @@ namespace DevelopmentHell.Hubba.Client
 
                 if( (await authenticationManager.ValidateSession((AuthCookieTicket)cookiedTicket).ConfigureAwait(false)).Payload)
                 {
-                    Console.WriteLine($"Session ID: {cookiedTicket.Value.SessionId}\nEncrypted ticket: {cookiedTicket.Value.Self.ToString()}");
+                    Console.WriteLine($"Session ID: {cookiedTicket.Value.SessionId}\nEncrypted ticket: {Convert.ToHexString(cookiedTicket.Value.Self!)}");
                     return true;
                 }
                 return false;
