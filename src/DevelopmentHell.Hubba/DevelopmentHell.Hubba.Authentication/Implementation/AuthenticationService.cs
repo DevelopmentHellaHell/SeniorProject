@@ -235,7 +235,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
                 return output;
             }
 
-			//await _userSessionDataAccess.PruneSessions().ConfigureAwait(false);
+			await _userSessionDataAccess.PruneSessions().ConfigureAwait(false);
 
 			output.IsSuccessful = true;
 			return output;
@@ -267,6 +267,12 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 			Result<bool> output = new() { IsSuccessful=false };
 
 			AuthCookieTicket storedTicket = new();
+
+			if (ticket.Self is null)
+			{
+				output.ErrorMessage = "Given ticket, the self property is null.";
+				return output;
+			}
 
 			try
 			{
