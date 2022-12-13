@@ -16,7 +16,7 @@ namespace DevelopmentHell.Hubba.Client
         {
 			string UsersConnectionString = ConfigurationManager.AppSettings["UserConnectionString"]!;
 			string UserAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
-			string OTPTable = ConfigurationManager.AppSettings["OTPTable"]!;
+			string UserOTPsTable = ConfigurationManager.AppSettings["UserOTPsTable"]!;
 
 			string LogsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
 			string LogsTable = ConfigurationManager.AppSettings["LogsTable"]!;
@@ -33,12 +33,12 @@ namespace DevelopmentHell.Hubba.Client
 					new UserAccountDataAccess(UsersConnectionString, UserAccountsTable),
 					loggerService),
 				new OTPService(
-					new OTPDataAccess(UsersConnectionString, OTPTable)
+					new OTPDataAccess(UsersConnectionString, UserOTPsTable)
 					),
 				loggerService);
 			// TEMP: To delete data
 			UserAccountDataAccess userAccountDataAccess = new UserAccountDataAccess(UsersConnectionString, UserAccountsTable);
-			OTPDataAccess otpDataAccess = new OTPDataAccess(UsersConnectionString, OTPTable);
+			OTPDataAccess otpDataAccess = new OTPDataAccess(UsersConnectionString, UserOTPsTable);
 
 			string dummyIp = "192.0.2.0";
 			string? cached_email = null;

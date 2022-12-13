@@ -1,7 +1,6 @@
 ﻿using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
-using DevelopmentHell.Hubba.Registration.Service.Implementation;
 
 namespace DevelopmentHell.Hubba.Registration.Manager
 {

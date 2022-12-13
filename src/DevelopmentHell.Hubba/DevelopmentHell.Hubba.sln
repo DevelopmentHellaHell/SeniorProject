@@ -7,9 +7,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.SqlDataAccess", "DevelopmentHell.Hubba.SqlDataAccess\DevelopmentHell.Hubba.SqlDataAccess.csproj", "{6C8B3984-217A-4DEA-9A4D-73F301FC0893}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5A528968-95F9-4E5A-98CB-501EE0759FDC}"
-	ProjectSection(SolutionItems) = preProject
-		app.config = app.config
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "Clients", "{0E8013DB-F597-49E1-9C90-367A98C5BE69}"
 EndProject
@@ -58,7 +55,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Autho
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Authorization.Manager", "DevelopmentHell.Hubba.Authorization.Manager\DevelopmentHell.Hubba.Authorization.Manager.csproj", "{C6713719-D09B-486C-A41D-12A3152D01D2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.Authorization.Test", "DevelopmentHell.Hubba.Authorization.Test\DevelopmentHell.Hubba.Authorization.Test.csproj", "{78CB4C6D-7368-4171-9312-653A2EE33AF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Authorization.Test", "DevelopmentHell.Hubba.Authorization.Test\DevelopmentHell.Hubba.Authorization.Test.csproj", "{78CB4C6D-7368-4171-9312-653A2EE33AF0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{34F988AE-D94A-4423-98AE-F328926545D5}"
+	ProjectSection(SolutionItems) = preProject
+		app.config = app.config
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
