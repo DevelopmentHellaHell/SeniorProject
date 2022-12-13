@@ -17,9 +17,9 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 			_loggerService = loggerService;
 		}
 
-		public async Task<Result<int>> Login(string email, string password, string ipAddress)
+		public async Task<Result<AuthCookieTicket>> Login(string email, string password, string ipAddress)
 		{
-			Result<int> result = new Result<int>();
+			Result<AuthCookieTicket> result = new();
 
 			Result<int> authenticateResult = await _authenticationService.AuthenticateCredentials(email, password, ipAddress).ConfigureAwait(false);
 			if (!authenticateResult.IsSuccessful)
@@ -41,15 +41,18 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 				return result;
 			}
 
-			result.IsSuccessful = true;
-			result.Payload = accountId;
-			return result;
+			return await _authenticationService.CreateSession(accountId).ConfigureAwait(false);
 		}
 
 		public async Task<Result> AuthenticateOTP(int accountId, string otp)
 		{
 
 			return await _otpService.CheckOTP(accountId, otp).ConfigureAwait(false);
+		}
+
+		public async Task<Result<bool>> ValidateSession(AuthCookieTicket ticket)
+		{
+			return await _authenticationService.ValidateSession(ticket).ConfigureAwait(false);
 		}
 	}
 }
