@@ -25,7 +25,7 @@ namespace DevelopmentHell.Hubba.Client
             LoggerService loggerService = new LoggerService(new LoggerDataAccess(logsConnectionString, LogsTable));
 			RegistrationManager registrationmanager = new RegistrationManager(
 				new RegistrationService(
-					new UserAccountDataAccess(usersConnectionString, UserAccountsTable),
+					new UserAccountDataAccess(UsersConnectionString, UserAccountsTable),
 					loggerService),
 				loggerService);
 			AuthenticationManager authenticationManager = new AuthenticationManager(
@@ -35,12 +35,12 @@ namespace DevelopmentHell.Hubba.Client
                     new UserSessionDataAccess(usersConnectionString, UserSessionsTable)
                 ),
 				new OTPService(
-					new OTPDataAccess(usersConnectionString, OTPTable)
+					new OTPDataAccess(UsersConnectionString, UserOTPsTable)
 					),
 				loggerService);
 			// TEMP: To delete data
-			UserAccountDataAccess userAccountDataAccess = new UserAccountDataAccess(usersConnectionString, UserAccountsTable);
-			OTPDataAccess otpDataAccess = new OTPDataAccess(usersConnectionString, OTPTable);
+			UserAccountDataAccess userAccountDataAccess = new UserAccountDataAccess(UsersConnectionString, UserAccountsTable);
+			OTPDataAccess otpDataAccess = new OTPDataAccess(UsersConnectionString, UserOTPsTable);
 
 			string dummyIp = "192.0.2.0";
 			string? cached_email = null;
