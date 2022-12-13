@@ -23,20 +23,31 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 		{
 			Result<int> result = new Result<int>();
 
-			HashData hashData = HashService.HashString(password).Payload!;
-			Result<int> getIdFromEmail = await _dao.GetId(email).ConfigureAwait(false);
-			Result<int> getIdFromCredentialsResult = await _dao.GetId(email, hashData).ConfigureAwait(false);
-			if (!getIdFromEmail.IsSuccessful || !getIdFromCredentialsResult.IsSuccessful)
+			if (!ValidationService.ValidateEmail(email).IsSuccessful)
 			{
 				result.IsSuccessful = false;
-				result.ErrorMessage = "Error, please contact system administrator.";
+				result.ErrorMessage = "Invalid username or password provided. Retry again or contact system admin.";
 				return result;
 			}
 
+			Result<UserAccount> userHashData = await _dao.GetHashData(email).ConfigureAwait(false);
+			UserAccount payload = userHashData.Payload!;
+			if (!userHashData.IsSuccessful || payload is null)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Invalid username or password provided. Retry again or contact system admin.";
+				return result;
+			}
+
+			Result<HashData> hashData = HashService.HashString(password, payload.PasswordSalt!);
+			var oldHash = payload.PasswordHash;
+			var newHash = Convert.ToBase64String(hashData.Payload!.Hash);
+			Result<int> getIdFromEmail = await _dao.GetId(email).ConfigureAwait(false);
+
 			int accountIdFromEmail = getIdFromEmail.Payload;
-			int accountIdFromCredentials = getIdFromCredentialsResult.Payload;
-			// Wrong Credentials
-			if (accountIdFromCredentials == 0)
+
+			// Wrong Password
+			if (oldHash != newHash)
 			{
 				// Valid Email
 				if (accountIdFromEmail != 0)
@@ -46,7 +57,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 					UserAccount? loginAttemptData = getAttemptResult.Payload;
 					if (!getAttemptResult.IsSuccessful || loginAttemptData is null)
 					{
-						_loggerService.Log(LogLevel.WARNING, Category.BUSINESS, "AuthenticationService.AuthenticateCredentials", "Failure attempt did not complete successfully.");
+						_loggerService.Log(LogLevel.WARNING, Category.BUSINESS, "AuthenticationService.AuthenticateCredentials", "Failure attempt did not complete successfully.").ConfigureAwait(false);
 						result.IsSuccessful = false;
 						result.ErrorMessage = "Error, please contact system administrator.";
 						return result;
@@ -55,7 +66,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 					int loginAttempts = (int)loginAttemptData.LoginAttempts!;
 					DateTime? activeFailureTime = loginAttemptData.FailureTime is null ? null : DateTime.Parse(loginAttemptData.FailureTime!.ToString()!);
 
-					_loggerService.Log(LogLevel.INFO, Category.BUSINESS, "AuthenticationService.AuthenticateCredentials", $"{ipAddress} attempted to log in to {email} using the wrong password. (Attempt {loginAttempts + 1})");
+					_loggerService.Log(LogLevel.INFO, Category.BUSINESS, "AuthenticationService.AuthenticateCredentials", $"{ipAddress} attempted to log in to {email} using the wrong password. (Attempt {loginAttempts + 1})").ConfigureAwait(false);
 					
 					// Current time is greater than stored time
 					// Reset login attempts
@@ -95,15 +106,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 				return result;
 			}
 
-			if (!ValidationService.ValidateEmail(email).IsSuccessful ||
-				!ValidationService.ValidatePassword(password).IsSuccessful)
-			{
-				result.IsSuccessful = false;
-				result.ErrorMessage = "Invalid username or password provided. Retry again or contact system admin.";
-				return result;
-			}
-
-			Result<bool> getDisabledResult = await _dao.GetDisabled(accountIdFromCredentials).ConfigureAwait(false);
+			Result<bool> getDisabledResult = await _dao.GetDisabled(accountIdFromEmail).ConfigureAwait(false);
 			if (!getDisabledResult.IsSuccessful)
 			{
 				result.IsSuccessful = false;
@@ -132,7 +135,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 			}
 
 			result.IsSuccessful = true;
-			result.Payload = accountIdFromCredentials;
+			result.Payload = accountIdFromEmail;
 			return result;
 		}
 

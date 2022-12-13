@@ -4,6 +4,7 @@ using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Validation.Service;
+using System.Security.Cryptography;
 
 namespace DevelopmentHell.Hubba.Registration.Service.Implementation
 {
@@ -49,7 +50,9 @@ namespace DevelopmentHell.Hubba.Registration.Service.Implementation
 				return result;
 			}
 
-			HashData hashData = HashService.HashString(password).Payload;
+			Random random = new((int)(DateTime.UtcNow.Ticks << 4 >> 4));
+			string salt = new(Enumerable.Repeat(HashService.saltValidChars, 64).Select(s => s[random.Next(s.Length)]).ToArray());
+			HashData hashData = HashService.HashString(password, salt).Payload!;
 			Result createResult = await _dao.CreateUserAccount(email, hashData);
 			return createResult;
 		}

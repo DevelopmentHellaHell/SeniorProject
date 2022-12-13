@@ -6,19 +6,23 @@ namespace DevelopmentHell.Hubba.Cryptography.Service
 {
 	public class HashService
 	{
-		private static readonly byte[] _cryptographyKey = Encoding.ASCII.GetBytes("gVkYp2s5v8y/B?E(H+MbQeThWmZq4t6w");
-		public static Result<HashData> HashString(string text)
+		public static readonly string saltValidChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+		public static Result<HashData> HashString(string text, string salt)
 		{
-			var result = new Result<HashData>();
-			using (var hmac = new HMACSHA512(_cryptographyKey)) // TODO: TEMP KEY
+			
+			Result<HashData> result = new Result<HashData>();
+			byte[] passwordBytes = Encoding.UTF8.GetBytes(text);
+			byte[] saltBytes = Encoding.UTF8.GetBytes(salt);
+			Rfc2898DeriveBytes rfc = new Rfc2898DeriveBytes(passwordBytes, saltBytes, 1_000, HashAlgorithmName.SHA256);
+
+			byte[] deriveBytes = rfc.GetBytes(64);
+
+			result.IsSuccessful = true;
+			result.Payload = new HashData()
 			{
-				var salt = Convert.ToBase64String(hmac.Key);
-				var hash = Convert.ToBase64String(hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(text)));
-
-				result.IsSuccessful = true;
-				result.Payload = new HashData(hash, salt);
-			}
-
+				Hash = deriveBytes,
+				Salt = Encoding.UTF8.GetString(saltBytes),
+			};
 			return result;
 
 		}

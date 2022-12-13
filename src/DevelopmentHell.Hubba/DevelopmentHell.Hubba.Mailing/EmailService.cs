@@ -7,13 +7,14 @@ namespace DevelopmentHell.Hubba.Emailing.Service
 	public class EmailService
 	{
 		private static readonly string companyEmail = "noreply.Hubba@gmail.com"; // TODO: config
-		private static readonly string companyPassword = "gdpayrbhauajfmok"; // TODO: config
+		private static readonly string username = "apikey"; // TODO: config
+		private static readonly string password = "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"; // TODO: config
 
 		public static Result SendEmail(string email, string subject, string body)
 		{
-			SmtpClient client = new SmtpClient("smtp.gmail.com", 587)
+			SmtpClient client = new SmtpClient("smtp.sendgrid.net", 587)
 			{
-				Credentials = new NetworkCredential(companyEmail, companyPassword),
+				Credentials = new NetworkCredential(username, password),
 
 				EnableSsl = true,
 			};

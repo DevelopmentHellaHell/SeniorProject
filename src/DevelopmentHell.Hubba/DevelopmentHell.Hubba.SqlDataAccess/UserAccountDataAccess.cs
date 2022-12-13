@@ -1,5 +1,6 @@
 ﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
+using System.Text;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
@@ -26,7 +27,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 				new Dictionary<string, object>()
 				{
 					{ "Email", email },
-					{ "PasswordHash", password.Hash },
+					{ "PasswordHash", Convert.ToBase64String(password.Hash) },
 					{ "PasswordSalt", password.Salt },
 					{ "LoginAttempts", 0 },
 					{ "FailureTime", DBNull.Value },
@@ -181,6 +182,42 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			if (payload.Count > 0) result.Payload = new UserAccount() {
 				LoginAttempts = (int)payload[0]["LoginAttempts"],
 				FailureTime = payload[0]["FailureTime"] == DBNull.Value ? null : payload[0]["FailureTime"],
+			};
+			return result;
+		}
+
+		public async Task<Result<UserAccount>> GetHashData(string email)
+		{
+			Result<UserAccount> result = new Result<UserAccount>();
+
+			Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
+				_tableName,
+				new List<string>() { "PasswordHash", "PasswordSalt" },
+				new List<Comparator>()
+				{
+					new Comparator("Email", "=", email),
+				}
+			).ConfigureAwait(false);
+			if (!selectResult.IsSuccessful || selectResult.Payload is null)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = selectResult.ErrorMessage;
+				return result;
+			}
+
+			List<Dictionary<string, object>> payload = selectResult.Payload;
+			if (payload.Count > 1)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Invalid number of UserAccounts selected.";
+				return result;
+			}
+
+			result.IsSuccessful = true;
+			if (payload.Count > 0) result.Payload = new UserAccount()
+			{
+				PasswordHash = (string)payload.First()["PasswordHash"],
+				PasswordSalt = (string)payload.First()["PasswordSalt"],
 			};
 			return result;
 		}

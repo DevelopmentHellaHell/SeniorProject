@@ -66,15 +66,6 @@ namespace DevelopmentHell.Hubba.Client
                 else
                 {
                     Console.WriteLine(registerResult.ErrorMessage);
-                    Result<int> getUserAccountResult = await userAccountDataAccess.GetId(email).ConfigureAwait(false);
-                    if (getUserAccountResult.IsSuccessful)
-                    {
-                        Console.WriteLine("User is Already Registered");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"[ERROR]: {getUserAccountResult.ErrorMessage}");
-                    }
                     return false;
                 }
             }
