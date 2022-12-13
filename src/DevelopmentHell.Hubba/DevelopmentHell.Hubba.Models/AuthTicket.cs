@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace DevelopmentHell.Hubba.Models
 {
     [StructLayout(LayoutKind.Sequential)]
-    public struct AuthCookieTicket
+    public struct AuthTicket
     {
         public int? SessionId { get; set; }
         public int AccountId { get; set; }
@@ -17,7 +17,7 @@ namespace DevelopmentHell.Hubba.Models
         //Encrypted self to prevent tampering
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
         public byte[]? Self;
-        public bool Equals(AuthCookieTicket other)
+        public bool Equals(AuthTicket other)
         {
             if (SessionId != other.SessionId 
                 || AccountId != other.AccountId

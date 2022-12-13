@@ -17,9 +17,9 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 			_loggerService = loggerService;
 		}
 
-		public async Task<Result<AuthCookieTicket>> Login(string email, string password, string ipAddress)
+		public async Task<Result<bool>> Login(string email, string password, string ipAddress)
 		{
-			Result<AuthCookieTicket> result = new();
+			Result<bool> result = new();
 
 			Result<int> authenticateResult = await _authenticationService.AuthenticateCredentials(email, password, ipAddress).ConfigureAwait(false);
 			if (!authenticateResult.IsSuccessful)
@@ -41,16 +41,27 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 				return result;
 			}
 
+			result.IsSuccessful = true;
+			return result;
+		}
+
+		public async Task<Result<AuthTicket>> AuthenticateOTP(int accountId, string otp)
+		{
+			Result<AuthTicket> result = new Result<AuthTicket>()
+			{
+				IsSuccessful = false,
+			};
+
+			Result resultCheck = await _otpService.CheckOTP(accountId, otp).ConfigureAwait(false);
+			if (!resultCheck.IsSuccessful)
+			{
+				result.ErrorMessage = "Invalid OTP.";
+				return result;
+			}
 			return await _authenticationService.CreateSession(accountId).ConfigureAwait(false);
 		}
 
-		public async Task<Result> AuthenticateOTP(int accountId, string otp)
-		{
-
-			return await _otpService.CheckOTP(accountId, otp).ConfigureAwait(false);
-		}
-
-		public async Task<Result<bool>> ValidateSession(AuthCookieTicket ticket)
+		public async Task<Result<bool>> ValidateSession(AuthTicket ticket)
 		{
 			return await _authenticationService.ValidateSession(ticket).ConfigureAwait(false);
 		}

@@ -47,7 +47,7 @@ namespace DevelopmentHell.Hubba.Client
 
 			string dummyIp = "192.0.2.0";
 			string? cachedEmail = null;
-            AuthCookieTicket? cookiedTicket = null;
+            AuthTicket? cookiedTicket = null;
 
             async Task<bool> Register()
             {
@@ -85,11 +85,10 @@ namespace DevelopmentHell.Hubba.Client
                 string email = Console.ReadLine() ?? "";
                 Console.Write("Password: ");
                 string password = Console.ReadLine() ?? "";
-                Result<AuthCookieTicket> loginResult = await authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+                Result<bool> loginResult = await authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
                 if (loginResult.IsSuccessful)
                 {
                     cachedEmail = email;
-                    cookiedTicket = loginResult.Payload;
                     Console.WriteLine("Login Success! Sending OTP...");
                     return true;
                 }
@@ -110,16 +109,17 @@ namespace DevelopmentHell.Hubba.Client
                 Console.WriteLine();
                 Console.Write("OTP: ");
                 string otp = Console.ReadLine() ?? "";
-                Result otpresult = await authenticationManager.AuthenticateOTP((await userAccountDataAccess.GetId(cachedEmail).ConfigureAwait(false)).Payload, otp);
-                if (otpresult.IsSuccessful)
+                Result<AuthTicket> otpResult = await authenticationManager.AuthenticateOTP((await userAccountDataAccess.GetId(cachedEmail).ConfigureAwait(false)).Payload, otp);
+                if (otpResult.IsSuccessful)
                 {
                     Console.WriteLine("OTP Login Success!");
+					cookiedTicket = otpResult.Payload;
 					await Home();
 					return;
                 }
                 else
                 {
-                    Console.WriteLine($"[ERROR]: {otpresult.ErrorMessage}");
+                    Console.WriteLine($"[ERROR]: {otpResult.ErrorMessage}");
                 }
             }
             async Task Home()
@@ -174,12 +174,15 @@ namespace DevelopmentHell.Hubba.Client
                     return false;
                 }
 
-                if( (await authenticationManager.ValidateSession((AuthCookieTicket)cookiedTicket).ConfigureAwait(false)).Payload)
+                Result<bool> validateResult = await authenticationManager.ValidateSession((AuthTicket)cookiedTicket).ConfigureAwait(false);
+                if(!validateResult.IsSuccessful)
                 {
-                    Console.WriteLine($"Session ID: {cookiedTicket.Value.SessionId}\nEncrypted ticket: {Convert.ToHexString(cookiedTicket.Value.Self!)}");
-                    return true;
+                    Console.WriteLine($"[ERROR]: {validateResult.ErrorMessage}");
+                   return false;
                 }
-                return false;
+
+				Console.WriteLine($"Session ID: {cookiedTicket.Value.SessionId}\nEncrypted ticket: {Convert.ToHexString(cookiedTicket.Value.Self!)}");
+				return true;
             }
 
 

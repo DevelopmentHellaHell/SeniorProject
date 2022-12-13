@@ -4,8 +4,6 @@ using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Validation.Service;
-using System.Drawing;
-using System.Runtime.InteropServices;
 
 namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 {
@@ -138,59 +136,15 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 			return result;
 		}
 
-		private byte[] ToBytes(AuthCookieTicket ticket)
-		{
-			AuthCookieTicket ticket_copy = ticket;
-			ticket_copy.Self = null;
-            //https://stackoverflow.com/questions/3278827/how-to-convert-a-structure-to-a-byte-array-in-c
-            //https://stackoverflow.com/questions/27282307/c-sharp-marshaling-of-a-struct-with-an-array
-            int size = Marshal.SizeOf(ticket);
-			byte[] output = new byte[size];
-
-            IntPtr ptr = IntPtr.Zero;
-            try
-            {
-                ptr = Marshal.AllocHGlobal(size);
-                Marshal.StructureToPtr(ticket, ptr, true);
-                Marshal.Copy(ptr, output, 0, size);
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(ptr);
-            }
-            return output;
-        }
-		private AuthCookieTicket FromBytes(byte[] bytes)
-		{
-			AuthCookieTicket output = new AuthCookieTicket();
-
-			int size = Marshal.SizeOf(output);
-            IntPtr ptr = IntPtr.Zero;
-            try
-            {
-                ptr = Marshal.AllocHGlobal(size);
-
-                Marshal.Copy(bytes, 0, ptr, size);
-
-                output = (AuthCookieTicket)Marshal.PtrToStructure(ptr, output.GetType());
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(ptr);
-            }
-            return output;
-
-        }
-
-		public async Task<Result<AuthCookieTicket>> CreateSession(int accountId)
+		public async Task<Result<AuthTicket>> CreateSession(int accountId)
         {
 			//TODO: update later, arbitrary right now
 			return await CreateSession(accountId, DateTime.UtcNow.AddYears(1));
 		}
 
-		public async Task<Result<AuthCookieTicket>> CreateSession(int accountId, DateTime expiration)
+		public async Task<Result<AuthTicket>> CreateSession(int accountId, DateTime expiration)
 		{
-			Result<AuthCookieTicket> output = new();
+			Result<AuthTicket> output = new();
 
 
             Result deleteResult = await _userSessionDataAccess.DeleteUserSessions(accountId);
@@ -207,7 +161,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 				return output;
 			}
 
-            Result<List<AuthCookieTicket>> getResult = await _userSessionDataAccess.GetUserSessions(accountId).ConfigureAwait(false);
+            Result<List<AuthTicket>> getResult = await _userSessionDataAccess.GetUserSessions(accountId).ConfigureAwait(false);
             if (!getResult.IsSuccessful || getResult.Payload is null)
             {
                 output.ErrorMessage = getResult.ErrorMessage;
@@ -225,7 +179,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 				AccountId = getResult.Payload[0].AccountId,
 				Expiration = getResult.Payload[0].Expiration,
 				LastActivity = getResult.Payload[0].LastActivity,
-				Self = Cryptography.Service.EncryptionService.Encrypt(ToBytes(getResult.Payload[0]))
+				Self = EncryptionService.Encrypt(AuthTicketConversionService.ToBytes(getResult.Payload[0]))
 			};
 
 			Result updateResult = await _userSessionDataAccess.UpdateSession(output.Payload).ConfigureAwait(false);
@@ -241,15 +195,15 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 			return output;
         }
 
-		public async Task<Result<AuthCookieTicket>> RenewSession(AuthCookieTicket ticket)
+		public async Task<Result<AuthTicket>> RenewSession(AuthTicket ticket)
 		{
-			Result<AuthCookieTicket> output = new() { IsSuccessful = false };
+			Result<AuthTicket> output = new() { IsSuccessful = false };
 
-			AuthCookieTicket copy = ticket;
+			AuthTicket copy = ticket;
 			copy.LastActivity = DateTime.UtcNow;
 			//TODO update along with other magic number
 			copy.Expiration = DateTime.UtcNow.AddYears(1);
-			copy.Self = Cryptography.Service.EncryptionService.Encrypt(ToBytes(copy));
+			copy.Self = EncryptionService.Encrypt(AuthTicketConversionService.ToBytes(copy));
 
             Result updateResult = await _userSessionDataAccess.UpdateSession(copy).ConfigureAwait(false);
             if (!updateResult.IsSuccessful)
@@ -262,11 +216,11 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 			output.Payload = copy;
 			return output;
         }
-		public async Task<Result<bool>> ValidateSession(AuthCookieTicket ticket)
+		public async Task<Result<bool>> ValidateSession(AuthTicket ticket)
 		{
 			Result<bool> output = new() { IsSuccessful=false };
 
-			AuthCookieTicket storedTicket = new();
+			AuthTicket storedTicket = new();
 
 			if (ticket.Self is null)
 			{
@@ -276,17 +230,17 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 
 			try
 			{
-				storedTicket = FromBytes(Cryptography.Service.EncryptionService.DecryptToBytes(ticket.Self));
+				storedTicket = AuthTicketConversionService.FromBytes(Cryptography.Service.EncryptionService.DecryptToBytes(ticket.Self));
             } catch (Exception e)
 			{
 				output.ErrorMessage = $"Unhandled exception during decryption of marshalled AuthCookieTicket: {e}";
 				return output;
 			}
 
-			AuthCookieTicket copy = ticket;
+			AuthTicket copy = ticket;
 			copy.Self = null;
 
-			Result<List<AuthCookieTicket>> getResult = await _userSessionDataAccess.GetUserSessions(ticket.AccountId).ConfigureAwait(false);
+			Result<List<AuthTicket>> getResult = await _userSessionDataAccess.GetUserSessions(ticket.AccountId).ConfigureAwait(false);
 			if (!getResult.IsSuccessful || getResult.Payload is null)
 			{
 				output.ErrorMessage = getResult.ErrorMessage;

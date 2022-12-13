@@ -24,28 +24,20 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
             _loggerService = loggerService;
         }
 
-        public async Task<Result<bool>> CheckAccess(string email, string claimRequested)
+        public async Task<Result<bool>> CheckAccess(int accountId, string claimRequested)
         {
             Result<bool> output = new();
 
-            Result<List<Role>> roleResult = await _authorizationDataAccess.GetRoles((await _userAccountDataAccess.GetId(email).ConfigureAwait(false)).Payload).ConfigureAwait(false);
+            Result<List<Role>> roleResult = await _authorizationDataAccess.GetRoles(accountId).ConfigureAwait(false);
             if (!roleResult.IsSuccessful || roleResult.Payload is null)
             {
-                _loggerService.Log(LogLevel.INFO, Category.BUSINESS, "AuthorizationService.CheckAccess", $"{email} failed access {claimRequested}.");
+                _loggerService.Log(LogLevel.INFO, Category.BUSINESS, "AuthorizationService.CheckAccess", $"AccountId of {accountId} failed access {claimRequested}.");
                 output.IsSuccessful = false;
                 output.ErrorMessage = roleResult.ErrorMessage ?? "Unable to select roles from given email";
                 return output;
             }
 
-            Result<int> idResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
-            if (!idResult.IsSuccessful)
-            {
-                output.IsSuccessful = false;
-                output.ErrorMessage = idResult.ErrorMessage ?? "Unable to grab Id from given email";
-                return output;
-            }
-
-            Result<bool> accessResult = await _authorizationDataAccess.hasAccess(idResult.Payload,claimRequested);
+            Result<bool> accessResult = await _authorizationDataAccess.hasAccess(accountId, claimRequested);
             if (!accessResult.IsSuccessful)
             {
                 output.IsSuccessful = false;

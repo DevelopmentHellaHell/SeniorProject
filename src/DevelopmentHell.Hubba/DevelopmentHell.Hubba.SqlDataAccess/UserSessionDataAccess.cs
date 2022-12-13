@@ -24,7 +24,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             _tableName = tableName;
         }
 
-        public AuthCookieTicket ConvertToTicket(Dictionary<string,object> line)
+        public AuthTicket ConvertToTicket(Dictionary<string,object> line)
         {
             return new()
             {
@@ -36,9 +36,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             };
         }
 
-        public async Task<Result<List<AuthCookieTicket>>> GetUserSessions(int accountId)
+        public async Task<Result<List<AuthTicket>>> GetUserSessions(int accountId)
         {
-            Result<List<AuthCookieTicket>> output = new();
+            Result<List<AuthTicket>> output = new();
 
             Result<List<Dictionary<string,object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
@@ -100,7 +100,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return output;
         }
 
-        public async Task<Result> UpdateSession(AuthCookieTicket updatedSession)
+        public async Task<Result> UpdateSession(AuthTicket updatedSession)
         {
             var values = new Dictionary<string, object>();
             foreach (var column in updatedSession.GetType().GetProperties())

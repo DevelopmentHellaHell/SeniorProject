@@ -1,5 +1,5 @@
 ﻿using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
-using DevelopmentHell.Hubba.Authorization.Service.Implementation;
+using DevelopmentHell.Hubba.Cryptography.Service;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 
@@ -15,9 +15,10 @@ namespace DevelopmentHell.Hubba.Authorization.Manager
             _loggerService = loggerService;
         }
 
-        public async Task<Result<bool>> CheckAccess(string email, string claimRequested)
+        public async Task<Result<bool>> CheckAccess(AuthTicket ticket, string claimRequested)
         {
-            return await _authorizationService.CheckAccess(email, claimRequested).ConfigureAwait(false) ;
+            AuthTicket convertedTicket = AuthTicketConversionService.FromBytes(ticket.Self);
+            return await _authorizationService.CheckAccess(convertedTicket.AccountId, claimRequested).ConfigureAwait(false);
         }
     }
 }
