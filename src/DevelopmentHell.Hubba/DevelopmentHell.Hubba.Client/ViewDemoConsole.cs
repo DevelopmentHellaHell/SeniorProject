@@ -173,7 +173,7 @@ namespace DevelopmentHell.Hubba.Client
 
                 if( (await authenticationManager.ValidateSession((AuthCookieTicket)cookiedTicket).ConfigureAwait(false)).Payload)
                 {
-                    Console.WriteLine($"Session ID: {cookiedTicket.Value.SessionId}\nEncrypted ticket: {cookiedTicket.Value.Self}");
+                    Console.WriteLine($"Session ID: {cookiedTicket.Value.SessionId}\nEncrypted ticket: {cookiedTicket.Value.Self.ToString()}");
                     return true;
                 }
                 return false;

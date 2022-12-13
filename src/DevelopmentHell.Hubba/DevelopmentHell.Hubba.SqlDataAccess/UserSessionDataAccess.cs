@@ -128,7 +128,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 _tableName,
                 new()
                 {
-                    new("Expiration", ">", DateTime.UtcNow)
+                    new("Expiration", "<", DateTime.UtcNow)
                 }
             );
         }

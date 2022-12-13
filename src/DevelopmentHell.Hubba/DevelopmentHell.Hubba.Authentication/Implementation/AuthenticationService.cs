@@ -235,7 +235,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
                 return output;
             }
 
-			await _userSessionDataAccess.PruneSessions().ConfigureAwait(false);
+			//await _userSessionDataAccess.PruneSessions().ConfigureAwait(false);
 
 			output.IsSuccessful = true;
 			return output;
