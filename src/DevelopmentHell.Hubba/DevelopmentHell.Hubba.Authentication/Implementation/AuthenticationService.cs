@@ -48,6 +48,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 					UserAccount? loginAttemptData = getAttemptResult.Payload;
 					if (!getAttemptResult.IsSuccessful || loginAttemptData is null)
 					{
+						_loggerService.Log(LogLevel.WARNING, Category.BUSINESS, "AuthenticationService.AuthenticateCredentials", "Failure attempt did not complete successfully.");
 						result.IsSuccessful = false;
 						result.ErrorMessage = "Error, please contact system administrator.";
 						return result;
@@ -57,7 +58,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 					DateTime? activeFailureTime = loginAttemptData.FailureTime is null ? null : DateTime.Parse(loginAttemptData.FailureTime!.ToString()!);
 
 					_loggerService.Log(LogLevel.INFO, Category.BUSINESS, "AuthenticationService.AuthenticateCredentials", $"{ipAddress} attempted to log in to {email} using the wrong password. (Attempt {loginAttempts + 1})");
-
+					
 					// Current time is greater than stored time
 					// Reset login attempts
 					if (activeFailureTime is not null && currentTime.CompareTo(activeFailureTime) > 0)
@@ -92,7 +93,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 					}
 				}
 				result.IsSuccessful = false;
-				result.ErrorMessage = "The email or password provided is invalid.";
+				result.ErrorMessage = "Invalid username or password provided. Retry again or contact system admin";
 				return result;
 			}
 
@@ -100,7 +101,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 				!ValidationService.ValidatePassword(password).IsSuccessful)
 			{
 				result.IsSuccessful = false;
-				result.ErrorMessage = "The email or password provided is invalid.";
+				result.ErrorMessage = "Invalid username or password provided. Retry again or contact system admin.";
 				return result;
 			}
 
@@ -115,7 +116,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 			if (getDisabledResult.Payload)
 			{
 				result.IsSuccessful = false;
-				result.ErrorMessage = "This account has temporarily been disabled.";
+				result.ErrorMessage = "Account disabled. Perform account recovery or contact system admin.";
 				return result;
 			}
 			
