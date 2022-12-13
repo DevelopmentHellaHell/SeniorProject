@@ -1,4 +1,5 @@
 ﻿using DevelopmentHell.Hubba.Models;
+using System.Configuration;
 using System.Net;
 using System.Net.Mail;
 
@@ -6,15 +7,13 @@ namespace DevelopmentHell.Hubba.Emailing.Service
 {
 	public class EmailService
 	{
-		private static readonly string companyEmail = "noreply.Hubba@gmail.com"; // TODO: config
-		private static readonly string username = "apikey"; // TODO: config
-		private static readonly string password = "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"; // TODO: config
-
 		public static Result SendEmail(string email, string subject, string body)
 		{
+			string username = ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!;
+			string companyEmail = ConfigurationManager.AppSettings["COMPANY_EMAIL"]!;
 			SmtpClient client = new SmtpClient("smtp.sendgrid.net", 587)
 			{
-				Credentials = new NetworkCredential(username, password),
+				Credentials = new NetworkCredential(username, ConfigurationManager.AppSettings["SENDGRID_API_KEY"]),
 
 				EnableSsl = true,
 			};
