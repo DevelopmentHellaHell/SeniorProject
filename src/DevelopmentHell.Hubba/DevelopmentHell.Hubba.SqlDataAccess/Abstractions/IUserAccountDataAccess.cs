@@ -12,5 +12,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 		Task<Result<bool>> GetDisabled(int id);
 		Task<Result> Update(UserAccount userAccount);
 		Task<Result> Delete(int id);
+		Task<Result> Delete(string email);
 	}
 }

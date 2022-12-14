@@ -12,12 +12,10 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 	{
 		private IUserAccountDataAccess _dao;
 		private ILoggerService _loggerService;
-		private UserSessionDataAccess _userSessionDataAccess;
-		public AuthenticationService(IUserAccountDataAccess dao, ILoggerService loggerService, UserSessionDataAccess userSessionDataAccess)
+		public AuthenticationService(IUserAccountDataAccess dao, ILoggerService loggerService)
 		{
 			_dao = dao;
 			_loggerService = loggerService;
-			_userSessionDataAccess = userSessionDataAccess;
 		}
 
 		public async Task<Result<int>> AuthenticateCredentials(string email, string password, string ipAddress)

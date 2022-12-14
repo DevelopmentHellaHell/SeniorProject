@@ -117,5 +117,5 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 }
             ).ConfigureAwait(false);
         }
-    }
+	}
 }

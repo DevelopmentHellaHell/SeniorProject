@@ -76,6 +76,5 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
 				return await SendQuery(insertQuery).ConfigureAwait(false);
 			}
 		}
-
 	}
 }

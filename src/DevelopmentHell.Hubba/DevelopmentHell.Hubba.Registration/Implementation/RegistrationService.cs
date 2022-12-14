@@ -39,6 +39,8 @@ namespace DevelopmentHell.Hubba.Registration.Service.Implementation
 			Result<int> getResult = await _dao.GetId(email).ConfigureAwait(false);
 			if (!getResult.IsSuccessful)
 			{
+				
+				Console.WriteLine(getResult.ErrorMessage);
 				result.IsSuccessful = false;
 				result.ErrorMessage = "Error, please contact a system administrator.";
 				return result;

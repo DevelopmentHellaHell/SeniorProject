@@ -34,8 +34,7 @@ namespace DevelopmentHell.Hubba.Client
 			AuthenticationManager authenticationManager = new AuthenticationManager(
 				new AuthenticationService(
 					new UserAccountDataAccess(UsersConnectionString, UserAccountsTable), 
-					loggerService,
-                    new UserSessionDataAccess(UsersConnectionString, UserSessionsTable)
+					loggerService
                 ),
 				new OTPService(
 					new OTPDataAccess(UsersConnectionString, UserOTPsTable)
@@ -117,7 +116,7 @@ namespace DevelopmentHell.Hubba.Client
 					Console.WriteLine();
 					Console.Write("OTP: ");
 					string otp = Console.ReadLine() ?? "";
-					Result<GenericPrincipal> otpResult = await authenticationManager.AuthenticateOTP((await userAccountDataAccess.GetId(cachedEmail).ConfigureAwait(false)).Payload, otp, dummyIp).ConfigureAwait(false);
+					Result<GenericPrincipal> otpResult = await authenticationManager.AuthenticateOTP((await userAccountDataAccess.GetId(cachedEmail!).ConfigureAwait(false)).Payload, otp, dummyIp).ConfigureAwait(false);
 					if (otpResult.IsSuccessful)
 					{
 						Console.WriteLine("OTP Login Success!");

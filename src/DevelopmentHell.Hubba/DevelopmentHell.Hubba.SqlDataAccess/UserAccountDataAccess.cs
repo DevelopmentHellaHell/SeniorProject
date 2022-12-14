@@ -288,5 +288,18 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
 			return deleteResult;
 		}
+
+		public async Task<Result> Delete(string email)
+		{
+			Result deleteResult = await _deleteDataAccess.Delete(
+				_tableName,
+				new List<Comparator>()
+				{
+					new Comparator("Email", "=", email),
+				}
+			).ConfigureAwait(false);
+
+			return deleteResult;
+		}
 	}
 }
