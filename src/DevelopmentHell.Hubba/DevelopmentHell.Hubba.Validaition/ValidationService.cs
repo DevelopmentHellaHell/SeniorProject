@@ -11,15 +11,14 @@ namespace DevelopmentHell.Hubba.Validation.Service
 			Result result = new Result();
 			result.IsSuccessful = false;
 			string error = "Email provided is invalid. Retry or contact admin.";
-			if (email == string.Empty)
-			{
-				result.ErrorMessage = error;
-				return result;
-			}
-			//result.IsSuccessful = new EmailAddressAttribute().IsSuccessful(Email);
-			//return result;
-			string regex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+            Regex rx = new(@"[^a-z0-9.@-]");
+            if (rx.IsMatch(email) || email.Length < 8 || email.Length > 127)
+            {
+                result.ErrorMessage = error;
+                return result;
+            }
 
+			string regex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
 			try
 			{
 				// Normalize the domain

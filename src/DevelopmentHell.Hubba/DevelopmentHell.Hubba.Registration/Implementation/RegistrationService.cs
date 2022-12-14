@@ -42,8 +42,8 @@ namespace DevelopmentHell.Hubba.Registration.Service.Implementation
 				
 				Console.WriteLine(getResult.ErrorMessage);
 				result.IsSuccessful = false;
-				result.ErrorMessage = "Error, please contact a system administrator.";
-				return result;
+				result.ErrorMessage = "Unable to assign username. Retry again or contact system administrator";
+                return result;
 			}
 
 			if (getResult.Payload != 0) {

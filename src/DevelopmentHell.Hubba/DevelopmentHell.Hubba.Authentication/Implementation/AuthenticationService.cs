@@ -25,8 +25,8 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 			if (!ValidationService.ValidateEmail(email).IsSuccessful)
 			{
 				result.IsSuccessful = false;
-				result.ErrorMessage = "Invalid username or password provided. Retry again or contact system admin.";
-				return result;
+				result.ErrorMessage = "Invalid username or password provided. Retry again or contact system admin";
+                return result;
 			}
 
 			Result<UserAccount> userHashData = await _dao.GetHashData(email).ConfigureAwait(false);
@@ -34,7 +34,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 			if (!userHashData.IsSuccessful || payload is null)
 			{
 				result.IsSuccessful = false;
-				result.ErrorMessage = "Invalid username or password provided. Retry again or contact system admin.";
+				result.ErrorMessage = "Invalid username or password provided. Retry again or contact system admin";
 				return result;
 			}
 
@@ -68,7 +68,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 					_loggerService.Log(LogLevel.INFO, Category.BUSINESS, "AuthenticationService.AuthenticateCredentials", $"{ipAddress} attempted to log in to {email} using the wrong password. (Attempt {loginAttempts + 1})");
 
 					// Current time is greater than stored time
-					// Reset login attempts
+					// Reset login attempts as long as activeFailureTime is greater than 1 day
 					if (activeFailureTime is not null && currentTime.CompareTo(activeFailureTime) > 0)
 					{
 						loginAttempts = 0;
@@ -84,7 +84,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 					if (loginAttempts + 1 >= 3)
 					{
 						disabled = true;
-					}
+                    }
 
 					Result updateResult = await _dao.Update(new UserAccount()
 					{

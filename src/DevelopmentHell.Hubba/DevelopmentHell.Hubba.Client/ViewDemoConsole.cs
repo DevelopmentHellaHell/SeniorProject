@@ -55,7 +55,8 @@ namespace DevelopmentHell.Hubba.Client
 					Console.WriteLine("Error, you are already logged in.");
 					return false;
 				}
-				Surround("Registration View");
+                Surround("Registration View");
+                Surround("Note: User must enter email in all lowercase");
 				Console.WriteLine();
                 Console.Write("Email: ");
                 string email = Console.ReadLine() ?? "";
@@ -66,7 +67,7 @@ namespace DevelopmentHell.Hubba.Client
                 var registerResult = await registrationmanager.Register(email, password, _principal).ConfigureAwait(false);
                 if (registerResult.IsSuccessful)
                 {
-                    Console.WriteLine("Registeration Success!");
+                    Console.WriteLine("Registration Success!");
                     return true;
                 }
                 else
@@ -82,18 +83,19 @@ namespace DevelopmentHell.Hubba.Client
                     Console.WriteLine("Error, you are already logged in.");
                     return false;
                 }
-				Surround("Login View");
+                Surround("Login View");
+                Surround("Note: User must enter email in all lowercase");
 
 				Console.WriteLine();
                 Console.Write("Email: ");
                 string email = Console.ReadLine() ?? "";
                 Console.Write("Password: ");
                 string password = Console.ReadLine() ?? "";
-                Result<bool> loginResult = await authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+                Result<bool> loginResult = await authenticationManager.Login(email, password, dummyIp, _principal).ConfigureAwait(false);
                 if (loginResult.IsSuccessful)
                 {
                     cachedEmail = email;
-                    Console.WriteLine("Login Success! Sending OTP...");
+                    Console.WriteLine("Sending OTP to your email, please check spam folder just in case!");
                     return true;
                 }
                 else
@@ -119,7 +121,7 @@ namespace DevelopmentHell.Hubba.Client
 					Result<GenericPrincipal> otpResult = await authenticationManager.AuthenticateOTP((await userAccountDataAccess.GetId(cachedEmail!).ConfigureAwait(false)).Payload, otp, dummyIp).ConfigureAwait(false);
 					if (otpResult.IsSuccessful)
 					{
-						Console.WriteLine("OTP Login Success!");
+						Console.WriteLine("Login Success!");
 						_principal = otpResult.Payload!;
 						Home();
 						return true;
