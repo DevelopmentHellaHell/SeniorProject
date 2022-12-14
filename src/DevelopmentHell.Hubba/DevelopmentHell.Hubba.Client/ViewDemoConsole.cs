@@ -7,6 +7,7 @@ using DevelopmentHell.Hubba.Logging.Service.Implementation;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Implementation;
 using DevelopmentHell.Hubba.Registration.Service.Implementation;
 using DevelopmentHell.Hubba.Authentication.Service.Implementation;
+using System.Security.Principal;
 
 namespace DevelopmentHell.Hubba.Client
 {
@@ -102,7 +103,7 @@ namespace DevelopmentHell.Hubba.Client
 				Console.WriteLine();
                 Console.Write("OTP: ");
                 string otp = Console.ReadLine() ?? "";
-                Result<AuthTicket> otpResult = await authenticationManager.AuthenticateOTP((await userAccountDataAccess.GetId(cachedEmail).ConfigureAwait(false)).Payload, otp);
+                Result<GenericPrincipal> otpResult = await authenticationManager.AuthenticateOTP((await userAccountDataAccess.GetId(cachedEmail).ConfigureAwait(false)).Payload, otp);
                 if (otpResult.IsSuccessful)
                 {
                     Console.WriteLine("OTP Login Success!");

@@ -2,6 +2,7 @@
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
+using System.Security.Principal;
 
 namespace DevelopmentHell.Hubba.Authentication.Manager
 {
@@ -45,9 +46,9 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 			return result;
 		}
 
-		public async Task<Result<AuthTicket>> AuthenticateOTP(int accountId, string otp)
+		public async Task<Result<GenericPrincipal>> AuthenticateOTP(int accountId, string otp)
 		{
-			Result<AuthTicket> result = new Result<AuthTicket>()
+			Result<GenericPrincipal> result = new Result<GenericPrincipal>()
 			{
 				IsSuccessful = false,
 			};
@@ -59,11 +60,6 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 				return result;
 			}
 			return await _authenticationService.CreateSession(accountId).ConfigureAwait(false);
-		}
-
-		public async Task<Result<bool>> ValidateSession(AuthTicket ticket)
-		{
-			return await _authenticationService.ValidateSession(ticket).ConfigureAwait(false);
 		}
 	}
 }
