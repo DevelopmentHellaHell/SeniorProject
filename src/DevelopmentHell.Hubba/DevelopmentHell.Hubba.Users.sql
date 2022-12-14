@@ -4,8 +4,10 @@ GO
 alter database [DevelopmentHell.Hubba.Users] set single_user with rollback immediate
 DROP DATABASE [DevelopmentHell.Hubba.Users]
 GO
+USE [master]
+GO
 
-/****** Object:  Database [DevelopmentHell.Hubba.Users]    Script Date: 12/12/2022 3:23:11 PM ******/
+/****** Object:  Database [DevelopmentHell.Hubba.Users]    Script Date: 12/13/2022 10:53:14 PM ******/
 CREATE DATABASE [DevelopmentHell.Hubba.Users]
  CONTAINMENT = NONE
  ON  PRIMARY 
@@ -85,44 +87,58 @@ EXEC sys.sp_db_vardecimal_storage_format N'DevelopmentHell.Hubba.Users', N'ON'
 GO
 ALTER DATABASE [DevelopmentHell.Hubba.Users] SET QUERY_STORE = OFF
 GO
-/****** Object:  Login [NT SERVICE\Winmgmt]    Script Date: 12/12/2022 3:23:11 PM ******/
+/****** Object:  Login [NT SERVICE\Winmgmt]    Script Date: 12/13/2022 10:53:14 PM ******/
 CREATE LOGIN [NT SERVICE\Winmgmt] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
-/****** Object:  Login [NT SERVICE\SQLWriter]    Script Date: 12/12/2022 3:23:11 PM ******/
+/****** Object:  Login [NT SERVICE\SQLWriter]    Script Date: 12/13/2022 10:53:14 PM ******/
 CREATE LOGIN [NT SERVICE\SQLWriter] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
-/****** Object:  Login [NT SERVICE\SQLTELEMETRY]    Script Date: 12/12/2022 3:23:11 PM ******/
+/****** Object:  Login [NT SERVICE\SQLTELEMETRY]    Script Date: 12/13/2022 10:53:14 PM ******/
 CREATE LOGIN [NT SERVICE\SQLTELEMETRY] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
-/****** Object:  Login [NT SERVICE\SQLSERVERAGENT]    Script Date: 12/12/2022 3:23:11 PM ******/
+/****** Object:  Login [NT SERVICE\SQLSERVERAGENT]    Script Date: 12/13/2022 10:53:14 PM ******/
 CREATE LOGIN [NT SERVICE\SQLSERVERAGENT] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
-/****** Object:  Login [NT Service\MSSQLSERVER]    Script Date: 12/12/2022 3:23:11 PM ******/
+/****** Object:  Login [NT Service\MSSQLSERVER]    Script Date: 12/13/2022 10:53:14 PM ******/
 CREATE LOGIN [NT Service\MSSQLSERVER] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
-/****** Object:  Login [NT AUTHORITY\SYSTEM]    Script Date: 12/12/2022 3:23:11 PM ******/
+/****** Object:  Login [NT AUTHORITY\SYSTEM]    Script Date: 12/13/2022 10:53:14 PM ******/
 CREATE LOGIN [NT AUTHORITY\SYSTEM] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
-/****** Object:  Login [GMAIN\tsuma]    Script Date: 12/12/2022 3:23:11 PM ******/
-CREATE LOGIN [GMAIN\tsuma] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
+/* For security reasons the login is created disabled and with a random password. */
+/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.User]    Script Date: 12/13/2022 10:53:14 PM ******/
+CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.User] WITH PASSWORD=N'x9bqkb6cF4cCXO0/PbUG6tL1WWnVr7H8r41L1Qei5lQ=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
+GO
+ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.User] DISABLE
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.User]    Script Date: 12/12/2022 3:23:11 PM ******/
-CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.User] WITH PASSWORD=N'tG8flkGGatqpOlCSFeHkxcesEm7QLl5+7SYyIe3GLUI=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
+/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.Logging]    Script Date: 12/13/2022 10:53:14 PM ******/
+CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] WITH PASSWORD=N'PUTfDE8E71hAdG8XtzMpz5Ddz5Jf058Sk3k1rNCcJDQ=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
+GO
+ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] DISABLE
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.Logging]    Script Date: 12/12/2022 3:23:11 PM ******/
-CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] WITH PASSWORD=N'K6ONk4gakzxyJEpS+9FjnmXTlw86oB5EN8CxoN3/iFo=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
+/****** Object:  Login [Company.Product.SqlUser]    Script Date: 12/13/2022 10:53:14 PM ******/
+CREATE LOGIN [Company.Product.SqlUser] WITH PASSWORD=N'rT4kCPdage3Gv3w0a9nT6srhp5qw5/lqUsaVBr38peg=', DEFAULT_DATABASE=[Company.Product.Logs], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=ON, CHECK_POLICY=ON
+GO
+ALTER LOGIN [Company.Product.SqlUser] DISABLE
+GO
+/****** Object:  Login [BRYANS-LAPTOP\bryan]    Script Date: 12/13/2022 10:53:14 PM ******/
+CREATE LOGIN [BRYANS-LAPTOP\bryan] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [##MS_PolicyTsqlExecutionLogin##]    Script Date: 12/12/2022 3:23:11 PM ******/
-CREATE LOGIN [##MS_PolicyTsqlExecutionLogin##] WITH PASSWORD=N'/yOKq44D19oFqvNABtYgFeHCwde0v0c3Jf2w55T01Aw=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
+/****** Object:  Login [##MS_PolicyTsqlExecutionLogin##]    Script Date: 12/13/2022 10:53:14 PM ******/
+CREATE LOGIN [##MS_PolicyTsqlExecutionLogin##] WITH PASSWORD=N'GrU3jiyA9UtBsmgNZxgG1wEg6nFOXRqzPRY9KGFBRoU=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
+GO
+ALTER LOGIN [##MS_PolicyTsqlExecutionLogin##] DISABLE
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [##MS_PolicyEventProcessingLogin##]    Script Date: 12/12/2022 3:23:11 PM ******/
-CREATE LOGIN [##MS_PolicyEventProcessingLogin##] WITH PASSWORD=N'jxTXCejPIR1gJaNaDWp4Vf/IKT5Voxue2+ijw22KJ0o=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
+/****** Object:  Login [##MS_PolicyEventProcessingLogin##]    Script Date: 12/13/2022 10:53:14 PM ******/
+CREATE LOGIN [##MS_PolicyEventProcessingLogin##] WITH PASSWORD=N'zc/mWiez3iVv89tIUAWJEW6Sa7Dg+7M4aFlDdxGcgw4=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
 GO
-ALTER AUTHORIZATION ON DATABASE::[DevelopmentHell.Hubba.Users] TO [GMAIN\tsuma]
+ALTER LOGIN [##MS_PolicyEventProcessingLogin##] DISABLE
+GO
+ALTER AUTHORIZATION ON DATABASE::[DevelopmentHell.Hubba.Users] TO [BRYANS-LAPTOP\bryan]
 GO
 ALTER SERVER ROLE [sysadmin] ADD MEMBER [NT SERVICE\Winmgmt]
 GO
@@ -132,12 +148,16 @@ ALTER SERVER ROLE [sysadmin] ADD MEMBER [NT SERVICE\SQLSERVERAGENT]
 GO
 ALTER SERVER ROLE [sysadmin] ADD MEMBER [NT Service\MSSQLSERVER]
 GO
-ALTER SERVER ROLE [sysadmin] ADD MEMBER [GMAIN\tsuma]
+ALTER SERVER ROLE [sysadmin] ADD MEMBER [BRYANS-LAPTOP\bryan]
 GO
 USE [DevelopmentHell.Hubba.Users]
 GO
-/****** Object:  User [DevelopmentHell.Hubba.SqlUser.User]    Script Date: 12/12/2022 3:23:11 PM ******/
+/****** Object:  User [DevelopmentHell.Hubba.SqlUser.User]    Script Date: 12/13/2022 10:53:14 PM ******/
 CREATE USER [DevelopmentHell.Hubba.SqlUser.User] FOR LOGIN [DevelopmentHell.Hubba.SqlUser.User] WITH DEFAULT_SCHEMA=[dbo]
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [DevelopmentHell.Hubba.SqlUser.User]
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [DevelopmentHell.Hubba.SqlUser.User]
 GO
 GRANT CONNECT TO [DevelopmentHell.Hubba.SqlUser.User] AS [dbo]
 GO
@@ -153,7 +173,7 @@ GRANT VIEW ANY COLUMN ENCRYPTION KEY DEFINITION TO [public] AS [dbo]
 GO
 GRANT VIEW ANY COLUMN MASTER KEY DEFINITION TO [public] AS [dbo]
 GO
-/****** Object:  Table [dbo].[RoleClaims]    Script Date: 12/12/2022 3:23:11 PM ******/
+/****** Object:  Table [dbo].[RoleClaims]    Script Date: 12/13/2022 10:53:15 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -170,7 +190,7 @@ CREATE TABLE [dbo].[RoleClaims](
 GO
 ALTER AUTHORIZATION ON [dbo].[RoleClaims] TO  SCHEMA OWNER 
 GO
-/****** Object:  Table [dbo].[Roles]    Script Date: 12/12/2022 3:23:11 PM ******/
+/****** Object:  Table [dbo].[Roles]    Script Date: 12/13/2022 10:53:15 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -186,7 +206,7 @@ CREATE TABLE [dbo].[Roles](
 GO
 ALTER AUTHORIZATION ON [dbo].[Roles] TO  SCHEMA OWNER 
 GO
-/****** Object:  Table [dbo].[UserAccounts]    Script Date: 12/12/2022 3:23:11 PM ******/
+/****** Object:  Table [dbo].[UserAccounts]    Script Date: 12/13/2022 10:53:15 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -207,7 +227,7 @@ CREATE TABLE [dbo].[UserAccounts](
 GO
 ALTER AUTHORIZATION ON [dbo].[UserAccounts] TO  SCHEMA OWNER 
 GO
-/****** Object:  Table [dbo].[UserOTPs]    Script Date: 12/12/2022 3:23:11 PM ******/
+/****** Object:  Table [dbo].[UserOTPs]    Script Date: 12/13/2022 10:53:15 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -224,7 +244,7 @@ CREATE TABLE [dbo].[UserOTPs](
 GO
 ALTER AUTHORIZATION ON [dbo].[UserOTPs] TO  SCHEMA OWNER 
 GO
-/****** Object:  Table [dbo].[UserRoles]    Script Date: 12/12/2022 3:23:11 PM ******/
+/****** Object:  Table [dbo].[UserRoles]    Script Date: 12/13/2022 10:53:15 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -241,7 +261,7 @@ CREATE TABLE [dbo].[UserRoles](
 GO
 ALTER AUTHORIZATION ON [dbo].[UserRoles] TO  SCHEMA OWNER 
 GO
-/****** Object:  Table [dbo].[UserSessions]    Script Date: 12/12/2022 3:23:11 PM ******/
+/****** Object:  Table [dbo].[UserSessions]    Script Date: 12/13/2022 10:53:15 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -293,3 +313,4 @@ USE [master]
 GO
 ALTER DATABASE [DevelopmentHell.Hubba.Users] SET  READ_WRITE 
 GO
+
