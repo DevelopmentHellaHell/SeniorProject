@@ -163,6 +163,9 @@ namespace DevelopmentHell.Hubba.Client
                         while(!await Login());
 						while(!await OtpEntry());
                         break;
+                    case 3:
+                        while(!await OtpEntry());
+                        break;
                     case 4:
                         Console.WriteLine("\nGoodbye");
                         return;
