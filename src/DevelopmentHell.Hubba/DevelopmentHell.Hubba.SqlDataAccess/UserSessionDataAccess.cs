@@ -24,56 +24,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             _tableName = tableName;
         }
 
-        public AuthTicket ConvertToTicket(Dictionary<string,object> line)
-        {
-            return new()
-            {
-                AccountId = (int)line["AccountId"],
-                SessionId = (int)line["SessionId"],
-                LastActivity = line["LastActivity"] != DBNull.Value ? (DateTime)line["LastActivity"] : null,
-                Expiration = line["Expiration"] != DBNull.Value ? (DateTime)line["Expiration"] : null,
-                Self = line["Self"] != DBNull.Value ? (byte[])line["Self"] : null
-            };
-        }
-
-        public async Task<Result<List<AuthTicket>>> GetUserSessions(int accountId)
-        {
-            Result<List<AuthTicket>> output = new();
-
-            Result<List<Dictionary<string,object>>> selectResult = await _selectDataAccess.Select(
-                _tableName,
-                new() { "*" },
-                new()
-                {
-                    new("AccountId","=",accountId)
-                }
-            ).ConfigureAwait(false);
-
-            if (!selectResult.IsSuccessful || selectResult.Payload is null)
-            {
-                output.IsSuccessful = false;
-                output.ErrorMessage = selectResult.ErrorMessage;
-                return output;
-            }
-
-            output.Payload = new();
-
-            foreach(var kvp in selectResult.Payload)
-            {
-                try
-                {
-                    output.Payload.Add(ConvertToTicket(kvp));
-                } catch (Exception e)
-                {
-                    output.IsSuccessful = false;
-                    output.ErrorMessage = "Issue in parsing Session data from db: " + e.Message;
-                    return output;
-                }
-            }
-            output.IsSuccessful = true;
-            return output;
-        }
-
         public async Task<Result> InsertSession(int accountId, DateTime expiration, DateTime lastActivity)
         {
             Result output = new() { IsSuccessful = false };
@@ -98,28 +48,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             output.IsSuccessful = true;
             return output;
-        }
-
-        public async Task<Result> UpdateSession(AuthTicket updatedSession)
-        {
-            var values = new Dictionary<string, object>();
-            foreach (var column in updatedSession.GetType().GetProperties())
-            {
-                var value = column.GetValue(updatedSession);
-                if (value is null || column.Name == "AccountId" || column.Name == "SessionId") continue;
-                values[column.Name] = value;
-            }
-
-            Result updateResult = await _updateDataAccess.Update(
-                _tableName,
-                new List<Comparator>()
-                {
-                    new Comparator("AccountId", "=", updatedSession.AccountId),
-                },
-                values
-            ).ConfigureAwait(false);
-
-            return updateResult;
         }
 
         public async Task<Result> PruneSessions()

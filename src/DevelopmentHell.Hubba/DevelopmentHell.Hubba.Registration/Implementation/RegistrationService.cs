@@ -4,6 +4,7 @@ using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Validation.Service;
+using System.Security.Principal;
 
 namespace DevelopmentHell.Hubba.Registration.Service.Implementation
 {
@@ -21,6 +22,7 @@ namespace DevelopmentHell.Hubba.Registration.Service.Implementation
 		public async Task<Result> RegisterAccount(string email, string password)
 		{
 			Result result = new Result();
+
 			if (!ValidationService.ValidateEmail(email).IsSuccessful)
 			{
 				result.IsSuccessful = false;

@@ -28,7 +28,7 @@ namespace DevelopmentHell.Hubba.Emailing.Service
 			Result result = new Result();
 			try
 			{
-				client.Send(message);
+				//client.Send(message); TODO
 				result.IsSuccessful = true;
 				return result;
 			}

@@ -1,6 +1,9 @@
 ﻿using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
+using System.Data;
+using System.Security.Permissions;
+using System.Security.Principal;
 
 namespace DevelopmentHell.Hubba.Registration.Manager
 {
@@ -14,9 +17,22 @@ namespace DevelopmentHell.Hubba.Registration.Manager
 			_loggerService = loggerService;
 		}
 
-		public async Task<Result> Register(string email, string password)
+		public async Task<Result> Register(string email, string password, IPrincipal? principal = null)
 		{
 			Result result = new Result();
+			if (Thread.CurrentPrincipal is not null)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Error, user already logged in.";
+				return result;
+			}
+
+			if (principal is not null)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Error, user already logged in.";
+				return result;
+			}
 
 			Result registerResult = await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
 			if (!registerResult.IsSuccessful)
