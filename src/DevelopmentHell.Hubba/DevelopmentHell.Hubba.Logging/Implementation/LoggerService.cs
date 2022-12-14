@@ -13,7 +13,7 @@ namespace DevelopmentHell.Hubba.Logging.Service.Implementation
 			_insertDataAccess = insertDataAccess;
 		}
 
-		public async Task<Result> Log(LogLevel logLevel, Category category, string userName, string message)
+		public Result Log(LogLevel logLevel, Category category, string userName, string message)
 		{
 			Result result = new Result();
 
@@ -30,12 +30,18 @@ namespace DevelopmentHell.Hubba.Logging.Service.Implementation
 				return result;
 			}
 
-			var dataAccessResult = await _insertDataAccess.LogData(logLevel, category, userName, message).ConfigureAwait(false);
-			if (!dataAccessResult.IsSuccessful)
+			try
 			{
-				return dataAccessResult;
+				var dataAccessResult = _insertDataAccess.LogData(logLevel, category, userName, message);
+				result.IsSuccessful = true;
 			}
-
+			catch (Exception e)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = e.Message;
+				return result;
+			}
+			
 			result.IsSuccessful = true;
 			return result;
 		}

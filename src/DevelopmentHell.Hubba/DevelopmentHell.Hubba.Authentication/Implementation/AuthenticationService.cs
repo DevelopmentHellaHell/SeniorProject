@@ -41,7 +41,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 
 			Result<HashData> hashData = HashService.HashString(password, payload.PasswordSalt!);
 			var oldHash = payload.PasswordHash;
-			var newHash = Convert.ToBase64String(hashData.Payload!.Hash);
+			var newHash = Convert.ToBase64String(hashData.Payload!.Hash!);
 			Result<int> getIdFromEmail = await _dao.GetId(email).ConfigureAwait(false);
 
 			int accountIdFromEmail = getIdFromEmail.Payload;
@@ -57,7 +57,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 					UserAccount? loginAttemptData = getAttemptResult.Payload;
 					if (!getAttemptResult.IsSuccessful || loginAttemptData is null)
 					{
-						_loggerService.Log(LogLevel.WARNING, Category.BUSINESS, "AuthenticationService.AuthenticateCredentials", "Failure attempt did not complete successfully.").ConfigureAwait(false);
+						_loggerService.Log(LogLevel.WARNING, Category.BUSINESS, "AuthenticationService.AuthenticateCredentials", "Failure attempt did not complete successfully.");
 						result.IsSuccessful = false;
 						result.ErrorMessage = "Error, please contact system administrator.";
 						return result;
@@ -66,7 +66,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 					int loginAttempts = (int)loginAttemptData.LoginAttempts!;
 					DateTime? activeFailureTime = loginAttemptData.FailureTime is null ? null : DateTime.Parse(loginAttemptData.FailureTime!.ToString()!);
 
-					_loggerService.Log(LogLevel.INFO, Category.BUSINESS, "AuthenticationService.AuthenticateCredentials", $"{ipAddress} attempted to log in to {email} using the wrong password. (Attempt {loginAttempts + 1})").ConfigureAwait(false);
+					_loggerService.Log(LogLevel.INFO, Category.BUSINESS, "AuthenticationService.AuthenticateCredentials", $"{ipAddress} attempted to log in to {email} using the wrong password. (Attempt {loginAttempts + 1})");
 					
 					// Current time is greater than stored time
 					// Reset login attempts

@@ -47,7 +47,6 @@ namespace DevelopmentHell.Hubba.Client
 
 			string dummyIp = "192.0.2.0";
 			string? cachedEmail = null;
-            AuthTicket? cookiedTicket = null;
 
             async Task<bool> Register()
             {
@@ -104,8 +103,7 @@ namespace DevelopmentHell.Hubba.Client
                 if (otpResult.IsSuccessful)
                 {
                     Console.WriteLine("OTP Login Success!");
-					cookiedTicket = otpResult.Payload;
-					await Home();
+					Home();
 					return;
                 }
                 else
@@ -113,7 +111,7 @@ namespace DevelopmentHell.Hubba.Client
                     Console.WriteLine($"[ERROR]: {otpResult.ErrorMessage}");
                 }
             }
-            async Task Home()
+            void Home()
             {
                 Surround("Home View");
             }
@@ -124,7 +122,7 @@ namespace DevelopmentHell.Hubba.Client
                     Console.WriteLine("Unable to log into account");
                     return false;
                 }
-                int accountId = (await userAccountDataAccess.GetId(cachedEmail).ConfigureAwait(false)).Payload;
+                int accountId = (await userAccountDataAccess.GetId(cachedEmail!).ConfigureAwait(false)).Payload;
                 Result deleteAccountResult = await userAccountDataAccess.Delete(accountId).ConfigureAwait(false);
                 if (deleteAccountResult.IsSuccessful)
                 {
@@ -144,7 +142,7 @@ namespace DevelopmentHell.Hubba.Client
                     Console.WriteLine("Unable to log into account");
                     return false;
                 }
-                int accountId = (await userAccountDataAccess.GetId(cachedEmail).ConfigureAwait(false)).Payload;
+                int accountId = (await userAccountDataAccess.GetId(cachedEmail!).ConfigureAwait(false)).Payload;
                 Result deleteOTPResult = await otpDataAccess.Delete(accountId).ConfigureAwait(false);
                 if (deleteOTPResult.IsSuccessful)
                 {
@@ -157,25 +155,6 @@ namespace DevelopmentHell.Hubba.Client
                 }
                 return true;
             }
-            async Task<bool> ValidateSession()
-            {
-                if (cookiedTicket is null)
-                {
-                    Console.WriteLine("no stored session");
-                    return false;
-                }
-
-                Result<bool> validateResult = await authenticationManager.ValidateSession((AuthTicket)cookiedTicket).ConfigureAwait(false);
-                if(!validateResult.IsSuccessful)
-                {
-                    Console.WriteLine($"[ERROR]: {validateResult.ErrorMessage}");
-                   return false;
-                }
-
-				Console.WriteLine($"Session ID: {cookiedTicket.Value.SessionId}\nEncrypted ticket: {Convert.ToHexString(cookiedTicket.Value.Self!)}");
-				return true;
-            }
-
 
 			void Surround(string text, char character = '-', int spacing = 1)
             {
@@ -194,7 +173,6 @@ namespace DevelopmentHell.Hubba.Client
                 Console.WriteLine("4:Delete Login");
                 Console.WriteLine("5:Delete OTP Entry");
                 Console.WriteLine("6:Delete Login and OTP Entry");
-                Console.WriteLine("7:Validate and Print Session Data");
                 Console.WriteLine("8:Exit");
                 Console.Write("Choose view to access:");
 
@@ -208,7 +186,8 @@ namespace DevelopmentHell.Hubba.Client
                         Console.WriteLine("No input found, try again\n");
                         continue;
                     }
-                } catch (Exception e)
+                } 
+                catch
                 {
                     Console.WriteLine("Unable to parse input, try again\n");
                     continue;
@@ -223,6 +202,7 @@ namespace DevelopmentHell.Hubba.Client
                     case 2:
 						Surround("Login View");
                         await Login();
+                        await OtpEntry();
                         break;
                     case 3:
                         Surround("OTP Entry View");
@@ -240,10 +220,6 @@ namespace DevelopmentHell.Hubba.Client
                         Console.WriteLine("\nDelete Login and OTP Entry");
                         await DeleteOtp();
                         await DeleteLogin();
-                        break;
-                    case 7:
-                        Console.WriteLine("\nValidating and printing Session Data");
-                        await ValidateSession();
                         break;
                     case 8:
                         Console.WriteLine("\nGoodbye");

@@ -66,7 +66,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 } catch (Exception e)
                 {
                     output.IsSuccessful = false;
-                    output.ErrorMessage = "Issue in parsing Session data from db";
+                    output.ErrorMessage = "Issue in parsing Session data from db: " + e.Message;
                     return output;
                 }
             }

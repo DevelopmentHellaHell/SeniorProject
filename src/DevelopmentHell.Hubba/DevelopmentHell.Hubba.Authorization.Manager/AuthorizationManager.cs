@@ -17,7 +17,7 @@ namespace DevelopmentHell.Hubba.Authorization.Manager
 
         public async Task<Result<bool>> CheckAccess(AuthTicket ticket, string claimRequested)
         {
-            AuthTicket convertedTicket = AuthTicketConversionService.FromBytes(ticket.Self);
+            AuthTicket convertedTicket = AuthTicketConversionService.FromBytes(ticket.Self!);
             return await _authorizationService.CheckAccess(convertedTicket.AccountId, claimRequested).ConfigureAwait(false);
         }
     }

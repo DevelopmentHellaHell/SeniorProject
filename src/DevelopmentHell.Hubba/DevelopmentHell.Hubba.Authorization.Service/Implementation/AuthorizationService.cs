@@ -67,7 +67,7 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
         // (scalar or aggregate data)
         public bool CanAccessData(string dataType)
         {
-            if (_principal.IsInRole("D")) ;
+            if (_principal.IsInRole("D"));
             // code to check if user can access data goes here
             return true;
         }

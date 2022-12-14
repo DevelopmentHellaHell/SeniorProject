@@ -27,8 +27,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 				new Dictionary<string, object>()
 				{
 					{ "Email", email },
-					{ "PasswordHash", Convert.ToBase64String(password.Hash) },
-					{ "PasswordSalt", password.Salt },
+					{ "PasswordHash", Convert.ToBase64String(password.Hash!) },
+					{ "PasswordSalt", password.Salt! },
 					{ "LoginAttempts", 0 },
 					{ "FailureTime", DBNull.Value },
 					{ "Disabled", false },
@@ -81,8 +81,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 				new List<Comparator>()
 				{
 					new Comparator("Email", "=", email),
-					new Comparator("PasswordHash", "=", password.Hash),
-					new Comparator("PasswordSalt", "=", password.Salt)
+					new Comparator("PasswordHash", "=", password.Hash!),
+					new Comparator("PasswordSalt", "=", password.Salt!)
 				}
 			).ConfigureAwait(false);
 
