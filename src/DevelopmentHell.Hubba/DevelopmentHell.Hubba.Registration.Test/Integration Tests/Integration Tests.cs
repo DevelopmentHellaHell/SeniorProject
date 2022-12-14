@@ -128,7 +128,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
             }
 
             await registrationManager.Register(email, password).ConfigureAwait(false);
-            await authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            await authenticationManager.Login(email, password, dummyIp, null, false).ConfigureAwait(false);
             Result<int> getNewAccountId = await userAccountDataAccess.GetId(email).ConfigureAwait(false);
             int newAccountId = getNewAccountId.Payload;
             Result<byte[]> getOtp = await otpDataAccess.GetOTP(newAccountId).ConfigureAwait(false);
@@ -428,7 +428,6 @@ namespace DevelopmentHell.Hubba.Registration.Test
             // Assert
             Assert.IsTrue(actual.IsSuccessful == expected.IsSuccessful);
             Console.WriteLine(actual.ErrorMessage);
-            //Assert.IsTrue(actual.ErrorMessage == expected.ErrorMessage);
         }
 
         /* 

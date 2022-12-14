@@ -18,7 +18,7 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 			_loggerService = loggerService;
 		}
 
-		public async Task<Result<bool>> Login(string email, string password, string ipAddress, IPrincipal? principal = null)
+		public async Task<Result<bool>> Login(string email, string password, string ipAddress, IPrincipal? principal = null, bool enabledSend = true)
 		{
 			Result<bool> result = new();
 
@@ -41,7 +41,7 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 			Result<string> otpResult = await _otpService.NewOTP(accountId).ConfigureAwait(false);
 			string otp = otpResult.Payload!.ToString();
 
-			Result sendOTPResult = _otpService.SendOTP(email, otp);
+			Result sendOTPResult = _otpService.SendOTP(email, otp, enabledSend);
 			if (!sendOTPResult.IsSuccessful)
 			{
 				result.IsSuccessful = false;

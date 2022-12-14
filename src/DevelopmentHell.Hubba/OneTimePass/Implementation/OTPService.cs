@@ -24,8 +24,6 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service.Implementation
             byte[] eotp = EncryptionService.Encrypt(otp);
             DateTime expiration = DateTime.UtcNow.AddMinutes(2); // TODO: move to config
 
-            Console.WriteLine($"REMOVE: Your otp is: {otp}");
-
             Result result = await _dao.NewOTP(accountId, eotp, expiration).ConfigureAwait(false);
             return new Result<string>()
             {
@@ -68,14 +66,14 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service.Implementation
             return result;
         }
 
-        public Result SendOTP(string email, string otp)
+        public Result SendOTP(string email, string otp, bool enabledSend)
         {
             Result result = new Result()
             {
                 IsSuccessful = false,
             };
 
-            Result sendEmail = EmailService.SendEmail(email, "Hubba Authentication", $"Your one time password is: {otp}.");
+            Result sendEmail = EmailService.SendEmail(email, "Hubba Authentication", $"Your one time password is: {otp}", enabledSend);
             if (!sendEmail.IsSuccessful)
             {
                 result.ErrorMessage = "Serverside issue sending the OTP, please try again later.";

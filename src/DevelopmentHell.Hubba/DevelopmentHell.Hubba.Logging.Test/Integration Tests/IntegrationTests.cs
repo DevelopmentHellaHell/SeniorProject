@@ -1,7 +1,6 @@
 using DevelopmentHell.Hubba.Logging.Service.Implementation;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
-using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using Microsoft.Data.SqlClient;
 using System.Configuration;
 using System.Diagnostics;

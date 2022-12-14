@@ -7,7 +7,7 @@ namespace DevelopmentHell.Hubba.Emailing.Service
 {
 	public class EmailService
 	{
-		public static Result SendEmail(string email, string subject, string body)
+		public static Result SendEmail(string email, string subject, string body, bool enabledSend)
 		{
 			string username = ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!;
 			string companyEmail = ConfigurationManager.AppSettings["COMPANY_EMAIL"]!;
@@ -28,7 +28,7 @@ namespace DevelopmentHell.Hubba.Emailing.Service
 			Result result = new Result();
 			try
 			{
-				//client.Send(message); TODO
+				if (enabledSend) client.Send(message);
 				result.IsSuccessful = true;
 				return result;
 			}
