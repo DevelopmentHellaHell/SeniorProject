@@ -11,7 +11,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 	{
         /*
          * Success Case
-         * Goal: Instantiate a AuthenticationService object with a constructor
+         * Goal: Instantiate a AuthenticationService object using the constructor
          * Process: Create an AuthenticationService with dummy connectionstrings and table names
          */
         [TestMethod]
