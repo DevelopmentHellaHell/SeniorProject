@@ -25,8 +25,6 @@ namespace DevelopmentHell.Hubba.Registration.Test
 		private string _LogsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
 		private string _LogsTable = ConfigurationManager.AppSettings["LogsTable"]!;
 
-		
-		
 		/* Success Case
 		 * Goal: Login Successfully
 		 * Process: Register Account Successfully, Authenticate Username and Password Credentials, Authenticate One Time Password
