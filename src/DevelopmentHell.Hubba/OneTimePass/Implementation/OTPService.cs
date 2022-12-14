@@ -24,6 +24,8 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service.Implementation
             byte[] eotp = EncryptionService.Encrypt(otp);
             DateTime expiration = DateTime.UtcNow.AddMinutes(2); // TODO: move to config
 
+            Console.WriteLine($"REMOVE: Your otp is: {otp}");
+
             Result result = await _dao.NewOTP(accountId, eotp, expiration).ConfigureAwait(false);
             return new Result<string>()
             {

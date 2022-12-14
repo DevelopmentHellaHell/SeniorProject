@@ -21,7 +21,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
 				{
 					query.Connection = conn;
 					List<Dictionary<string,object>> payload = new();
-					await conn.OpenAsync();
+					await conn.OpenAsync().ConfigureAwait(false);
 					using (SqlDataReader reader = await query.ExecuteReaderAsync().ConfigureAwait(false))
 					{
 						while (reader.Read())

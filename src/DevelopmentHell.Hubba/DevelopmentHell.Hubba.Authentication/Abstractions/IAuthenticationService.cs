@@ -6,6 +6,6 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Abstractions
 	public interface IAuthenticationService
 	{
 		Task<Result<int>> AuthenticateCredentials(string email, string password, string ipAddress);
-		Task<Result<GenericPrincipal>> CreateSession(int AccountId);
+		Result<GenericPrincipal> CreateSession(int AccountId);
 	}
 }

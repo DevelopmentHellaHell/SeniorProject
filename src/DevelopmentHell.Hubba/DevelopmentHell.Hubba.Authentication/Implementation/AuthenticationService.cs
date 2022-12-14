@@ -140,10 +140,18 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 			return result;
 		}
 
-		public async Task<Result<GenericPrincipal>> CreateSession(int accountId)
+		public Result<GenericPrincipal> CreateSession(int accountId)
 		{
-			//TODO
-			throw new NotImplementedException();
+            Result<GenericPrincipal> result = new Result<GenericPrincipal>();
+
+            var identity = new GenericIdentity(accountId.ToString());
+            var principal = new GenericPrincipal(identity, new string[] { "VerifiedUser" });
+			
+            Thread.CurrentPrincipal = principal;
+
+			result.IsSuccessful = true;
+            result.Payload = principal;
+            return result;
 		}
 	}
 }

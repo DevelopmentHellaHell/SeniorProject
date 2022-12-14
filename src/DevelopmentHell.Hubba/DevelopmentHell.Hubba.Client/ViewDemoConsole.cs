@@ -13,7 +13,8 @@ namespace DevelopmentHell.Hubba.Client
 {
     public class ViewDemoConsole
     {
-        public static async Task Main()
+        private IPrincipal? _principal;
+        public async Task Run()
         {
 			string UserAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
 			string UserOTPsTable = ConfigurationManager.AppSettings["UserOTPsTable"]!;
@@ -48,8 +49,13 @@ namespace DevelopmentHell.Hubba.Client
 			string dummyIp = "192.0.2.0";
 			string? cachedEmail = null;
 
-            async Task<bool> Register()
+			async Task<bool> Register()
             {
+				if (_principal is not null)
+				{
+					Console.WriteLine("Error, you are already logged in.");
+					return false;
+				}
 				Surround("Registration View");
 				Console.WriteLine();
                 Console.Write("Email: ");
@@ -57,7 +63,8 @@ namespace DevelopmentHell.Hubba.Client
                 Console.Write("Password: ");
                 string password = Console.ReadLine() ?? "";
 
-                var registerResult = await registrationmanager.Register(email, password).ConfigureAwait(false);
+                Console.WriteLine(Thread.CurrentPrincipal);
+                var registerResult = await registrationmanager.Register(email, password, _principal).ConfigureAwait(false);
                 if (registerResult.IsSuccessful)
                 {
                     Console.WriteLine("Registeration Success!");
@@ -71,7 +78,13 @@ namespace DevelopmentHell.Hubba.Client
             }
             async Task<bool> Login()
             {
+                if (_principal is not null)
+                {
+                    Console.WriteLine("Error, you are already logged in.");
+                    return false;
+                }
 				Surround("Login View");
+
 				Console.WriteLine();
                 Console.Write("Email: ");
                 string email = Console.ReadLine() ?? "";
@@ -92,29 +105,32 @@ namespace DevelopmentHell.Hubba.Client
             }
             async Task<bool> OtpEntry()
             {
-                if (cachedEmail == null)
-                {
-                    Console.WriteLine("User has not logged in recently, redirecting to Login view");
-                    await Login();
-                    return false;
-                }
+				if (_principal is not null)
+				{
+					Console.WriteLine("Error, you are already logged in.");
+					return false;
+				}
 
-				Surround("OTP View");
-				Console.WriteLine();
-                Console.Write("OTP: ");
-                string otp = Console.ReadLine() ?? "";
-                Result<GenericPrincipal> otpResult = await authenticationManager.AuthenticateOTP((await userAccountDataAccess.GetId(cachedEmail).ConfigureAwait(false)).Payload, otp);
-                if (otpResult.IsSuccessful)
+				while (true)
                 {
-                    Console.WriteLine("OTP Login Success!");
-					Home();
-					return true;
-                }
-                else
-                {
-                    Console.WriteLine($"[ERROR]: {otpResult.ErrorMessage}");
-                    return false;
-                }
+					Surround("OTP View");
+					Console.WriteLine();
+					Console.Write("OTP: ");
+					string otp = Console.ReadLine() ?? "";
+					Result<GenericPrincipal> otpResult = await authenticationManager.AuthenticateOTP((await userAccountDataAccess.GetId(cachedEmail).ConfigureAwait(false)).Payload, otp).ConfigureAwait(false);
+					if (otpResult.IsSuccessful)
+					{
+						Console.WriteLine("OTP Login Success!");
+						_principal = otpResult.Payload!;
+						Home();
+						return true;
+					}
+					else
+					{
+						Console.WriteLine($"[ERROR]: {otpResult.ErrorMessage}");
+						return false;
+					}
+				}
             }
             void Home()
             {
@@ -158,14 +174,14 @@ namespace DevelopmentHell.Hubba.Client
                 switch(intChoice)
                 {
                     case 1:
-                        while(!await Register());
+                        await Register();
                         break;
                     case 2:
-                        while(!await Login());
-						while(!await OtpEntry());
+                        await Login();
+						await OtpEntry();
                         break;
                     case 3:
-                        while(!await OtpEntry());
+                        await OtpEntry();
                         break;
                     case 4:
                         Console.WriteLine("\nGoodbye");
