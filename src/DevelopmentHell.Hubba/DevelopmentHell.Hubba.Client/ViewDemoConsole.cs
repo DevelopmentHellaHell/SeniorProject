@@ -84,7 +84,6 @@ namespace DevelopmentHell.Hubba.Client
                     return false;
                 }
                 Surround("Login View");
-                Surround("Note: User must enter email in all lowercase");
 
 				Console.WriteLine();
                 Console.Write("Email: ");
