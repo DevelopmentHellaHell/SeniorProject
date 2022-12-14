@@ -1,5 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
+    <Copy SourceFiles="..\App.config" DestinationFiles="$(OutDir)\testhost.dll.config" />
+  </Target>
+  
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -9,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\app.config" Link="app.config" />
+    <None Include="..\App.config" Link="App.config" />
   </ItemGroup>
 
   <ItemGroup>

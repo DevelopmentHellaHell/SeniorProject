@@ -36,8 +36,6 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 		[TestMethod]
 		public async Task Test1()
 		{
-
-
 			//// Arrange
 			//var loggerService = new LoggerService(new LoggerDataAccess(_LogsConnectionString, _LogsTable));
 			//var registrationManager = new RegistrationManager(

@@ -1,6 +1,8 @@
 using DevelopmentHell.Hubba.Logging.Service.Implementation;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
+using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
+using Microsoft.Data.SqlClient;
 using System.Configuration;
 using System.Diagnostics;
 
@@ -15,31 +17,31 @@ namespace DevelopmentHell.Hubba.Logging.Test
 		private static string connectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
 		private LoggerDataAccess dataAccess = new LoggerDataAccess(connectionString, ConfigurationManager.AppSettings["LogsTable"]!);
 
-		//[TestMethod]
-		//public async Task ConnectionSuccessful()
-		//{
-		//	// Arrange
-		//	var sut = new LoggerService(new LoggerDataAccess(connectionString, ConfigurationManager.AppSettings["LogsTable"]!));
-		//	var connectionAvailible = false;
+		[TestMethod]
+		public async Task ConnectionSuccessful()
+		{
+			// Arrange
+			var sut = new LoggerService(new LoggerDataAccess(connectionString, ConfigurationManager.AppSettings["LogsTable"]!));
+			var connectionAvailible = false;
 
-		//	// Act
-		//	using (SqlConnection conn = new SqlConnection(connectionString))
-		//	{
-		//		try
-		//		{
-		//			await conn.OpenAsync().ConfigureAwait(false);
-		//			connectionAvailible = true;
-		//		}
-		//		catch (SqlException e)
-		//		{
-		//			Console.WriteLine(e.ToString());
-		//			connectionAvailible = false;
-		//		}
-		//	}
+			// Act
+			using (SqlConnection conn = new SqlConnection(connectionString))
+			{
+				try
+				{
+					await conn.OpenAsync().ConfigureAwait(false);
+					connectionAvailible = true;
+				}
+				catch (SqlException e)
+				{
+					Console.WriteLine(e.ToString());
+					connectionAvailible = false;
+				}
+			}
 
-		//	// Assert
-		//	Assert.IsTrue(connectionAvailible);
-		//}
+			// Assert
+			Assert.IsTrue(connectionAvailible);
+		}
 
 		// Success Case 1
 		[TestMethod]
@@ -215,7 +217,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 		//	Assert.IsTrue(actual.IsSuccessful);
 		//	Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
 
-		//	var dbCheck = await dataAccess.SelectLogs(new List<string>() { "Id", "Timestamp" }, new () {new("message","=",message)});
+		//	var dbCheck = await dataAccess.SelectLogs(new List<string>() { "Id", "Timestamp" }, new() { new("message", "=", message) });
 
 		//	Assert.IsTrue(dbCheck.IsSuccessful);
 
@@ -236,11 +238,11 @@ namespace DevelopmentHell.Hubba.Logging.Test
 		//	Assert.IsTrue(foundWithinTime);
 		//}
 
-		//      // Failure Case 4
+		//// Failure Case 4
 		//[TestMethod]
 		//public async Task LogWriteSuccessAccurateWithin5Seconds()
 		//{
-		//          // Arrange
+		//	// Arrange
 		//	var category = Models.Category.VIEW;
 		//	var logLevel = Models.LogLevel.INFO;
 		//	var userName = "System";
@@ -251,16 +253,16 @@ namespace DevelopmentHell.Hubba.Logging.Test
 
 		//	// Act
 		//	var startTime = DateTime.UtcNow;
-		//          await Task.Delay(100);
-		//          stopwatch.Start();
-		//          var actual = sut.Log(logLevel, category, userName, message);
-		//          stopwatch.Stop();
+		//	await Task.Delay(100);
+		//	stopwatch.Start();
+		//	var actual = sut.Log(logLevel, category, userName, message);
+		//	stopwatch.Stop();
 
-		//          // Assert
-		//          Assert.IsTrue(actual.IsSuccessful);
+		//	// Assert
+		//	Assert.IsTrue(actual.IsSuccessful);
 		//	Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
 
-		//          var dbCheck = await dataAccess.SelectLogs(new List<string>() { "Id", "Timestamp" }, new() {
+		//	var dbCheck = await dataAccess.SelectLogs(new List<string>() { "Id", "Timestamp" }, new() {
 		//		new("Category", "=", category),
 		//		new("LogLevel", "=", logLevel),
 		//		new("UserName", "=", userName),
@@ -286,57 +288,57 @@ namespace DevelopmentHell.Hubba.Logging.Test
 		//	Assert.IsTrue(foundWithinTime);
 		//}
 
-	//	// Failure Case 5
-	//	[TestMethod]
-	//	public async Task LogWriteIsNotModifiable()
-	//	{
-	//		// Arrange
-	//		var category = Models.Category.VIEW;
-	//		var logLevel = Models.LogLevel.INFO;
-	//		var userName = "System";
-	//		var message = "test9";
-	//		var sut = new LoggerService(dataAccess);
+		//// Failure Case 5
+		//[TestMethod]
+		//public async Task LogWriteIsNotModifiable()
+		//{
+		//	// Arrange
+		//	var category = Models.Category.VIEW;
+		//	var logLevel = Models.LogLevel.INFO;
+		//	var userName = "System";
+		//	var message = "test9";
+		//	var sut = new LoggerService(dataAccess);
 
-	//		// Act
-	//		var startTime = DateTime.UtcNow;
-	//		await Task.Delay(100);
-	//		var actual = sut.Log(logLevel, category, userName, message);
+		//	// Act
+		//	var startTime = DateTime.UtcNow;
+		//	await Task.Delay(100);
+		//	var actual = sut.Log(logLevel, category, userName, message);
 
-	//		// Assert
-	//		var dbCheck = await dataAccess.SelectLogs(new List<string>() { "Id", "Timestamp" }, new List<Comparator> {
-	//			new Comparator("Category", "=", category),
-	//			new Comparator("LogLevel", "=", logLevel),
-	//			new Comparator("UserName", "=", userName),
-	//			new Comparator("Message", "=", message)
-	//		}).ConfigureAwait(false);
+		//	// Assert
+		//	var dbCheck = await dataAccess.SelectLogs(new List<string>() { "Id", "Timestamp" }, new List<Comparator> {
+		//		new Comparator("Category", "=", category),
+		//		new Comparator("LogLevel", "=", logLevel),
+		//		new Comparator("UserName", "=", userName),
+		//		new Comparator("Message", "=", message)
+		//	}).ConfigureAwait(false);
 
-	//		Assert.IsTrue(dbCheck.IsSuccessful);
+		//	Assert.IsTrue(!dbCheck.IsSuccessful);
 
-	//		List<Dictionary<string, object>> payload = dbCheck.Payload!;
-	//		Assert.IsTrue(payload.Count == 1);
+		//	List<Dictionary<string, object>> payload = dbCheck.Payload!;
+		//	Assert.IsTrue(payload.Count == 1);
 
-	//		Result updateResult = new Result()
-	//		{
-	//			IsSuccessful = false,
-	//		};
+		//	Result updateResult = new Result()
+		//	{
+		//		IsSuccessful = false,
+		//	};
 
-	//		foreach (var row in payload)
-	//		{
-	//			DateTime now = Convert.ToDateTime(row["Timestamp"]);
-	//			var timeDiff = now.Subtract(startTime).TotalSeconds;
-	//			if (0 <= timeDiff)
-	//			{
-	//				updateResult = await new UpdateDataAccess(connectionString).Update("logs",
-	//					new() { new("Id", "=", row["Id"]) },
-	//					new Dictionary<string, object>()
-	//					{
-	//						{ "Message", "newTestMessage" },
-	//					});
-	//			}
+		//	foreach (var row in payload)
+		//	{
+		//		DateTime now = Convert.ToDateTime(row["Timestamp"]);
+		//		var timeDiff = now.Subtract(startTime).TotalSeconds;
+		//		if (0 <= timeDiff)
+		//		{
+		//			updateResult = await new UpdateDataAccess(connectionString).Update("logs",
+		//				new() { new("Id", "=", row["Id"]) },
+		//				new Dictionary<string, object>()
+		//				{
+		//					{ "Message", "newTestMessage" },
+		//				});
+		//		}
 
-	//			Assert.IsTrue(!updateResult.IsSuccessful);
-	//		}
+		//		Assert.IsTrue(!updateResult.IsSuccessful);
+		//	}
 
-	//	}
+		//}
 	}
 }
