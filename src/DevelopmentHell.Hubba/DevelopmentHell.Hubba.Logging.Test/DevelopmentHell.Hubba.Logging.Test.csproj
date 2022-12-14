@@ -1,5 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
+    <Copy SourceFiles="..\App.config" DestinationFiles="$(OutDir)\testhost.dll.config" />
+  </Target>
+  
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -7,6 +11,10 @@
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\App.config" Link="App.config" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
@@ -17,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DevelopmentHell.Hubba.Logging\DevelopmentHell.Hubba.Logging.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.Logging\DevelopmentHell.Hubba.Logging.Service.csproj" />
   </ItemGroup>
 
 </Project>

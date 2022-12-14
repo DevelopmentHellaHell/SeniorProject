@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -8,7 +8,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OneTimePass\DevelopmentHell.Hubba.OneTimePassword.csproj" />
+    <None Include="..\App.config" Link="App.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DevelopmentHell.Hubba.AuthenticationManager\DevelopmentHell.Hubba.Authentication.Manager.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.Logging\DevelopmentHell.Hubba.Logging.Service.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.RegistrationManager\DevelopmentHell.Hubba.Registration.Manager.csproj" />
   </ItemGroup>
 
 </Project>

@@ -4,20 +4,13 @@ VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Client", "DevelopmentHell.Hubba.Client\DevelopmentHell.Hubba.Client.csproj", "{BACE9CC4-F837-49DD-8572-EE102E1EAB1C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Registration", "DevelopmentHell.Hubba.Registration\DevelopmentHell.Hubba.Registration.csproj", "{91B3FBDC-0B1D-4C1F-BA0D-99D27F8B93ED}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Registration.Test", "DevelopmentHell.Hubba.Registration.Test\DevelopmentHell.Hubba.Registration.Test.csproj", "{D8E08993-9EF2-4F07-8223-E3B0991B428E}"
-	ProjectSection(ProjectDependencies) = postProject
-		{6C8B3984-217A-4DEA-9A4D-73F301FC0893} = {6C8B3984-217A-4DEA-9A4D-73F301FC0893}
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.SqlDataAccess", "DevelopmentHell.Hubba.SqlDataAccess\DevelopmentHell.Hubba.SqlDataAccess.csproj", "{6C8B3984-217A-4DEA-9A4D-73F301FC0893}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5A528968-95F9-4E5A-98CB-501EE0759FDC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "Clients", "{0E8013DB-F597-49E1-9C90-367A98C5BE69}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CommonComponent", "CommonComponent", "{AF8ADA89-9511-4DF9-B861-281AC81D112D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CommonComponents", "CommonComponents", "{AF8ADA89-9511-4DF9-B861-281AC81D112D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DAL", "DAL", "{374ED57B-DF41-443B-ACB3-D48D59039C48}"
 EndProject
@@ -25,25 +18,55 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DS_schemas", "DS_schemas", 
 	ProjectSection(SolutionItems) = preProject
 		DevelopmentHell.Hubba.Logging.sql = DevelopmentHell.Hubba.Logging.sql
 		DevelopmentHell.Hubba.Users.sql = DevelopmentHell.Hubba.Users.sql
-		DSREADME.txt = DSREADME.txt
+		README.txt = README.txt
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Models", "DevelopmentHell.Hubba.Models\DevelopmentHell.Hubba.Models.csproj", "{583B5DFF-1EA8-4EAF-99F2-0DC064FEA9F5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Logging", "DevelopmentHell.Hubba.Logging\DevelopmentHell.Hubba.Logging.csproj", "{92B3BC1E-7F3D-49E2-B2D9-C726F13C51D2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Logging.Service", "DevelopmentHell.Hubba.Logging\DevelopmentHell.Hubba.Logging.Service.csproj", "{92B3BC1E-7F3D-49E2-B2D9-C726F13C51D2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Logging.Test", "DevelopmentHell.Hubba.Logging.Test\DevelopmentHell.Hubba.Logging.Test.csproj", "{B8A07CDE-585C-4739-80B0-D751407F60D9}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6CB953D1-49EC-4BD2-A116-3DB051F70A55}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.OneTimePassword.Service", "OneTimePass\DevelopmentHell.Hubba.OneTimePassword.Service.csproj", "{ACAE2FD7-72BB-4E31-95DE-5E8206C8FF08}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Emailing.Service", "DevelopmentHell.Hubba.Mailing\DevelopmentHell.Hubba.Emailing.Service.csproj", "{2C5D2919-A293-4FFA-B565-B6FDA01B6000}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Cryptography.Service", "DevelopmentHell.Hubba.Encryption\DevelopmentHell.Hubba.Cryptography.Service.csproj", "{82B9B36C-D9DC-44AA-9A25-9029366ED034}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{33222376-EAA6-4A44-A1D7-B6DB5BE1E13B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Models", "Models", "{A4675B9F-8A9C-4BEB-9A4B-C3C428511092}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Managers", "Managers", "{40E173BC-9166-4234-90FF-582A6F31AD58}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CommonComponents", "CommonComponents", "{B0CA7BBB-28E5-4E0B-8469-CB306F709D85}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Authentication.Service", "DevelopmentHell.Hubba.Authentication\DevelopmentHell.Hubba.Authentication.Service.csproj", "{0CD11C43-E081-4B40-907C-5620E1EB6DE1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Validation.Service", "DevelopmentHell.Hubba.Validaition\DevelopmentHell.Hubba.Validation.Service.csproj", "{8B96D365-954B-4C24-A2DC-74E1D593C0AD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Authentication.Manager", "DevelopmentHell.Hubba.AuthenticationManager\DevelopmentHell.Hubba.Authentication.Manager.csproj", "{E593013E-7F89-4DCC-95D6-2C30D9122C58}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Registration.Service", "DevelopmentHell.Hubba.Registration\DevelopmentHell.Hubba.Registration.Service.csproj", "{2EB79AE8-2F40-400D-A78B-F6D5A936C42C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Registration.Manager", "DevelopmentHell.Hubba.RegistrationManager\DevelopmentHell.Hubba.Registration.Manager.csproj", "{96B02850-72EB-418F-B895-B044D192D96A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{34F988AE-D94A-4423-98AE-F328926545D5}"
 	ProjectSection(SolutionItems) = preProject
-		app.config = app.config
+		App.config = App.config
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.OneTimePassword", "OneTimePass\DevelopmentHell.Hubba.OneTimePassword.csproj", "{ACAE2FD7-72BB-4E31-95DE-5E8206C8FF08}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Registration.Test", "DevelopmentHell.Hubba.Registration.Test\DevelopmentHell.Hubba.Registration.Test.csproj", "{44525756-9DCE-49F7-A150-92A63E2CC787}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Mailing", "DevelopmentHell.Hubba.Mailing\DevelopmentHell.Hubba.Mailing.csproj", "{2C5D2919-A293-4FFA-B565-B6FDA01B6000}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Authentication.Test", "DevelopmentHell.Hubba.Authentication.Test\DevelopmentHell.Hubba.Authentication.Test.csproj", "{817F0FC9-722C-4DF3-8914-9FEB7B3459E1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Encryption", "DevelopmentHell.Hubba.Encryption\DevelopmentHell.Hubba.Encryption.csproj", "{82B9B36C-D9DC-44AA-9A25-9029366ED034}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Validation.Test", "DevelopmentHell.Hubba.Validation.Test\DevelopmentHell.Hubba.Validation.Test.csproj", "{056EC1AE-CA86-4B71-95F8-DD63576E7EFE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Authorization.Service", "DevelopmentHell.Hubba.Authorization.Service\DevelopmentHell.Hubba.Authorization.Service.csproj", "{1D21CC28-BBBD-4D0F-8342-675EC3A17FEB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.HashService.Test", "DevelopmentHell.Hubba.HashService.Test\DevelopmentHell.Hubba.HashService.Test.csproj", "{704040F7-A1DB-4610-B7F3-F3A126D4B34A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.Authorization.Test", "DevelopmentHell.Hubba.Authorization.Test\DevelopmentHell.Hubba.Authorization.Test.csproj", "{1A770B3B-EF63-4420-98AC-DD4E13E1DC2B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,14 +78,6 @@ Global
 		{BACE9CC4-F837-49DD-8572-EE102E1EAB1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BACE9CC4-F837-49DD-8572-EE102E1EAB1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BACE9CC4-F837-49DD-8572-EE102E1EAB1C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{91B3FBDC-0B1D-4C1F-BA0D-99D27F8B93ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{91B3FBDC-0B1D-4C1F-BA0D-99D27F8B93ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{91B3FBDC-0B1D-4C1F-BA0D-99D27F8B93ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{91B3FBDC-0B1D-4C1F-BA0D-99D27F8B93ED}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D8E08993-9EF2-4F07-8223-E3B0991B428E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D8E08993-9EF2-4F07-8223-E3B0991B428E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D8E08993-9EF2-4F07-8223-E3B0991B428E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D8E08993-9EF2-4F07-8223-E3B0991B428E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6C8B3984-217A-4DEA-9A4D-73F301FC0893}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6C8B3984-217A-4DEA-9A4D-73F301FC0893}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C8B3984-217A-4DEA-9A4D-73F301FC0893}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -91,18 +106,77 @@ Global
 		{82B9B36C-D9DC-44AA-9A25-9029366ED034}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{82B9B36C-D9DC-44AA-9A25-9029366ED034}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{82B9B36C-D9DC-44AA-9A25-9029366ED034}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0CD11C43-E081-4B40-907C-5620E1EB6DE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CD11C43-E081-4B40-907C-5620E1EB6DE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CD11C43-E081-4B40-907C-5620E1EB6DE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CD11C43-E081-4B40-907C-5620E1EB6DE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B96D365-954B-4C24-A2DC-74E1D593C0AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B96D365-954B-4C24-A2DC-74E1D593C0AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B96D365-954B-4C24-A2DC-74E1D593C0AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B96D365-954B-4C24-A2DC-74E1D593C0AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E593013E-7F89-4DCC-95D6-2C30D9122C58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E593013E-7F89-4DCC-95D6-2C30D9122C58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E593013E-7F89-4DCC-95D6-2C30D9122C58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E593013E-7F89-4DCC-95D6-2C30D9122C58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EB79AE8-2F40-400D-A78B-F6D5A936C42C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EB79AE8-2F40-400D-A78B-F6D5A936C42C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EB79AE8-2F40-400D-A78B-F6D5A936C42C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EB79AE8-2F40-400D-A78B-F6D5A936C42C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96B02850-72EB-418F-B895-B044D192D96A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96B02850-72EB-418F-B895-B044D192D96A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96B02850-72EB-418F-B895-B044D192D96A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96B02850-72EB-418F-B895-B044D192D96A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44525756-9DCE-49F7-A150-92A63E2CC787}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44525756-9DCE-49F7-A150-92A63E2CC787}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44525756-9DCE-49F7-A150-92A63E2CC787}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44525756-9DCE-49F7-A150-92A63E2CC787}.Release|Any CPU.Build.0 = Release|Any CPU
+		{817F0FC9-722C-4DF3-8914-9FEB7B3459E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{817F0FC9-722C-4DF3-8914-9FEB7B3459E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{817F0FC9-722C-4DF3-8914-9FEB7B3459E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{817F0FC9-722C-4DF3-8914-9FEB7B3459E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{056EC1AE-CA86-4B71-95F8-DD63576E7EFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{056EC1AE-CA86-4B71-95F8-DD63576E7EFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{056EC1AE-CA86-4B71-95F8-DD63576E7EFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{056EC1AE-CA86-4B71-95F8-DD63576E7EFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D21CC28-BBBD-4D0F-8342-675EC3A17FEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D21CC28-BBBD-4D0F-8342-675EC3A17FEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D21CC28-BBBD-4D0F-8342-675EC3A17FEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D21CC28-BBBD-4D0F-8342-675EC3A17FEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{704040F7-A1DB-4610-B7F3-F3A126D4B34A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{704040F7-A1DB-4610-B7F3-F3A126D4B34A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{704040F7-A1DB-4610-B7F3-F3A126D4B34A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{704040F7-A1DB-4610-B7F3-F3A126D4B34A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A770B3B-EF63-4420-98AC-DD4E13E1DC2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A770B3B-EF63-4420-98AC-DD4E13E1DC2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A770B3B-EF63-4420-98AC-DD4E13E1DC2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A770B3B-EF63-4420-98AC-DD4E13E1DC2B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{BACE9CC4-F837-49DD-8572-EE102E1EAB1C} = {0E8013DB-F597-49E1-9C90-367A98C5BE69}
-		{91B3FBDC-0B1D-4C1F-BA0D-99D27F8B93ED} = {AF8ADA89-9511-4DF9-B861-281AC81D112D}
-		{D8E08993-9EF2-4F07-8223-E3B0991B428E} = {5A528968-95F9-4E5A-98CB-501EE0759FDC}
 		{6C8B3984-217A-4DEA-9A4D-73F301FC0893} = {374ED57B-DF41-443B-ACB3-D48D59039C48}
+		{AF8ADA89-9511-4DF9-B861-281AC81D112D} = {33222376-EAA6-4A44-A1D7-B6DB5BE1E13B}
 		{F75CB884-6301-43D0-879C-B1C11673CB60} = {374ED57B-DF41-443B-ACB3-D48D59039C48}
+		{583B5DFF-1EA8-4EAF-99F2-0DC064FEA9F5} = {A4675B9F-8A9C-4BEB-9A4B-C3C428511092}
 		{92B3BC1E-7F3D-49E2-B2D9-C726F13C51D2} = {AF8ADA89-9511-4DF9-B861-281AC81D112D}
 		{B8A07CDE-585C-4739-80B0-D751407F60D9} = {5A528968-95F9-4E5A-98CB-501EE0759FDC}
+		{ACAE2FD7-72BB-4E31-95DE-5E8206C8FF08} = {33222376-EAA6-4A44-A1D7-B6DB5BE1E13B}
+		{2C5D2919-A293-4FFA-B565-B6FDA01B6000} = {33222376-EAA6-4A44-A1D7-B6DB5BE1E13B}
+		{82B9B36C-D9DC-44AA-9A25-9029366ED034} = {33222376-EAA6-4A44-A1D7-B6DB5BE1E13B}
+		{B0CA7BBB-28E5-4E0B-8469-CB306F709D85} = {40E173BC-9166-4234-90FF-582A6F31AD58}
+		{0CD11C43-E081-4B40-907C-5620E1EB6DE1} = {AF8ADA89-9511-4DF9-B861-281AC81D112D}
+		{8B96D365-954B-4C24-A2DC-74E1D593C0AD} = {33222376-EAA6-4A44-A1D7-B6DB5BE1E13B}
+		{E593013E-7F89-4DCC-95D6-2C30D9122C58} = {B0CA7BBB-28E5-4E0B-8469-CB306F709D85}
+		{2EB79AE8-2F40-400D-A78B-F6D5A936C42C} = {AF8ADA89-9511-4DF9-B861-281AC81D112D}
+		{96B02850-72EB-418F-B895-B044D192D96A} = {B0CA7BBB-28E5-4E0B-8469-CB306F709D85}
+		{44525756-9DCE-49F7-A150-92A63E2CC787} = {5A528968-95F9-4E5A-98CB-501EE0759FDC}
+		{817F0FC9-722C-4DF3-8914-9FEB7B3459E1} = {5A528968-95F9-4E5A-98CB-501EE0759FDC}
+		{056EC1AE-CA86-4B71-95F8-DD63576E7EFE} = {5A528968-95F9-4E5A-98CB-501EE0759FDC}
+		{1D21CC28-BBBD-4D0F-8342-675EC3A17FEB} = {AF8ADA89-9511-4DF9-B861-281AC81D112D}
+		{704040F7-A1DB-4610-B7F3-F3A126D4B34A} = {5A528968-95F9-4E5A-98CB-501EE0759FDC}
+		{1A770B3B-EF63-4420-98AC-DD4E13E1DC2B} = {5A528968-95F9-4E5A-98CB-501EE0759FDC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E49330E5-F92F-4990-A904-E75E376A2656}
