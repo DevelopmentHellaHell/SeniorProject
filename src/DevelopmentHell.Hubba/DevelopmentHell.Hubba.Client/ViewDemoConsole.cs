@@ -176,8 +176,7 @@ namespace DevelopmentHell.Hubba.Client
                         await Register();
                         break;
                     case 2:
-                        await Login();
-						await OtpEntry();
+                        if (await Login()) await OtpEntry();
                         break;
                     case 3:
                         await OtpEntry();
