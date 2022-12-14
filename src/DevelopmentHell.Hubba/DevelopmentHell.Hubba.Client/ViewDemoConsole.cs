@@ -18,7 +18,6 @@ namespace DevelopmentHell.Hubba.Client
 			string UserOTPsTable = ConfigurationManager.AppSettings["UserOTPsTable"]!;
             string UserSessionsTable = ConfigurationManager.AppSettings["UserSessionsTable"]!;
 			string LogsTable = ConfigurationManager.AppSettings["LogsTable"]!;
-			string AESKey = ConfigurationManager.AppSettings["AESKey"]!;
 			string UsersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
             string LogsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
 
