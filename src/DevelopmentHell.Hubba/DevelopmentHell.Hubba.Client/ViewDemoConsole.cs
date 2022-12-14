@@ -117,7 +117,7 @@ namespace DevelopmentHell.Hubba.Client
 					Console.WriteLine();
 					Console.Write("OTP: ");
 					string otp = Console.ReadLine() ?? "";
-					Result<GenericPrincipal> otpResult = await authenticationManager.AuthenticateOTP((await userAccountDataAccess.GetId(cachedEmail).ConfigureAwait(false)).Payload, otp).ConfigureAwait(false);
+					Result<GenericPrincipal> otpResult = await authenticationManager.AuthenticateOTP((await userAccountDataAccess.GetId(cachedEmail).ConfigureAwait(false)).Payload, otp, dummyIp).ConfigureAwait(false);
 					if (otpResult.IsSuccessful)
 					{
 						Console.WriteLine("OTP Login Success!");
