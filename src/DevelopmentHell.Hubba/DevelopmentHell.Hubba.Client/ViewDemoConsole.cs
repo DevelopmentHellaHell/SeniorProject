@@ -8,6 +8,7 @@ using DevelopmentHell.Hubba.OneTimePassword.Service.Implementation;
 using DevelopmentHell.Hubba.Registration.Service.Implementation;
 using DevelopmentHell.Hubba.Authentication.Service.Implementation;
 using System.Security.Principal;
+using DevelopmentHell.Hubba.Authorization.Service.Implementation;
 
 namespace DevelopmentHell.Hubba.Client
 {
@@ -18,7 +19,6 @@ namespace DevelopmentHell.Hubba.Client
         {
 			string UserAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
 			string UserOTPsTable = ConfigurationManager.AppSettings["UserOTPsTable"]!;
-            string UserSessionsTable = ConfigurationManager.AppSettings["UserSessionsTable"]!;
 			string LogsTable = ConfigurationManager.AppSettings["LogsTable"]!;
 			string UsersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
             string LogsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
@@ -31,6 +31,7 @@ namespace DevelopmentHell.Hubba.Client
                 ),
 				loggerService
             );
+            AuthorizationService authorizationService = new AuthorizationService();
 			AuthenticationManager authenticationManager = new AuthenticationManager(
 				new AuthenticationService(
 					new UserAccountDataAccess(UsersConnectionString, UserAccountsTable), 
@@ -39,6 +40,7 @@ namespace DevelopmentHell.Hubba.Client
 				new OTPService(
 					new OTPDataAccess(UsersConnectionString, UserOTPsTable)
 				),
+                authorizationService,
 				loggerService
             );
 			// TEMP: To delete data
@@ -50,7 +52,7 @@ namespace DevelopmentHell.Hubba.Client
 
 			async Task<bool> Register()
             {
-				if (_principal is not null)
+				if (authorizationService.authorize(_principal, new string[] { "VerifiedUser", "Admin" }).IsSuccessful)
 				{
 					Console.WriteLine("Error, you are already logged in.");
 					return false;
@@ -78,7 +80,7 @@ namespace DevelopmentHell.Hubba.Client
             }
             async Task<bool> Login()
             {
-                if (_principal is not null)
+                if (authorizationService.authorize(_principal, new string[] { "VerifiedUser", "Admin" }).IsSuccessful)
                 {
                     Console.WriteLine("Error, you are already logged in.");
                     return false;
@@ -105,7 +107,7 @@ namespace DevelopmentHell.Hubba.Client
             }
             async Task<bool> OtpEntry()
             {
-				if (_principal is not null)
+				if (authorizationService.authorize(_principal, new string[] { "VerifiedUser", "Admin" }).IsSuccessful)
 				{
 					Console.WriteLine("Error, you are already logged in.");
 					return false;
@@ -134,7 +136,7 @@ namespace DevelopmentHell.Hubba.Client
             }
             void Home()
             {
-                Surround("Home View");
+                Surround("User Home View");
             }
 
 			void Surround(string text, char character = '-', int spacing = 1)
@@ -150,8 +152,7 @@ namespace DevelopmentHell.Hubba.Client
             {
                 Console.WriteLine("\n1:Attempt Registration");
                 Console.WriteLine("2:Attempt Login");
-                Console.WriteLine("3:Attempt OTP Entry");
-                Console.WriteLine("4:Exit");
+                Console.WriteLine("3:Exit");
                 Console.Write("Choose view to access:");
 
                 string choice = Console.ReadLine() ?? "";
@@ -180,15 +181,11 @@ namespace DevelopmentHell.Hubba.Client
                         if (await Login()) await OtpEntry();
                         break;
                     case 3:
-                        await OtpEntry();
-                        break;
-                    case 4:
                         Console.WriteLine("\nGoodbye");
                         return;
                     default:
 						Console.WriteLine("Invalid input, try again\n");
                         break;
-
                 }
             }
         }

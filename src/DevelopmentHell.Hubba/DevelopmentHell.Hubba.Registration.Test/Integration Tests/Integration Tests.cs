@@ -1,5 +1,6 @@
 using DevelopmentHell.Hubba.Authentication.Manager;
 using DevelopmentHell.Hubba.Authentication.Service.Implementation;
+using DevelopmentHell.Hubba.Authorization.Service.Implementation;
 using DevelopmentHell.Hubba.Cryptography.Service;
 using DevelopmentHell.Hubba.Logging.Service.Implementation;
 using DevelopmentHell.Hubba.Models;
@@ -112,7 +113,8 @@ namespace DevelopmentHell.Hubba.Registration.Test
                 new OTPService(
                     new OTPDataAccess(_UsersConnectionString, _UserOTPsTable)
                 ),
-                loggerService
+				new AuthorizationService(),
+				loggerService
             );
             string email = "registration-test02@gmail.com";
             string password = "12345678";
@@ -219,7 +221,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
                 ),
                 loggerService
             );
-            string email = "s@m.d";
+            string email = "r@g.c";
             string password = "12345678";
 
             //Cleanup

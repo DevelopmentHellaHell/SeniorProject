@@ -1,4 +1,5 @@
 ﻿using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
+using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
@@ -10,11 +11,14 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 	{
 		private IAuthenticationService _authenticationService;
 		private IOTPService _otpService;
+		private IAuthorizationService _authorizationService;
 		private ILoggerService _loggerService;
-		public AuthenticationManager(IAuthenticationService authenticationService, IOTPService otpService, ILoggerService loggerService)
+		
+		public AuthenticationManager(IAuthenticationService authenticationService, IOTPService otpService, IAuthorizationService authorizationService, ILoggerService loggerService)
 		{
 			_authenticationService = authenticationService;
 			_otpService = otpService;
+			_authorizationService = authorizationService;
 			_loggerService = loggerService;
 		}
 
@@ -22,7 +26,7 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 		{
 			Result<bool> result = new();
 
-			if (principal is not null)
+			if (_authorizationService.authorize(principal, new string[] { "VerifiedUser", "Admin" }).IsSuccessful)
 			{
 				result.IsSuccessful = false;
 				result.ErrorMessage = "Error, user already logged in.";
@@ -61,7 +65,7 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 				IsSuccessful = false,
 			};
 
-			if (principal is not null)
+			if (_authorizationService.authorize(principal, new string[] { "VerifiedUser", "Admin" }).IsSuccessful)
 			{
 				_loggerService.Log(LogLevel.INFO, Category.BUSINESS, "AuthenticationManager.AuthenticateOTP", $"{ipAddress} failed OTP authentication.");
 

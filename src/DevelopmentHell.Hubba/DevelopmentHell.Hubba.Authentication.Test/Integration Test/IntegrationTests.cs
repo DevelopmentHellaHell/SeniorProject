@@ -1,5 +1,6 @@
 using DevelopmentHell.Hubba.Authentication.Manager;
 using DevelopmentHell.Hubba.Authentication.Service.Implementation;
+using DevelopmentHell.Hubba.Authorization.Service.Implementation;
 using DevelopmentHell.Hubba.Cryptography.Service;
 using DevelopmentHell.Hubba.Logging.Service.Implementation;
 using DevelopmentHell.Hubba.Models;
@@ -51,6 +52,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 				new OTPService(
 					new OTPDataAccess(_UsersConnectionString, _UserOTPsTable)
 				),
+				new AuthorizationService(),
 				loggerService
 			);
 			string email = "authentication-test01@gmail.com";
@@ -122,7 +124,8 @@ namespace DevelopmentHell.Hubba.Authentication.Test
                 new OTPService(
                     new OTPDataAccess(_UsersConnectionString, _UserOTPsTable)
                 ),
-                loggerService
+				new AuthorizationService(),
+				loggerService
             );
             string email = "authentication-test02@gmail.com";
             string password = "12345678";
@@ -186,7 +189,8 @@ namespace DevelopmentHell.Hubba.Authentication.Test
                 new OTPService(
                     new OTPDataAccess(_UsersConnectionString, _UserOTPsTable)
                 ),
-                loggerService
+				new AuthorizationService(),
+				loggerService
             );
             string email = "authentication$test03@gmail.com";
             string password = "12345678";
@@ -227,6 +231,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 				new OTPService(
 					new OTPDataAccess(_UsersConnectionString, _UserOTPsTable)
 				),
+				new AuthorizationService(),
 				loggerService
 			);
 			string email = "authenticationtest04@gmail.com";
@@ -275,6 +280,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 				new OTPService(
 					new OTPDataAccess(_UsersConnectionString, _UserOTPsTable)
 				),
+				new AuthorizationService(),
 				loggerService
 			);
 			string email = "authenticationtest05@gmail.com";
@@ -336,6 +342,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 				new OTPService(
 					new OTPDataAccess(_UsersConnectionString, _UserOTPsTable)
 				),
+				new AuthorizationService(),
 				loggerService
 			);
 			string realEmail = "authenticationtest06@gmail.com";
@@ -397,7 +404,8 @@ namespace DevelopmentHell.Hubba.Authentication.Test
                 new OTPService(
                     new OTPDataAccess(_UsersConnectionString, _UserOTPsTable)
                 ),
-                loggerService
+				new AuthorizationService(),
+				loggerService
             );
             string email = "authentication-test07@gmail.com";
             string realPassword = "12345678";
@@ -473,6 +481,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 				new OTPService(
 					new OTPDataAccess(_UsersConnectionString, _UserOTPsTable)
 				),
+				new AuthorizationService(),
 				loggerService
 			);
 			string email = "authentication-test08@gmail.com";
@@ -535,6 +544,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 				new OTPService(
 					new OTPDataAccess(_UsersConnectionString, _UserOTPsTable)
 				),
+				new AuthorizationService(),
 				loggerService
 			);
 			string email = "authentication-test08@gmail.com";
@@ -597,6 +607,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 				new OTPService(
 					new OTPDataAccess(_UsersConnectionString, _UserOTPsTable)
 				),
+				new AuthorizationService(),
 				loggerService
 			);
 			string email = "authentication-test07@gmail.com";
