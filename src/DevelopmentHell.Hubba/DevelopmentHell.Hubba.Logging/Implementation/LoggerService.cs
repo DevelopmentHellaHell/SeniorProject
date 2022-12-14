@@ -41,7 +41,7 @@ namespace DevelopmentHell.Hubba.Logging.Service.Implementation
 				result.ErrorMessage = e.Message;
 				return result;
 			}
-			
+
 			result.IsSuccessful = true;
 			return result;
 		}

@@ -35,7 +35,7 @@ namespace DevelopmentHell.Hubba.Registration.Manager
 			Result registerResult = await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
 			if (!registerResult.IsSuccessful)
 			{
-				result.IsSuccessful = false;	
+				result.IsSuccessful = false;
 				result.ErrorMessage = registerResult.ErrorMessage;
 				return result;
 			}

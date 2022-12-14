@@ -11,12 +11,12 @@ namespace DevelopmentHell.Hubba.Validation.Service
 			Result result = new Result();
 			result.IsSuccessful = false;
 			string error = "Email provided is invalid. Retry or contact admin.";
-            Regex rx = new(@"[^a-z0-9.@-]");
-            if (rx.IsMatch(email) || email.Length < 8 || email.Length > 127)
-            {
-                result.ErrorMessage = error;
-                return result;
-            }
+			Regex rx = new(@"[^a-z0-9.@-]");
+			if (rx.IsMatch(email) || email.Length < 8 || email.Length > 127)
+			{
+				result.ErrorMessage = error;
+				return result;
+			}
 
 			string regex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
 			try

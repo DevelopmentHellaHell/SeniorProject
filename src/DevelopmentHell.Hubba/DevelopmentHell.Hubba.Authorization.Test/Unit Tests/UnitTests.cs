@@ -89,7 +89,7 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 			};
 
 			// Actual
-			var actual = authorizationService.authorize(null, new string[] { "VerifiedUser "});
+			var actual = authorizationService.authorize(null, new string[] { "VerifiedUser" });
 
 			// Assert
 			Assert.IsTrue(actual.IsSuccessful == expected.IsSuccessful);

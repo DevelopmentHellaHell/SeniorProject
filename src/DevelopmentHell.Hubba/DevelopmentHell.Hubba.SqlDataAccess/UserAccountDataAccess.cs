@@ -1,6 +1,5 @@
 ﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
-using System.Text;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
@@ -42,7 +41,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 		{
 			Result<int> result = new Result<int>();
 
-            Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
+			Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
 				_tableName,
 				new List<string>() { "Id" },
 				new List<Comparator>()
@@ -58,7 +57,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 				return result;
 			}
 
-			List<Dictionary<string,object>> payload = selectResult.Payload;
+			List<Dictionary<string, object>> payload = selectResult.Payload;
 			if (payload.Count > 1)
 			{
 				result.IsSuccessful = false;
@@ -108,9 +107,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
 		public async Task<Result<UserAccount>> GetUser(int id)
 		{
-            Result<UserAccount> result = new Result<UserAccount>();
+			Result<UserAccount> result = new Result<UserAccount>();
 
-            Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
+			Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
 				_tableName,
 				new List<string>() { "*" },
 				new List<Comparator>()
@@ -118,33 +117,33 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 					new Comparator("Id","=",id),
 				}
 			).ConfigureAwait(false);
-            if (!selectResult.IsSuccessful || selectResult.Payload is null)
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = selectResult.ErrorMessage;
-                return result;
-            }
+			if (!selectResult.IsSuccessful || selectResult.Payload is null)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = selectResult.ErrorMessage;
+				return result;
+			}
 
-            List<Dictionary<string, object>> payload = selectResult.Payload;
-            if (payload.Count > 1)
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Invalid number of UserAccounts selected.";
-                return result;
-            }
+			List<Dictionary<string, object>> payload = selectResult.Payload;
+			if (payload.Count > 1)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Invalid number of UserAccounts selected.";
+				return result;
+			}
 
-            result.IsSuccessful = true;
+			result.IsSuccessful = true;
 			if (payload.Count > 0) result.Payload = new UserAccount()
 			{
 				Id = id,
 				Email = (string)payload[0]["Email"],
 
-                LoginAttempts = (int)payload[0]["LoginAttempts"],
-                FailureTime = payload[0]["FailureTime"] == DBNull.Value ? null : payload[0]["FailureTime"],
-				
-            };
-            return result;
-        }
+				LoginAttempts = (int)payload[0]["LoginAttempts"],
+				FailureTime = payload[0]["FailureTime"] == DBNull.Value ? null : payload[0]["FailureTime"],
+
+			};
+			return result;
+		}
 
 		public async Task<Result<UserAccount>> GetUser(string email)
 		{
@@ -179,7 +178,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			}
 
 			result.IsSuccessful = true;
-			if (payload.Count > 0) result.Payload = new UserAccount() {
+			if (payload.Count > 0) result.Payload = new UserAccount()
+			{
 				LoginAttempts = (int)payload[0]["LoginAttempts"],
 				FailureTime = payload[0]["FailureTime"] == DBNull.Value ? null : payload[0]["FailureTime"],
 			};

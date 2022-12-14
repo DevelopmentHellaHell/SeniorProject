@@ -10,8 +10,8 @@ namespace DevelopmentHell.Hubba.Logging.Test
 	[TestClass]
 	public class IntegrationTests
 	{
-        private readonly Models.LogLevel[] failureLevels = { Models.LogLevel.WARNING, Models.LogLevel.ERROR };
-        private readonly Models.LogLevel[] successLevels = { Models.LogLevel.DEBUG, Models.LogLevel.INFO };
+		private readonly Models.LogLevel[] failureLevels = { Models.LogLevel.WARNING, Models.LogLevel.ERROR };
+		private readonly Models.LogLevel[] successLevels = { Models.LogLevel.DEBUG, Models.LogLevel.INFO };
 
 		private static string connectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
 		private LoggerDataAccess dataAccess = new LoggerDataAccess(connectionString, ConfigurationManager.AppSettings["LogsTable"]!);
@@ -47,100 +47,100 @@ namespace DevelopmentHell.Hubba.Logging.Test
 		public void SuccessfulLogSystemSuccess()
 		{
 			// Arrange
-            foreach (var logLevel in successLevels)
-            {
-                var category = Models.Category.VIEW;
-                var userName = "System";
-                var message = "test1";
-                var sut = new LoggerService(dataAccess);
+			foreach (var logLevel in successLevels)
+			{
+				var category = Models.Category.VIEW;
+				var userName = "System";
+				var message = "test1";
+				var sut = new LoggerService(dataAccess);
 
-                var stopwatch = new Stopwatch();
+				var stopwatch = new Stopwatch();
 
-                // Act
-                stopwatch.Start();
-                var actual = sut.Log(logLevel, category, userName, message);
-                stopwatch.Stop();
+				// Act
+				stopwatch.Start();
+				var actual = sut.Log(logLevel, category, userName, message);
+				stopwatch.Stop();
 
-                // Assert
-                Assert.IsTrue(actual.IsSuccessful);
-                Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
-            }
-        }
+				// Assert
+				Assert.IsTrue(actual.IsSuccessful);
+				Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
+			}
+		}
 
 		// Success Case 2
 		[TestMethod]
-        public void SuccessfulLogSystemFailure()
-        {
+		public void SuccessfulLogSystemFailure()
+		{
 			// Arrange
-            foreach (var logLevel in failureLevels)
-            {
-                var category = Models.Category.VIEW;
-                var userName = "System";
-                var message = "test2";
-                var sut = new LoggerService(dataAccess);
+			foreach (var logLevel in failureLevels)
+			{
+				var category = Models.Category.VIEW;
+				var userName = "System";
+				var message = "test2";
+				var sut = new LoggerService(dataAccess);
 
-                var stopwatch = new Stopwatch();
+				var stopwatch = new Stopwatch();
 
-                // Act
-                stopwatch.Start();
-                var actual = sut.Log(logLevel, category, userName, message);
-                stopwatch.Stop();
+				// Act
+				stopwatch.Start();
+				var actual = sut.Log(logLevel, category, userName, message);
+				stopwatch.Stop();
 
-                // Assert
-                Assert.IsTrue(actual.IsSuccessful);
-                Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
-            }
-        }
+				// Assert
+				Assert.IsTrue(actual.IsSuccessful);
+				Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
+			}
+		}
 
 		// Success Case 3
 		[TestMethod]
-        public void SuccessfulLogUserSuccess()
-        {
+		public void SuccessfulLogUserSuccess()
+		{
 			// Arrange
-            foreach (var logLevel in successLevels)
-            {
-                var category = Models.Category.VIEW;
-                var userName = "User1";
-                var message = "test3";
-                var sut = new LoggerService(dataAccess);
+			foreach (var logLevel in successLevels)
+			{
+				var category = Models.Category.VIEW;
+				var userName = "User1";
+				var message = "test3";
+				var sut = new LoggerService(dataAccess);
 
-                var stopwatch = new Stopwatch();
+				var stopwatch = new Stopwatch();
 
-                // Act
-                stopwatch.Start();
-                var actual = sut.Log(logLevel, category, userName, message);
-                stopwatch.Stop();
+				// Act
+				stopwatch.Start();
+				var actual = sut.Log(logLevel, category, userName, message);
+				stopwatch.Stop();
 
-                // Assert
-                Assert.IsTrue(actual.IsSuccessful);
-                Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
-            }
-        }
+				// Assert
+				Assert.IsTrue(actual.IsSuccessful);
+				Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
+			}
+		}
 
 		// Success Case 4
-        [TestMethod]
-        public void SuccessfulLogUserFailure()
-        {
+		[TestMethod]
+		public void SuccessfulLogUserFailure()
+		{
 			// Arrange
-            foreach (var logLevel in failureLevels)
-            {
-                var category = Models.Category.VIEW;
-                var userName = "User1";
-                var message = "test4";
-                var sut = new LoggerService(dataAccess);
+			foreach (var logLevel in failureLevels)
+			{
+				var category = Models.Category.VIEW;
+				var userName = "User1";
+				var message = "test4";
+				var sut = new LoggerService(dataAccess);
 
-                var stopwatch = new Stopwatch();
+				var stopwatch = new Stopwatch();
 
-                // Act
-                stopwatch.Start();
-                var actual = sut.Log(logLevel, category, userName, message);
-                stopwatch.Stop();
+				// Act
+				stopwatch.Start();
+				var actual = sut.Log(logLevel, category, userName, message);
+				stopwatch.Stop();
 
-                // Assert
-                Assert.IsTrue(actual.IsSuccessful);
-                Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
-            }
-        }
+				// Assert
+				Assert.IsTrue(actual.IsSuccessful);
+				Assert.IsTrue(stopwatch.ElapsedMilliseconds <= 5000);
+			}
+		}
 
 		// Failure Case 1
 		[TestMethod]

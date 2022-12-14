@@ -13,14 +13,14 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
 			connectionPath = inPath;
 		}
 
-		private async Task<Result<List<Dictionary<string,object>>>> SendQuery(SqlCommand query)
+		private async Task<Result<List<Dictionary<string, object>>>> SendQuery(SqlCommand query)
 		{
 			try
 			{
 				using (SqlConnection conn = new SqlConnection(connectionPath))
 				{
 					query.Connection = conn;
-					List<Dictionary<string,object>> payload = new();
+					List<Dictionary<string, object>> payload = new();
 					await conn.OpenAsync().ConfigureAwait(false);
 					using (SqlDataReader reader = await query.ExecuteReaderAsync().ConfigureAwait(false))
 					{

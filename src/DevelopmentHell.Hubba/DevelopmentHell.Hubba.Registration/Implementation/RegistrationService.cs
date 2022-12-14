@@ -39,14 +39,15 @@ namespace DevelopmentHell.Hubba.Registration.Service.Implementation
 			Result<int> getResult = await _dao.GetId(email).ConfigureAwait(false);
 			if (!getResult.IsSuccessful)
 			{
-				
+
 				Console.WriteLine(getResult.ErrorMessage);
 				result.IsSuccessful = false;
 				result.ErrorMessage = "Unable to assign username. Retry again or contact system administrator";
-                return result;
+				return result;
 			}
 
-			if (getResult.Payload != 0) {
+			if (getResult.Payload != 0)
+			{
 				result.IsSuccessful = false;
 				result.ErrorMessage = "An account with that email already exists.";
 				return result;

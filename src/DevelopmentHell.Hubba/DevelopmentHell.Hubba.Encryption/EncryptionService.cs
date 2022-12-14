@@ -38,27 +38,27 @@ namespace DevelopmentHell.Hubba.Cryptography.Service
 
 		public static byte[] Encrypt(byte[] bytes)
 		{
-            byte[] encrypted;
+			byte[] encrypted;
 
-            _alg.Key = _cryptographyKey;
-            _alg.Padding = PaddingMode.Zeros;
-            ICryptoTransform encryptor = _alg.CreateEncryptor();
+			_alg.Key = _cryptographyKey;
+			_alg.Padding = PaddingMode.Zeros;
+			ICryptoTransform encryptor = _alg.CreateEncryptor();
 
-            // Create MemoryStream
-            using (MemoryStream ms = new MemoryStream())
-            {
-                // Create crypto stream using the CryptoStream class.
-                using (CryptoStream cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
-                {
+			// Create MemoryStream
+			using (MemoryStream ms = new MemoryStream())
+			{
+				// Create crypto stream using the CryptoStream class.
+				using (CryptoStream cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
+				{
 					cs.Write(bytes, 0, bytes.Length);
 					cs.FlushFinalBlock();
-                    encrypted = ms.ToArray();
-                }
-            }
+					encrypted = ms.ToArray();
+				}
+			}
 
-            // Return encrypted data
-            return encrypted;
-        }
+			// Return encrypted data
+			return encrypted;
+		}
 		public static string Decrypt(byte[] encrypted)
 		{
 			string output;
@@ -82,28 +82,29 @@ namespace DevelopmentHell.Hubba.Cryptography.Service
 			// Return encrypted data
 			return output.Replace("\0", String.Empty);
 		}
-		public static byte[] DecryptToBytes(byte[] encrypted) {
-            byte[] output;
+		public static byte[] DecryptToBytes(byte[] encrypted)
+		{
+			byte[] output;
 
-            _alg.Key = _cryptographyKey;
-            _alg.Padding = PaddingMode.Zeros;
-            ICryptoTransform decryptor = _alg.CreateDecryptor();
+			_alg.Key = _cryptographyKey;
+			_alg.Padding = PaddingMode.Zeros;
+			ICryptoTransform decryptor = _alg.CreateDecryptor();
 
-            // Create MemoryStream
-            using (MemoryStream ms = new MemoryStream(encrypted))
-            {
-                // Create crypto stream using the CryptoStream class.
-                using (CryptoStream cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Write))
-                {
-                    // Create StreamWriter and write data to a stream
-                    cs.Write(encrypted, 0, encrypted.Length);
-                    cs.FlushFinalBlock();
-                    output = ms.ToArray();
-                }
-            }
+			// Create MemoryStream
+			using (MemoryStream ms = new MemoryStream(encrypted))
+			{
+				// Create crypto stream using the CryptoStream class.
+				using (CryptoStream cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Write))
+				{
+					// Create StreamWriter and write data to a stream
+					cs.Write(encrypted, 0, encrypted.Length);
+					cs.FlushFinalBlock();
+					output = ms.ToArray();
+				}
+			}
 
-            // Return encrypted data
-            return output;
-        }
+			// Return encrypted data
+			return output;
+		}
 	}
 }

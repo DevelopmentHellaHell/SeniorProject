@@ -9,7 +9,7 @@ namespace DevelopmentHell.Hubba.Cryptography.Service
 		public static readonly string saltValidChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 		public static Result<HashData> HashString(string text, string salt)
 		{
-			
+
 			Result<HashData> result = new Result<HashData>();
 			byte[] passwordBytes = Encoding.UTF8.GetBytes(text);
 			byte[] saltBytes = Encoding.UTF8.GetBytes(salt);

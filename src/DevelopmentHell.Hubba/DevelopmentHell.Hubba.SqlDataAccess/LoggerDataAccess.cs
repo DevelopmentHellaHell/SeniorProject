@@ -1,7 +1,6 @@
 ﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
-using System.Configuration;
 using System.Globalization;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
@@ -51,7 +50,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			};
 		}
 
-		public async Task<Result<List<Dictionary<string,object>>>> SelectLogs(List<string> columns, List<Comparator> filters)
+		public async Task<Result<List<Dictionary<string, object>>>> SelectLogs(List<string> columns, List<Comparator> filters)
 		{
 			var selectResult = await _selectDataAccess.Select(_tableName, columns, filters).ConfigureAwait(false);
 			return selectResult;

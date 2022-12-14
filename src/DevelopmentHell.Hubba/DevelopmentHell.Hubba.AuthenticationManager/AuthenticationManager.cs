@@ -7,13 +7,13 @@ using System.Security.Principal;
 
 namespace DevelopmentHell.Hubba.Authentication.Manager
 {
-    public class AuthenticationManager
+	public class AuthenticationManager
 	{
 		private IAuthenticationService _authenticationService;
 		private IOTPService _otpService;
 		private IAuthorizationService _authorizationService;
 		private ILoggerService _loggerService;
-		
+
 		public AuthenticationManager(IAuthenticationService authenticationService, IOTPService otpService, IAuthorizationService authorizationService, ILoggerService loggerService)
 		{
 			_authenticationService = authenticationService;
@@ -80,7 +80,7 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 				result.ErrorMessage = "Invalid or expired OTP, please try again.";
 				return result;
 			}
-			
+
 			return _authenticationService.CreateSession(accountId);
 		}
 	}

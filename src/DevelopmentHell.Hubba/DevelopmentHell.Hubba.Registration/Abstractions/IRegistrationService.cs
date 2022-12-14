@@ -1,5 +1,4 @@
 ﻿using DevelopmentHell.Hubba.Models;
-using System.Security.Principal;
 
 namespace DevelopmentHell.Hubba.Registration.Service.Abstractions
 {
