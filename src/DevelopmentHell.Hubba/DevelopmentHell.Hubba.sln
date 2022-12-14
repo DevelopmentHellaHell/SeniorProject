@@ -18,7 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DS_schemas", "DS_schemas", 
 	ProjectSection(SolutionItems) = preProject
 		DevelopmentHell.Hubba.Logging.sql = DevelopmentHell.Hubba.Logging.sql
 		DevelopmentHell.Hubba.Users.sql = DevelopmentHell.Hubba.Users.sql
-		DSREADME.txt = DSREADME.txt
+		README.txt = README.txt
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Models", "DevelopmentHell.Hubba.Models\DevelopmentHell.Hubba.Models.csproj", "{583B5DFF-1EA8-4EAF-99F2-0DC064FEA9F5}"
