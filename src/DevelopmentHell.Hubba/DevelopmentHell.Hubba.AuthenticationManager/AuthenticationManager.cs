@@ -67,7 +67,7 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 
 			if (_authorizationService.authorize(principal, new string[] { "VerifiedUser", "Admin" }).IsSuccessful)
 			{
-				_loggerService.Log(LogLevel.INFO, Category.BUSINESS, "AuthenticationManager.AuthenticateOTP", $"{ipAddress} failed OTP authentication.");
+				_loggerService.Log(LogLevel.INFO, Category.BUSINESS, $"{ipAddress} failed OTP authentication.");
 
 				result.IsSuccessful = false;
 				result.ErrorMessage = "Error, user already logged in.";
