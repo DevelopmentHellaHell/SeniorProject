@@ -3,6 +3,7 @@ using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
+using System.Net;
 using System.Security.Principal;
 
 namespace DevelopmentHell.Hubba.Authentication.Manager
@@ -67,7 +68,7 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 
 			if (_authorizationService.authorize(principal, new string[] { "VerifiedUser", "Admin" }).IsSuccessful)
 			{
-				_loggerService.Log(LogLevel.INFO, Category.BUSINESS, "AuthenticationManager.AuthenticateOTP", $"{ipAddress} failed OTP authentication.");
+				_loggerService.Log(LogLevel.INFO, Category.BUSINESS, $"{ipAddress} failed OTP authentication.");
 
 				result.IsSuccessful = false;
 				result.ErrorMessage = "Error, user already logged in.";
@@ -82,6 +83,29 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 			}
 
 			return _authenticationService.CreateSession(accountId);
+		}
+
+		public Result<bool> Logout(int accountId, IPrincipal? principal, bool enabledSend = true)
+		{
+
+			Result<bool> result = new();
+
+			if (_authorizationService.authorize(principal, new string[] { "DefaultUser" }).IsSuccessful)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Error, user already logged out.";
+				return result;
+			}
+
+			if (!_authenticationService.EndSession(accountId).IsSuccessful)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Logout error.";
+				return result;
+			}
+			result.IsSuccessful = true;
+			return result;
+
 		}
 	}
 }
