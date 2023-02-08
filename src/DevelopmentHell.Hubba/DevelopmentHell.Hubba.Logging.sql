@@ -173,7 +173,7 @@ CREATE TABLE [dbo].[Logs](
 	[Timestamp] [datetime2](3) NOT NULL,
 	[LogLevel] [int] NOT NULL,
 	[Category] [int] NOT NULL,
-	[UserName] [nvarchar](50) NOT NULL,
+	[UserName] [varchar](256) NOT NULL,
 	[Message] [nvarchar](200) NOT NULL,
  CONSTRAINT [PK_Logs] PRIMARY KEY CLUSTERED 
 (

@@ -1,7 +1,10 @@
-﻿using DevelopmentHell.Hubba.Logging.Service.Abstractions;
+﻿using DevelopmentHell.Hubba.Cryptography.Service;
+using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
+using System.Configuration;
 using System.Security.Principal;
+using System.Text;
 
 namespace DevelopmentHell.Hubba.Registration.Manager
 {
@@ -40,7 +43,16 @@ namespace DevelopmentHell.Hubba.Registration.Manager
 				return result;
 			}
 
-			_loggerService.Log(LogLevel.INFO, Category.BUSINESS, "RegistrationManager.Register", $"New registered user: {email}.");
+			string userHashKey = ConfigurationManager.AppSettings["UserHashKey"]!;
+			Result<HashData> userHashResult = HashService.HashString(email, userHashKey);
+			if (!userHashResult.IsSuccessful || userHashResult.Payload is null) {
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Error, unexpected error. Please contact system administrator.";
+				return result;
+			}
+
+			string userHash = Convert.ToBase64String(userHashResult.Payload.Hash!);
+			_loggerService.Log(LogLevel.INFO, Category.BUSINESS, $"New registered user: {email}.", userHash);
 
 			result.IsSuccessful = true;
 			return result;
