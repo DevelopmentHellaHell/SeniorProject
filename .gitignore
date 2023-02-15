@@ -3,4 +3,5 @@ obj/
 v17/
 fileContentIndex/
 .vs/
+.DS_Store
 app.config
