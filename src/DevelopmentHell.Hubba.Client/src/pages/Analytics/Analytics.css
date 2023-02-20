@@ -1,0 +1,28 @@
+body {
+    background-color: rgb(20, 20, 20);
+    height: 100vh;
+    margin: 0px;
+    padding: 0px;
+}
+
+.wrapper {
+    color: rgb(255, 255, 255);
+    text-align: center;
+}
+
+.chart-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+    flex-wrap: wrap;
+}
+
+.chart-box {
+    flex: 0 0 700px;
+    padding: 20px;
+    background: rgb(25, 25, 25);
+    border-radius: 10px;
+    text-align: center;
+}
