@@ -6,6 +6,8 @@ import Loading from '../../components/Loading/Loading';
 import NavbarUser from '../../components/NavbarUser/NavbarUser';
 import './Analytics.css';
 
+const REFRESH_CHARTS_INTERVAL_MILLISECONDS = 1000;
+
 interface Props {
 
 }
@@ -20,35 +22,14 @@ ChartJS.register(...registerables);
 ChartJS.defaults.color = "rgb(240, 255, 255)";
 ChartJS.defaults.borderColor = "rgb(40, 40, 40)";
 
-const DUMMY_DATA: AnalyticsData = {
-  "logins": {
-    "2/10": 5,
-    "2/11": 6,
-    "2/12": 8,
-  },
-  "registrations": {
-    "2/10": 7,
-    "2/11": 3,
-    "2/12": 15,
-  },
-  "listings": {
-    "2/10": 1,
-    "2/11": 3,
-  },
-  "bookings": {
-    "2/10": 1,
-    "2/12": 2,
-  }
-}
-
 const Analytics: React.FC<Props> = (props) => {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<AnalyticsData | null>(null);
   const [error, setError] = useState("");
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     async function getData() {
-      const response = await Ajax.get<any>("https://jsonplaceholder.typicode.com/users"); //any type temp
+      const response = await Ajax.get<AnalyticsData>("/analytics/data");
       setData(response.data);
       setError(response.error);
       setLoaded(response.loaded);
@@ -56,7 +37,7 @@ const Analytics: React.FC<Props> = (props) => {
 
     const interval = setInterval(() => {
       getData();
-    }, 1000);
+    }, REFRESH_CHARTS_INTERVAL_MILLISECONDS);
 
     return (() => { clearInterval(interval) });
   }, []);
@@ -73,14 +54,14 @@ const Analytics: React.FC<Props> = (props) => {
         {!loaded && !error &&
           <Loading title="Loading chart data..."/>
         }
-        {loaded && !error && data && Object.keys(DUMMY_DATA).map(key => {
+        {loaded && !error && data && Object.keys(data).map(key => {
           const chartData: ChartData<"line"> = {
             labels: [],
             datasets: [{
               data: [],
             }],
           };
-          const indexed = DUMMY_DATA[key];
+          const indexed = data[key];
           Object.keys(indexed).forEach(date => {
             const count = indexed[date];
             chartData.labels!.push(date);

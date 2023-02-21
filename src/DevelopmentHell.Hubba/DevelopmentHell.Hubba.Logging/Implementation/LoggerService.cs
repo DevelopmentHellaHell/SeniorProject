@@ -13,7 +13,7 @@ namespace DevelopmentHell.Hubba.Logging.Service.Implementation
 			_dao = insertDataAccess;
 		}
 
-		public Result Log(LogLevel logLevel, Category category, string userName, string message)
+		public Result Log(LogLevel logLevel, Category category, string message, string userName = "")
 		{
 			Result result = new Result();
 
@@ -23,10 +23,10 @@ namespace DevelopmentHell.Hubba.Logging.Service.Implementation
 				return result;
 			}
 
-			if (userName.Length > 50)
+			if (userName.Length > 256)
 			{
 				result.IsSuccessful = false;
-				result.ErrorMessage = "Logging user was over 50 characters.";
+				result.ErrorMessage = "Logging user was over 256 characters.";
 				return result;
 			}
 

@@ -53,7 +53,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
 			}
 		}
 
-		public async Task<Result<List<Dictionary<string, object>>>> Select(string source, List<string> columns, List<Comparator> filters)
+		public async Task<Result<List<Dictionary<string, object>>>> Select(string source, List<string> columns, List<Comparator> filters, string group = "", string order = "")
 		{
 			//TODO add implementation for group by, order by, having
 			using (SqlCommand insertQuery = new SqlCommand())
@@ -83,10 +83,22 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
 					first = false;
 					sbColumn.Append(column);
 				}
-				insertQuery.CommandText = $"SELECT {sbColumn.ToString()} FROM {source} WHERE {sbFilter.ToString()}";
+
+				string groupBy = "";
+				if (group != String.Empty)
+				{
+					groupBy = $"GROUP BY {group}";
+				}
+
+				string orderBy = "";
+				if (order != String.Empty)
+				{
+					orderBy = $"ORDER BY {order}";
+				}
+
+				insertQuery.CommandText = $"SELECT {sbColumn.ToString()} FROM {source} WHERE {sbFilter.ToString()} {groupBy} {orderBy}";
 				return await SendQuery(insertQuery).ConfigureAwait(false);
 			}
 		}
-
 	}
 }

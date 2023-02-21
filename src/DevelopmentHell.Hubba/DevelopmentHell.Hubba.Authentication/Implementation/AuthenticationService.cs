@@ -12,6 +12,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 	{
 		private IUserAccountDataAccess _dao;
 		private ILoggerService _loggerService;
+
 		public AuthenticationService(IUserAccountDataAccess dao, ILoggerService loggerService)
 		{
 			_dao = dao;
@@ -51,7 +52,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 				// Valid Email
 				if (accountIdFromEmail != 0)
 				{
-					DateTime currentTime = DateTime.UtcNow;
+					DateTime currentTime = DateTime.Now;
 					Result<UserAccount> getAttemptResult = await _dao.GetAttempt(accountIdFromEmail).ConfigureAwait(false);
 					UserAccount? loginAttemptData = getAttemptResult.Payload;
 					if (!getAttemptResult.IsSuccessful || loginAttemptData is null)

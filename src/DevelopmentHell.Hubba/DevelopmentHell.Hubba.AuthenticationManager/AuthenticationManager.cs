@@ -1,8 +1,10 @@
 ﻿using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
+using DevelopmentHell.Hubba.Cryptography.Service;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
+using System.Configuration;
 using System.Security.Principal;
 
 namespace DevelopmentHell.Hubba.Authentication.Manager
@@ -52,6 +54,18 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 				result.ErrorMessage = sendOTPResult.ErrorMessage;
 				return result;
 			}
+
+			string userHashKey = ConfigurationManager.AppSettings["UserHashKey"]!;
+			Result<HashData> userHashResult = HashService.HashString(email, userHashKey);
+			if (!userHashResult.IsSuccessful || userHashResult.Payload is null)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Error, unexpected error. Please contact system administrator.";
+				return result;
+			}
+
+			string userHash = Convert.ToBase64String(userHashResult.Payload.Hash!);
+			_loggerService.Log(LogLevel.INFO, Category.BUSINESS, $"Successful login attempt from: {email}.", userHash);
 
 			result.IsSuccessful = true;
 			return result;
