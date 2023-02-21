@@ -85,27 +85,25 @@ namespace DevelopmentHell.Hubba.Authentication.Manager
 			return _authenticationService.CreateSession(accountId);
 		}
 
-		public Result<bool> Logout(int accountId, IPrincipal? principal, bool enabledSend = true)
+		public Result<GenericPrincipal> Logout(int accountId, IPrincipal principal, bool enabledSend = true)
 		{
 
-			Result<bool> result = new();
+			Result<GenericPrincipal> result = new();
 
 			if (_authorizationService.authorize(principal, new string[] { "DefaultUser" }).IsSuccessful)
 			{
 				result.IsSuccessful = false;
-				result.ErrorMessage = "Error, user already logged out.";
+                result.Payload = (GenericPrincipal) principal;
+                result.ErrorMessage = "Error, user already logged out.";
 				return result;
 			}
-
-			if (!_authenticationService.EndSession(accountId).IsSuccessful)
+			result = _authenticationService.EndSession(accountId);
+			if (!result.IsSuccessful)
 			{
-				result.IsSuccessful = false;
 				result.ErrorMessage = "Logout error.";
 				return result;
 			}
-			result.IsSuccessful = true;
 			return result;
-
 		}
 	}
 }
