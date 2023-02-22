@@ -1,13 +1,12 @@
-body {
-    background-color: rgb(20, 20, 20);
-    height: 100vh;
-    margin: 0px;
-    padding: 0px;
+.analytics-container {
+    position: relative;
+    min-height: 100vh;
 }
 
-.wrapper {
-    color: rgb(255, 255, 255);
+.analytics-wrapper {
+    color: var(--primary-text-dark);
     text-align: center;
+    padding-bottom: 2.5rem;
 }
 
 .chart-card {
@@ -22,7 +21,7 @@ body {
 .chart-box {
     flex: 0 0 700px;
     padding: 20px;
-    background: rgb(25, 25, 25);
+    background: var(--primary-background-light);
     border-radius: 10px;
     text-align: center;
 }
