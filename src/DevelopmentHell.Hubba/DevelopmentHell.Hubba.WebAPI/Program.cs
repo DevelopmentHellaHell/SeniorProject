@@ -7,7 +7,10 @@ var builder = WebApplication.CreateBuilder(args);
 var loggerService = new LoggerService(new LoggerDataAccess(System.Configuration.ConfigurationManager.AppSettings["LogsConnectionString"]!, System.Configuration.ConfigurationManager.AppSettings["LogsTable"]!));
 
 builder.Services.AddControllers();
-builder.Services.AddTransient(s => new AnalyticsService(new AnalyticsDataAccess(System.Configuration.ConfigurationManager.AppSettings["LogsConnectionString"]!, System.Configuration.ConfigurationManager.AppSettings["LogsTable"]!), loggerService));
+// Transient new instance for every controller and service
+// Scoped is same object from same request but different for other requests
+// Singleton is one instance across all requests
+builder.Services.AddSingleton(s => new AnalyticsService(new AnalyticsDataAccess(System.Configuration.ConfigurationManager.AppSettings["LogsConnectionString"]!, System.Configuration.ConfigurationManager.AppSettings["LogsTable"]!), loggerService));
 builder.Services.AddCors();
 
 var app = builder.Build();
