@@ -8,10 +8,11 @@ using System.Security.Principal;
 using System.Text;
 using DevelopmentHell.Hubba.Authorization.Service.Implementation;
 using Microsoft.Identity.Client;
+using DevelopmentHell.Hubba.AccountDeletion.Manager.Abstraction;
 
-namespace DevelopmentHell.Hubba.AccountDeletion.Manager
+namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementation
 {
-    public class AccountDeletionManager
+    public class AccountDeletionManager : IAccountDeletionManager
     {
         private IAccountDeletionService _accountDeletionService;
         private ILoggerService _loggerService;
