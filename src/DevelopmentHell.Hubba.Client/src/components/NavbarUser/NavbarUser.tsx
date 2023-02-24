@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import Dropdown from "../Dropdown/Dropdown";
 import './NavbarUser.css';
 
@@ -7,28 +8,20 @@ interface Props {
 }
 
 const NavbarUser: React.FC<Props> = (props) => {
+    const navigate = useNavigate();
+
     return (
-        <div className="wrapper">
-            <div className="nav">
-                <div className="nav-menu">
-                    <div className="link">
-                        <p onClick={() => {alert("1")}}>1</p>
-                    </div>
-                    <div className="link">
-                        <p onClick={() => {alert("2")}}>2</p>
-                    </div>
-                    <div className="link">
-                        <p onClick={() => {alert("3")}}>3</p>
-                    </div>
-                </div>
-                <div className="nav-btn">
-                    <Dropdown title="{Username}">
-                        <p onClick={() => {alert("1")}}>Account</p>
-                        <p onClick={() => {alert("2")}}>Logout</p>
-                    </Dropdown>
-                </div>
-            </div>
-        </div>
+        <header className="nav-user">
+            <p className="logo" onClick={() => {navigate("/")}}>HUBBA</p>
+            <nav className="nav-links">
+                <li><p onClick={() => {alert("1")}}>Profile</p></li>
+                <li><p onClick={() => {alert("2")}}>Discover</p></li>
+            </nav>
+            <Dropdown title="{Username}">
+                <p onClick={() => {navigate("/account")}}>Account</p>
+                <p onClick={() => {alert("2")}}>Logout</p>
+            </Dropdown>
+        </header>
     );
 }
 

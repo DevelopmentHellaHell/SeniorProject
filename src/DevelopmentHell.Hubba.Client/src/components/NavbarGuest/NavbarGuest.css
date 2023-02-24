@@ -1,0 +1,35 @@
+.nav-guest {
+    font-weight: 500;
+    font-size: 16px;
+    text-decoration: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--primary-background-light);
+    box-sizing: border-box;
+    margin: 0;
+    padding: 30px 5%;
+    height: 100px;
+}
+
+.nav-guest .nav-links {
+    list-style: none;
+    margin-left: 85px;
+}
+
+.nav-guest .nav-links li {
+    display: inline-block;
+    padding: 0px 20px;
+}
+
+.nav-guest .logo {
+    color: var(--logo);
+    font-size: 30px;
+    font-weight: 500;
+}
+
+.nav-guest .divider{
+    width: 15px;
+    height: auto;
+    display: inline-block;
+}

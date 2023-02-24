@@ -31,7 +31,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
 			var logDictionary = new Dictionary<string, object>()
 			{
-				{ "Timestamp", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture)},
+				{ "Timestamp", DateTime.Now },
 				{ "LogLevel", logLevel },
 				{ "Category", category },
 				{ "UserName", userName },

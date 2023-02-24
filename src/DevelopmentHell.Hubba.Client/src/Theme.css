@@ -1,0 +1,9 @@
+:root {
+    --white: rgb(255, 255, 255);
+    --primary-background-light: rgb(241, 252, 250);
+    --primary-background-dark: rgb(50, 50, 50);
+    --primary-text-light: rgb(255, 255, 255);
+    --primary-text-dark: rgb(50, 63, 65);
+    --logo: rgb(27, 198, 167);
+    --primary-button-light: rgb(27, 198, 167);
+}
