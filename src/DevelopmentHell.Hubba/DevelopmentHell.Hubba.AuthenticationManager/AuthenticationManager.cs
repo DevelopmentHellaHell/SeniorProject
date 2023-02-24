@@ -4,6 +4,7 @@ using DevelopmentHell.Hubba.Cryptography.Service;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
+using System.Configuration;
 using System.Security.Principal;
 
 namespace DevelopmentHell.Hubba.Authentication.Manager
