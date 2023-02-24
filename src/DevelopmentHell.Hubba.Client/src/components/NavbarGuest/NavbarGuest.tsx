@@ -18,19 +18,9 @@ const NavbarGuest: React.FC<Props> = (props) => {
                 <li><p onClick={() => {alert("2")}}>About Us</p></li>
             </nav>
             <div className="buttons">
-                <Button
-                    title="Sign Up" 
-                    onClick={() => {
-                        alert("Sign Up");
-                    }
-                }/>
+                <Button title="Sign Up" onClick={() => { navigate("/registration") }}/>
                 <div className="divider" />
-                <Button
-                    title="Login" 
-                    onClick={() => {
-                        alert("Login");
-                    }
-                }/>
+                <Button title="Login" onClick={() => { navigate("/login") }}/>
             </div>
         </header>
     );

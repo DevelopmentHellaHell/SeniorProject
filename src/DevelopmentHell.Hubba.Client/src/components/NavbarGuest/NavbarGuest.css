@@ -22,13 +22,22 @@
     padding: 0px 20px;
 }
 
+.nav-guest .nav-links li:hover {
+    box-shadow: inset 0 0 100px 100px rgba(0, 0, 0, 0.05);
+    border-radius: 5px;
+}
+
 .nav-guest .logo {
     color: var(--logo);
     font-size: 30px;
     font-weight: 500;
 }
 
-.nav-guest .divider{
+.nav-guest .logo:hover {
+    color: var(--logo-hover);
+}
+
+.nav-guest .divider {
     width: 15px;
     height: auto;
     display: inline-block;

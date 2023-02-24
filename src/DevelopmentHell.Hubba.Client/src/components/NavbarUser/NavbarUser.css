@@ -17,6 +17,11 @@
     margin-left: 20px;
 }
 
+.nav-user .nav-links li:hover {
+    box-shadow: inset 0 0 100px 100px rgba(0, 0, 0, 0.05);
+    border-radius: 5px;
+}
+
 .nav-user .nav-links li {
     display: inline-block;
     padding: 0px 20px;
