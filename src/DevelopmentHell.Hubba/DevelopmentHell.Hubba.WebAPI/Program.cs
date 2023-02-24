@@ -1,16 +1,50 @@
+using DevelopmentHell.Hubba.Analytics.Service.Abstractions;
 using DevelopmentHell.Hubba.Analytics.Service.Implementation;
+using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Implementation;
+using DevelopmentHell.Hubba.Registration.Manager.Abstractions;
+using DevelopmentHell.Hubba.Registration.Manager.Implementations;
+using DevelopmentHell.Hubba.Registration.Service.Implementation;
 using DevelopmentHell.Hubba.SqlDataAccess;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var loggerService = new LoggerService(new LoggerDataAccess(System.Configuration.ConfigurationManager.AppSettings["LogsConnectionString"]!, System.Configuration.ConfigurationManager.AppSettings["LogsTable"]!));
-
 builder.Services.AddControllers();
 // Transient new instance for every controller and service
-// Scoped is same object from same request but different for other requests
+// Scoped is same object from same request but different for other requests??
 // Singleton is one instance across all requests
-builder.Services.AddSingleton(s => new AnalyticsService(new AnalyticsDataAccess(System.Configuration.ConfigurationManager.AppSettings["LogsConnectionString"]!, System.Configuration.ConfigurationManager.AppSettings["LogsTable"]!), loggerService));
+builder.Services.AddSingleton<ILoggerService, LoggerService>(s =>
+{
+	return new LoggerService(
+		new LoggerDataAccess(
+			System.Configuration.ConfigurationManager.AppSettings["LogsConnectionString"]!,
+			System.Configuration.ConfigurationManager.AppSettings["LogsTable"]!
+		)
+	);
+});
+builder.Services.AddSingleton<IAnalyticsService, AnalyticsService>(s =>
+{
+	return new AnalyticsService(
+		new AnalyticsDataAccess(
+			System.Configuration.ConfigurationManager.AppSettings["LogsConnectionString"]!,
+			System.Configuration.ConfigurationManager.AppSettings["LogsTable"]!
+		),
+		s.GetService<ILoggerService>()!
+	);
+});
+builder.Services.AddTransient<IRegistrationManager, RegistrationManager>(s => 
+	new RegistrationManager(
+		new RegistrationService(
+			new UserAccountDataAccess(
+				System.Configuration.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+				System.Configuration.ConfigurationManager.AppSettings["UserAccountsTable"]!
+			),
+			s.GetService<ILoggerService>()!
+		),
+		s.GetService<ILoggerService>()!
+	)
+);
+
 builder.Services.AddCors();
 
 var app = builder.Build();

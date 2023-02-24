@@ -20,7 +20,11 @@ export namespace Ajax {
             })
             .catch((err: Error | AxiosError) => {
                 if (axios.isAxiosError(err))  {
-                    error = err.message;
+                    if (err.response?.data) {
+                        error = err.response.data;
+                    } else {
+                        error = err.message;
+                    }
                 } else {
                   error = String(err);
                 }
@@ -40,8 +44,13 @@ export namespace Ajax {
                 data = response.data as T;
             })
             .catch((err: Error | AxiosError) => {
+                console.log(err);
                 if (axios.isAxiosError(err))  {
-                    error = err.message;
+                    if (err.response?.data) {
+                        error = err.response.data;
+                    } else {
+                        error = err.message;
+                    }
                 } else {
                   error = String(err);
                 }

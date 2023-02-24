@@ -1,3 +1,4 @@
+using DevelopmentHell.Hubba.Analytics.Service.Abstractions;
 using DevelopmentHell.Hubba.Analytics.Service.Implementation;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,10 +8,15 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 	[Route("[controller]")]
 	public class AnalyticsController : ControllerBase
 	{
-		private readonly AnalyticsService _analyticsService;
+		private readonly IAnalyticsService _analyticsService;
 
-		public AnalyticsController(AnalyticsService analyticsService)
+		public AnalyticsController(IAnalyticsService analyticsService)
 		{
+			//IServiceCollection services = new ServiceCollection();
+			// add transient
+			// var provider = services.buildserviceprovider();
+			// var serviceProvider = provider.getrequiredservice<"service">();
+			
 			_analyticsService = analyticsService;
 		}
 

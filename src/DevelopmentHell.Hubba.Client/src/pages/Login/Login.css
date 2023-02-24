@@ -1,0 +1,9 @@
+.login-container {
+    position: relative;
+    min-height: 100vh;
+}
+
+.login-wrapper {
+    color: var(--primary-text-dark);
+    padding-bottom: 2.5rem;
+}
