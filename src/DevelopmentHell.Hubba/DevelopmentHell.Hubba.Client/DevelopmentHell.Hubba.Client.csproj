@@ -17,6 +17,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DevelopmentHell.Hubba.Analytics.Service\DevelopmentHell.Hubba.Analytics.Service.csproj" />
+    <ProjectReference Include="..\DevelopmenteHell.Hubba.AccountDeletion.Service\DevelopmentHell.Hubba.AccountDeletion.Service.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.AccountDeletion.Manager\DevelopmentHell.Hubba.AccountDeletion.Manager.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.AuthenticationManager\DevelopmentHell.Hubba.Authentication.Manager.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.Logging\DevelopmentHell.Hubba.Logging.Service.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.RegistrationManager\DevelopmentHell.Hubba.Registration.Manager.csproj" />

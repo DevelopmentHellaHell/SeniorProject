@@ -1,8 +1,15 @@
-﻿using DevelopmentHell.Hubba.Analytics.Service.Implementation;
+﻿using DevelopmentHell.Hubba.AccountDeletion.Manager;
+using DevelopmentHell.Hubba.AccountDeletion.Service.Abstractions;
+using DevelopmentHell.Hubba.AccountDeletion.Service.Implementation;
+using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
+using DevelopmentHell.Hubba.Authorization.Service.Implementation;
+using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Implementation;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
+using Microsoft.Identity.Client;
 using System.Configuration;
+using System.Security.Principal;
 
 namespace DevelopmentHell.Hubba.Client
 {
@@ -10,27 +17,31 @@ namespace DevelopmentHell.Hubba.Client
 	{
 		public async static Task Main(string[] args)
 		{
-			// on the service layer, set current query timestamp and store data in database so next query will query that if > 60s
-			var _loggerService = new LoggerService(new LoggerDataAccess(ConfigurationManager.AppSettings["LogsConnectionString"]!, ConfigurationManager.AppSettings["LogsTable"]!));
-			_loggerService.Log(LogLevel.INFO, Category.BUSINESS, $"New booking: TEST.", "123");
-			var test = new AnalyticsDataAccess(ConfigurationManager.AppSettings["LogsConnectionString"]!, ConfigurationManager.AppSettings["LogsTable"]!);
-
-			var analyticsService = new AnalyticsService(test, _loggerService);
-			var result = await analyticsService.GetData(DateTime.Now.AddMonths(-3)).ConfigureAwait(false);
-			if (result.IsSuccessful && result.Payload is not null)
-			{
-				foreach (var i in result.Payload)
-				{
-					Console.WriteLine(i.Key);
-					foreach (var j in i.Value)
-					{
-						Console.WriteLine($"\t{j.Key}\t{j.Value}");
-					}
-				}
-			}
 			
 			var app = new ViewDemoConsole();
-			await app.Run();
-		}
+            //await app.Run();
+            // TODO: REMOVE THIS
+            string UserAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
+            string LogsTable = ConfigurationManager.AppSettings["LogsTable"]!;
+            string UsersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
+            string LogsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
+
+            var dao = new UserAccountDataAccess(UsersConnectionString, UserAccountsTable);
+            var loggerService = new LoggerService(new LoggerDataAccess(LogsConnectionString, LogsTable));
+            var accountDeletionService = new AccountDeletionService(dao, loggerService);
+            var authorizationService = new AuthorizationService();
+
+            var accountDeletionManager = new AccountDeletionManager(accountDeletionService, authorizationService, loggerService);
+            //Result result = await accountDeletionService.DeleteAccountNotifyListingsBookings(16);
+
+
+            var identity = new GenericIdentity("1");
+            var principal = new GenericPrincipal(identity, new string[] { "VerifiedUser" });
+            Thread.CurrentPrincipal = principal;
+
+            Result result = await accountDeletionManager.DeleteAccount(1, principal);
+            Console.WriteLine(result.ErrorMessage);
+            
+        }
 	}
 }
