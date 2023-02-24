@@ -19,6 +19,7 @@ const NavbarUser: React.FC<Props> = (props) => {
             </nav>
             <Dropdown title="{Username}">
                 <p onClick={() => {navigate("/account")}}>Account</p>
+                <p onClick={() => {navigate("/notification")}}>Notification</p>
                 <p onClick={() => {alert("2")}}>Logout</p>
             </Dropdown>
         </header>
