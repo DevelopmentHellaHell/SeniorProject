@@ -18,10 +18,10 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service.Implementation
 
 		public async Task<Result<string>> NewOTP(int accountId)
 		{
-			Random random = new((int)(DateTime.UtcNow.Ticks << 4 >> 4));
+			Random random = new((int)(DateTime.Now.Ticks << 4 >> 4));
 			string otp = new(Enumerable.Repeat(validChars, 8).Select(s => s[random.Next(s.Length)]).ToArray());
 			byte[] eotp = EncryptionService.Encrypt(otp);
-			DateTime expiration = DateTime.UtcNow.AddMinutes(2); // TODO: move to config
+			DateTime expiration = DateTime.Now.AddMinutes(2); // TODO: move to config
 
 			Result result = await _dao.NewOTP(accountId, eotp, expiration).ConfigureAwait(false);
 			return new Result<string>()

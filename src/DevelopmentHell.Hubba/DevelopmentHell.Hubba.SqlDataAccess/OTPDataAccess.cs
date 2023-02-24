@@ -75,7 +75,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
 		public async Task<Result<byte[]>> GetOTP(int accountId)
 		{
-			DateTime now = DateTime.UtcNow;
+			DateTime now = DateTime.Now;
 			Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
 				_tableName,
 				new() { "Passphrase" },

@@ -53,7 +53,7 @@ namespace DevelopmentHell.Hubba.Registration.Service.Implementation
 				return result;
 			}
 
-			Random random = new((int)(DateTime.UtcNow.Ticks << 4 >> 4));
+			Random random = new((int)(DateTime.Now.Ticks << 4 >> 4));
 			string salt = new(Enumerable.Repeat(HashService.saltValidChars, 64).Select(s => s[random.Next(s.Length)]).ToArray());
 			HashData hashData = HashService.HashString(password, salt).Payload!;
 			Result createResult = await _dao.CreateUserAccount(email, hashData);

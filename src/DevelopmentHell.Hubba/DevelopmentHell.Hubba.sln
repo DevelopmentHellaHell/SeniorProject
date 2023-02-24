@@ -66,7 +66,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Autho
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.HashService.Test", "DevelopmentHell.Hubba.HashService.Test\DevelopmentHell.Hubba.HashService.Test.csproj", "{704040F7-A1DB-4610-B7F3-F3A126D4B34A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.Authorization.Test", "DevelopmentHell.Hubba.Authorization.Test\DevelopmentHell.Hubba.Authorization.Test.csproj", "{1A770B3B-EF63-4420-98AC-DD4E13E1DC2B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Authorization.Test", "DevelopmentHell.Hubba.Authorization.Test\DevelopmentHell.Hubba.Authorization.Test.csproj", "{1A770B3B-EF63-4420-98AC-DD4E13E1DC2B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Analytics.Service", "DevelopmentHell.Hubba.Analytics.Service\DevelopmentHell.Hubba.Analytics.Service.csproj", "{7715BD7E-6CDE-41FC-B78B-12284CC0425C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.WebAPI", "DevelopmentHell.Hubba.WebAPI\DevelopmentHell.Hubba.WebAPI.csproj", "{6FDDFE0A-3DB7-42B2-8819-9C4DC50A0DC3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -150,6 +154,14 @@ Global
 		{1A770B3B-EF63-4420-98AC-DD4E13E1DC2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A770B3B-EF63-4420-98AC-DD4E13E1DC2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A770B3B-EF63-4420-98AC-DD4E13E1DC2B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7715BD7E-6CDE-41FC-B78B-12284CC0425C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7715BD7E-6CDE-41FC-B78B-12284CC0425C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7715BD7E-6CDE-41FC-B78B-12284CC0425C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7715BD7E-6CDE-41FC-B78B-12284CC0425C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FDDFE0A-3DB7-42B2-8819-9C4DC50A0DC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FDDFE0A-3DB7-42B2-8819-9C4DC50A0DC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FDDFE0A-3DB7-42B2-8819-9C4DC50A0DC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FDDFE0A-3DB7-42B2-8819-9C4DC50A0DC3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -177,6 +189,8 @@ Global
 		{1D21CC28-BBBD-4D0F-8342-675EC3A17FEB} = {AF8ADA89-9511-4DF9-B861-281AC81D112D}
 		{704040F7-A1DB-4610-B7F3-F3A126D4B34A} = {5A528968-95F9-4E5A-98CB-501EE0759FDC}
 		{1A770B3B-EF63-4420-98AC-DD4E13E1DC2B} = {5A528968-95F9-4E5A-98CB-501EE0759FDC}
+		{7715BD7E-6CDE-41FC-B78B-12284CC0425C} = {AF8ADA89-9511-4DF9-B861-281AC81D112D}
+		{6FDDFE0A-3DB7-42B2-8819-9C4DC50A0DC3} = {0E8013DB-F597-49E1-9C90-367A98C5BE69}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E49330E5-F92F-4990-A904-E75E376A2656}

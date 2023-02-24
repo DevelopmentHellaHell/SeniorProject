@@ -1,0 +1,30 @@
+.nav-user {
+    font-weight: 500;
+    font-size: 16px;
+    text-decoration: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--primary-background-light);
+    box-sizing: border-box;
+    margin: 0;
+    padding: 30px 5%;
+    height: 100px;
+}
+
+.nav-user .nav-links {
+    list-style: none;
+    margin-left: 20px;
+}
+
+.nav-user .nav-links li {
+    display: inline-block;
+    padding: 0px 20px;
+    color: var(--primary-text-dark)
+}
+
+.nav-user .logo {
+    color: var(--logo);
+    font-size: 30px;
+    font-weight: 500;
+}
