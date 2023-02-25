@@ -4,13 +4,13 @@ import { Ajax } from "../../Ajax";
 import Button from "../../components/Button/Button";
 import Footer from "../../components/Footer/Footer";
 import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
-import "./Login.css";
+import "./OTP.css";
 
 interface Props {
 
 }
 
-const Login: React.FC<Props> = (props) => {
+const OTP: React.FC<Props> = (props) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmedPassword, setConfirmedPassword] = useState("");
@@ -19,12 +19,12 @@ const Login: React.FC<Props> = (props) => {
     const navigate = useNavigate();
 
     return (
-        <div className="login-container">
+        <div className="otp-container">
             <NavbarGuest />
 
-            <div className="login-wrapper">
-                <div className="login-card">
-                    <h1>Login</h1>
+            <div className="otp-wrapper">
+                <div className="otp-card">
+                    <h1>One-Time Passcode Required</h1>
                     <p className="info">Create a new account <u onClick={() => { navigate("/registration") }}>HERE →</u></p>
                     <div>
                         <div className="input-field">
@@ -63,7 +63,7 @@ const Login: React.FC<Props> = (props) => {
                                 }
                                 setError("");
 
-                                const response = await Ajax.post("/login", ({ email: email, password: password }));
+                                const response = await Ajax.post("/otp", ({ email: email, password: password }));
                                 if (response.error) {
                                     setError(response.error);
                                     return;
@@ -85,4 +85,4 @@ const Login: React.FC<Props> = (props) => {
     );
 }
 
-export default Login;
+export default OTP;
