@@ -4,16 +4,15 @@ import { Ajax } from "../../Ajax";
 import Button from "../../components/Button/Button";
 import Footer from "../../components/Footer/Footer";
 import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
-import "./OTP.css";
+import "./Otp.css";
 
 interface Props {
 
 }
 
-const OTP: React.FC<Props> = (props) => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmedPassword, setConfirmedPassword] = useState("");
+const Otp: React.FC<Props> = (props) => {
+    const [otp, setOtp] = useState("");
+
     const [error, setError] = useState("");
 
     const navigate = useNavigate();
@@ -24,52 +23,32 @@ const OTP: React.FC<Props> = (props) => {
 
             <div className="otp-wrapper">
                 <div className="otp-card">
-                    <h1>One-Time Passcode Required</h1>
-                    <p className="info">Create a new account <u onClick={() => { navigate("/registration") }}>HERE →</u></p>
+                    <h1>Login</h1>
+                    <p className="info">We sent an One-Time Passcode to your registered email. Please enter it below.</p>
                     <div>
                         <div className="input-field">
-                            <label>Email</label>
-                            <input type="text" placeholder="Your Email" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                setEmail(event.target.value);
+                            <label>OTP</label>
+                            <input type="text" placeholder="Your OTP" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                setOtp(event.target.value);
                             }}/>
                         </div>
-                        <div className="input-field">
-                            <label>Password</label>
-                            <input type="password" placeholder="Your Password" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                setPassword(event.target.value);
-                            }}/>
-                        </div>
-                        <div className="input-field">
-                            <label>Confirm Password {}</label>
-                            <input type="password" placeholder="Your Password" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                setConfirmedPassword(event.target.value);
-                            }}/>
-                        </div>
+                        
                         <div className="buttons">
                             <Button title="Submit" onClick={async () => {
-                                if (!email) {
-                                    setError("Email cannot be empty, please try again.");
+                                if (!otp) {
+                                    setError("OTP cannot be empty, please try again.");
                                     return;
                                 }
 
-                                if (!password) {
-                                    setError("Password cannot be empty, please try again.");
-                                    return;
-                                }
-
-                                if (password != confirmedPassword) {
-                                    setError("Your passwords do not match.");
-                                    return;
-                                }
                                 setError("");
 
-                                const response = await Ajax.post("/otp", ({ email: email, password: password }));
+                                const response = await Ajax.post("/otp/register", ({ otp: otp }));
                                 if (response.error) {
                                     setError(response.error);
                                     return;
                                 }
                                 
-                                navigate("/otp");
+                                navigate("/account");
                                 // TODO
                             }}/>
                         </div>
@@ -85,4 +64,4 @@ const OTP: React.FC<Props> = (props) => {
     );
 }
 
-export default OTP;
+export default Otp;

@@ -13,7 +13,8 @@ interface Props {
 const Login: React.FC<Props> = (props) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [confirmedPassword, setConfirmedPassword] = useState("");
+
+
     const [error, setError] = useState("");
 
     const navigate = useNavigate();
@@ -25,7 +26,7 @@ const Login: React.FC<Props> = (props) => {
             <div className="login-wrapper">
                 <div className="login-card">
                     <h1>Login</h1>
-                    <p className="info">Create a new account <u onClick={() => { navigate("/registration") }}>HERE →</u></p>
+                    <p className="info">Already registered? Login <u onClick={() => { navigate("/registration") }}>HERE →</u></p>
                     <div>
                         <div className="input-field">
                             <label>Email</label>
@@ -39,12 +40,7 @@ const Login: React.FC<Props> = (props) => {
                                 setPassword(event.target.value);
                             }}/>
                         </div>
-                        <div className="input-field">
-                            <label>Confirm Password {}</label>
-                            <input type="password" placeholder="Your Password" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                setConfirmedPassword(event.target.value);
-                            }}/>
-                        </div>
+                        
                         <div className="buttons">
                             <Button title="Submit" onClick={async () => {
                                 if (!email) {
@@ -57,18 +53,13 @@ const Login: React.FC<Props> = (props) => {
                                     return;
                                 }
 
-                                if (password != confirmedPassword) {
-                                    setError("Your passwords do not match.");
-                                    return;
-                                }
                                 setError("");
-
-                                const response = await Ajax.post("/login", ({ email: email, password: password }));
+                                
+                                const response = await Ajax.post("/authentication/login", ({ email: email, password: password }));
                                 if (response.error) {
                                     setError(response.error);
                                     return;
                                 }
-                                
                                 navigate("/otp");
                                 // TODO
                             }}/>

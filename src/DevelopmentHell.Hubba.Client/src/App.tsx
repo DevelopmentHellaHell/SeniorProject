@@ -4,8 +4,9 @@ import Account from "./pages/Account/Account";
 import Analytics from "./pages/Analytics/Analytics";
 import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
-import OTP from "./pages/OTP/OTP";
+import Logout from "./pages/Logout/Logout";
 import Registration from "./pages/Registration/Registration";
+import Otp from "./pages/Otp/Otp";
 
 import "./Theme.css";
 
@@ -19,9 +20,10 @@ const App: React.FC<Props> = (props) => {
 			<BrowserRouter>
 				<Routes>
 					<Route path="/" element={<Home />} />
-					<Route path="/otp" element={<OTP />} />
 					<Route path="/registration" element={<Registration />} />
 					<Route path="/login" element={<Login />} />
+					<Route path="/otp" element={<Otp />} />
+					<Route path="/logout" element={<Logout />} />
 					<Route path="/analytics" element={<Analytics />} />
 					<Route path="/account" element={<Account />} />
 				</Routes>
