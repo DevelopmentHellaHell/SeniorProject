@@ -1,12 +1,61 @@
 ﻿using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using System.Security.Principal;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Specialized;
 
 namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
 {
 	public class AuthorizationService : IAuthorizationService
 	{
-		public Result authorize(IPrincipal? principal, string[]? roles = null)
+		private readonly NameValueCollection _configuration;
+		public AuthorizationService(NameValueCollection configuration)
+		{
+			_configuration = configuration;
+		}
+
+		public Result<string> GenerateToken(string accountId, string accountType)
+		{
+			try
+			{
+				var handler = new JwtSecurityTokenHandler();
+				var descriptor = new SecurityTokenDescriptor
+				{
+					Subject = new ClaimsIdentity(new[] { new Claim("AccountId", accountId), new Claim(ClaimTypes.Role, accountType) }),
+					Expires = DateTime.UtcNow.AddMinutes(60),
+					SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["JwtKey"]!)), SecurityAlgorithms.HmacSha256Signature)
+				};
+
+				var token = handler.CreateToken(descriptor);
+				return new() { IsSuccessful = true, Payload = handler.WriteToken(token) };
+			} catch
+			{
+				return new() { IsSuccessful = false, ErrorMessage = "Unable to Generate JWT token" };
+			}
+		}
+
+		public async Task<Result<ClaimsPrincipal>> AuthorizeToken(HttpContext context)
+		{
+            var output = await context.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
+			
+            if (output.Succeeded)
+            {
+                return new() { IsSuccessful = true, Payload = output.Principal };
+            }
+            else
+            {
+                return new() { IsSuccessful = false, ErrorMessage = "Unable to Authorize JWT Token"};
+            }
+        }
+
+        public Result authorize(IPrincipal? principal, string[]? roles = null)
 		{
 			Result result = new Result()
 			{

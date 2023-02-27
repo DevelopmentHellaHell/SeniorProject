@@ -31,7 +31,7 @@ namespace DevelopmentHell.Hubba.Client
 				),
 				loggerService
 			);
-			AuthorizationService authorizationService = new AuthorizationService();
+			AuthorizationService authorizationService = new AuthorizationService(ConfigurationManager.AppSettings);
 			AuthenticationManager authenticationManager = new AuthenticationManager(
 				new AuthenticationService(
 					new UserAccountDataAccess(UsersConnectionString, UserAccountsTable),
