@@ -14,6 +14,9 @@ const Login: React.FC<Props> = (props) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
+    const isValidEmail = (email : string) => (
+        /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i
+    ).test(email);
 
     const [error, setError] = useState("");
 
@@ -47,12 +50,20 @@ const Login: React.FC<Props> = (props) => {
                                     setError("Email cannot be empty, please try again.");
                                     return;
                                 }
-
+                                if(!isValidEmail(email)) {
+                                    setError("Invalid email, please try again.");
+                                    return;
+                                }
+                                
                                 if (!password) {
                                     setError("Password cannot be empty, please try again.");
                                     return;
                                 }
-
+                                if (password.length < 8) {
+                                    setError("Invalid password, please try again.");
+                                    return;
+                                }
+                                
                                 setError("");
                                 
                                 const response = await Ajax.post("/authentication/login", ({ email: email, password: password }));
@@ -61,11 +72,10 @@ const Login: React.FC<Props> = (props) => {
                                     return;
                                 }
                                 navigate("/otp");
-                                // TODO
                             }}/>
                         </div>
                         {error &&
-                            <p className="info">{error}</p>
+                            <p className="error">{error}</p>
                         }
                     </div>
                 </div>

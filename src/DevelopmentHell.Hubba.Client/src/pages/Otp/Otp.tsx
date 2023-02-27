@@ -28,7 +28,7 @@ const Otp: React.FC<Props> = (props) => {
                     <div>
                         <div className="input-field">
                             <label>OTP</label>
-                            <input type="text" placeholder="Your OTP" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                            <input type="password" placeholder="Your OTP" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                                 setOtp(event.target.value);
                             }}/>
                         </div>
@@ -53,7 +53,7 @@ const Otp: React.FC<Props> = (props) => {
                             }}/>
                         </div>
                         {error &&
-                            <p className="info">{error}</p>
+                            <p className="error">{error}</p>
                         }
                     </div>
                 </div>

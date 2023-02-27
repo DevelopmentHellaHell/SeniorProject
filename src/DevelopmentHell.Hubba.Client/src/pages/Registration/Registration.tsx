@@ -15,7 +15,9 @@ const Registration: React.FC<Props> = (props) => {
     const [password, setPassword] = useState("");
     const [confirmedPassword, setConfirmedPassword] = useState("");
     const [error, setError] = useState("");
-
+    const isValidEmail = (email : string) => (
+        /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i
+    ).test(email);
     const navigate = useNavigate();
 
     return (
@@ -51,9 +53,17 @@ const Registration: React.FC<Props> = (props) => {
                                     setError("Email cannot be empty, please try again.");
                                     return;
                                 }
+                                if(!isValidEmail(email)) {
+                                    setError("Invalid email, please try again.");
+                                    return;
+                                }
 
                                 if (!password) {
                                     setError("Password cannot be empty, please try again.");
+                                    return;
+                                }
+                                if (password.length < 8) {
+                                    setError("Invalid password, please try again.");
                                     return;
                                 }
 
@@ -61,6 +71,7 @@ const Registration: React.FC<Props> = (props) => {
                                     setError("Your passwords do not match.");
                                     return;
                                 }
+                                
                                 setError("");
 
                                 const response = await Ajax.post("/registration/register", ({ email: email, password: password }));
@@ -74,7 +85,7 @@ const Registration: React.FC<Props> = (props) => {
                             }}/>
                         </div>
                         {error &&
-                            <p className="info">{error}</p>
+                            <p className="error">{error}</p>
                         }
                     </div>
                 </div>

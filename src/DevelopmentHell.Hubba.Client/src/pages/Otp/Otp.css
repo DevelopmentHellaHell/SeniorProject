@@ -45,3 +45,7 @@
 .otp-card .info {
     color: var(--secondary-text-dark);
 }
+
+.otp-card .error {
+    color: var(--error-text);
+}
