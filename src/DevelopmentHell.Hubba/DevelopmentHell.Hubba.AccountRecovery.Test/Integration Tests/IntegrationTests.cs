@@ -71,18 +71,20 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
                 ),
                 loggerService
             );
-            string email = "authentication-test01@gmail.com";
+            string email = "accountrecovery-manualsuccess@gmail.com";
             string password = "12345678";
             string dummyIp = "192.0.2.0";
 
             //Cleanup
-            //Result<int> getExistingAccountId = await userAccountDataAccess.GetId(email).ConfigureAwait(false);
-            //int accountId = getExistingAccountId.Payload;
-            //if (getExistingAccountId.Payload > 0)
-            //{
-            //    await otpDataAccess.Delete(accountId).ConfigureAwait(false);
-            //    await userAccountDataAccess.Delete(accountId).ConfigureAwait(false);
-            //}
+            Result<int> getExistingAccountId = await userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = getExistingAccountId.Payload;
+            if (getExistingAccountId.Payload > 0)
+            {
+                await otpDataAccess.Delete(accountId).ConfigureAwait(false);
+                await userAccountDataAccess.Delete(accountId).ConfigureAwait(false);
+                await userLoginDataAccess.Delete(accountId).ConfigureAwait(false);
+                await recoveryRequestDataAccess.Delete(accountId).ConfigureAwait(false);
+            }
 
             //Arrange Continued
             await registrationManager.Register(email, password).ConfigureAwait(false);
@@ -185,18 +187,20 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
                 new AuthorizationService(),
                 loggerService
             );
-            string email = "authentication-test01@gmail.com";
+            string email = "accountrecovery-automatedsuccess@gmail.com";
             string password = "12345678";
             string dummyIp = "192.0.2.0";
 
             //Cleanup
-            //Result<int> getExistingAccountId = await userAccountDataAccess.GetId(email).ConfigureAwait(false);
-            //int accountId = getExistingAccountId.Payload;
-            //if (getExistingAccountId.Payload > 0)
-            //{
-            //    await otpDataAccess.Delete(accountId).ConfigureAwait(false);
-            //    await userAccountDataAccess.Delete(accountId).ConfigureAwait(false);
-            //}
+            Result<int> getExistingAccountId = await userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = getExistingAccountId.Payload;
+            if (getExistingAccountId.Payload > 0)
+            {
+                await otpDataAccess.Delete(accountId).ConfigureAwait(false);
+                await userAccountDataAccess.Delete(accountId).ConfigureAwait(false);
+                await userLoginDataAccess.Delete(accountId).ConfigureAwait(false);
+                await recoveryRequestDataAccess.Delete(accountId).ConfigureAwait(false);
+            }
 
             //Arrange Continued
             await registrationManager.Register(email, password).ConfigureAwait(false);
