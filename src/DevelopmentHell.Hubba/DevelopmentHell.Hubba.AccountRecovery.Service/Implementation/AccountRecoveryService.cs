@@ -88,11 +88,14 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Service.Implementation
             }
         }
 
-        public bool CheckIpAddress(string[] successfulIpAddress, string ipAddress)
+        public bool CheckIpAddress(string[]? successfulIpAddress, string ipAddress)
         {
+            if (successfulIpAddress is null) {
+                return false;
+            }
             for (int i = 0; i < successfulIpAddress.Length; i++)
             {
-                if (successfulIpAddress.Equals(ipAddress))
+                if (successfulIpAddress[i].Equals(ipAddress))
                 {
                     return true;
                 }

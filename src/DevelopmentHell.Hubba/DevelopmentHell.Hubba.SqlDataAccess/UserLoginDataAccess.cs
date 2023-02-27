@@ -56,7 +56,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             List<Dictionary<string, object>> payload = selectResult.Payload;
 
             result.IsSuccessful = true;
-            result.Payload = (string[])payload[0].Values.ToArray();
+            if (payload.Count > 0) result.Payload = (string[])payload[0].Values.ToArray();
             return result;
         }
 

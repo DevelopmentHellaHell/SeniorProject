@@ -5,11 +5,12 @@ using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
 using DevelopmentHell.Hubba.AccountRecovery.Service.Abstractions;
+using DevelopmentHell.Hubba.AccountRecovery.Manager.Abstractions;
 
-namespace DevelopmentHell.Hubba.AccountRecovery.Manager
+namespace DevelopmentHell.Hubba.AccountRecovery.Manager.Implementation
 {
 
-    public class AccountRecoveryManager
+    public class AccountRecoveryManager : IAccountRecoveryManager
     {
         private IAccountRecoveryService _accountRecoveryService;
         private IOTPService _otpService;
@@ -26,9 +27,9 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager
             _loggerService = loggerService;
         }
 
-        public async Task<Result<bool>> Verification(string email, IPrincipal? principal = null, bool enabledSend = true)
+        public async Task<Result<int>> Verification(string email, IPrincipal? principal = null, bool enabledSend = true)
         {
-            Result<bool> result = new();
+            Result<int> result = new();
 
 
             if (_authorizationService.authorize(principal, new string[] { "VerifiedUser", "Admin" }).IsSuccessful)
@@ -39,17 +40,13 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager
             }
 
             Result<int> userIdResult = await _accountRecoveryService.Verification(email).ConfigureAwait(false)!;
-            if (!userIdResult.IsSuccessful && String.IsNullOrEmpty(userIdResult.Payload.ToString()))
+            if (!userIdResult.IsSuccessful && string.IsNullOrEmpty(userIdResult.Payload.ToString()))
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = userIdResult.ErrorMessage;
                 return result;
             }
             int accountId = userIdResult.Payload;
-
-
-
-
 
             Result<string> otpResult = await _otpService.NewOTP(accountId).ConfigureAwait(false);
             string otp = otpResult.Payload!.ToString();
@@ -61,8 +58,8 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager
                 result.ErrorMessage = sendOTPResult.ErrorMessage;
                 return result;
             }
-
             result.IsSuccessful = true;
+            result.Payload = accountId;
             return result;
         }
 
@@ -106,13 +103,13 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager
                 result.ErrorMessage = ipAddressResult.ErrorMessage;
                 return result;
             }
-            
+
             if (ipAddressResult.Payload.Equals("Added to manual recovery"))
             {
                 result.IsSuccessful = true;
                 return result;
             }
-            
+
             if (ipAddressResult.Payload.Equals("Successfully enabled account"))
             {
                 result.IsSuccessful = true;
@@ -121,7 +118,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager
             }
 
             return result;
-            
+
         }
     }
 }
