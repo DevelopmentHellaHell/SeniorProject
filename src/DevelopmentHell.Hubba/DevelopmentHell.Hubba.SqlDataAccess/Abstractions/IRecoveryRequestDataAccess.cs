@@ -11,7 +11,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
     {
         Task<Result> AddManualRecovery(int accountId);
         Task<Result> GetAccounts();
-        Task<Result> Delete(int id);
+        Task<Result> Delete(int accountId);
+        Task<Result> GetId(int accountId);
 
     }
 }
