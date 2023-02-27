@@ -45,9 +45,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             var loggerService = new LoggerService(
                 new LoggerDataAccess(_LogsConnectionString, _LogsTable)
             );
-            //IAccountRecoveryService accountRecoveryService, IOTPService otpService, IAuthenticationService authenticationService, IAuthorizationService authorizationService, ILoggerService loggerService
             var accountRecoveryManager = new AccountRecoveryManager(
-                //IUserAccountDataAccess userAccountDao, ILoggerService loggerService, IUserLoginDataAccess userLoginDao, IRecoveryRequestDataAccess recoveryRequestDao
                 new AccountRecoveryService(
                     new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable),
                     loggerService,
@@ -88,29 +86,12 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
 
             //Arrange Continued
             await registrationManager.Register(email, password).ConfigureAwait(false);
-
-            
-
-
-            //Result<int> getNewAccountId = await userAccountDataAccess.GetId(email).ConfigureAwait(false);
-            //int newAccountId = getNewAccountId.Payload;
-            //Result<byte[]> getOtp = await otpDataAccess.GetOTP(newAccountId).ConfigureAwait(false);
-            //string otp = EncryptionService.Decrypt(getOtp.Payload!);
-            //string expectedRole = null;
-            //var expectedIdentity = new GenericIdentity(newAccountId.ToString());
-            //var expectedPrincipal = new GenericPrincipal(expectedIdentity, new string[] { expectedRole });
-            //var expected = new Result<GenericPrincipal>()
-            //{
-            //    IsSuccessful = true,
-            //    Payload = expectedPrincipal
-            //};
             var expected = new Result<GenericPrincipal>()
             {
                 IsSuccessful = true,
             };
 
             // Act
-            //var actual = await authenticationManager.AuthenticateOTP(getNewAccountId.Payload, otp, dummyIp).ConfigureAwait(false);
             var verificationResult = await accountRecoveryManager.Verification(email);
             Result<byte[]> getOtp = await otpDataAccess.GetOTP(verificationResult.Payload).ConfigureAwait(false);
             string otp = EncryptionService.Decrypt(getOtp.Payload!);
@@ -122,11 +103,6 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
 
 
             // Assert
-            //Assert.IsTrue(actual.IsSuccessful == expected.IsSuccessful);
-            //Assert.IsTrue(actual.Payload is not null);
-            //Assert.IsTrue(actual.Payload.IsInRole(expectedRole));
-            //Assert.IsTrue(actual.Payload.Identity.IsAuthenticated);
-            //Assert.IsTrue(actual.Payload.Identity.Name == expected.Payload.Identity.Name);
             Console.WriteLine(verificationResult.IsSuccessful);
             Assert.IsTrue( actual.IsSuccessful == expected.IsSuccessful);
             Assert.IsTrue(recoveryRequestResult.IsSuccessful);
@@ -150,9 +126,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             var loggerService = new LoggerService(
                 new LoggerDataAccess(_LogsConnectionString, _LogsTable)
             );
-            //IAccountRecoveryService accountRecoveryService, IOTPService otpService, IAuthenticationService authenticationService, IAuthorizationService authorizationService, ILoggerService loggerService
             var accountRecoveryManager = new AccountRecoveryManager(
-                //IUserAccountDataAccess userAccountDao, ILoggerService loggerService, IUserLoginDataAccess userLoginDao, IRecoveryRequestDataAccess recoveryRequestDao
                 new AccountRecoveryService(
                     new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable),
                     loggerService,
@@ -211,8 +185,8 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             string otp = EncryptionService.Decrypt(getOtp.Payload!);
             await authenticationManager.AuthenticateOTP(getNewAccountId.Payload, otp, dummyIp).ConfigureAwait(false);
 
-            
-            string expectedRole = null;
+
+            string expectedRole = "VerifiedUser";
             var expectedIdentity = new GenericIdentity(newAccountId.ToString());
             var expectedPrincipal = new GenericPrincipal(expectedIdentity, new string[] { expectedRole });
             var expected = new Result<GenericPrincipal>()
