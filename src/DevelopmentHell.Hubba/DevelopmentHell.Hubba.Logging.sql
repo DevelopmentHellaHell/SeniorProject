@@ -107,38 +107,38 @@ CREATE LOGIN [NT AUTHORITY\SYSTEM] FROM WINDOWS WITH DEFAULT_DATABASE=[master], 
 GO
 /* For security reasons the login is created disabled and with a random password. */
 /****** Object:  Login [DevelopmentHell.Hubba.SqlUser.User]    Script Date: 12/13/2022 10:50:54 PM ******/
-CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.User] WITH PASSWORD=N'HWOk2D72gm+Rfdrs5HXvGEGYa9z5hnMCbqTd5ZLBTaM=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
+CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.User] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
 GO
-ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.User] DISABLE
+ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.User] ENABLE
 GO
 /* For security reasons the login is created disabled and with a random password. */
 /****** Object:  Login [DevelopmentHell.Hubba.SqlUser.Logging]    Script Date: 12/13/2022 10:50:54 PM ******/
-CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] WITH PASSWORD=N'5DjPQkHmxQx/1f5C8smZhBBJhC+84X8oYH+ihrKRy0I=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
+CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
 GO
-ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] DISABLE
+ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] ENABLE
 GO
 /* For security reasons the login is created disabled and with a random password. */
 /****** Object:  Login [Company.Product.SqlUser]    Script Date: 12/13/2022 10:50:54 PM ******/
-CREATE LOGIN [Company.Product.SqlUser] WITH PASSWORD=N'CCiSm2qZXseYJrOzNMWUinNiSrYiZzZYkWmHSglbjlw=', DEFAULT_DATABASE=[Company.Product.Logs], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=ON, CHECK_POLICY=ON
+CREATE LOGIN [Company.Product.SqlUser] WITH PASSWORD=N'password', DEFAULT_DATABASE=[Company.Product.Logs], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=ON, CHECK_POLICY=ON
 GO
-ALTER LOGIN [Company.Product.SqlUser] DISABLE
+ALTER LOGIN [Company.Product.SqlUser] ENABLE
 GO
 /****** Object:  Login [BRYANS-LAPTOP\bryan]    Script Date: 12/13/2022 10:50:54 PM ******/
-CREATE LOGIN [BRYANS-LAPTOP\bryan] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
+CREATE LOGIN [GMAIN\tsuma] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
 /* For security reasons the login is created disabled and with a random password. */
 /****** Object:  Login [##MS_PolicyTsqlExecutionLogin##]    Script Date: 12/13/2022 10:50:54 PM ******/
-CREATE LOGIN [##MS_PolicyTsqlExecutionLogin##] WITH PASSWORD=N'I+itpIV5uEaf3/R7QOuUskI9pecqDvQ+0Twm/QjsrKw=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
+CREATE LOGIN [##MS_PolicyTsqlExecutionLogin##] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
 GO
 ALTER LOGIN [##MS_PolicyTsqlExecutionLogin##] DISABLE
 GO
 /* For security reasons the login is created disabled and with a random password. */
 /****** Object:  Login [##MS_PolicyEventProcessingLogin##]    Script Date: 12/13/2022 10:50:54 PM ******/
-CREATE LOGIN [##MS_PolicyEventProcessingLogin##] WITH PASSWORD=N'pecQXbWDtXP+exdm1H065IgHH1krNkgpHru4AcC+nzc=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
+CREATE LOGIN [##MS_PolicyEventProcessingLogin##] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
 GO
 ALTER LOGIN [##MS_PolicyEventProcessingLogin##] DISABLE
 GO
-ALTER AUTHORIZATION ON DATABASE::[DevelopmentHell.Hubba.Logs] TO [BRYANS-LAPTOP\bryan]
+ALTER AUTHORIZATION ON DATABASE::[DevelopmentHell.Hubba.Logs] TO [GMAIN\tsuma]
 GO
 ALTER SERVER ROLE [sysadmin] ADD MEMBER [NT SERVICE\Winmgmt]
 GO
@@ -148,7 +148,7 @@ ALTER SERVER ROLE [sysadmin] ADD MEMBER [NT SERVICE\SQLSERVERAGENT]
 GO
 ALTER SERVER ROLE [sysadmin] ADD MEMBER [NT Service\MSSQLSERVER]
 GO
-ALTER SERVER ROLE [sysadmin] ADD MEMBER [BRYANS-LAPTOP\bryan]
+ALTER SERVER ROLE [sysadmin] ADD MEMBER [GMAIN\tsuma]
 GO
 USE [DevelopmentHell.Hubba.Logs]
 GO
