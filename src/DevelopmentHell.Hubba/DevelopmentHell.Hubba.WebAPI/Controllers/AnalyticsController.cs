@@ -1,5 +1,4 @@
 using DevelopmentHell.Hubba.Analytics.Service.Abstractions;
-using DevelopmentHell.Hubba.Analytics.Service.Implementation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DevelopmentHell.Hubba.WebAPI.Controllers
@@ -12,24 +11,30 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 
 		public AnalyticsController(IAnalyticsService analyticsService)
 		{
-			//IServiceCollection services = new ServiceCollection();
-			// add transient
-			// var provider = services.buildserviceprovider();
-			// var serviceProvider = provider.getrequiredservice<"service">();
-			
 			_analyticsService = analyticsService;
 		}
+
+#if DEBUG
+		[HttpGet]
+		[Route("health")]
+		public Task<IActionResult> HeathCheck()
+		{
+			return Task.FromResult<IActionResult>(Ok("Healthy"));
+		}
+#endif
 
 		[HttpGet]
 		[Route("data")]
 		public async Task<IActionResult> Get()
 		{
-			var data = await _analyticsService.GetData(DateTime.Now.AddMonths(-3));
-			if (!data.IsSuccessful)
+			var fromTimeMonths = DateTime.Now.AddMonths(-3);
+			var result = await _analyticsService.GetData(fromTimeMonths).ConfigureAwait(false);
+			if (!result.IsSuccessful)
 			{
-				return BadRequest();
+				return BadRequest(result.ErrorMessage);
 			}
-			return Ok(data.Payload);
+
+			return Ok(result.Payload);
 		}
 	}
 }
