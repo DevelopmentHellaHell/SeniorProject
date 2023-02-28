@@ -113,10 +113,12 @@ app.Use(async (httpContext, next) =>
 
     if (output.Succeeded)
     {
+		Console.WriteLine("FOUND");
 		Thread.CurrentPrincipal = output.Principal;
 	}
 	else
     {
+		Console.WriteLine("NONE");
 		Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "default") }));
     }
 

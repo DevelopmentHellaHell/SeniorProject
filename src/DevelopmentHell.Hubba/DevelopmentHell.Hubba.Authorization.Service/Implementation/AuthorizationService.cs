@@ -32,7 +32,14 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
 				return result;
 			}
 
-			string role = getResult.Payload.Role!;
+			var role = getResult.Payload.Role;
+			var email = getResult.Payload.Email;
+			if (role is null || email is null)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Empty user.";
+				return result;
+			}
 
             try
 			{
@@ -40,7 +47,7 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
 				var date = DateTime.Now;
 				var descriptor = new SecurityTokenDescriptor
 				{
-					Subject = new ClaimsIdentity(new[] { new Claim("AccountId", accountId.ToString()), new Claim(ClaimTypes.Role, role) }),
+					Subject = new ClaimsIdentity(new[] { new Claim("accountId", accountId.ToString()), new Claim(ClaimTypes.Role, role), new Claim(ClaimTypes.Email, email) }),
 					//TODO: Magic Number
 					Expires = date.AddMinutes(60),
 					NotBefore = date,
@@ -52,7 +59,7 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
 			}
 			catch
 			{
-				return new() { IsSuccessful = false, ErrorMessage = "Unable to Generate JWT token" };
+				return new() { IsSuccessful = false, ErrorMessage = "Unable to Generate access token." };
 			}
 		}
 

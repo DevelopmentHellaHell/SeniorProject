@@ -1,4 +1,5 @@
-import { useState } from "react";
+import Cookies from "js-cookie";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Ajax } from "../../Ajax";
 import Button from "../../components/Button/Button";
@@ -11,11 +12,24 @@ interface Props {
 }
 
 const Logout: React.FC<Props> = (props) => {
-    const [accountId, setAccountId] = useState(null);
-
     const [error, setError] = useState("");
     
     const navigate = useNavigate();
+
+    useEffect(() => {
+		const cookie = Cookies.get("access_token");
+		if (cookie) {
+			Cookies.remove("access_token");
+		}
+
+        // const response = await Ajax.post("/authentication/logout", ({ accountId: accountId }));
+                    // if (response.error) {
+                    //     alert(response.error);
+                    //     return;
+                    // }
+
+        navigate("/");
+    }, []);
 
     return (
         <div className="logout-container">
@@ -27,7 +41,7 @@ const Logout: React.FC<Props> = (props) => {
                     <p className="info">If page is not refreshed automatically, please click the button below to return to Home Page</p>
                     <div>
                         <div className="buttons">
-                            <Button title="Home Page" onClick={() => {navigate("/");}} />
+                            <Button title="Home Page" onClick={() => {navigate("/")}} />
                         </div>
                         {error &&
                             <p className="info">{error}</p>
