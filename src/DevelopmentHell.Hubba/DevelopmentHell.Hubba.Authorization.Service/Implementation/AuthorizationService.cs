@@ -29,6 +29,7 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
 				var descriptor = new SecurityTokenDescriptor
 				{
 					Subject = new ClaimsIdentity(new[] { new Claim("AccountId", accountId), new Claim(ClaimTypes.Role, accountType) }),
+					//TODO: Magic Number
 					Expires = DateTime.UtcNow.AddMinutes(60),
 					SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["JwtKey"]!)), SecurityAlgorithms.HmacSha256Signature)
 				};
@@ -41,20 +42,6 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
 			}
 		}
 
-		public async Task<Result<ClaimsPrincipal>> AuthorizeToken(HttpContext context)
-		{
-            var output = await context.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
-			
-            if (output.Succeeded)
-            {
-                return new() { IsSuccessful = true, Payload = output.Principal };
-            }
-            else
-            {
-                return new() { IsSuccessful = false, ErrorMessage = "Unable to Authorize JWT Token"};
-            }
-        }
-
         public Result authorize(IPrincipal? principal, string[]? roles = null)
 		{
 			Result result = new Result()
@@ -62,14 +49,8 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
 				IsSuccessful = false,
 			};
 
-			// No account and no roles = authorized
-			if (principal is null && roles is null)
-			{
-				result.IsSuccessful = true;
-				return result;
-			}
-			// Account and no roles = authorized
-			else if (principal is not null && roles is null)
+			// no roles = authorized
+			if (roles is null)
 			{
 				result.IsSuccessful = true;
 				return result;

@@ -12,12 +12,16 @@ using DevelopmentHell.Hubba.SqlDataAccess;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authentication;
 using System.Text;
 using Microsoft.Net.Http.Headers;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Implementation;
 using Microsoft.Extensions.DependencyInjection;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Implementation;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Identity.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -101,13 +105,20 @@ var app = builder.Build();
 
 app.Use(async (httpContext, next) =>
 {
+	// inbound code
+    var output = await httpContext.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
 
-	// No inbound code to be executed
-	//
-	//
+    if (output.Succeeded)
+    {
+		Thread.CurrentPrincipal = output.Principal;
+	}
+	else
+    {
+		Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "defualt") }));
+    }
 
-	// Go to next middleware
-	await next(httpContext);
+    // Go to next middleware
+    await next(httpContext);
 
 	// Explicitly only wanting code to execite on the way out of pipeline (Response/outbound direction)
 	if (httpContext.Response.Headers.ContainsKey(HeaderNames.XPoweredBy))
@@ -115,7 +126,9 @@ app.Use(async (httpContext, next) =>
 		httpContext.Response.Headers.Remove(HeaderNames.XPoweredBy);
 	}
 
-	//httpContext.Response.Headers.Server = "";
+    
+
+    //httpContext.Response.Headers.Server = "";
 });
 
 
@@ -134,6 +147,8 @@ app.Use((httpContext, next) =>
 			HttpMethods.Options,
 			HttpMethods.Head
 		};
+
+
 
 		httpContext.Response.Headers.Append(HeaderNames.AccessControlAllowOrigin, "*");
 		httpContext.Response.Headers.AccessControlAllowMethods.Append(string.Join(",", allowedMethods)); // "GET, POST, OPTIONS, HEAD"
