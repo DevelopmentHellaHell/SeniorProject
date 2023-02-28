@@ -15,7 +15,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
          * Process: Create an AuthenticationService with dummy connectionstrings and table names
          */
 		[TestMethod]
-		public void Test01()
+		public void AuthNService_DefaultConstructor_Instantiate_ReturnAnObj()
 		{
 			// Arrange
 			string dummyConnectionString = "";
@@ -39,7 +39,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 		 * Process: Create a dummy AuthService, invoke the createSession method
 		 */
 		[TestMethod]
-		public void Test02()
+		public void AuthNService_CreateSession_AccountID_ReturnVerifiedUserPrincipal()
 		{
 			// Arrange
 			int actualId = 1;
@@ -64,5 +64,37 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			Assert.IsTrue(Thread.CurrentPrincipal is not null);
 			Assert.IsTrue(Thread.CurrentPrincipal.IsInRole(expectedRole));
 		}
-	}
+
+        /* 
+		 * Success Case
+		 * Goal: Update the GenericPrincipal principal to the current thread from VerifiedUser to DefaultUser
+		 * Process: Create a dummy AuthService, invoke the EndSession method
+		 */
+        [TestMethod]
+        public void AuthNService_EndSession_AccountID_ReturnDefaultUserPrincipal()
+        {
+            // Arrange
+            int actualId = 1;
+            string expectedRole = "DefaultUser";
+            string dummyConnectionString = "";
+            string dummyTable = "";
+            var disconnectedAuthService = new AuthenticationService(
+                new UserAccountDataAccess(dummyConnectionString, dummyTable),
+                new LoggerService(new LoggerDataAccess(dummyConnectionString, dummyTable))
+                );
+
+            // Act
+            Result<GenericPrincipal> actual = disconnectedAuthService.EndSession(actualId);
+
+            // Assert
+            Assert.IsTrue(actual is not null);
+            Assert.IsTrue(actual.Payload is not null);
+            Assert.IsTrue(actual.Payload.Identity is not null);
+            Assert.IsTrue(actual.Payload.Identity.Name is not null);
+            Assert.IsTrue(actual.Payload.Identity.Name.Equals(1.ToString()));
+            Assert.IsTrue(actual.Payload.IsInRole(expectedRole));
+            Assert.IsTrue(Thread.CurrentPrincipal is not null);
+            Assert.IsTrue(Thread.CurrentPrincipal.IsInRole(expectedRole));
+        }
+    }
 }

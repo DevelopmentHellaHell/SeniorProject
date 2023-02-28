@@ -79,7 +79,7 @@ namespace DevelopmentHell.Hubba.Cryptography.Service
 				}
 			}
 
-			// Return encrypted data
+			// Return decrypted data
 			return output.Replace("\0", String.Empty);
 		}
 		public static byte[] DecryptToBytes(byte[] encrypted)
