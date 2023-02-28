@@ -10,25 +10,32 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Specialized;
+using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
+using DevelopmentHell.Hubba.SqlDataAccess;
 
 namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
 {
 	public class AuthorizationService : IAuthorizationService
 	{
 		private readonly NameValueCollection _configuration;
-		public AuthorizationService(NameValueCollection configuration)
+		IUserAccountDataAccess _userAccountDataAccess;
+        public AuthorizationService(NameValueCollection configuration,IUserAccountDataAccess dac)
 		{
 			_configuration = configuration;
+			_userAccountDataAccess = dac;
 		}
 
-		public Result<string> GenerateToken(string accountId, string accountType)
+		async public Task<Result<string>> GenerateToken(int accountId)
 		{
-			try
+			var result = await _userAccountDataAccess.GetUser(accountId).ConfigureAwait(false);
+			string accountType = result.Payload!.Role!;
+
+            try
 			{
 				var handler = new JwtSecurityTokenHandler();
 				var descriptor = new SecurityTokenDescriptor
 				{
-					Subject = new ClaimsIdentity(new[] { new Claim("AccountId", accountId), new Claim(ClaimTypes.Role, accountType) }),
+					Subject = new ClaimsIdentity(new[] { new Claim("AccountId", accountId.ToString()), new Claim(ClaimTypes.Role, accountType) }),
 					//TODO: Magic Number
 					Expires = DateTime.UtcNow.AddMinutes(60),
 					SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["JwtKey"]!)), SecurityAlgorithms.HmacSha256Signature)
@@ -48,6 +55,7 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
 			{
 				IsSuccessful = false,
 			};
+			Console.WriteLine(principal.ToString());
 
 			// no roles = authorized
 			if (roles is null)

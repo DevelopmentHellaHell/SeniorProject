@@ -24,7 +24,7 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
             _authorizationService = authorizationService;
             _loggerService = loggerService;
         }
-
+        //TODO: line 32 principal is null
         public async Task<Result<bool>> Login(string email, string password, string ipAddress, IPrincipal? principal = null, bool enabledSend = true)
         {
             Result<bool> result = new();
@@ -72,10 +72,10 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
             return result;
         }
 
-        public async Task<Result<GenericPrincipal>> AuthenticateOTP(int accountId, string otp, string ipAddress, IPrincipal? principal = null)
+        public async Task<Result<string>> AuthenticateOTP(int accountId, string otp, string ipAddress, IPrincipal? principal = null)
         {
 
-            Result<GenericPrincipal> result = new Result<GenericPrincipal>()
+            Result<string> result = new()
             {
                 IsSuccessful = false,
             };
@@ -96,7 +96,8 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
                 return result;
             }
 
-            return _authenticationService.CreateSession(accountId);
+
+            return await _authorizationService.GenerateToken(accountId).ConfigureAwait(false);
         }
     }
 }

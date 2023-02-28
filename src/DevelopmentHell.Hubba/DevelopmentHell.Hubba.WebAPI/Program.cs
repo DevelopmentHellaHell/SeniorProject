@@ -7,7 +7,7 @@ using DevelopmentHell.Hubba.Registration.Manager.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Implementation;
 using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
 using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
-using DevelopmentHell.Hubba.Authentication.Service.Implementation;
+using HubbaAuth = DevelopmentHell.Hubba.Authentication.Service.Implementation;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -61,11 +61,18 @@ builder.Services.AddTransient<IRegistrationManager, RegistrationManager>(s =>
 	)
 );
 builder.Services.AddTransient<IAuthorizationService, AuthorizationService>(s =>
-	new AuthorizationService()
+	new AuthorizationService(
+		System.Configuration.ConfigurationManager.AppSettings,
+        new UserAccountDataAccess(
+                System.Configuration.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+                System.Configuration.ConfigurationManager.AppSettings["UserAccountsTable"]!
+        )
+
+    )
 );
 builder.Services.AddTransient<IAuthenticationManager, AuthenticationManager>(s =>
     new AuthenticationManager(
-        new AuthenticationService(
+        new HubbaAuth.AuthenticationService(
             new UserAccountDataAccess(
                 System.Configuration.ConfigurationManager.AppSettings["UsersConnectionString"]!,
                 System.Configuration.ConfigurationManager.AppSettings["UserAccountsTable"]!
@@ -114,7 +121,7 @@ app.Use(async (httpContext, next) =>
 	}
 	else
     {
-		Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "defualt") }));
+		Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "default") }));
     }
 
     // Go to next middleware

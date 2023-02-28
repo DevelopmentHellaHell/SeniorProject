@@ -33,12 +33,14 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         [Route("authenticateOtp")]
         public async Task<IActionResult> AuthenticateOtp(UserToAuthenticateOtpDTO userToAuthenticateOtpDTO)
         {
-            userToAuthenticateOtpDTO.IpAddress = HttpContext.Connection.RemoteIpAddress.ToString();
+            userToAuthenticateOtpDTO.IpAddress = HttpContext.Connection.RemoteIpAddress!.ToString();
             var result = await _AuthenticationManager.AuthenticateOTP(userToAuthenticateOtpDTO.AccountId, userToAuthenticateOtpDTO.Otp, userToAuthenticateOtpDTO.IpAddress);
             if (!result.IsSuccessful)
             {
                 return BadRequest(result.ErrorMessage);
             }
+
+            HttpContext.Response.Cookies.Append("jwt", result.Payload!);
 
             return Ok();
         }
