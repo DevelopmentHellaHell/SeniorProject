@@ -5,8 +5,15 @@ using DevelopmentHell.Hubba.Logging.Service.Implementation;
 using DevelopmentHell.Hubba.Registration.Manager.Abstractions;
 using DevelopmentHell.Hubba.Registration.Manager.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Implementation;
+using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
+using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
+using DevelopmentHell.Hubba.Authentication.Service.Implementation;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using Microsoft.Net.Http.Headers;
+using DevelopmentHell.Hubba.OneTimePassword.Service.Implementation;
+using Microsoft.Extensions.DependencyInjection;
+using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
+using DevelopmentHell.Hubba.Authorization.Service.Implementation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,6 +51,28 @@ builder.Services.AddTransient<IRegistrationManager, RegistrationManager>(s =>
 		),
 		s.GetService<ILoggerService>()!
 	)
+);
+builder.Services.AddTransient<IAuthorizationService, AuthorizationService>(s =>
+	new AuthorizationService()
+);
+builder.Services.AddTransient<IAuthenticationManager, AuthenticationManager>(s =>
+    new AuthenticationManager(
+        new AuthenticationService(
+            new UserAccountDataAccess(
+                System.Configuration.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+                System.Configuration.ConfigurationManager.AppSettings["UserAccountsTable"]!
+            ),
+            s.GetService<ILoggerService>()!
+        ),
+		new OTPService(
+			new OTPDataAccess(
+                System.Configuration.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+                System.Configuration.ConfigurationManager.AppSettings["UserOTPsTable"]!
+			)
+		),
+		s.GetService<IAuthorizationService>()!,
+        s.GetService<ILoggerService>()!
+    )
 );
 
 builder.Services.AddCors();

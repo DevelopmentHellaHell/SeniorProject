@@ -4,6 +4,7 @@ using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Validation.Service;
+using Microsoft.Identity.Client;
 using System.Security.Principal;
 
 namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
@@ -57,7 +58,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 					UserAccount? loginAttemptData = getAttemptResult.Payload;
 					if (!getAttemptResult.IsSuccessful || loginAttemptData is null)
 					{
-						_loggerService.Log(LogLevel.WARNING, Category.BUSINESS, "Failure attempt did not complete successfully.");
+						_loggerService.Log(Models.LogLevel.WARNING, Category.BUSINESS, "Failure attempt did not complete successfully.");
 						result.IsSuccessful = false;
 						result.ErrorMessage = "Error, please contact system administrator.";
 						return result;
@@ -66,7 +67,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 					int loginAttempts = (int)loginAttemptData.LoginAttempts!;
 					DateTime? activeFailureTime = loginAttemptData.FailureTime is null ? null : DateTime.Parse(loginAttemptData.FailureTime!.ToString()!);
 
-					_loggerService.Log(LogLevel.INFO, Category.BUSINESS, $"{ipAddress} attempted to log in to {email} using the wrong password. (Attempt {loginAttempts + 1})");
+					_loggerService.Log(Models.LogLevel.INFO, Category.BUSINESS, $"{ipAddress} attempted to log in to {email} using the wrong password. (Attempt {loginAttempts + 1})");
 
 					// Current time is greater than stored time
 					// Reset login attempts as long as activeFailureTime is greater than 1 day
@@ -152,5 +153,19 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 			result.Payload = principal;
 			return result;
 		}
-	}
+
+        public Result<GenericPrincipal> EndSession(int accountId)
+        {
+            Result<GenericPrincipal> result = new Result<GenericPrincipal>();
+
+            var identity = new GenericIdentity(accountId.ToString());
+            var principal = new GenericPrincipal(identity, new string[] { "DefaultUser" });
+
+			Thread.CurrentPrincipal = principal;
+
+            result.IsSuccessful = true;
+            result.Payload = principal;
+            return result;
+        }
+    }
 }

@@ -5,7 +5,7 @@ using DevelopmentHell.Hubba.Cryptography.Service;
 using DevelopmentHell.Hubba.Logging.Service.Implementation;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Implementation;
-using DevelopmentHell.Hubba.Registration.Manager;
+using DevelopmentHell.Hubba.Registration.Manager.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Implementation;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using System.Configuration;
@@ -659,5 +659,233 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			Assert.IsTrue(actualAttempt.Payload is not null);
 			Assert.IsTrue(actualAttempt.Payload.LoginAttempts == expectedLoginAttempts);
 		}
-	}
+
+        /* 
+		 * Success Case
+		 * Goal: Logout attempt ends user session and return DefaultUser as current principal
+		 * Process: User login successfully, attempt to logout.
+		 */
+        [TestMethod]
+        public async Task LogoutTest11_VerifiedUserPrincipal_DefaultUserPrincipal()
+        {
+            // Arrange
+            var otpDataAccess = new OTPDataAccess(_UsersConnectionString, _UserOTPsTable);
+            var userAccountDataAccess = new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable);
+            var loggerService = new LoggerService(
+                new LoggerDataAccess(_LogsConnectionString, _LogsTable)
+            );
+            var registrationManager = new RegistrationManager(
+                new RegistrationService(
+                    new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable),
+                    loggerService
+                ),
+                loggerService
+            );
+            var authenticationManager = new AuthenticationManager(
+                new AuthenticationService(
+                    new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable),
+                    loggerService
+                ),
+                new OTPService(
+                    new OTPDataAccess(_UsersConnectionString, _UserOTPsTable)
+                ),
+                new AuthorizationService(),
+                loggerService
+            );
+            string email = "authentication-logout-test11@gmail.com";
+            string password = "12345678";
+            string dummyIp = "192.0.2.0";
+
+            //Cleanup
+            Result<int> getExistingAccountId = await userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = getExistingAccountId.Payload;
+            if (getExistingAccountId.Payload > 0)
+            {
+                await otpDataAccess.Delete(accountId).ConfigureAwait(false);
+                await userAccountDataAccess.Delete(accountId).ConfigureAwait(false);
+            }
+
+            //Arrange Continued
+            await registrationManager.Register(email, password).ConfigureAwait(false);
+            await authenticationManager.Login(email, password, dummyIp, null, false).ConfigureAwait(false);
+            Result<int> getNewAccountId = await userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int newAccountId = getNewAccountId.Payload;
+            Result<byte[]> getOtp = await otpDataAccess.GetOTP(newAccountId).ConfigureAwait(false);
+            string otp = EncryptionService.Decrypt(getOtp.Payload!);
+            var login = await authenticationManager.AuthenticateOTP(getNewAccountId.Payload, otp, dummyIp).ConfigureAwait(false);
+            string expectedRole = "DefaultUser";
+            var expectedIdentity = new GenericIdentity(newAccountId.ToString());
+            var expectedPrincipal = new GenericPrincipal(expectedIdentity, new string[] { expectedRole });
+            var expected = new Result<GenericPrincipal>()
+            {
+                IsSuccessful = true,
+                Payload = expectedPrincipal
+            };
+
+			// Act
+			var actual = authenticationManager.Logout(getNewAccountId.Payload, login.Payload, false);
+
+            // Assert
+            Assert.IsTrue(actual.IsSuccessful == expected.IsSuccessful);
+            Assert.IsTrue(actual.Payload is not null);
+            Assert.IsTrue(actual.Payload.IsInRole(expectedRole));
+            Assert.IsTrue(actual.Payload.Identity.IsAuthenticated);
+            Assert.IsTrue(actual.Payload.Identity.Name == expected.Payload.Identity.Name);
+        }
+
+        /*
+		 * Success Case
+		 * Goal: Prevent unauthenticated user from reaching logout view. Once they logged out, they can't logout again.
+		 * Process: User registers successfully. User is authenticated. User logged out successfully. 
+		 *			User then attempts to logout again
+		 */
+        [TestMethod]
+        public async Task LogoutTest12_DefaultUserPrincipal_ErrorMessage()
+		{
+            // Arrange
+            var otpDataAccess = new OTPDataAccess(_UsersConnectionString, _UserOTPsTable);
+            var userAccountDataAccess = new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable);
+            var loggerService = new LoggerService(
+                new LoggerDataAccess(_LogsConnectionString, _LogsTable)
+            );
+            var registrationManager = new RegistrationManager(
+                new RegistrationService(
+                    new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable),
+                    loggerService
+                ),
+                loggerService
+            );
+            var authenticationManager = new AuthenticationManager(
+                new AuthenticationService(
+                    new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable),
+                    loggerService
+                ),
+                new OTPService(
+                    new OTPDataAccess(_UsersConnectionString, _UserOTPsTable)
+                ),
+                new AuthorizationService(),
+                loggerService
+            );
+            string email = "authentication-logout-test12@gmail.com";
+            string password = "12345678";
+            string dummyIp = "192.0.2.0";
+
+            //Cleanup
+            Result<int> getExistingAccountId = await userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = getExistingAccountId.Payload;
+            if (getExistingAccountId.Payload > 0)
+            {
+                await otpDataAccess.Delete(accountId).ConfigureAwait(false);
+                await userAccountDataAccess.Delete(accountId).ConfigureAwait(false);
+            }
+
+            //Arrange Continued
+            await registrationManager.Register(email, password).ConfigureAwait(false);
+            await authenticationManager.Login(email, password, dummyIp, null, false).ConfigureAwait(false);
+            Result<int> getNewAccountId = await userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int newAccountId = getNewAccountId.Payload;
+            Result<byte[]> getOtp = await otpDataAccess.GetOTP(newAccountId).ConfigureAwait(false);
+            string otp = EncryptionService.Decrypt(getOtp.Payload!);
+            var login = await authenticationManager.AuthenticateOTP(getNewAccountId.Payload, otp, dummyIp).ConfigureAwait(false);
+            
+			string expectedRole = "DefaultUser";
+            var expectedIdentity = new GenericIdentity(newAccountId.ToString());
+            var expectedPrincipal = new GenericPrincipal(expectedIdentity, new string[] { expectedRole });
+            var expected = new Result<GenericPrincipal>()
+            {
+                IsSuccessful = false,
+                Payload = expectedPrincipal,
+				ErrorMessage = "Error, user already logged out."
+            };
+
+            // Act
+            var logout = authenticationManager.Logout(getNewAccountId.Payload, login.Payload, false);
+			var actual = authenticationManager.Logout(getNewAccountId.Payload, logout.Payload, false);
+
+            // Assert
+            Assert.IsTrue(actual.IsSuccessful == expected.IsSuccessful);
+            Assert.IsTrue(actual.Payload is not null);
+            Assert.IsTrue(actual.Payload.IsInRole(expectedRole));
+            Assert.IsTrue(actual.Payload.Identity.IsAuthenticated);
+            Assert.IsTrue(actual.Payload.Identity.Name == expected.Payload.Identity.Name);
+        }
+
+        /*
+		 * Success Case
+		 * Goal: Logout operation takes longer within 5 seconds
+		 * Process: User registers successfully. User is authenticated. 
+		 *			Timer starts. User attempts to logout. End timer when logout is done.
+		 */
+        [TestMethod]
+        public async Task LogoutTest13_VerifiedUser_Within5secs()
+		{
+            // Arrange
+            var otpDataAccess = new OTPDataAccess(_UsersConnectionString, _UserOTPsTable);
+            var userAccountDataAccess = new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable);
+            var loggerService = new LoggerService(
+                new LoggerDataAccess(_LogsConnectionString, _LogsTable)
+            );
+            var registrationManager = new RegistrationManager(
+                new RegistrationService(
+                    new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable),
+                    loggerService
+                ),
+                loggerService
+            );
+            var authenticationManager = new AuthenticationManager(
+                new AuthenticationService(
+                    new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable),
+                    loggerService
+                ),
+                new OTPService(
+                    new OTPDataAccess(_UsersConnectionString, _UserOTPsTable)
+                ),
+                new AuthorizationService(),
+                loggerService
+            );
+            string email = "authentication-logout-test13@gmail.com";
+            string password = "12345678";
+            string dummyIp = "192.0.2.0";
+
+            //Cleanup
+            Result<int> getExistingAccountId = await userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = getExistingAccountId.Payload;
+            if (getExistingAccountId.Payload > 0)
+            {
+                await otpDataAccess.Delete(accountId).ConfigureAwait(false);
+                await userAccountDataAccess.Delete(accountId).ConfigureAwait(false);
+            }
+
+            //Arrange Continued
+            await registrationManager.Register(email, password).ConfigureAwait(false);
+            await authenticationManager.Login(email, password, dummyIp, null, false).ConfigureAwait(false);
+            Result<int> getNewAccountId = await userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int newAccountId = getNewAccountId.Payload;
+            Result<byte[]> getOtp = await otpDataAccess.GetOTP(newAccountId).ConfigureAwait(false);
+            string otp = EncryptionService.Decrypt(getOtp.Payload!);
+            var login = await authenticationManager.AuthenticateOTP(getNewAccountId.Payload, otp, dummyIp).ConfigureAwait(false);
+
+            string expectedRole = "DefaultUser";
+            var expectedIdentity = new GenericIdentity(newAccountId.ToString());
+            var expectedPrincipal = new GenericPrincipal(expectedIdentity, new string[] { expectedRole });
+            var expected = new Result<GenericPrincipal>()
+            {
+                IsSuccessful = true,
+                Payload = expectedPrincipal
+            };
+			
+            // Act
+			DateTime start = DateTime.Now;
+            var actual = authenticationManager.Logout(getNewAccountId.Payload, login.Payload, false);
+			TimeSpan timeSpan = DateTime.Now - start;
+
+            // Assert
+            Assert.IsTrue(actual.IsSuccessful == expected.IsSuccessful);
+            Assert.IsTrue(actual.Payload is not null);
+            Assert.IsTrue(actual.Payload.IsInRole(expectedRole));
+            Assert.IsTrue(actual.Payload.Identity.IsAuthenticated);
+            Assert.IsTrue(actual.Payload.Identity.Name == expected.Payload.Identity.Name);
+			Assert.IsTrue(timeSpan.Seconds <= 5);
+        }
+    }
 }

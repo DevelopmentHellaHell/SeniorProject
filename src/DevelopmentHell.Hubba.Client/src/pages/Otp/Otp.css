@@ -1,14 +1,14 @@
-.registration-container {
+.otp-container {
     position: relative;
     min-height: 100vh;
 }
 
-.registration-wrapper {
+.otp-wrapper {
     color: var(--primary-text-dark);
     padding-bottom: 2.5rem;
 }
 
-.registration-card {
+.otp-card {
     background-color: var(--primary-background-light);
     padding: 20px 70px;
     border: none;
@@ -18,34 +18,34 @@
     text-align: center;
 }
 
-.registration-card .input-field {
+.otp-card .input-field {
     margin-bottom: 15px;
     display: flex;
     align-items: center;
     text-align: left;
 }
 
-.registration-card .input-field label {
+.otp-card .input-field label {
     width: 250px;
     margin-right: 10px;
 }
 
-.registration-card .input-field input {
+.otp-card .input-field input {
     width: 100%;
     padding: 8px 10px;
     border: 1px solid var(--primary-text-dark);
     border-radius: 3px;
 }
 
-.registration-card .buttons {
+.otp-card .buttons {
     display: flex;
     justify-content: right;
 }
 
-.registration-card .info {
+.otp-card .info {
     color: var(--secondary-text-dark);
 }
 
-.registration-card .error {
+.otp-card .error {
     color: var(--error-text);
 }
