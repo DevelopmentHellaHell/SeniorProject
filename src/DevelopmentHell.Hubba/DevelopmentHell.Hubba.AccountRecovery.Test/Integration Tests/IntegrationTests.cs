@@ -92,7 +92,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             };
 
             // Act
-            var verificationResult = await accountRecoveryManager.Verification(email);
+            var verificationResult = await accountRecoveryManager.Verification(email, null, false);
             Result<byte[]> getOtp = await otpDataAccess.GetOTP(verificationResult.Payload).ConfigureAwait(false);
             string otp = EncryptionService.Decrypt(getOtp.Payload!);
             await accountRecoveryManager.AuthenticateOTP(verificationResult.Payload, otp, dummyIp);
@@ -116,7 +116,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
 		 * Process: Register Account Successfully, Log into account, Attempt Account Recovery
 		 */
         [TestMethod]
-        public async Task AutomatedRecovery()
+        public async Task AutomatedRecovery01()
         {
             // Arrange
             var otpDataAccess = new OTPDataAccess(_UsersConnectionString, _UserOTPsTable);
@@ -161,7 +161,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
                 new AuthorizationService(),
                 loggerService
             );
-            string email = "accountrecovery-automatedsuccess@gmail.com";
+            string email = "accountrecovery-automatedsuccess01@gmail.com";
             string password = "12345678";
             string dummyIp = "192.0.2.0";
 
@@ -183,11 +183,12 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             int newAccountId = getNewAccountId.Payload;
             Result<byte[]> getOtp = await otpDataAccess.GetOTP(newAccountId).ConfigureAwait(false);
             string otp = EncryptionService.Decrypt(getOtp.Payload!);
-            await authenticationManager.AuthenticateOTP(getNewAccountId.Payload, otp, dummyIp).ConfigureAwait(false);
+            await authenticationManager.AuthenticateOTP(newAccountId, otp, dummyIp).ConfigureAwait(false);
 
             //temp
-            await userLoginDataAccess.AddLogin(getNewAccountId.Payload, dummyIp);
-
+            await userLoginDataAccess.AddLogin(newAccountId, dummyIp);
+            await userLoginDataAccess.AddLogin(newAccountId, "192.0.3.0");
+            await userLoginDataAccess.AddLogin(newAccountId, "192.0.4.0");
 
             string expectedRole = "VerifiedUser";
             var expectedIdentity = new GenericIdentity(newAccountId.ToString());
@@ -199,7 +200,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             };
 
             // Act
-            var verificationResult = await accountRecoveryManager.Verification(email);
+            var verificationResult = await accountRecoveryManager.Verification(email, null, false);
             getOtp = await otpDataAccess.GetOTP(verificationResult.Payload).ConfigureAwait(false);
             otp = EncryptionService.Decrypt(getOtp.Payload!);
             await accountRecoveryManager.AuthenticateOTP(verificationResult.Payload, otp, dummyIp);
@@ -214,5 +215,204 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             Assert.IsTrue(actual.Payload.Identity.Name == expected.Payload.Identity.Name);
             Assert.IsTrue(actual.IsSuccessful == expected.IsSuccessful);
         }
+
+
+        /*
+		 * Success Case
+		 * Goal: Successfully recover user account,user recevies authorization
+		 * Process: Register Account Successfully, Log into account, Fail 3 logins to disable account, Attempt Account Recovery
+		 */
+        [TestMethod]
+        public async Task AutomatedRecovery02()
+        {
+            // Arrange
+            var otpDataAccess = new OTPDataAccess(_UsersConnectionString, _UserOTPsTable);
+            var userAccountDataAccess = new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable);
+            var userLoginDataAccess = new UserLoginDataAccess(_UsersConnectionString, _UserLoginsTable);
+            var recoveryRequestDataAccess = new RecoveryRequestDataAccess(_UsersConnectionString, _RecoveryRequestsTable);
+            var loggerService = new LoggerService(
+                new LoggerDataAccess(_LogsConnectionString, _LogsTable)
+            );
+            var accountRecoveryManager = new AccountRecoveryManager(
+                new AccountRecoveryService(
+                    new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable),
+                    loggerService,
+                    new UserLoginDataAccess(_UsersConnectionString, _UserLoginsTable),
+                    new RecoveryRequestDataAccess(_UsersConnectionString, _RecoveryRequestsTable)
+                ),
+                new OTPService(
+                    new OTPDataAccess(_UsersConnectionString, _UserOTPsTable)
+                ),
+                new AuthenticationService(
+                    new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable),
+                    loggerService
+                ),
+                new AuthorizationService(),
+                loggerService
+            );
+            var registrationManager = new RegistrationManager(
+                new RegistrationService(
+                    new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable),
+                    loggerService
+                ),
+                loggerService
+            );
+            var authenticationManager = new AuthenticationManager(
+                new AuthenticationService(
+                    new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable),
+                    loggerService
+                ),
+                new OTPService(
+                    new OTPDataAccess(_UsersConnectionString, _UserOTPsTable)
+                ),
+                new AuthorizationService(),
+                loggerService
+            );
+            string email = "accountrecovery-automatedsuccess02@gmail.com";
+            string password = "12345678";
+            string dummyIp = "192.0.2.0";
+
+            //Cleanup
+            Result<int> getExistingAccountId = await userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = getExistingAccountId.Payload;
+            if (getExistingAccountId.Payload > 0)
+            {
+                await otpDataAccess.Delete(accountId).ConfigureAwait(false);
+                await userAccountDataAccess.Delete(accountId).ConfigureAwait(false);
+                await userLoginDataAccess.Delete(accountId).ConfigureAwait(false);
+                await recoveryRequestDataAccess.Delete(accountId).ConfigureAwait(false);
+            }
+
+            //Arrange Continued
+            await registrationManager.Register(email, password).ConfigureAwait(false);
+            await authenticationManager.Login(email, password, dummyIp, null, false).ConfigureAwait(false);
+            Result<int> getNewAccountId = await userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int newAccountId = getNewAccountId.Payload;
+            Result<byte[]> getOtp = await otpDataAccess.GetOTP(newAccountId).ConfigureAwait(false);
+            string otp = EncryptionService.Decrypt(getOtp.Payload!);
+            await authenticationManager.AuthenticateOTP(newAccountId, otp, dummyIp).ConfigureAwait(false);
+            //temp
+            await userLoginDataAccess.AddLogin(newAccountId, dummyIp);
+
+            //Arrange Continued
+            string wrongPassword = "whoops";
+            for (int i = 0; i < 3; i++)
+            {
+                await authenticationManager.Login(email, wrongPassword, dummyIp, null, false);
+            }
+            var checkDisabledBefore = await userAccountDataAccess.GetDisabled(newAccountId).ConfigureAwait(false);
+            var checkLoginAttemptsBefore = await userAccountDataAccess.GetAttempt(newAccountId).ConfigureAwait(false);
+
+            string expectedRole = "VerifiedUser";
+            var expectedIdentity = new GenericIdentity(newAccountId.ToString());
+            var expectedPrincipal = new GenericPrincipal(expectedIdentity, new string[] { expectedRole });
+            var expected = new Result<GenericPrincipal>()
+            {
+                IsSuccessful = true,
+                Payload = expectedPrincipal
+            };
+
+            // Act
+            var verificationResult = await accountRecoveryManager.Verification(email, null, false);
+            getOtp = await otpDataAccess.GetOTP(verificationResult.Payload).ConfigureAwait(false);
+            otp = EncryptionService.Decrypt(getOtp.Payload!);
+            await accountRecoveryManager.AuthenticateOTP(verificationResult.Payload, otp, dummyIp);
+            var actual = await accountRecoveryManager.AccountAccess(verificationResult.Payload, dummyIp);
+            var checkDisabledAfter = await userAccountDataAccess.GetDisabled(newAccountId).ConfigureAwait(false);
+            var checkLoginAttemptsAfter = await userAccountDataAccess.GetAttempt(newAccountId).ConfigureAwait(false);
+
+            // Assert
+            Assert.IsTrue(actual.IsSuccessful == expected.IsSuccessful);
+            Assert.IsTrue(actual.Payload is not null);
+            Assert.IsTrue(actual.Payload.IsInRole(expectedRole));
+            Assert.IsTrue(actual.Payload.Identity.IsAuthenticated);
+            Assert.IsTrue(actual.Payload.Identity.Name == expected.Payload.Identity.Name);
+            Assert.IsTrue(actual.IsSuccessful == expected.IsSuccessful);
+            Assert.IsTrue(checkDisabledBefore.Payload == true);
+            Assert.IsTrue(checkDisabledAfter.Payload == false);
+            Assert.IsTrue(checkLoginAttemptsBefore.Payload!.LoginAttempts == 3);
+            Assert.IsTrue(checkLoginAttemptsAfter.Payload!.LoginAttempts == 0);
+        }
+
+
+        /*
+		 * Failure Case
+		 * Goal: Successfully add account to RecoveryRequest Datastore, user does not recevie authorization
+		 * Process: Register Account Successfully, Attempt Account Recovery
+		 */
+        [TestMethod]
+        public async Task InvalidUsername()
+        {
+            // Arrange
+            var otpDataAccess = new OTPDataAccess(_UsersConnectionString, _UserOTPsTable);
+            var userAccountDataAccess = new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable);
+            var userLoginDataAccess = new UserLoginDataAccess(_UsersConnectionString, _UserLoginsTable);
+            var recoveryRequestDataAccess = new RecoveryRequestDataAccess(_UsersConnectionString, _RecoveryRequestsTable);
+            var loggerService = new LoggerService(
+                new LoggerDataAccess(_LogsConnectionString, _LogsTable)
+            );
+            var accountRecoveryManager = new AccountRecoveryManager(
+                new AccountRecoveryService(
+                    new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable),
+                    loggerService,
+                    new UserLoginDataAccess(_UsersConnectionString, _UserLoginsTable),
+                    new RecoveryRequestDataAccess(_UsersConnectionString, _RecoveryRequestsTable)
+                ),
+                new OTPService(
+                    new OTPDataAccess(_UsersConnectionString, _UserOTPsTable)
+                ),
+                new AuthenticationService(
+                    new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable),
+                    loggerService
+                ),
+                new AuthorizationService(),
+                loggerService
+            );
+            var registrationManager = new RegistrationManager(
+                new RegistrationService(
+                    new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable),
+                    loggerService
+                ),
+                loggerService
+            );
+            string email = "accountrecovery-manualsuccess@gmail.com";
+            string password = "12345678";
+            string dummyIp = "192.0.2.0";
+
+            //Cleanup
+            Result<int> getExistingAccountId = await userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = getExistingAccountId.Payload;
+            if (getExistingAccountId.Payload > 0)
+            {
+                await otpDataAccess.Delete(accountId).ConfigureAwait(false);
+                await userAccountDataAccess.Delete(accountId).ConfigureAwait(false);
+                await userLoginDataAccess.Delete(accountId).ConfigureAwait(false);
+                await recoveryRequestDataAccess.Delete(accountId).ConfigureAwait(false);
+            }
+
+            //Arrange Continued
+            await registrationManager.Register(email, password).ConfigureAwait(false);
+            var expected = new Result<GenericPrincipal>()
+            {
+                IsSuccessful = true,
+            };
+
+            // Act
+            var verificationResult = await accountRecoveryManager.Verification(email, null, false);
+            Result<byte[]> getOtp = await otpDataAccess.GetOTP(verificationResult.Payload).ConfigureAwait(false);
+            string otp = EncryptionService.Decrypt(getOtp.Payload!);
+            await accountRecoveryManager.AuthenticateOTP(verificationResult.Payload, otp, dummyIp);
+            var actual = await accountRecoveryManager.AccountAccess(verificationResult.Payload, dummyIp);
+
+            //Arrange to check recoveryrequests has new request
+            var recoveryRequestResult = await recoveryRequestDataAccess.GetId(verificationResult.Payload);
+
+
+            // Assert
+            Console.WriteLine(verificationResult.IsSuccessful);
+            Assert.IsTrue(actual.IsSuccessful == expected.IsSuccessful);
+            Assert.IsTrue(recoveryRequestResult.IsSuccessful);
+            Assert.IsTrue(recoveryRequestResult.Payload == verificationResult.Payload);
+        }
     }
-}
+} //"Invalid username or OTP provided. Retry again or contact system admin"

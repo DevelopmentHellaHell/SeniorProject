@@ -28,7 +28,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Service.Implementation
             if (!ValidationService.ValidateEmail(email).IsSuccessful)
             {
                 result.IsSuccessful = false;
-                result.ErrorMessage = "Invalid username or password provided. Retry again or contact system admin";
+                result.ErrorMessage = "Invalid username or OTP provided. Retry again or contact system admin";
                 return result;
             }
 
@@ -36,7 +36,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Service.Implementation
             if (!getIdFromEmail.IsSuccessful && String.IsNullOrEmpty(getIdFromEmail.Payload.ToString()))
             {
                 result.IsSuccessful = false;
-                result.ErrorMessage = "Invalid username or password provided. Retry again or contact system admin";
+                result.ErrorMessage = "Invalid username or OTP provided. Retry again or contact system admin";
                 return result;
             }
             result.Payload = getIdFromEmail.Payload;
@@ -91,18 +91,18 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Service.Implementation
         public bool CheckIpAddress(string[]? successfulIpAddress, string ipAddress)
         {
             if (successfulIpAddress is null) {
-                Console.WriteLine("No IPs given");
+                //Console.WriteLine("No IPs given");
                 return false;
             }
             for (int i = 0; i < successfulIpAddress.Length; i++)
             {
                 if ((successfulIpAddress[i].Trim()).Equals(ipAddress.Trim()))
                 {
-                    Console.WriteLine("Matching IP Found");
+                    //Console.WriteLine("Matching IP Found");
                     return true;
                 }
             }
-            Console.WriteLine("No IPs match");
+            //Console.WriteLine("No IPs match");
             return false;
         }
     }

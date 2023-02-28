@@ -81,7 +81,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager.Implementation
             Result resultCheck = await _otpService.CheckOTP(accountId, otp).ConfigureAwait(false);
             if (!resultCheck.IsSuccessful)
             {
-                result.ErrorMessage = "Invalid or expired OTP, please try again.";
+                result.ErrorMessage = "Invalid username or OTP provided. Retry again or contact system admin";
                 return result;
             }
             result.IsSuccessful = true;
