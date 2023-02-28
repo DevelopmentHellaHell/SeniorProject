@@ -44,7 +44,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             }
 
             //https://stackoverflow.com/questions/61427818/store-validate-jwt-token-stored-in-httponly-cookie-in-net-core-api
-            HttpContext.Response.Cookies.Append("access_token", result.Payload);//, new CookieOptions { HttpOnly = true });
+            HttpContext.Response.Cookies.Append("access_token", result.Payload, new CookieOptions {  SameSite=SameSiteMode.None, Secure=true });//, new CookieOptions { HttpOnly = true });
 			return Ok();
         }
     }
