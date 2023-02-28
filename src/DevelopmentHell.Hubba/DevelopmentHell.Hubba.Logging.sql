@@ -11,11 +11,12 @@ GO
 CREATE DATABASE [DevelopmentHell.Hubba.Logs]
  CONTAINMENT = NONE
  ON  PRIMARY 
-( NAME = N'DevelopmentHell.Hubba.Logs', FILENAME = N'C:\Program Files (x86)\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\DevelopmentHell.Hubba.Logs.mdf' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB )
+( NAME = N'DevelopmentHell.Hubba.Logs', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\DATA\DevelopmentHell.Hubba.Logs.mdf' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB )
  LOG ON 
-( NAME = N'DevelopmentHell.Hubba.Logs_log', FILENAME = N'C:\Program Files (x86)\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\DevelopmentHell.Hubba.Logs_log.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )
+( NAME = N'DevelopmentHell.Hubba.Logs_log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\DATA\DevelopmentHell.Hubba.Logs_log.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )
+ WITH CATALOG_COLLATION = DATABASE_DEFAULT
 GO
-ALTER DATABASE [DevelopmentHell.Hubba.Logs] SET COMPATIBILITY_LEVEL = 120
+ALTER DATABASE [DevelopmentHell.Hubba.Logs] SET COMPATIBILITY_LEVEL = 150
 GO
 IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
 begin
@@ -78,14 +79,22 @@ ALTER DATABASE [DevelopmentHell.Hubba.Logs] SET FILESTREAM( NON_TRANSACTED_ACCES
 GO
 ALTER DATABASE [DevelopmentHell.Hubba.Logs] SET TARGET_RECOVERY_TIME = 60 SECONDS 
 GO
-
+ALTER DATABASE [DevelopmentHell.Hubba.Logs] SET DELAYED_DURABILITY = DISABLED 
+GO
+ALTER DATABASE [DevelopmentHell.Hubba.Logs] SET ACCELERATED_DATABASE_RECOVERY = OFF  
+GO
 EXEC sys.sp_db_vardecimal_storage_format N'DevelopmentHell.Hubba.Logs', N'ON'
+GO
+ALTER DATABASE [DevelopmentHell.Hubba.Logs] SET QUERY_STORE = OFF
 GO
 /****** Object:  Login [NT SERVICE\Winmgmt]    Script Date: 12/13/2022 10:50:54 PM ******/
 CREATE LOGIN [NT SERVICE\Winmgmt] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
 /****** Object:  Login [NT SERVICE\SQLWriter]    Script Date: 12/13/2022 10:50:54 PM ******/
 CREATE LOGIN [NT SERVICE\SQLWriter] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
+GO
+/****** Object:  Login [NT SERVICE\SQLTELEMETRY]    Script Date: 12/13/2022 10:50:54 PM ******/
+CREATE LOGIN [NT SERVICE\SQLTELEMETRY] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
 /****** Object:  Login [NT SERVICE\SQLSERVERAGENT]    Script Date: 12/13/2022 10:50:54 PM ******/
 CREATE LOGIN [NT SERVICE\SQLSERVERAGENT] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
@@ -100,13 +109,13 @@ GO
 /****** Object:  Login [DevelopmentHell.Hubba.SqlUser.User]    Script Date: 12/13/2022 10:50:54 PM ******/
 CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.User] WITH PASSWORD=N'HWOk2D72gm+Rfdrs5HXvGEGYa9z5hnMCbqTd5ZLBTaM=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
 GO
-ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.User] ENABLE
+ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.User] DISABLE
 GO
 /* For security reasons the login is created disabled and with a random password. */
 /****** Object:  Login [DevelopmentHell.Hubba.SqlUser.Logging]    Script Date: 12/13/2022 10:50:54 PM ******/
 CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] WITH PASSWORD=N'5DjPQkHmxQx/1f5C8smZhBBJhC+84X8oYH+ihrKRy0I=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
 GO
-ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] ENABLE
+ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] DISABLE
 GO
 /* For security reasons the login is created disabled and with a random password. */
 /****** Object:  Login [Company.Product.SqlUser]    Script Date: 12/13/2022 10:50:54 PM ******/
@@ -115,7 +124,7 @@ GO
 ALTER LOGIN [Company.Product.SqlUser] DISABLE
 GO
 /****** Object:  Login [BRYANS-LAPTOP\bryan]    Script Date: 12/13/2022 10:50:54 PM ******/
-CREATE LOGIN [DESKTOP-38Q9EKT\tienng] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
+CREATE LOGIN [BRYANS-LAPTOP\bryan] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
 /* For security reasons the login is created disabled and with a random password. */
 /****** Object:  Login [##MS_PolicyTsqlExecutionLogin##]    Script Date: 12/13/2022 10:50:54 PM ******/
@@ -129,7 +138,7 @@ CREATE LOGIN [##MS_PolicyEventProcessingLogin##] WITH PASSWORD=N'pecQXbWDtXP+exd
 GO
 ALTER LOGIN [##MS_PolicyEventProcessingLogin##] DISABLE
 GO
-ALTER AUTHORIZATION ON DATABASE::[DevelopmentHell.Hubba.Logs] TO [DESKTOP-38Q9EKT\tienng]
+ALTER AUTHORIZATION ON DATABASE::[DevelopmentHell.Hubba.Logs] TO [BRYANS-LAPTOP\bryan]
 GO
 ALTER SERVER ROLE [sysadmin] ADD MEMBER [NT SERVICE\Winmgmt]
 GO
@@ -139,7 +148,7 @@ ALTER SERVER ROLE [sysadmin] ADD MEMBER [NT SERVICE\SQLSERVERAGENT]
 GO
 ALTER SERVER ROLE [sysadmin] ADD MEMBER [NT Service\MSSQLSERVER]
 GO
-ALTER SERVER ROLE [sysadmin] ADD MEMBER [DESKTOP-38Q9EKT\tienng]
+ALTER SERVER ROLE [sysadmin] ADD MEMBER [BRYANS-LAPTOP\bryan]
 GO
 USE [DevelopmentHell.Hubba.Logs]
 GO
@@ -149,6 +158,10 @@ GO
 ALTER ROLE [db_datawriter] ADD MEMBER [DevelopmentHell.Hubba.SqlUser.Logging]
 GO
 GRANT CONNECT TO [DevelopmentHell.Hubba.SqlUser.Logging] AS [dbo]
+GO
+GRANT VIEW ANY COLUMN ENCRYPTION KEY DEFINITION TO [public] AS [dbo]
+GO
+GRANT VIEW ANY COLUMN MASTER KEY DEFINITION TO [public] AS [dbo]
 GO
 /****** Object:  Table [dbo].[Logs]    Script Date: 12/13/2022 10:50:55 PM ******/
 SET ANSI_NULLS ON
@@ -165,7 +178,7 @@ CREATE TABLE [dbo].[Logs](
  CONSTRAINT [PK_Logs] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
 ALTER AUTHORIZATION ON [dbo].[Logs] TO  SCHEMA OWNER 
