@@ -5,12 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Specialized;
-using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess;
 
 namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
@@ -19,31 +14,43 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
 	{
 		private readonly NameValueCollection _configuration;
 		IUserAccountDataAccess _userAccountDataAccess;
-        public AuthorizationService(NameValueCollection configuration,IUserAccountDataAccess dac)
+        public AuthorizationService(NameValueCollection configuration, IUserAccountDataAccess userAccountDataAccess)
 		{
 			_configuration = configuration;
-			_userAccountDataAccess = dac;
+			_userAccountDataAccess = userAccountDataAccess;
 		}
 
-		async public Task<Result<string>> GenerateToken(int accountId)
+		public async Task<Result<string>> GenerateToken(int accountId)
 		{
-			var result = await _userAccountDataAccess.GetUser(accountId).ConfigureAwait(false);
-			string accountType = result.Payload!.Role!;
+			var result = new Result<string>();
+
+			var getResult = await _userAccountDataAccess.GetUser(accountId).ConfigureAwait(false);
+			if (!getResult.IsSuccessful || getResult.Payload is null)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Unable to find user.";
+				return result;
+			}
+
+			string role = getResult.Payload.Role!;
 
             try
 			{
 				var handler = new JwtSecurityTokenHandler();
+				var date = DateTime.Now;
 				var descriptor = new SecurityTokenDescriptor
 				{
-					Subject = new ClaimsIdentity(new[] { new Claim("AccountId", accountId.ToString()), new Claim(ClaimTypes.Role, accountType) }),
+					Subject = new ClaimsIdentity(new[] { new Claim("AccountId", accountId.ToString()), new Claim(ClaimTypes.Role, role) }),
 					//TODO: Magic Number
-					Expires = DateTime.UtcNow.AddMinutes(60),
+					Expires = date.AddMinutes(60),
+					NotBefore = date,
 					SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["JwtKey"]!)), SecurityAlgorithms.HmacSha256Signature)
 				};
 
 				var token = handler.CreateToken(descriptor);
 				return new() { IsSuccessful = true, Payload = handler.WriteToken(token) };
-			} catch
+			}
+			catch
 			{
 				return new() { IsSuccessful = false, ErrorMessage = "Unable to Generate JWT token" };
 			}
@@ -55,7 +62,6 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
 			{
 				IsSuccessful = false,
 			};
-			Console.WriteLine(principal.ToString());
 
 			// no roles = authorized
 			if (roles is null)

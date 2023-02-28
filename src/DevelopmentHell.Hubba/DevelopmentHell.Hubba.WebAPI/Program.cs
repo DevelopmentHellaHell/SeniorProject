@@ -11,17 +11,13 @@ using HubbaAuth = DevelopmentHell.Hubba.Authentication.Service.Implementation;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication;
 using System.Text;
 using Microsoft.Net.Http.Headers;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Implementation;
-using Microsoft.Extensions.DependencyInjection;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Implementation;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Identity.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 

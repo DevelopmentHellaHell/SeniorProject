@@ -1,6 +1,8 @@
 ﻿using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
 using DevelopmentHell.Hubba.WebAPI.DTO.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
+using System.Net;
 
 namespace DevelopmentHell.Hubba.WebAPI.Controllers
 {
@@ -19,8 +21,8 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         [Route("login")]
         public async Task<IActionResult> Login(UserToLoginDTO userToLoginDTO)
         {
-            userToLoginDTO.IpAddress = HttpContext.Connection.RemoteIpAddress.ToString();
-            var result = await _AuthenticationManager.Login(userToLoginDTO.Email, userToLoginDTO.Password, userToLoginDTO.IpAddress);
+            var ipAddress = HttpContext.Connection.RemoteIpAddress!.ToString();
+            var result = await _AuthenticationManager.Login(userToLoginDTO.Email, userToLoginDTO.Password, ipAddress);
             if (!result.IsSuccessful)
             {
                 return BadRequest(result.ErrorMessage);
@@ -30,19 +32,20 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         }
 
         [HttpPost]
-        [Route("authenticateOtp")]
+        [Route("otp")]
         public async Task<IActionResult> AuthenticateOtp(UserToAuthenticateOtpDTO userToAuthenticateOtpDTO)
         {
-            userToAuthenticateOtpDTO.IpAddress = HttpContext.Connection.RemoteIpAddress!.ToString();
-            var result = await _AuthenticationManager.AuthenticateOTP(userToAuthenticateOtpDTO.AccountId, userToAuthenticateOtpDTO.Otp, userToAuthenticateOtpDTO.IpAddress);
-            if (!result.IsSuccessful)
+            // somehow get the account id
+            var ipAddress = HttpContext.Connection.RemoteIpAddress!.ToString();
+            var result = await _AuthenticationManager.AuthenticateOTP(1, userToAuthenticateOtpDTO.Otp, ipAddress);
+            if (!result.IsSuccessful || result.Payload is null)
             {
                 return BadRequest(result.ErrorMessage);
             }
 
-            HttpContext.Response.Cookies.Append("jwt", result.Payload!);
-
-            return Ok();
+            //https://stackoverflow.com/questions/61427818/store-validate-jwt-token-stored-in-httponly-cookie-in-net-core-api
+            HttpContext.Response.Cookies.Append("access_token", result.Payload);//, new CookieOptions { HttpOnly = true });
+			return Ok();
         }
     }
 }

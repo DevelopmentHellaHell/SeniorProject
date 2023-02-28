@@ -42,7 +42,7 @@ const Otp: React.FC<Props> = (props) => {
 
                                 setError("");
 
-                                const response = await Ajax.post("/otp/register", ({ otp: otp }));
+                                const response = await Ajax.post("/authentication/otp", ({ otp: otp }));
                                 if (response.error) {
                                     setError(response.error);
                                     return;

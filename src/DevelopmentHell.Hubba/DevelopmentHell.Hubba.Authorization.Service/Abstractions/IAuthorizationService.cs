@@ -6,7 +6,7 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Abstractions
 	public interface IAuthorizationService
 	{
 		Result authorize(IPrincipal? principal, string[]? roles = null);
-		public Task<Result<string>> GenerateToken(int accountId);
+		Task<Result<string>> GenerateToken(int accountId);
 
     }
 }
