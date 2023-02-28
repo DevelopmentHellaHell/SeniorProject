@@ -91,15 +91,18 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Service.Implementation
         public bool CheckIpAddress(string[]? successfulIpAddress, string ipAddress)
         {
             if (successfulIpAddress is null) {
+                Console.WriteLine("No IPs given");
                 return false;
             }
             for (int i = 0; i < successfulIpAddress.Length; i++)
             {
-                if (successfulIpAddress[i].Equals(ipAddress))
+                if ((successfulIpAddress[i].Trim()).Equals(ipAddress.Trim()))
                 {
+                    Console.WriteLine("Matching IP Found");
                     return true;
                 }
             }
+            Console.WriteLine("No IPs match");
             return false;
         }
     }

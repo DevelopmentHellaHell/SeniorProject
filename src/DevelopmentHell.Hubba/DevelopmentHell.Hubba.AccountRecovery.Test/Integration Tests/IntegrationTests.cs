@@ -185,6 +185,9 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             string otp = EncryptionService.Decrypt(getOtp.Payload!);
             await authenticationManager.AuthenticateOTP(getNewAccountId.Payload, otp, dummyIp).ConfigureAwait(false);
 
+            //temp
+            await userLoginDataAccess.AddLogin(getNewAccountId.Payload, dummyIp);
+
 
             string expectedRole = "VerifiedUser";
             var expectedIdentity = new GenericIdentity(newAccountId.ToString());
