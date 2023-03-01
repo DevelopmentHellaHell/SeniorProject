@@ -45,6 +45,9 @@
 .login-card .info {
     color: var(--secondary-text-dark);
 }
+.login-card .info:hover{
+    color: var(--primary-text-dark);
+}
 
 .login-card .error {
     color: var(--error-text);
