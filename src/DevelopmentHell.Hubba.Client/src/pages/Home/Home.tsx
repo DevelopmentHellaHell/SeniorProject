@@ -10,9 +10,11 @@ interface Props {
 }
 
 const Home: React.FC<Props> = (props) => {
+    const authData = Auth.isAuthenticated();
+
     return (
         <div className="home-container">
-            {Auth.isAuthenticated() ? 
+            {authData && authData.role !== Auth.Roles.DEFAULT_USER  ? 
                 <NavbarUser /> : <NavbarGuest /> 
             }
 

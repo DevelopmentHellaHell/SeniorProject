@@ -20,7 +20,7 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
 			_userAccountDataAccess = userAccountDataAccess;
 		}
 
-		public async Task<Result<string>> GenerateToken(int accountId)
+		public async Task<Result<string>> GenerateToken(int accountId, bool defaultUser = false)
 		{
 			var result = new Result<string>();
 
@@ -47,9 +47,9 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
 				var date = DateTime.Now;
 				var descriptor = new SecurityTokenDescriptor
 				{
-					Subject = new ClaimsIdentity(new[] { new Claim("accountId", accountId.ToString()), new Claim(ClaimTypes.Role, role), new Claim(ClaimTypes.Email, email) }),
+					Subject = new ClaimsIdentity(new[] { new Claim("accountId", accountId.ToString()), new Claim(ClaimTypes.Role, defaultUser ? "DefaultUser" : role), new Claim(ClaimTypes.Email, email) }),
 					//TODO: Magic Number
-					Expires = date.AddMinutes(60),
+					Expires = date.AddMinutes(!defaultUser ? 60 : 2),
 					NotBefore = date,
 					SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["JwtKey"]!)), SecurityAlgorithms.HmacSha256Signature)
 				};

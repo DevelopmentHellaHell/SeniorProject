@@ -23,21 +23,22 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress!.ToString();
             var result = await _AuthenticationManager.Login(userToLoginDTO.Email, userToLoginDTO.Password, ipAddress);
-            if (!result.IsSuccessful)
+            if (!result.IsSuccessful || result.Payload is null)
             {
                 return BadRequest(result.ErrorMessage);
             }
 
-            return Ok();
+			HttpContext.Response.Cookies.Append("access_token", result.Payload, new CookieOptions { SameSite = SameSiteMode.None, Secure = true });
+			return Ok();
         }
 
         [HttpPost]
         [Route("otp")]
         public async Task<IActionResult> AuthenticateOtp(UserToAuthenticateOtpDTO userToAuthenticateOtpDTO)
         {
-            // somehow get the account id
+            // TODO: replace AccountId from DTO with the Thread.CurrentPrincipal generated upon request
             var ipAddress = HttpContext.Connection.RemoteIpAddress!.ToString();
-            var result = await _AuthenticationManager.AuthenticateOTP(1, userToAuthenticateOtpDTO.Otp, ipAddress);
+            var result = await _AuthenticationManager.AuthenticateOTP(userToAuthenticateOtpDTO.AccountId, userToAuthenticateOtpDTO.Otp, ipAddress);
             if (!result.IsSuccessful || result.Payload is null)
             {
                 return BadRequest(result.ErrorMessage);

@@ -25,9 +25,9 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
             _loggerService = loggerService;
         }
         //TODO: line 32 principal is null
-        public async Task<Result<bool>> Login(string email, string password, string ipAddress, IPrincipal? principal = null, bool enabledSend = true)
+        public async Task<Result<string>> Login(string email, string password, string ipAddress, IPrincipal? principal = null, bool enabledSend = true)
         {
-            Result<bool> result = new();
+            Result<string> result = new();
 
             if (_authorizationService.authorize(principal, new string[] { "VerifiedUser", "Admin" }).IsSuccessful)
             {
@@ -68,8 +68,7 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
             string userHash = Convert.ToBase64String(userHashResult.Payload.Hash!);
             _loggerService.Log(LogLevel.INFO, Category.BUSINESS, $"Successful login attempt from: {email}.", userHash);
 
-            result.IsSuccessful = true;
-            return result;
+			return await _authorizationService.GenerateToken(accountId, true).ConfigureAwait(false);
         }
 
         public async Task<Result<string>> AuthenticateOTP(int accountId, string otp, string ipAddress, IPrincipal? principal = null)
@@ -95,7 +94,6 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
                 result.ErrorMessage = "Invalid or expired OTP, please try again.";
                 return result;
             }
-
 
             return await _authorizationService.GenerateToken(accountId).ConfigureAwait(false);
         }

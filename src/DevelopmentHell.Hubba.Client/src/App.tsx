@@ -25,7 +25,21 @@ const App: React.FC<Props> = (props) => {
 				<Routes>
 					<Route index element={<Home />} /> 
 					
-					<Route path="/" element={<PrivateRoute allowedRoles={[Auth.Roles.VERIFIED_USER, Auth.Roles.ADMIN_USER]}/>}>
+					<Route path="/registration" element={
+						<PublicOutlet redirectPath="/">
+							<Registration />
+						</PublicOutlet>
+					} />
+					<Route path="/login" element={
+						<PublicOutlet redirectPath="/">
+							<Login />
+						</PublicOutlet>
+					} />
+					<Route path="/" element={<PrivateRoute allowedRoles={[Auth.Roles.DEFAULT_USER]}/>}>
+						<Route path="/otp" element={<Otp />} />
+					</Route>
+
+					<Route path="/" element={<PrivateRoute allowedRoles={[Auth.Roles.VERIFIED_USER, Auth.Roles.ADMIN_USER]} />}>
 						<Route path="/account" element={<Account />} />
 						<Route path="/logout" element={<Logout />} />
 						<Route path="/notification" element={<Notification />} />
@@ -34,20 +48,7 @@ const App: React.FC<Props> = (props) => {
 						<Route path="/analytics" element={<Analytics />} />
 					</Route>
 
-					<Route path="/login" element={
-						<PublicOutlet redirectPath="/">
-							<Login />
-						</PublicOutlet>
-					} />
-					<Route path="/registration" element={
-						<PublicOutlet redirectPath="/">
-							<Registration />
-						</PublicOutlet>
-					} />
-					
 					<Route path="/unauthorized" element={<Unauthorized />} />
-					<Route path="/otp" element={<Otp />} /> //unsure
-					
 				</Routes>
 			</BrowserRouter>
 		</div>

@@ -5,6 +5,7 @@ export namespace Auth {
     export enum Roles {
         ADMIN_USER = "AdminUser",
         VERIFIED_USER = "VerifiedUser",
+        DEFAULT_USER = "DefaultUser",
     }
 
     export interface IJWTDecoded {
@@ -25,6 +26,7 @@ export namespace Auth {
         const decodedJwt = jwtDecode<IJWTDecoded>(cookie);
         if (decodedJwt.exp * 1000 < Date.now()) {
             Cookies.remove("access_token");
+            alert("Session expired. Please log in again.");
             return undefined;
         }
     

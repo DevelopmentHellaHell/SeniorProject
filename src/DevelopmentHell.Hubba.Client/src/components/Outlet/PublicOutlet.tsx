@@ -7,7 +7,9 @@ interface Props {
 }
 
 const PublicOutlet: React.FC<Props> = (props: React.PropsWithChildren<Props>) => {
-    return !Auth.isAuthenticated() ? (
+	const authData = Auth.isAuthenticated();
+
+    return !authData || authData.role == Auth.Roles.DEFAULT_USER ? (
         <>
            	{props.children}
           	<Outlet />
