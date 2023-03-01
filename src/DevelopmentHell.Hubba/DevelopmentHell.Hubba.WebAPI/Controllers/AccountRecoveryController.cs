@@ -57,11 +57,13 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 return BadRequest(accessResult.ErrorMessage);
             }
 
-            if(accessResult.Payload is null)
+            //manuary recovery
+            if (accessResult.Payload is null) 
             {
                 return Ok();
             }
             
+            //automated recovery
             //https://stackoverflow.com/questions/61427818/store-validate-jwt-token-stored-in-httponly-cookie-in-net-core-api
             HttpContext.Response.Cookies.Append("access_token", accessResult.Payload, new CookieOptions { SameSite = SameSiteMode.None, Secure = true });//, new CookieOptions { HttpOnly = true });
             return Ok();
