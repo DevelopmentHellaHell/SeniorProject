@@ -25,7 +25,7 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
             _authorizationService = authorizationService;
             _loggerService = loggerService;
         }
-        //TODO: line 32 principal is null
+        
         public async Task<Result<string>> Login(string email, string password, string ipAddress, bool enabledSend = true)
         {
             Result<string> result = new();

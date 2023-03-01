@@ -33,7 +33,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 				return BadRequest();
 			}
 
-			var result = await _registrationManager.Register(userToRegisterDTO.Email, userToRegisterDTO.Password, Thread.CurrentPrincipal).ConfigureAwait(false);
+			var result = await _registrationManager.Register(userToRegisterDTO.Email, userToRegisterDTO.Password).ConfigureAwait(false);
 			if (!result.IsSuccessful)
 			{
 				return BadRequest(result.ErrorMessage);
