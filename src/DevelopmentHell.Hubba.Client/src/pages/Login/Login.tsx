@@ -43,6 +43,7 @@ const Login: React.FC<Props> = (props) => {
                                 setPassword(event.target.value);
                             }}/>
                         </div>
+                        <p className="info" style={{marginLeft: 40}}><u onClick={() => { navigate("/accountrecovery") }}>Account Recovery →</u></p>
                         
                         <div className="buttons">
                             <Button title="Submit" onClick={async () => {

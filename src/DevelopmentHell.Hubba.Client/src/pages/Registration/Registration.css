@@ -46,6 +46,10 @@
     color: var(--secondary-text-dark);
 }
 
+.registration-card .info:hover {
+    color: var(--primary-text-dark);
+}
+
 .registration-card .error {
     color: var(--error-text);
 }
