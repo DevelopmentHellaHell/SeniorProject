@@ -6,6 +6,7 @@ using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
 using DevelopmentHell.Hubba.AccountRecovery.Service.Abstractions;
 using DevelopmentHell.Hubba.AccountRecovery.Manager.Abstractions;
+using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.AccountRecovery.Manager.Implementation
 {
@@ -27,12 +28,12 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager.Implementation
             _loggerService = loggerService;
         }
 
-        public async Task<Result<int>> Verification(string email, IPrincipal? principal = null, bool enabledSend = true)
+        public async Task<Result<string>> Verification(string email, bool enabledSend = true)
         {
-            Result<int> result = new();
+            Result<string> result = new();
 
 
-            if (_authorizationService.authorize(principal, new string[] { "VerifiedUser", "Admin" }).IsSuccessful)
+            if (_authorizationService.authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Error, user already logged in.";
@@ -58,12 +59,10 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager.Implementation
                 result.ErrorMessage = sendOTPResult.ErrorMessage;
                 return result;
             }
-            result.IsSuccessful = true;
-            result.Payload = accountId;
-            return result;
+            return await _authorizationService.GenerateToken(accountId, true).ConfigureAwait(false); ;
         }
 
-        public async Task<Result<bool>> AuthenticateOTP(int accountId, string otp, string ipAddress, IPrincipal? principal = null)
+        public async Task<Result<bool>> AuthenticateOTP(string otp, string ipAddress)
         {
 
             Result<bool> result = new Result<bool>()
@@ -71,12 +70,22 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager.Implementation
                 IsSuccessful = false,
             };
 
-            if (_authorizationService.authorize(principal, new string[] { "VerifiedUser", "Admin" }).IsSuccessful)
+            if (_authorizationService.authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
             {
                 _loggerService.Log(LogLevel.INFO, Category.BUSINESS, $"{ipAddress} failed OTP authentication.");
                 result.ErrorMessage = "Error, user already logged in.";
                 return result;
             }
+
+            var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            var stringAccountId = claimsPrincipal?.FindFirstValue("accountId");
+            if (stringAccountId is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error, invalid access token format.";
+                return result;
+            }
+            var accountId = int.Parse(stringAccountId);
 
             Result resultCheck = await _otpService.CheckOTP(accountId, otp).ConfigureAwait(false);
             if (!resultCheck.IsSuccessful)
@@ -89,12 +98,22 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager.Implementation
             return result;
         }
 
-        public async Task<Result<string>> AccountAccess(int accountId, string ipAddress)
+        public async Task<Result<string>> AccountAccess(string ipAddress)
         {
             Result<string> result = new Result<string>()
             {
                 IsSuccessful = false,
             };
+
+            var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            var stringAccountId = claimsPrincipal?.FindFirstValue("accountId");
+            if (stringAccountId is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error, invalid access token format.";
+                return result;
+            }
+            var accountId = int.Parse(stringAccountId);
 
             Result<bool> ipAddressResult = await _accountRecoveryService.CompleteRecovery(accountId, ipAddress).ConfigureAwait(false);
             if (!ipAddressResult.IsSuccessful)

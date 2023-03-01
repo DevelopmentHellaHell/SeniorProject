@@ -10,8 +10,8 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager.Abstractions
 {
     public interface IAccountRecoveryManager
     {
-        Task<Result<int>> Verification(string email, IPrincipal? principal = null, bool enabledSend = true);
-        Task<Result<bool>> AuthenticateOTP(int accountId, string otp, string ipAddress, IPrincipal? principal = null);
-        Task<Result<string>> AccountAccess(int accountId, string ipAddress);
+        Task<Result<string>> Verification(string email, bool enabledSend = true);
+        Task<Result<bool>> AuthenticateOTP(string otp, string ipAddress);
+        Task<Result<string>> AccountAccess(string ipAddress);
     }
 }
