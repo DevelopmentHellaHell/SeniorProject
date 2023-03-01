@@ -1,13 +1,13 @@
 using DevelopmentHell.Hubba.Analytics.Service.Abstractions;
-using DevelopmentHell.Hubba.Analytics.Service.Implementation;
+using DevelopmentHell.Hubba.Analytics.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Implementation;
 using DevelopmentHell.Hubba.Registration.Manager.Abstractions;
 using DevelopmentHell.Hubba.Registration.Manager.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Implementation;
 using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
-using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
-using HubbaAuth = DevelopmentHell.Hubba.Authentication.Service.Implementation;
+using HubbaAuthenticationManager = DevelopmentHell.Hubba.Authentication.Manager.Implementations;
+using HubbaAuthenticationService = DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -18,6 +18,8 @@ using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Implementation;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +43,13 @@ builder.Services.AddSingleton<IAnalyticsService, AnalyticsService>(s =>
 			System.Configuration.ConfigurationManager.AppSettings["LogsConnectionString"]!,
 			System.Configuration.ConfigurationManager.AppSettings["LogsTable"]!
 		),
+		new AuthorizationService(
+			System.Configuration.ConfigurationManager.AppSettings,
+			new UserAccountDataAccess(
+					System.Configuration.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+					System.Configuration.ConfigurationManager.AppSettings["UserAccountsTable"]!
+			)
+		),
 		s.GetService<ILoggerService>()!
 	);
 });
@@ -63,12 +72,11 @@ builder.Services.AddTransient<IAuthorizationService, AuthorizationService>(s =>
                 System.Configuration.ConfigurationManager.AppSettings["UsersConnectionString"]!,
                 System.Configuration.ConfigurationManager.AppSettings["UserAccountsTable"]!
         )
-
     )
 );
-builder.Services.AddTransient<IAuthenticationManager, AuthenticationManager>(s =>
-    new AuthenticationManager(
-        new HubbaAuth.AuthenticationService(
+builder.Services.AddTransient<IAuthenticationManager, HubbaAuthenticationManager.AuthenticationManager>(s =>
+    new HubbaAuthenticationManager.AuthenticationManager(
+        new HubbaAuthenticationService.AuthenticationService(
             new UserAccountDataAccess(
                 System.Configuration.ConfigurationManager.AppSettings["UsersConnectionString"]!,
                 System.Configuration.ConfigurationManager.AppSettings["UserAccountsTable"]!
@@ -120,19 +128,28 @@ app.Use(async (httpContext, next) =>
 		{
 			ValidateIssuer = false,
 			ValidateAudience = false,
+			ValidateLifetime = true,
 			IssuerSigningKey = new SymmetricSecurityKey(key)
 		};
 
-		SecurityToken validatedToken;
-		var principal = tokenHandler.ValidateToken(jwtToken, validationParameters, out validatedToken);
-		Console.WriteLine(principal.Identity!.Name);
-		Thread.CurrentPrincipal = principal;
+		try
+		{
+			SecurityToken validatedToken;
+			var principal = tokenHandler.ValidateToken(jwtToken, validationParameters, out validatedToken);
+
+			Thread.CurrentPrincipal = principal;
+		}
+		catch (Exception)
+		{
+			// Handle token validation errors
+			Thread.CurrentPrincipal = null;
+		}
 	}
-	else
-    {
-		Console.WriteLine("NONE");
-		Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "default") }));
-    }
+
+	if (Thread.CurrentPrincipal is null)
+	{
+		Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "DefaultUser") }));
+	}
 
     // Go to next middleware
     await next(httpContext);
@@ -164,8 +181,6 @@ app.Use((httpContext, next) =>
 			HttpMethods.Options,
 			HttpMethods.Head
 		};
-
-
 
 		httpContext.Response.Headers.Append(HeaderNames.AccessControlAllowOrigin, "*");
 		httpContext.Response.Headers.AccessControlAllowMethods.Append(string.Join(",", allowedMethods)); // "GET, POST, OPTIONS, HEAD"

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { redirect, useNavigate } from "react-router-dom";
 import { Ajax } from "../../Ajax";
 import { Auth } from "../../Auth";
 import Button from "../../components/Button/Button";
@@ -18,6 +18,10 @@ const Otp: React.FC<Props> = (props) => {
     const navigate = useNavigate();
 
     const authData = Auth.isAuthenticated();
+    if (!authData) {
+        redirect("/login");
+        return null;
+    }
 
     return (
         <div className="otp-container">
@@ -44,7 +48,7 @@ const Otp: React.FC<Props> = (props) => {
 
                                 setError("");
 
-                                const response = await Ajax.post("/authentication/otp", ({ otp: otp, accountId: authData?.accountId }));
+                                const response = await Ajax.post("/authentication/otp", ({ otp: otp }));
                                 if (response.error) {
                                     setError(response.error);
                                     return;

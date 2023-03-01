@@ -3,6 +3,7 @@ using DevelopmentHell.Hubba.WebAPI.DTO.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System.Net;
+using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.WebAPI.Controllers
 {
@@ -31,7 +32,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         public async Task<IActionResult> Login(UserToLoginDTO userToLoginDTO)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress!.ToString();
-            var result = await _AuthenticationManager.Login(userToLoginDTO.Email, userToLoginDTO.Password, ipAddress);
+			var result = await _AuthenticationManager.Login(userToLoginDTO.Email, userToLoginDTO.Password, ipAddress);
             if (!result.IsSuccessful || result.Payload is null)
             {
                 return BadRequest(result.ErrorMessage);
@@ -45,9 +46,9 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         [Route("otp")]
         public async Task<IActionResult> AuthenticateOtp(UserToAuthenticateOtpDTO userToAuthenticateOtpDTO)
         {
-            // TODO: replace AccountId from DTO with the Thread.CurrentPrincipal generated upon request
             var ipAddress = HttpContext.Connection.RemoteIpAddress!.ToString();
-            var result = await _AuthenticationManager.AuthenticateOTP(userToAuthenticateOtpDTO.AccountId, userToAuthenticateOtpDTO.Otp, ipAddress);
+
+			var result = await _AuthenticationManager.AuthenticateOTP(userToAuthenticateOtpDTO.Otp, ipAddress);
             if (!result.IsSuccessful || result.Payload is null)
             {
                 return BadRequest(result.ErrorMessage);

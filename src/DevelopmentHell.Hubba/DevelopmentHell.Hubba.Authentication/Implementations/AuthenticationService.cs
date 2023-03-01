@@ -4,11 +4,9 @@ using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Validation.Service;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Identity.Client;
 using System.Security.Principal;
 
-namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
+namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 {
 	public class AuthenticationService : IAuthenticationService
 	{

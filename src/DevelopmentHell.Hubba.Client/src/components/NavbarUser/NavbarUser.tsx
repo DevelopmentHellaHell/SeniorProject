@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { redirect, useNavigate } from "react-router-dom";
 import Dropdown from "../Dropdown/Dropdown";
 import { Auth } from "../../Auth";
 import './NavbarUser.css';
@@ -13,7 +13,7 @@ const NavbarUser: React.FC<Props> = (props) => {
     const authData = Auth.isAuthenticated();
 
     if (!authData) {
-        navigate("/login");
+        redirect("/login");
         return null;
     }
 
@@ -27,7 +27,7 @@ const NavbarUser: React.FC<Props> = (props) => {
                     <li><p onClick={() => {alert("3")}}>Admin Panel</p></li>
                 }
             </nav>
-            <Dropdown title={authData.email}>
+            <Dropdown title={authData.email ?? "User"}>
                 <p onClick={() => {navigate("/account")}}>Account</p>
                 <p onClick={() => {navigate("/notification")}}>Notification</p>
                 <p onClick={async () => {

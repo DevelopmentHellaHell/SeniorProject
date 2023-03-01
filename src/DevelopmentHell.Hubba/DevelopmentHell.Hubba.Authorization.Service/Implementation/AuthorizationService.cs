@@ -63,27 +63,23 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
 			}
 		}
 
-        public Result authorize(IPrincipal? principal, string[]? roles = null)
+        public Result authorize(string[] roles)
 		{
 			Result result = new Result()
 			{
 				IsSuccessful = false,
 			};
 
-			// no roles = authorized
-			if (roles is null)
-			{
-				result.IsSuccessful = true;
-				return result;
-			}
-			// No account and roles = not authorized
-			else if (principal is null && roles is not null)
+			var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
+
+			if (principal is null)
 			{
 				result.IsSuccessful = false;
+				result.ErrorMessage = "Unauthorized.";
 				return result;
 			}
-			// Account and roles = check if principal is in roles
-			else if (principal is not null && roles is not null)
+			
+			if (principal is not null)
 			{
 				foreach (string role in roles)
 				{
@@ -95,7 +91,8 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
 				}
 			}
 
-			result.ErrorMessage = "Fatal error.";
+			result.IsSuccessful = false;
+			result.ErrorMessage = "Unauthorized.";
 			return result;
 		}
 	}

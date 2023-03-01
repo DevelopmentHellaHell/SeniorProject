@@ -1,5 +1,7 @@
 using DevelopmentHell.Hubba.Analytics.Service.Abstractions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.WebAPI.Controllers
 {

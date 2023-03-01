@@ -1,9 +1,10 @@
 ﻿using DevelopmentHell.Hubba.Analytics.Service.Abstractions;
+using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 
-namespace DevelopmentHell.Hubba.Analytics.Service.Implementation
+namespace DevelopmentHell.Hubba.Analytics.Service.Implementations
 {
 	public class AnalyticsService : IAnalyticsService
 	{
@@ -15,16 +16,18 @@ namespace DevelopmentHell.Hubba.Analytics.Service.Implementation
 			{ "listings", "listing" }
 		};
 		
-		private IAnalyticsDataAccess _dao;
+		private IAnalyticsDataAccess _analyticsDataAccess;
+		private IAuthorizationService _authorizationService;
 		private ILoggerService _loggerService;
 
 		private Dictionary<string, Dictionary<string, int>>? _cachedData;
 		private static int _queryCooldownSeconds;
 		private DateTime _queryCooldownAccess;
 
-		public AnalyticsService(IAnalyticsDataAccess dao, ILoggerService loggerService, int queryCooldownSeconds = 60)
+		public AnalyticsService(IAnalyticsDataAccess analyticsDataAccess, IAuthorizationService authoirzationService, ILoggerService loggerService, int queryCooldownSeconds = 60)
 		{
-			_dao = dao;
+			_analyticsDataAccess = analyticsDataAccess;
+			_authorizationService = authoirzationService;
 			_loggerService = loggerService;
 			_cachedData = null;
 			_queryCooldownAccess = DateTime.Now;
@@ -34,6 +37,14 @@ namespace DevelopmentHell.Hubba.Analytics.Service.Implementation
 		public async Task<Result<Dictionary<string, Dictionary<string, int>>>> GetData(DateTime fromTimeMonths)
 		{
 			var result = new Result<Dictionary<string, Dictionary<string, int>>>();
+			if (!_authorizationService.authorize(new string[] { "AdminUser" }).IsSuccessful)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Unauthorized.";
+				return result;
+			}
+
+
 			if (_queryCooldownAccess.CompareTo(DateTime.Now) > 0 && _cachedData is not null)
 			{
 				result.IsSuccessful = true;
@@ -47,7 +58,7 @@ namespace DevelopmentHell.Hubba.Analytics.Service.Implementation
 			var getResults = new Dictionary<string, Result<List<Dictionary<string, object>>>>();
 			foreach (var item in Items)
 			{
-				getResults.Add(item.Key, await _dao.GetDailyTotal(item.Value, fromTimeMonths).ConfigureAwait(false));
+				getResults.Add(item.Key, await _analyticsDataAccess.GetDailyTotal(item.Value, fromTimeMonths).ConfigureAwait(false));
 			}
 
 			foreach (var getResult in getResults)
