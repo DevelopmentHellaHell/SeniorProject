@@ -4,10 +4,9 @@ using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Validation.Service;
-using Microsoft.Identity.Client;
 using System.Security.Principal;
 
-namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
+namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 {
 	public class AuthenticationService : IAuthenticationService
 	{
@@ -147,7 +146,6 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementation
 			var identity = new GenericIdentity(accountId.ToString());
 			var principal = new GenericPrincipal(identity, new string[] { "VerifiedUser" });
 
-			Thread.CurrentPrincipal = principal;
 
 			result.IsSuccessful = true;
 			result.Payload = principal;

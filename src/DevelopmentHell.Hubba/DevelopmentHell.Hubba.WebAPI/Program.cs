@@ -1,19 +1,25 @@
 using DevelopmentHell.Hubba.Analytics.Service.Abstractions;
-using DevelopmentHell.Hubba.Analytics.Service.Implementation;
+using DevelopmentHell.Hubba.Analytics.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Implementation;
 using DevelopmentHell.Hubba.Registration.Manager.Abstractions;
 using DevelopmentHell.Hubba.Registration.Manager.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Implementation;
 using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
-using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
-using DevelopmentHell.Hubba.Authentication.Service.Implementation;
-using DevelopmentHell.Hubba.SqlDataAccess;
-using Microsoft.Net.Http.Headers;
+using HubbaAuthenticationManager = DevelopmentHell.Hubba.Authentication.Manager.Implementations;
+using HubbaAuthenticationService = DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Implementation;
-using Microsoft.Extensions.DependencyInjection;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Implementation;
+using DevelopmentHell.Hubba.SqlDataAccess;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using HubbaConfig = System.Configuration;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,8 +31,8 @@ builder.Services.AddSingleton<ILoggerService, LoggerService>(s =>
 {
 	return new LoggerService(
 		new LoggerDataAccess(
-			System.Configuration.ConfigurationManager.AppSettings["LogsConnectionString"]!,
-			System.Configuration.ConfigurationManager.AppSettings["LogsTable"]!
+			HubbaConfig.ConfigurationManager.AppSettings["LogsConnectionString"]!,
+			HubbaConfig.ConfigurationManager.AppSettings["LogsTable"]!
 		)
 	);
 });
@@ -34,8 +40,15 @@ builder.Services.AddSingleton<IAnalyticsService, AnalyticsService>(s =>
 {
 	return new AnalyticsService(
 		new AnalyticsDataAccess(
-			System.Configuration.ConfigurationManager.AppSettings["LogsConnectionString"]!,
-			System.Configuration.ConfigurationManager.AppSettings["LogsTable"]!
+			HubbaConfig.ConfigurationManager.AppSettings["LogsConnectionString"]!,
+			HubbaConfig.ConfigurationManager.AppSettings["LogsTable"]!
+		),
+		new AuthorizationService(
+			HubbaConfig.ConfigurationManager.AppSettings,
+			new UserAccountDataAccess(
+					HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+					HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
+			)
 		),
 		s.GetService<ILoggerService>()!
 	);
@@ -44,8 +57,8 @@ builder.Services.AddTransient<IRegistrationManager, RegistrationManager>(s =>
 	new RegistrationManager(
 		new RegistrationService(
 			new UserAccountDataAccess(
-				System.Configuration.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-				System.Configuration.ConfigurationManager.AppSettings["UserAccountsTable"]!
+				HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+				HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
 			),
 			s.GetService<ILoggerService>()!
 		),
@@ -53,21 +66,27 @@ builder.Services.AddTransient<IRegistrationManager, RegistrationManager>(s =>
 	)
 );
 builder.Services.AddTransient<IAuthorizationService, AuthorizationService>(s =>
-	new AuthorizationService()
+	new AuthorizationService(
+		HubbaConfig.ConfigurationManager.AppSettings,
+        new UserAccountDataAccess(
+                HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+                HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
+        )
+    )
 );
-builder.Services.AddTransient<IAuthenticationManager, AuthenticationManager>(s =>
-    new AuthenticationManager(
-        new AuthenticationService(
+builder.Services.AddTransient<IAuthenticationManager, HubbaAuthenticationManager.AuthenticationManager>(s =>
+    new HubbaAuthenticationManager.AuthenticationManager(
+        new HubbaAuthenticationService.AuthenticationService(
             new UserAccountDataAccess(
-                System.Configuration.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-                System.Configuration.ConfigurationManager.AppSettings["UserAccountsTable"]!
+                HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+                HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
             ),
             s.GetService<ILoggerService>()!
         ),
 		new OTPService(
 			new OTPDataAccess(
-                System.Configuration.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-                System.Configuration.ConfigurationManager.AppSettings["UserOTPsTable"]!
+                HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+                HubbaConfig.ConfigurationManager.AppSettings["UserOTPsTable"]!
 			)
 		),
 		s.GetService<IAuthorizationService>()!,
@@ -75,19 +94,65 @@ builder.Services.AddTransient<IAuthenticationManager, AuthenticationManager>(s =
     )
 );
 
+//Found on google, source lost
+builder.Services.AddAuthentication(x =>
+{
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(x =>
+{
+    x.RequireHttpsMetadata = false;
+    x.SaveToken = true;
+    x.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!)),
+        ValidateLifetime = true
+    };
+});
 builder.Services.AddCors();
 
 var app = builder.Build();
 
 app.Use(async (httpContext, next) =>
 {
+	// inbound code
+	var jwtToken = httpContext.Request.Cookies["access_token"];
 
-	// No inbound code to be executed
-	//
-	//
+	if (jwtToken is not null)
+    {
+		// Parse the JWT token and extract the principal
+		var tokenHandler = new JwtSecurityTokenHandler();
+		var key = Encoding.ASCII.GetBytes(HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!);
+		var validationParameters = new TokenValidationParameters
+		{
+			ValidateIssuer = false,
+			ValidateAudience = false,
+			ValidateLifetime = true,
+			IssuerSigningKey = new SymmetricSecurityKey(key)
+		};
 
-	// Go to next middleware
-	await next(httpContext);
+		try
+		{
+			SecurityToken validatedToken;
+			var principal = tokenHandler.ValidateToken(jwtToken, validationParameters, out validatedToken);
+
+			Thread.CurrentPrincipal = principal;
+		}
+		catch (Exception)
+		{
+			// Handle token validation errors
+			Thread.CurrentPrincipal = null;
+		}
+	}
+
+	if (Thread.CurrentPrincipal is null)
+	{
+		Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "DefaultUser") }));
+	}
+
+    // Go to next middleware
+    await next(httpContext);
 
 	// Explicitly only wanting code to execite on the way out of pipeline (Response/outbound direction)
 	if (httpContext.Response.Headers.ContainsKey(HeaderNames.XPoweredBy))
@@ -95,7 +160,9 @@ app.Use(async (httpContext, next) =>
 		httpContext.Response.Headers.Remove(HeaderNames.XPoweredBy);
 	}
 
-	//httpContext.Response.Headers.Server = "";
+    
+
+    //httpContext.Response.Headers.Server = "";
 });
 
 

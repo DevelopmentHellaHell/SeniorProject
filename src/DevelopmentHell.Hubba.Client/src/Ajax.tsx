@@ -7,7 +7,7 @@ const app = axios.create({
         'Content-Type': 'application/json',
     },
     withCredentials: true,
-})
+});
 
 export namespace Ajax {
     export async function get<T>(url: string): Promise<{ data: T | null, error: string, loaded: boolean }> {

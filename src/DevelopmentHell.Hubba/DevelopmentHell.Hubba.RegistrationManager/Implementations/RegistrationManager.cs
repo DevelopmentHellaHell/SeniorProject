@@ -21,14 +21,7 @@ namespace DevelopmentHell.Hubba.Registration.Manager.Implementations
         public async Task<Result> Register(string email, string password, IPrincipal? principal = null)
         {
             Result result = new Result();
-            if (Thread.CurrentPrincipal is not null)
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, user already logged in.";
-                return result;
-            }
-
-            if (principal is not null)
+            if (!(Thread.CurrentPrincipal.IsInRole("default")))
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Error, user already logged in.";
