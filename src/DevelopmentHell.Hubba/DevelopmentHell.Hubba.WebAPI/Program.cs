@@ -11,13 +11,13 @@ using HubbaAuth = DevelopmentHell.Hubba.Authentication.Service.Implementation;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authentication;
 using System.Text;
 using Microsoft.Net.Http.Headers;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Implementation;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Implementation;
 using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -109,12 +109,24 @@ var app = builder.Build();
 app.Use(async (httpContext, next) =>
 {
 	// inbound code
-    var output = await httpContext.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
+	var jwtToken = httpContext.Request.Cookies["access_token"];
 
-    if (output.Succeeded)
+	if (jwtToken is not null)
     {
-		Console.WriteLine("FOUND");
-		Thread.CurrentPrincipal = output.Principal;
+		// Parse the JWT token and extract the principal
+		var tokenHandler = new JwtSecurityTokenHandler();
+		var key = Encoding.ASCII.GetBytes(System.Configuration.ConfigurationManager.AppSettings["JwtKey"]!);
+		var validationParameters = new TokenValidationParameters
+		{
+			ValidateIssuer = false,
+			ValidateAudience = false,
+			IssuerSigningKey = new SymmetricSecurityKey(key)
+		};
+
+		SecurityToken validatedToken;
+		var principal = tokenHandler.ValidateToken(jwtToken, validationParameters, out validatedToken);
+		Console.WriteLine(principal.Identity!.Name);
+		Thread.CurrentPrincipal = principal;
 	}
 	else
     {

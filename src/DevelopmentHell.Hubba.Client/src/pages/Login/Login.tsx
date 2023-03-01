@@ -13,12 +13,11 @@ interface Props {
 const Login: React.FC<Props> = (props) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
 
     const isValidEmail = (email : string) => (
         /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i
     ).test(email);
-
-    const [error, setError] = useState("");
 
     const navigate = useNavigate();
 
@@ -29,7 +28,7 @@ const Login: React.FC<Props> = (props) => {
             <div className="login-wrapper">
                 <div className="login-card">
                     <h1>Login</h1>
-                    <p className="info">Already registered? Login <u onClick={() => { navigate("/registration") }}>HERE →</u></p>
+                    <p className="info">Already registered? Register <u onClick={() => { navigate("/registration") }}>HERE →</u></p>
                     <div>
                         <div className="input-field">
                             <label>Email</label>
@@ -43,13 +42,13 @@ const Login: React.FC<Props> = (props) => {
                                 setPassword(event.target.value);
                             }}/>
                         </div>
-                        
                         <div className="buttons">
                             <Button title="Submit" onClick={async () => {
                                 if (!email) {
                                     setError("Email cannot be empty, please try again.");
                                     return;
                                 }
+                                
                                 if(!isValidEmail(email)) {
                                     setError("Invalid email, please try again.");
                                     return;
@@ -59,6 +58,7 @@ const Login: React.FC<Props> = (props) => {
                                     setError("Password cannot be empty, please try again.");
                                     return;
                                 }
+
                                 if (password.length < 8) {
                                     setError("Invalid password, please try again.");
                                     return;

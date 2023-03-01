@@ -25,6 +25,7 @@ const App: React.FC<Props> = (props) => {
 				<Routes>
 					<Route index element={<Home />} /> 
 					
+					{/* Public routes */}
 					<Route path="/registration" element={
 						<PublicOutlet redirectPath="/">
 							<Registration />
@@ -35,19 +36,21 @@ const App: React.FC<Props> = (props) => {
 							<Login />
 						</PublicOutlet>
 					} />
-					<Route path="/" element={<PrivateRoute allowedRoles={[Auth.Roles.DEFAULT_USER]}/>}>
+					{/* Protect/private routes */}
+					<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.DEFAULT_USER]}/>}>
 						<Route path="/otp" element={<Otp />} />
 					</Route>
 
-					<Route path="/" element={<PrivateRoute allowedRoles={[Auth.Roles.VERIFIED_USER, Auth.Roles.ADMIN_USER]} />}>
+					<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.VERIFIED_USER, Auth.Roles.ADMIN_USER]} />}>
 						<Route path="/account" element={<Account />} />
 						<Route path="/logout" element={<Logout />} />
 						<Route path="/notification" element={<Notification />} />
 					</Route>
-					<Route path="/" element={<PrivateRoute allowedRoles={[Auth.Roles.ADMIN_USER]}/>}>
+					<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.ADMIN_USER]}/>}>
 						<Route path="/analytics" element={<Analytics />} />
 					</Route>
 
+					{/* Anyone can access */}
 					<Route path="/unauthorized" element={<Unauthorized />} />
 				</Routes>
 			</BrowserRouter>
@@ -56,7 +59,3 @@ const App: React.FC<Props> = (props) => {
 }
 
 export default App;
-function jwt_decode(arg0: string): any {
-	throw new Error("Function not implemented.");
-}
-

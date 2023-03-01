@@ -15,9 +15,11 @@ const Registration: React.FC<Props> = (props) => {
     const [password, setPassword] = useState("");
     const [confirmedPassword, setConfirmedPassword] = useState("");
     const [error, setError] = useState("");
+
     const isValidEmail = (email : string) => (
         /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i
     ).test(email);
+    
     const navigate = useNavigate();
 
     return (

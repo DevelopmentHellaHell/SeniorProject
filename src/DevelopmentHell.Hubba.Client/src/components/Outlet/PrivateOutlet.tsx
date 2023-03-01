@@ -4,6 +4,7 @@ import { Auth } from "../../Auth";
 interface Props {
     children?: React.ReactNode;
 	allowedRoles: string[];
+	redirectPath: string;
 }
 
 const PrivateOutlet: React.FC<Props> = (props: React.PropsWithChildren<Props>) => {
@@ -26,7 +27,7 @@ const PrivateOutlet: React.FC<Props> = (props: React.PropsWithChildren<Props>) =
 	}
 	
     return (
-        <Navigate to="/login" state={{ from: location }} replace />
+        <Navigate to={props.redirectPath} state={{ from: location }} replace />
     );
 };
 

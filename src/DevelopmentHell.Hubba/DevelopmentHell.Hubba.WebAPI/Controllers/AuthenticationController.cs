@@ -17,7 +17,16 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             _AuthenticationManager = AuthenticationManager;
         }
 
-        [HttpPost]
+#if DEBUG
+		[HttpGet]
+		[Route("health")]
+		public Task<IActionResult> HeathCheck()
+		{
+			return Task.FromResult<IActionResult>(Ok("Healthy"));
+		}
+#endif
+
+		[HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login(UserToLoginDTO userToLoginDTO)
         {
