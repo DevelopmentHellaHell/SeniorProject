@@ -1,34 +1,38 @@
-﻿using DevelopmentHell.Hubba.Cryptography.Service;
+﻿using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
+using DevelopmentHell.Hubba.Cryptography.Service;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Registration.Manager.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using System.Configuration;
-using System.Security.Principal;
 
 namespace DevelopmentHell.Hubba.Registration.Manager.Implementations
 {
     public class RegistrationManager : IRegistrationManager
     {
         private IRegistrationService _registrationService;
-        private ILoggerService _loggerService;
-        public RegistrationManager(IRegistrationService registrationService, ILoggerService loggerService)
+		private IAuthorizationService _authorizationService;
+		private ILoggerService _loggerService;
+        
+        public RegistrationManager(IRegistrationService registrationService, IAuthorizationService authorizationService, ILoggerService loggerService)
         {
             _registrationService = registrationService;
+            _authorizationService = authorizationService;
             _loggerService = loggerService;
         }
 
-        public async Task<Result> Register(string email, string password, IPrincipal? principal = null)
+        public async Task<Result> Register(string email, string password)
         {
             Result result = new Result();
-            if (!(Thread.CurrentPrincipal.IsInRole("default")))
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, user already logged in.";
-                return result;
-            }
 
-            Result registerResult = await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+			if (_authorizationService.authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Error, user already logged in.";
+				return result;
+			}
+
+			Result registerResult = await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
             if (!registerResult.IsSuccessful)
             {
                 result.IsSuccessful = false;

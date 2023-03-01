@@ -29,7 +29,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 				result.ErrorMessage = "Invalid username or password provided. Retry again or contact system admin";
 				return result;
 			}
-			
+
 			Result<UserAccount> userHashData = await _dao.GetHashData(email).ConfigureAwait(false);
 			UserAccount payload = userHashData.Payload!;
 			if (!userHashData.IsSuccessful || payload is null)

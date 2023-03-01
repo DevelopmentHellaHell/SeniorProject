@@ -63,6 +63,14 @@ builder.Services.AddTransient<IRegistrationManager, RegistrationManager>(s =>
 			),
 			s.GetService<ILoggerService>()!
 		),
+		new AuthorizationService(
+			HubbaConfig.ConfigurationManager.AppSettings,
+			new UserAccountDataAccess(
+					HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+					HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
+			),
+			s.GetService<ILoggerService>()!
+		),
 		s.GetService<ILoggerService>()!
 	)
 );
