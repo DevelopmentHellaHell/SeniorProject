@@ -185,7 +185,10 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
                 new RegistrationService(
                     new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable),
                     loggerService
-                ),
+                ), 
+                new AuthorizationService(ConfigurationManager.AppSettings,
+                    new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable),
+                    loggerService),
                 loggerService
             );
             var authenticationManager = new AuthenticationManager(
@@ -204,6 +207,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             string email = "accountrecovery-automatedsuccess01@gmail.com";
             string password = "12345678";
             string dummyIp = "192.0.2.0";
+            string expectedRole = "VerifiedUser";
 
             //Cleanup
             Result<int> getExistingAccountId = await userAccountDataAccess.GetId(email).ConfigureAwait(false);
@@ -237,20 +241,19 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             decodeJWT(verificationResult.Payload!);
             var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             var stringAccountId = claimsPrincipal?.FindFirstValue("accountId");
-            
+
             getOtp = await otpDataAccess.GetOTP(int.Parse(stringAccountId!)).ConfigureAwait(false);
             otp = EncryptionService.Decrypt(getOtp.Payload!);
+
             await accountRecoveryManager.AuthenticateOTP(otp, dummyIp);
             var actual = await accountRecoveryManager.AccountAccess(dummyIp);
+            decodeJWT(actual.Payload!);
 
 
             // Assert
-            Console.WriteLine(actual.Payload);
             Assert.IsTrue(actual.IsSuccessful);
             Assert.IsTrue(actual.Payload is not null);
-            //Assert.IsTrue(actual.Payload.IsInRole(expectedRole));
-            //Assert.IsTrue(actual.Payload.Identity.IsAuthenticated);
-            //Assert.IsTrue(actual.Payload.Identity.Name == expected.Payload.Identity.Name);
+            Assert.IsTrue(Thread.CurrentPrincipal!.IsInRole(expectedRole));
         }
 
 
