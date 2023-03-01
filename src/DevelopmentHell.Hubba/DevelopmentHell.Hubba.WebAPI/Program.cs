@@ -48,7 +48,8 @@ builder.Services.AddSingleton<IAnalyticsService, AnalyticsService>(s =>
 			new UserAccountDataAccess(
 					HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
 					HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
-			)
+			),
+			s.GetService<ILoggerService>()!
 		),
 		s.GetService<ILoggerService>()!
 	);
@@ -71,8 +72,9 @@ builder.Services.AddTransient<IAuthorizationService, AuthorizationService>(s =>
         new UserAccountDataAccess(
                 HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
                 HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
-        )
-    )
+        ),
+		s.GetService<ILoggerService>()!
+	)
 );
 builder.Services.AddTransient<IAuthenticationManager, HubbaAuthenticationManager.AuthenticationManager>(s =>
     new HubbaAuthenticationManager.AuthenticationManager(

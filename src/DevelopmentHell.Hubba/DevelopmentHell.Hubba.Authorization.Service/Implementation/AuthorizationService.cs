@@ -6,17 +6,22 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Collections.Specialized;
 using DevelopmentHell.Hubba.SqlDataAccess;
+using DevelopmentHell.Hubba.Logging.Service.Abstractions;
+using DevelopmentHell.Hubba.Logging.Service.Implementation;
 
 namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
 {
 	public class AuthorizationService : IAuthorizationService
 	{
 		private readonly NameValueCollection _configuration;
-		IUserAccountDataAccess _userAccountDataAccess;
-        public AuthorizationService(NameValueCollection configuration, IUserAccountDataAccess userAccountDataAccess)
+		private IUserAccountDataAccess _userAccountDataAccess;
+		private ILoggerService _loggerService;
+
+        public AuthorizationService(NameValueCollection configuration, IUserAccountDataAccess userAccountDataAccess, ILoggerService loggerService)
 		{
 			_configuration = configuration;
 			_userAccountDataAccess = userAccountDataAccess;
+			_loggerService = loggerService;
 		}
 
 		public async Task<Result<string>> GenerateToken(int accountId, bool defaultUser = false)

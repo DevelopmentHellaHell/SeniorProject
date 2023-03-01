@@ -29,7 +29,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 				result.ErrorMessage = "Invalid username or password provided. Retry again or contact system admin";
 				return result;
 			}
-
+			
 			Result<UserAccount> userHashData = await _dao.GetHashData(email).ConfigureAwait(false);
 			UserAccount payload = userHashData.Payload!;
 			if (!userHashData.IsSuccessful || payload is null)
@@ -138,32 +138,5 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 			result.Payload = accountIdFromEmail;
 			return result;
 		}
-
-		public Result<GenericPrincipal> CreateSession(int accountId)
-		{
-			Result<GenericPrincipal> result = new Result<GenericPrincipal>();
-
-			var identity = new GenericIdentity(accountId.ToString());
-			var principal = new GenericPrincipal(identity, new string[] { "VerifiedUser" });
-
-
-			result.IsSuccessful = true;
-			result.Payload = principal;
-			return result;
-		}
-
-        public Result<GenericPrincipal> EndSession(int accountId)
-        {
-            Result<GenericPrincipal> result = new Result<GenericPrincipal>();
-
-            var identity = new GenericIdentity(accountId.ToString());
-            var principal = new GenericPrincipal(identity, new string[] { "DefaultUser" });
-
-			Thread.CurrentPrincipal = principal;
-
-            result.IsSuccessful = true;
-            result.Payload = principal;
-            return result;
-        }
     }
 }
