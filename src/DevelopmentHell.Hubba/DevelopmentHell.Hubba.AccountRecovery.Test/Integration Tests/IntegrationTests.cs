@@ -129,7 +129,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
         //    };
 
         //    // Act
-        //    var verificationResult = await accountRecoveryManager.Verification(email, false);
+        //    var verificationResult = await accountRecoveryManager.EmailVerification(email, false);
         //    Result<byte[]> getOtp = await otpDataAccess.GetOTP(verificationResult.Payload).ConfigureAwait(false);
         //    string otp = EncryptionService.Decrypt(getOtp.Payload!);
         //    await accountRecoveryManager.AuthenticateOTP(verificationResult.Payload, otp, dummyIp);
@@ -237,7 +237,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
 
 
             // Act
-            var verificationResult = await accountRecoveryManager.Verification(email, false);
+            var verificationResult = await accountRecoveryManager.EmailVerification(email, false);
             decodeJWT(verificationResult.Payload!);
             var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             var stringAccountId = claimsPrincipal?.FindFirstValue("accountId");
@@ -356,7 +356,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
         //    };
 
         //    // Act
-        //    var verificationResult = await accountRecoveryManager.Verification(email, null, false);
+        //    var verificationResult = await accountRecoveryManager.EmailVerification(email, null, false);
         //    getOtp = await otpDataAccess.GetOTP(verificationResult.Payload).ConfigureAwait(false);
         //    otp = EncryptionService.Decrypt(getOtp.Payload!);
         //    await accountRecoveryManager.AuthenticateOTP(verificationResult.Payload, otp, dummyIp);
@@ -382,6 +382,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
 		 //* Failure Case
 		 //* Goal: Successfully add account to RecoveryRequest Datastore, user does not recevie authorization
 		 //* Process: Register Account Successfully, Attempt Account Recovery
+         //check if verification result is false
 		 //*/
    //     [TestMethod]
    //     public async Task InvalidUsername()
@@ -443,7 +444,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
    //         };
 
    //         // Act
-   //         var verificationResult = await accountRecoveryManager.Verification(email, null, false);
+   //         var verificationResult = await accountRecoveryManager.EmailVerification(email, null, false);
    //         Result<byte[]> getOtp = await otpDataAccess.GetOTP(verificationResult.Payload).ConfigureAwait(false);
    //         string otp = EncryptionService.Decrypt(getOtp.Payload!);
    //         await accountRecoveryManager.AuthenticateOTP(verificationResult.Payload, otp, dummyIp);

@@ -28,7 +28,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager.Implementation
             _loggerService = loggerService;
         }
 
-        public async Task<Result<string>> Verification(string email, bool enabledSend = true)
+        public async Task<Result<string>> EmailVerification(string email, bool enabledSend = true)
         {
             Result<string> result = new();
 
