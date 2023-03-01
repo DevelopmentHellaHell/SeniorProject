@@ -36,6 +36,7 @@ const App: React.FC<Props> = (props) => {
 							<Login />
 						</PublicOutlet>
 					} />
+					
 					{/* Protect/private routes */}
 					<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.DEFAULT_USER]}/>}>
 						<Route path="/otp" element={<Otp />} />
