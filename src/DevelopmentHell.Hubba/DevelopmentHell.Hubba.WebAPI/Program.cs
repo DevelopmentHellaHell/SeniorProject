@@ -8,18 +8,18 @@ using DevelopmentHell.Hubba.Registration.Service.Implementation;
 using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
 using HubbaAuthenticationManager = DevelopmentHell.Hubba.Authentication.Manager.Implementations;
 using HubbaAuthenticationService = DevelopmentHell.Hubba.Authentication.Service.Implementations;
-using DevelopmentHell.Hubba.SqlDataAccess;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.Net.Http.Headers;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Implementation;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Implementation;
+using DevelopmentHell.Hubba.SqlDataAccess;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
-using System.Net;
-using Microsoft.Extensions.DependencyInjection;
+using System.Text;
+using HubbaConfig = System.Configuration;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,8 +31,8 @@ builder.Services.AddSingleton<ILoggerService, LoggerService>(s =>
 {
 	return new LoggerService(
 		new LoggerDataAccess(
-			System.Configuration.ConfigurationManager.AppSettings["LogsConnectionString"]!,
-			System.Configuration.ConfigurationManager.AppSettings["LogsTable"]!
+			HubbaConfig.ConfigurationManager.AppSettings["LogsConnectionString"]!,
+			HubbaConfig.ConfigurationManager.AppSettings["LogsTable"]!
 		)
 	);
 });
@@ -40,14 +40,14 @@ builder.Services.AddSingleton<IAnalyticsService, AnalyticsService>(s =>
 {
 	return new AnalyticsService(
 		new AnalyticsDataAccess(
-			System.Configuration.ConfigurationManager.AppSettings["LogsConnectionString"]!,
-			System.Configuration.ConfigurationManager.AppSettings["LogsTable"]!
+			HubbaConfig.ConfigurationManager.AppSettings["LogsConnectionString"]!,
+			HubbaConfig.ConfigurationManager.AppSettings["LogsTable"]!
 		),
 		new AuthorizationService(
-			System.Configuration.ConfigurationManager.AppSettings,
+			HubbaConfig.ConfigurationManager.AppSettings,
 			new UserAccountDataAccess(
-					System.Configuration.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-					System.Configuration.ConfigurationManager.AppSettings["UserAccountsTable"]!
+					HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+					HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
 			)
 		),
 		s.GetService<ILoggerService>()!
@@ -57,8 +57,8 @@ builder.Services.AddTransient<IRegistrationManager, RegistrationManager>(s =>
 	new RegistrationManager(
 		new RegistrationService(
 			new UserAccountDataAccess(
-				System.Configuration.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-				System.Configuration.ConfigurationManager.AppSettings["UserAccountsTable"]!
+				HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+				HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
 			),
 			s.GetService<ILoggerService>()!
 		),
@@ -67,10 +67,10 @@ builder.Services.AddTransient<IRegistrationManager, RegistrationManager>(s =>
 );
 builder.Services.AddTransient<IAuthorizationService, AuthorizationService>(s =>
 	new AuthorizationService(
-		System.Configuration.ConfigurationManager.AppSettings,
+		HubbaConfig.ConfigurationManager.AppSettings,
         new UserAccountDataAccess(
-                System.Configuration.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-                System.Configuration.ConfigurationManager.AppSettings["UserAccountsTable"]!
+                HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+                HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
         )
     )
 );
@@ -78,15 +78,15 @@ builder.Services.AddTransient<IAuthenticationManager, HubbaAuthenticationManager
     new HubbaAuthenticationManager.AuthenticationManager(
         new HubbaAuthenticationService.AuthenticationService(
             new UserAccountDataAccess(
-                System.Configuration.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-                System.Configuration.ConfigurationManager.AppSettings["UserAccountsTable"]!
+                HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+                HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
             ),
             s.GetService<ILoggerService>()!
         ),
 		new OTPService(
 			new OTPDataAccess(
-                System.Configuration.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-                System.Configuration.ConfigurationManager.AppSettings["UserOTPsTable"]!
+                HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+                HubbaConfig.ConfigurationManager.AppSettings["UserOTPsTable"]!
 			)
 		),
 		s.GetService<IAuthorizationService>()!,
@@ -106,7 +106,7 @@ builder.Services.AddAuthentication(x =>
     x.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(System.Configuration.ConfigurationManager.AppSettings["JwtKey"]!)),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!)),
         ValidateLifetime = true
     };
 });
@@ -123,7 +123,7 @@ app.Use(async (httpContext, next) =>
     {
 		// Parse the JWT token and extract the principal
 		var tokenHandler = new JwtSecurityTokenHandler();
-		var key = Encoding.ASCII.GetBytes(System.Configuration.ConfigurationManager.AppSettings["JwtKey"]!);
+		var key = Encoding.ASCII.GetBytes(HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!);
 		var validationParameters = new TokenValidationParameters
 		{
 			ValidateIssuer = false,
