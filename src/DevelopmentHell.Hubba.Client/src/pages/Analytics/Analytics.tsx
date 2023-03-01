@@ -44,7 +44,7 @@ const Analytics: React.FC<Props> = (props) => {
 
         return (() => { clearInterval(interval) });
     }, []);
-
+    
     return (
         <div className="analytics-container">
             <NavbarUser />

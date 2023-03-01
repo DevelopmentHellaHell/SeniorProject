@@ -2,8 +2,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Client", "DevelopmentHell.Hubba.Client\DevelopmentHell.Hubba.Client.csproj", "{BACE9CC4-F837-49DD-8572-EE102E1EAB1C}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.SqlDataAccess", "DevelopmentHell.Hubba.SqlDataAccess\DevelopmentHell.Hubba.SqlDataAccess.csproj", "{6C8B3984-217A-4DEA-9A4D-73F301FC0893}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5A528968-95F9-4E5A-98CB-501EE0759FDC}"
@@ -91,10 +89,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BACE9CC4-F837-49DD-8572-EE102E1EAB1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BACE9CC4-F837-49DD-8572-EE102E1EAB1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BACE9CC4-F837-49DD-8572-EE102E1EAB1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BACE9CC4-F837-49DD-8572-EE102E1EAB1C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6C8B3984-217A-4DEA-9A4D-73F301FC0893}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6C8B3984-217A-4DEA-9A4D-73F301FC0893}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C8B3984-217A-4DEA-9A4D-73F301FC0893}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -192,7 +186,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{BACE9CC4-F837-49DD-8572-EE102E1EAB1C} = {0E8013DB-F597-49E1-9C90-367A98C5BE69}
 		{6C8B3984-217A-4DEA-9A4D-73F301FC0893} = {374ED57B-DF41-443B-ACB3-D48D59039C48}
 		{AF8ADA89-9511-4DF9-B861-281AC81D112D} = {33222376-EAA6-4A44-A1D7-B6DB5BE1E13B}
 		{F75CB884-6301-43D0-879C-B1C11673CB60} = {374ED57B-DF41-443B-ACB3-D48D59039C48}

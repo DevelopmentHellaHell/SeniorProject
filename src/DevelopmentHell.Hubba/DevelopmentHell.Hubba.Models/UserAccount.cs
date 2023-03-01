@@ -9,6 +9,6 @@
 		public int? LoginAttempts { get; set; }
 		public object? FailureTime { get; set; }
 		public bool? Disabled { get; set; }
-		public Dictionary<string, object>? Traits { get; set; }
+		public string? Role { get; set; }
 	}
 }

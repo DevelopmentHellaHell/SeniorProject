@@ -1,5 +1,4 @@
 ﻿using DevelopmentHell.Hubba.Registration.Manager.Abstractions;
-using DevelopmentHell.Hubba.Registration.Manager.Implementations;
 using DevelopmentHell.Hubba.WebAPI.DTO.Registration;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,11 +15,25 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 			_registrationManager = registrationManager;
 		}
 
+#if DEBUG
+		[HttpGet]
+		[Route("health")]
+		public Task<IActionResult> HeathCheck()
+		{
+			return Task.FromResult<IActionResult>(Ok("Healthy"));
+		}
+#endif
+
 		[HttpPost]
 		[Route("register")]
 		public async Task<IActionResult> Register(UserToRegisterDTO userToRegisterDTO)
 		{
-			var result = await _registrationManager.Register(userToRegisterDTO.Email, userToRegisterDTO.Password);
+			if (!ModelState.IsValid)
+			{
+				return BadRequest();
+			}
+
+			var result = await _registrationManager.Register(userToRegisterDTO.Email, userToRegisterDTO.Password, Thread.CurrentPrincipal).ConfigureAwait(false);
 			if (!result.IsSuccessful)
 			{
 				return BadRequest(result.ErrorMessage);

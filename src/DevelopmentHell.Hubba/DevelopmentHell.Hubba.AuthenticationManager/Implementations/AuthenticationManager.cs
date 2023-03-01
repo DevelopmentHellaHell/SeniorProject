@@ -6,6 +6,7 @@ using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
 using System.Configuration;
+using System.Security.Claims;
 using System.Security.Principal;
 
 namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
@@ -24,12 +25,12 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
             _authorizationService = authorizationService;
             _loggerService = loggerService;
         }
-
-        public async Task<Result<bool>> Login(string email, string password, string ipAddress, IPrincipal? principal = null, bool enabledSend = true)
+        //TODO: line 32 principal is null
+        public async Task<Result<string>> Login(string email, string password, string ipAddress, bool enabledSend = true)
         {
-            Result<bool> result = new();
+            Result<string> result = new();
 
-            if (_authorizationService.authorize(principal, new string[] { "VerifiedUser", "Admin" }).IsSuccessful)
+            if (_authorizationService.authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Error, user already logged in.";
@@ -68,35 +69,41 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
             string userHash = Convert.ToBase64String(userHashResult.Payload.Hash!);
             _loggerService.Log(LogLevel.INFO, Category.BUSINESS, $"Successful login attempt from: {email}.", userHash);
 
-            result.IsSuccessful = true;
-            return result;
+			return await _authorizationService.GenerateToken(accountId, true).ConfigureAwait(false);
         }
 
-        public async Task<Result<GenericPrincipal>> AuthenticateOTP(int accountId, string otp, string ipAddress, IPrincipal? principal = null)
+        public async Task<Result<string>> AuthenticateOTP(string otp, string ipAddress)
         {
 
-            Result<GenericPrincipal> result = new Result<GenericPrincipal>()
-            {
-                IsSuccessful = false,
-            };
+            Result<string> result = new();
 
-            if (_authorizationService.authorize(principal, new string[] { "VerifiedUser", "Admin" }).IsSuccessful)
+            if (_authorizationService.authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
             {
-                _loggerService.Log(LogLevel.INFO, Category.BUSINESS, $"{ipAddress} failed OTP authentication.");
-
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Error, user already logged in.";
                 return result;
             }
 
-            Result resultCheck = await _otpService.CheckOTP(accountId, otp).ConfigureAwait(false);
+			var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+			var stringAccountId = claimsPrincipal?.FindFirstValue("accountId");
+			if (stringAccountId is null)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Error, invalid access token format.";
+				return result;
+			}
+			var accountId = int.Parse(stringAccountId);
+
+			Result resultCheck = await _otpService.CheckOTP(accountId, otp).ConfigureAwait(false);
             if (!resultCheck.IsSuccessful)
             {
-                result.ErrorMessage = "Invalid or expired OTP, please try again.";
+				_loggerService.Log(LogLevel.INFO, Category.BUSINESS, $"{ipAddress} failed OTP authentication.");
+                result.IsSuccessful = false;
+				result.ErrorMessage = "Invalid or expired OTP, please try again.";
                 return result;
             }
 
-            return _authenticationService.CreateSession(accountId);
+            return await _authorizationService.GenerateToken(accountId).ConfigureAwait(false);
         }
     }
 }

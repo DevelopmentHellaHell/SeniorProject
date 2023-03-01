@@ -31,6 +31,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 					{ "LoginAttempts", 0 },
 					{ "FailureTime", DBNull.Value },
 					{ "Disabled", false },
+					{ "Role", "VerifiedUser" }
 				}
 			).ConfigureAwait(false);
 
@@ -140,7 +141,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
 				LoginAttempts = (int)payload[0]["LoginAttempts"],
 				FailureTime = payload[0]["FailureTime"] == DBNull.Value ? null : payload[0]["FailureTime"],
-
+				Role = (string)payload[0]["Role"]
 			};
 			return result;
 		}

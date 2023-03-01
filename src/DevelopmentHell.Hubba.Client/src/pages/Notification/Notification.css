@@ -1,0 +1,10 @@
+.notification-container {
+    position: relative;
+    min-height: 100vh;
+}
+
+.notification-wrapper {
+    color: var(--primary-text-dark);
+    text-align: center;
+    padding-bottom: 2.5rem;
+}
