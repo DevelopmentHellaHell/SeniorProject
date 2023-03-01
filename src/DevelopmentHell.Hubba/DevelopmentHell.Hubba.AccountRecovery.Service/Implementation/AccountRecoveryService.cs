@@ -44,9 +44,9 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Service.Implementation
             return result;
         }
 
-        public async Task<Result<string>> CompleteRecovery(int accountId, string ipAddress)
+        public async Task<Result<bool>> CompleteRecovery(int accountId, string ipAddress)
         {
-            Result<string> result = new Result<string>();
+            Result<bool> result = new Result<bool>();
 
 
             Result<string[]> getIpAddress = await _userLoginDao.GetIPAddress(accountId).ConfigureAwait(false);
@@ -70,7 +70,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Service.Implementation
                     return result;
                 }
                 result.IsSuccessful = true;
-                result.Payload = "Added to manual recovery";
+                result.Payload = false;
                 return result;
             }
             else
@@ -83,7 +83,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Service.Implementation
                     return result;
                 }
                 result.IsSuccessful = true;
-                result.Payload = "Successfully enabled account";
+                result.Payload = true;
                 return result;
             }
         }

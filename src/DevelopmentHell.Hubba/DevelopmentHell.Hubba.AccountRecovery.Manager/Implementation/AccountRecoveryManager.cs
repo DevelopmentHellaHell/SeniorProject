@@ -89,32 +89,31 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager.Implementation
             return result;
         }
 
-        public async Task<Result<GenericPrincipal>> AccountAccess(int accountId, string ipAddress)
+        public async Task<Result<string>> AccountAccess(int accountId, string ipAddress)
         {
-            Result<GenericPrincipal>? result = new Result<GenericPrincipal>()
+            Result<string> result = new Result<string>()
             {
                 IsSuccessful = false,
             };
 
-            Result<string> ipAddressResult = await _accountRecoveryService.CompleteRecovery(accountId, ipAddress).ConfigureAwait(false);
-            if (!ipAddressResult.IsSuccessful || ipAddressResult.Payload is null)
+            Result<bool> ipAddressResult = await _accountRecoveryService.CompleteRecovery(accountId, ipAddress).ConfigureAwait(false);
+            if (!ipAddressResult.IsSuccessful)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = ipAddressResult.ErrorMessage;
                 return result;
             }
 
-            if (ipAddressResult.Payload.Equals("Added to manual recovery"))
+            if (ipAddressResult.Payload == false)
             {
                 result.IsSuccessful = true;
+                result.Payload = null;
                 return result;
             }
 
-            if (ipAddressResult.Payload.Equals("Successfully enabled account"))
+            if (ipAddressResult.Payload == true)
             {
-                result.IsSuccessful = true;
-                result = _authenticationService.CreateSession(accountId);
-                return result;
+                return await _authorizationService.GenerateToken(accountId).ConfigureAwait(false);
             }
 
             return result;
