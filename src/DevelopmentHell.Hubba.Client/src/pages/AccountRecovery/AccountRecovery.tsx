@@ -35,7 +35,7 @@ const RecoverAccount: React.FC<Props> = (props) => {
             <div className="accountrecovery-wrapper">
                 <div className="accountrecovery-card">
                     <h1>Recover Account</h1>
-                    {/* <p className="info">Already registered? Register <u onClick={() => { navigate("/registration") }}>HERE →</u></p> */}
+                    {/* <p className="info">Already registered? Register <u onClick={() => { navigate("/registration") }}>HERE ←</u></p> */}
                     <div>
                         <div className="input-field">
                             <label>Email</label>

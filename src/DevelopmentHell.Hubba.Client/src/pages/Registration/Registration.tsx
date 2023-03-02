@@ -34,7 +34,7 @@ const Registration: React.FC<Props> = (props) => {
             <div className="registration-wrapper">
                 <div className="registration-card">
                     <h1>Registration</h1>
-                    <p className="info">Already registered? Login <u onClick={() => { navigate("/login") }}>HERE →</u></p>
+                    <p className="info">Already registered? Login <u onClick={() => { navigate("/login") }}>HERE ←</u></p>
                     <div>
                         <div className="input-field">
                             <label>Email</label>

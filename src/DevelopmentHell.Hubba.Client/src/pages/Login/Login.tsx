@@ -15,6 +15,7 @@ const Login: React.FC<Props> = (props) => {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loaded, setLoaded] = useState(true);
+    const [showRecovery, setShowRecovery] = useState(false);
 
     const navigate = useNavigate();
 
@@ -33,7 +34,7 @@ const Login: React.FC<Props> = (props) => {
             <div className="login-wrapper">
                 <div className="login-card">
                     <h1>Login</h1>
-                    <p className="info">Already registered? Register <u onClick={() => { navigate("/registration") }}>HERE →</u></p>
+                    <p className="info">Already registered? Register <u onClick={() => { navigate("/registration") }}>HERE ←</u></p>
                     <div>
                         <div className="input-field">
                             <label>Email</label>
@@ -73,6 +74,10 @@ const Login: React.FC<Props> = (props) => {
                                 
                                 const response = await Ajax.post("/authentication/login", ({ email: email, password: password }));
                                 if (response.error) {
+                                    if (response.error.toLowerCase().trim().indexOf("account disabled") != -1) {
+                                        setShowRecovery(true);
+                                    }
+                                    
                                     onError(response.error);
                                     return;
                                 }
@@ -83,6 +88,9 @@ const Login: React.FC<Props> = (props) => {
                         </div>
                         {error &&
                             <p className="error">{error}</p>
+                        }
+                        {showRecovery &&
+                            <p className="error">Navigate to Account Recovery page <u onClick={() => { navigate("/recover") }}>HERE ←</u></p> 
                         }
                     </div>
                 </div>
