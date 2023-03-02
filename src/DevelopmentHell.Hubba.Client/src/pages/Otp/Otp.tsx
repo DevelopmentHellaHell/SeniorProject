@@ -14,14 +14,21 @@ interface Props {
 const Otp: React.FC<Props> = (props) => {
     const [otp, setOtp] = useState("");
     const [error, setError] = useState("");
+    const [loaded, setLoaded] = useState(true);
 
     const navigate = useNavigate();
+
+    const onError = (message: string) => {
+        setError(message);
+        setLoaded(true);
+    }
 
     const authData = Auth.isAuthenticated();
     if (!authData) {
         redirect("/login");
         return null;
     }
+    
 
     return (
         <div className="otp-container">
@@ -40,20 +47,20 @@ const Otp: React.FC<Props> = (props) => {
                         </div>
                         
                         <div className="buttons">
-                            <Button title="Submit" onClick={async () => {
+                            <Button title="Submit" loading={!loaded} onClick={async () => {
+                                setLoaded(false);
                                 if (!otp) {
-                                    setError("OTP cannot be empty, please try again.");
+                                    onError("OTP cannot be empty, please try again.");
                                     return;
                                 }
-
-                                setError("");
 
                                 const response = await Ajax.post("/authentication/otp", ({ otp: otp }));
                                 if (response.error) {
-                                    setError(response.error);
+                                    onError(response.error);
                                     return;
                                 }
                                 
+                                setLoaded(true);
                                 navigate("/account");
                             }}/>
                         </div>

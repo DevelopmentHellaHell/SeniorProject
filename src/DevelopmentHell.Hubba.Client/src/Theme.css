@@ -7,7 +7,6 @@
     --primary-text-dark: rgb(50, 63, 65);
     --secondary-text-dark: rgb(125, 125, 125);
     --error-text: rgb(252, 125, 125);
-    --logo: rgb(27, 198, 167);
-    --logo-hover: rgb(96, 219, 197);
     --primary-button-light: rgb(27, 198, 167);
+    --primary-button-light-hover: rgb(65, 212, 185);
 }
