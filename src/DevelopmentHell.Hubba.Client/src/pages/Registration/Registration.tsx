@@ -15,12 +15,17 @@ const Registration: React.FC<Props> = (props) => {
     const [password, setPassword] = useState("");
     const [confirmedPassword, setConfirmedPassword] = useState("");
     const [error, setError] = useState("");
+    const [loaded, setLoaded] = useState(true);
+    
+    const navigate = useNavigate();
 
+    const onError = (message: string) => {
+        setError(message);
+        setLoaded(true);
+    }
     const isValidEmail = (email : string) => (
         /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i
     ).test(email);
-    
-    const navigate = useNavigate();
 
     return (
         <div className="registration-container">
@@ -50,40 +55,40 @@ const Registration: React.FC<Props> = (props) => {
                             }}/>
                         </div>
                         <div className="buttons">
-                            <Button title="Submit" onClick={async () => {
+                            <Button title="Submit" loading={!loaded} onClick={async () => {
+                                setLoaded(false);
+
                                 if (!email) {
-                                    setError("Email cannot be empty, please try again.");
+                                    onError("Email cannot be empty, please try again.");
                                     return;
                                 }
                                 if(!isValidEmail(email)) {
-                                    setError("Invalid email, please try again.");
+                                    onError("Invalid email, please try again.");
                                     return;
                                 }
 
                                 if (!password) {
-                                    setError("Password cannot be empty, please try again.");
+                                    onError("Password cannot be empty, please try again.");
                                     return;
                                 }
                                 if (password.length < 8) {
-                                    setError("Invalid password, please try again.");
+                                    onError("Invalid password, please try again.");
                                     return;
                                 }
 
                                 if (password != confirmedPassword) {
-                                    setError("Your passwords do not match.");
+                                    onError("Your passwords do not match.");
                                     return;
                                 }
                                 
-                                setError("");
-
                                 const response = await Ajax.post("/registration/register", ({ email: email, password: password }));
                                 if (response.error) {
-                                    setError(response.error);
+                                    onError(response.error);
                                     return;
                                 }
-                                
+
+                                setLoaded(true);
                                 navigate("/login");
-                                // TODO
                             }}/>
                         </div>
                         {error &&
