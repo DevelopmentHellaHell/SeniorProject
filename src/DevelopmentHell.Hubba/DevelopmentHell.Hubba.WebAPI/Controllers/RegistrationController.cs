@@ -30,7 +30,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 		{
 			if (!ModelState.IsValid)
 			{
-				return BadRequest();
+				return BadRequest("Invalid request.");
 			}
 
 			var result = await _registrationManager.Register(userToRegisterDTO.Email, userToRegisterDTO.Password).ConfigureAwait(false);

@@ -33,7 +33,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         {
 			if (!ModelState.IsValid)
 			{
-				return BadRequest();
+				return BadRequest("Invalid request.");
 			}
 
 			var ipAddress = HttpContext.Connection.RemoteIpAddress!.ToString();
@@ -53,7 +53,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         {
 			if (!ModelState.IsValid)
 			{
-				return BadRequest();
+				return BadRequest("Invalid request.");
 			}
 			var ipAddress = HttpContext.Connection.RemoteIpAddress!.ToString();
 
