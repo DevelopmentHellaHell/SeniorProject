@@ -1,7 +1,6 @@
-import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Ajax } from "../../Ajax";
+import { Auth } from "../../Auth";
 import Button from "../../components/Button/Button";
 import Footer from "../../components/Footer/Footer";
 import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
@@ -17,10 +16,7 @@ const Logout: React.FC<Props> = (props) => {
     const navigate = useNavigate();
 
     useEffect(() => {
-		const cookie = Cookies.get("access_token");
-		if (cookie) {
-			Cookies.remove("access_token");
-		}
+		Auth.removeCookie("access_token");
 
         // const response = await Ajax.post("/authentication/logout", ({ accountId: accountId }));
                     // if (response.error) {

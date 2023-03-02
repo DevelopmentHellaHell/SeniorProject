@@ -31,14 +31,19 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         [Route("login")]
         public async Task<IActionResult> Login(UserToLoginDTO userToLoginDTO)
         {
-            var ipAddress = HttpContext.Connection.RemoteIpAddress!.ToString();
+			if (!ModelState.IsValid)
+			{
+				return BadRequest();
+			}
+
+			var ipAddress = HttpContext.Connection.RemoteIpAddress!.ToString();
 			var result = await _AuthenticationManager.Login(userToLoginDTO.Email, userToLoginDTO.Password, ipAddress);
             if (!result.IsSuccessful || result.Payload is null)
             {
                 return BadRequest(result.ErrorMessage);
             }
 
-			HttpContext.Response.Cookies.Append("access_token", result.Payload, new CookieOptions { SameSite = SameSiteMode.None, Secure = true });
+			HttpContext.Response.Cookies.Append("access_token", result.Payload, new CookieOptions { SameSite=SameSiteMode.None, Secure=true });
 			return Ok();
         }
 
@@ -46,7 +51,11 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         [Route("otp")]
         public async Task<IActionResult> AuthenticateOtp(UserToAuthenticateOtpDTO userToAuthenticateOtpDTO)
         {
-            var ipAddress = HttpContext.Connection.RemoteIpAddress!.ToString();
+			if (!ModelState.IsValid)
+			{
+				return BadRequest();
+			}
+			var ipAddress = HttpContext.Connection.RemoteIpAddress!.ToString();
 
 			var result = await _AuthenticationManager.AuthenticateOTP(userToAuthenticateOtpDTO.Otp, ipAddress);
             if (!result.IsSuccessful || result.Payload is null)
@@ -54,7 +63,8 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 return BadRequest(result.ErrorMessage);
             }
 
-            //https://stackoverflow.com/questions/61427818/store-validate-jwt-token-stored-in-httponly-cookie-in-net-core-api
+            // https://stackoverflow.com/questions/61427818/store-validate-jwt-token-stored-in-httponly-cookie-in-net-core-api
+            // Enabling HttpOnly does not let client side scripts to see the cookie
             HttpContext.Response.Cookies.Append("access_token", result.Payload, new CookieOptions {  SameSite=SameSiteMode.None, Secure=true });//, new CookieOptions { HttpOnly = true });
 			return Ok();
         }

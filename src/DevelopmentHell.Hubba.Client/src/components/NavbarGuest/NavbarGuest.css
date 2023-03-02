@@ -28,13 +28,13 @@
 }
 
 .nav-guest .logo {
-    color: var(--logo);
+    color: var(--primary-button-light);
     font-size: 30px;
     font-weight: 700;
 }
 
 .nav-guest .logo:hover {
-    color: var(--logo-hover);
+    color: var(--primary-button-light-hover);
 }
 
 .nav-guest .divider {
