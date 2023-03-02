@@ -9,14 +9,13 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         private InsertDataAccess _insertDataAccess;
         private SelectDataAccess _selectDataAccess;
         private DeleteDataAccess _deleteDataAccess;
-        private UpdateDataAccess _updateDataAccess;
+        
         private string _tableName;
         public UserLoginDataAccess(string connectionString, string tableName)
         {
             _insertDataAccess = new InsertDataAccess(connectionString);
             _selectDataAccess = new SelectDataAccess(connectionString);
             _deleteDataAccess = new DeleteDataAccess(connectionString);
-            _updateDataAccess = new UpdateDataAccess(connectionString);
             _tableName = tableName;
         }
         public async Task<Result> AddLogin(int accoundId, string ipAddress)
@@ -28,6 +27,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     { "IPAddress", ipAddress}
                 }
             ).ConfigureAwait(false);
+
 
             return insertResult;
         }

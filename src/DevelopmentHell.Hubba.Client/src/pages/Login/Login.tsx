@@ -52,22 +52,22 @@ const Login: React.FC<Props> = (props) => {
                                 setLoaded(false);
 
                                 if (!email) {
-                                    onError("Email cannot be empty, please try again.");
+                                    onError("Email cannot be empty.");
                                     return;
                                 }
                                 
                                 if(!isValidEmail(email)) {
-                                    onError("Invalid email, please try again.");
+                                    onError("Invalid email.");
                                     return;
                                 }
                                 
                                 if (!password) {
-                                    onError("Password cannot be empty, please try again.");
+                                    onError("Password cannot be empty.");
                                     return;
                                 }
 
                                 if (password.length < 8) {
-                                    onError("Invalid password, please try again.");
+                                    onError("Invalid password.");
                                     return;
                                 }
                                 

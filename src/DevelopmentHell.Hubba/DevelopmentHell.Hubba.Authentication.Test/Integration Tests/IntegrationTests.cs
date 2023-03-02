@@ -198,7 +198,7 @@
 //			var expected = new Result()
 //			{
 //				IsSuccessful = false,
-//				ErrorMessage = "Invalid username or password provided. Retry again or contact system admin"
+//				ErrorMessage = "Invalid email or password provided. Retry again or contact system admin"
 //			};
 
 //			// Act
@@ -240,7 +240,7 @@
 //			var expected = new Result()
 //			{
 //				IsSuccessful = false,
-//				ErrorMessage = "Invalid username or password provided. Retry again or contact system admin"
+//				ErrorMessage = "Invalid email or password provided. Retry again or contact system admin"
 //			};
 
 //			// Act
@@ -302,7 +302,7 @@
 //			var expected = new Result()
 //			{
 //				IsSuccessful = false,
-//				ErrorMessage = "Invalid username or password provided. Retry again or contact system admin"
+//				ErrorMessage = "Invalid email or password provided. Retry again or contact system admin"
 //			};
 
 //			// Act
@@ -364,7 +364,7 @@
 //			var expected = new Result()
 //			{
 //				IsSuccessful = false,
-//				ErrorMessage = "Invalid username or password provided. Retry again or contact system admin"
+//				ErrorMessage = "Invalid email or password provided. Retry again or contact system admin"
 //			};
 
 //			// Act
@@ -431,7 +431,7 @@
 //			var expectedInvalidCredentials = new Result()
 //			{
 //				IsSuccessful = false,
-//				ErrorMessage = "Invalid username or password provided. Retry again or contact system admin"
+//				ErrorMessage = "Invalid email or password provided. Retry again or contact system admin"
 //			};
 //			var expectedDisabled = new Result()
 //			{

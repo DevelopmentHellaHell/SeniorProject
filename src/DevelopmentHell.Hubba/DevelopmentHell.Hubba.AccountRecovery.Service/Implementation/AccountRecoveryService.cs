@@ -8,17 +8,17 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Service.Implementation
 {
     public class AccountRecoveryService : IAccountRecoveryService
     {
-        private IUserAccountDataAccess _userAccountDao;
+        private IUserAccountDataAccess _userAccountDataAccess;
+        private IUserLoginDataAccess _userLoginDataAccess;
+        private IRecoveryRequestDataAccess _recoveryRequestDataAccess;
         private ILoggerService _loggerService;
-        private IUserLoginDataAccess _userLoginDao;
-        private IRecoveryRequestDataAccess _recoveryRequestDao;
 
-        public AccountRecoveryService(IUserAccountDataAccess userAccountDao, ILoggerService loggerService, IUserLoginDataAccess userLoginDao, IRecoveryRequestDataAccess recoveryRequestDao)
+        public AccountRecoveryService(IUserAccountDataAccess userAccountDataAccess, IUserLoginDataAccess userLoginDataAccess, IRecoveryRequestDataAccess recoveryRequestDataAccess, ILoggerService loggerService)
         {
-            _userAccountDao = userAccountDao;
+            _userAccountDataAccess = userAccountDataAccess;
+            _userLoginDataAccess = userLoginDataAccess;
+            _recoveryRequestDataAccess = recoveryRequestDataAccess;
             _loggerService = loggerService;
-            _userLoginDao = userLoginDao;
-            _recoveryRequestDao = recoveryRequestDao;
         }
 
         public async Task<Result<int>> Verification(string email)
@@ -28,15 +28,15 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Service.Implementation
             if (!ValidationService.ValidateEmail(email).IsSuccessful)
             {
                 result.IsSuccessful = false;
-                result.ErrorMessage = "Invalid username or OTP provided. Retry again or contact system admin";
+                result.ErrorMessage = "Invalid email. Retry again or contact system admin";
                 return result;
             }
 
-            Result<int> getIdFromEmail = await _userAccountDao.GetId(email).ConfigureAwait(false);
-            if (!getIdFromEmail.IsSuccessful && String.IsNullOrEmpty(getIdFromEmail.Payload.ToString()))
+            Result<int> getIdFromEmail = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            if (!getIdFromEmail.IsSuccessful || getIdFromEmail.Payload == 0)
             {
                 result.IsSuccessful = false;
-                result.ErrorMessage = "Invalid username or OTP provided. Retry again or contact system admin";
+                result.ErrorMessage = "Invalid email. Retry again or contact system admin";
                 return result;
             }
             result.Payload = getIdFromEmail.Payload;
@@ -49,7 +49,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Service.Implementation
             Result<bool> result = new Result<bool>();
 
 
-            Result<string[]> getIpAddress = await _userLoginDao.GetIPAddress(accountId).ConfigureAwait(false);
+            Result<string[]> getIpAddress = await _userLoginDataAccess.GetIPAddress(accountId).ConfigureAwait(false);
             if (!getIpAddress.IsSuccessful)
             {
                 result.IsSuccessful = false;
@@ -62,11 +62,19 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Service.Implementation
 
             if (!matchingIpAddress)
             {
-                Result addManualRecovery = await _recoveryRequestDao.AddManualRecovery(accountId).ConfigureAwait(false);
+                Result<int> selectAccount = await _recoveryRequestDataAccess.GetId(accountId).ConfigureAwait(false);
+                if (selectAccount.IsSuccessful && selectAccount.Payload != 0)
+                {
+                    result.IsSuccessful = false;
+                    result.ErrorMessage = "Request already exists.";
+                    return result;
+                }
+
+                Result addManualRecovery = await _recoveryRequestDataAccess.AddManualRecovery(accountId).ConfigureAwait(false);
                 if (!addManualRecovery.IsSuccessful)
                 {
                     result.IsSuccessful = false;
-                    result.ErrorMessage = addManualRecovery.ErrorMessage;
+                    result.ErrorMessage = "Fatal error. Please contact system adminstrator.";
                     return result;
                 }
                 result.IsSuccessful = true;
@@ -75,11 +83,11 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Service.Implementation
             }
             else
             {
-                Result enableAccount = await _userAccountDao.Update(new UserAccount { Id = accountId, Disabled = false, LoginAttempts = 0 }).ConfigureAwait(false);
+                Result enableAccount = await _userAccountDataAccess.Update(new UserAccount { Id = accountId, Disabled = false, LoginAttempts = 0 }).ConfigureAwait(false);
                 if (!enableAccount.IsSuccessful)
                 {
                     result.IsSuccessful = false;
-                    result.ErrorMessage = enableAccount.ErrorMessage;
+                    result.ErrorMessage = "Fatal error. Please contact system adminstrator.";
                     return result;
                 }
                 result.IsSuccessful = true;

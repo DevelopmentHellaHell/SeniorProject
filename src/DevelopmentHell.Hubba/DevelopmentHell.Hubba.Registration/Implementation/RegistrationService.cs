@@ -9,12 +9,12 @@ namespace DevelopmentHell.Hubba.Registration.Service.Implementation
 {
 	public class RegistrationService : IRegistrationService
 	{
-		private IUserAccountDataAccess _dao;
+		private IUserAccountDataAccess _userAccountDataAccess;
 		private ILoggerService _loggerService;
 
-		public RegistrationService(IUserAccountDataAccess dao, ILoggerService loggerService)
+		public RegistrationService(IUserAccountDataAccess userAccountDataAccess, ILoggerService loggerService)
 		{
-			_dao = dao;
+			_userAccountDataAccess = userAccountDataAccess;
 			_loggerService = loggerService;
 		}
 
@@ -36,7 +36,7 @@ namespace DevelopmentHell.Hubba.Registration.Service.Implementation
 				return result;
 			}
 
-			Result<int> getResult = await _dao.GetId(email).ConfigureAwait(false);
+			Result<int> getResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
 			if (!getResult.IsSuccessful)
 			{
 
@@ -56,7 +56,7 @@ namespace DevelopmentHell.Hubba.Registration.Service.Implementation
 			Random random = new((int)(DateTime.Now.Ticks << 4 >> 4));
 			string salt = new(Enumerable.Repeat(HashService.saltValidChars, 64).Select(s => s[random.Next(s.Length)]).ToArray());
 			HashData hashData = HashService.HashString(password, salt).Payload!;
-			Result createResult = await _dao.CreateUserAccount(email, hashData);
+			Result createResult = await _userAccountDataAccess.CreateUserAccount(email, hashData);
 			return createResult;
 		}
 	}

@@ -7,7 +7,6 @@ using System.Security.Claims;
 using System.Collections.Specialized;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
-using DevelopmentHell.Hubba.Logging.Service.Implementation;
 
 namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
 {
@@ -32,7 +31,7 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
 			if (!getResult.IsSuccessful || getResult.Payload is null)
 			{
 				result.IsSuccessful = false;
-				result.ErrorMessage = "Unable to find user.";
+				result.ErrorMessage = "Invalid email.";
 				return result;
 			}
 

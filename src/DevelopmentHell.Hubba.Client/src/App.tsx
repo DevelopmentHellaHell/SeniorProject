@@ -13,6 +13,8 @@ import PrivateRoute from "./components/Outlet/PrivateOutlet";
 import PublicOutlet from "./components/Outlet/PublicOutlet";
 import Unauthorized from "./pages/Unauthorized/Unauthorized";
 import { Auth } from "./Auth";
+import RecoverAccount from "./pages/AccountRecovery/AccountRecovery";
+
 
 interface Props {
 
@@ -36,6 +38,12 @@ const App: React.FC<Props> = (props) => {
 							<Login />
 						</PublicOutlet>
 					} />
+					<Route path="/recover" element={
+						<PublicOutlet redirectPath="/">
+							<RecoverAccount />
+						</PublicOutlet>
+					} />
+					
 					
 					{/* Protect/private routes */}
 					<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.DEFAULT_USER]}/>}>
@@ -50,6 +58,7 @@ const App: React.FC<Props> = (props) => {
 					<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.ADMIN_USER]}/>}>
 						<Route path="/analytics" element={<Analytics />} />
 					</Route>
+	
 
 					{/* Anyone can access */}
 					<Route path="/unauthorized" element={<Unauthorized />} />

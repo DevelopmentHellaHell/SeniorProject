@@ -50,7 +50,7 @@ const Otp: React.FC<Props> = (props) => {
                             <Button title="Submit" loading={!loaded} onClick={async () => {
                                 setLoaded(false);
                                 if (!otp) {
-                                    onError("OTP cannot be empty, please try again.");
+                                    onError("OTP cannot be empty.");
                                     return;
                                 }
 

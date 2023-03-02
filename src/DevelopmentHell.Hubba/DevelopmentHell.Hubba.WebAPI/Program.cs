@@ -93,6 +93,10 @@ builder.Services.AddTransient<IAuthenticationManager, HubbaAuthenticationManager
                 HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
                 HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
             ),
+			new UserLoginDataAccess(
+                HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+                HubbaConfig.ConfigurationManager.AppSettings["UserLoginsTable"]!
+            ),
             s.GetService<ILoggerService>()!
         ),
 		new OTPService(
@@ -111,33 +115,37 @@ builder.Services.AddTransient<IAccountRecoveryManager, AccountRecoveryManager>(s
 			new UserAccountDataAccess(
 				HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
 				HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
-				),
-				s.GetService<ILoggerService>()!,
+			),
 			new UserLoginDataAccess(
-                HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-                HubbaConfig.ConfigurationManager.AppSettings["UserLoginsTable"]!
-				),
+				HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+				HubbaConfig.ConfigurationManager.AppSettings["UserLoginsTable"]!
+			),
 			new RecoveryRequestDataAccess(
 				HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
 				HubbaConfig.ConfigurationManager.AppSettings["RecoveryRequestsTable"]!
-				)
 			),
-            new OTPService(
-                new OTPDataAccess(
-                    HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-                    HubbaConfig.ConfigurationManager.AppSettings["UserOTPsTable"]!
-                )
-            ),
-            new HubbaAuthenticationService.AuthenticationService(
-                new UserAccountDataAccess(
+            s.GetService<ILoggerService>()!
+        ),
+        new OTPService(
+            new OTPDataAccess(
                 HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-                HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
-				),
-				s.GetService<ILoggerService>()!
+                HubbaConfig.ConfigurationManager.AppSettings["UserOTPsTable"]!
+            )
+        ),
+        new HubbaAuthenticationService.AuthenticationService(
+            new UserAccountDataAccess(
+				HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+				HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
 			),
-            s.GetService<IAuthorizationService>()!,
-			s.GetService<ILoggerService>()!
-		)
+            new UserLoginDataAccess(
+				HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+				HubbaConfig.ConfigurationManager.AppSettings["UserLoginsTable"]!
+			),
+            s.GetService<ILoggerService>()!
+		),
+        s.GetService<IAuthorizationService>()!,
+		s.GetService<ILoggerService>()!
+	)
 );
 
 //Found on google, source lost

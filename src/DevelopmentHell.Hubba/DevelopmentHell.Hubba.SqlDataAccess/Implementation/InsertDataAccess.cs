@@ -59,7 +59,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
 
 					insertQuery.Parameters.Add(new SqlParameter(pair.Key, pair.Value));
 				}
-				insertQuery.CommandText = string.Format("INSERT into {0}({1}) VALUES ({2})", table, columnString, valueString);
+				insertQuery.CommandText = string.Format("INSERT into {0} ({1}) VALUES ({2})", table, columnString, valueString);
 
 				return await SendQuery(insertQuery).ConfigureAwait(false);
 			}

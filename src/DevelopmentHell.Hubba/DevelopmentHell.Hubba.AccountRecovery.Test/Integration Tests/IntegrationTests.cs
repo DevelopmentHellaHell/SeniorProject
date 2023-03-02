@@ -489,4 +489,4 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
         //         Assert.IsTrue(recoveryRequestResult.Payload == verificationResult.Payload);
         //     }
     }
-} //"Invalid username or OTP provided. Retry again or contact system admin"
+} //"Invalid email or OTP provided. Retry again or contact system admin"
