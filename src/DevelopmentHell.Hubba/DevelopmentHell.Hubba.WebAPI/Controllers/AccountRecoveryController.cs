@@ -28,7 +28,11 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         [Route("emailVerification")]
         public async Task<IActionResult> EmailVerification(AccountToRecoverDTO accountToRecoverDTO)
         {
-            var ipAddress = HttpContext.Connection.RemoteIpAddress!.ToString();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid request.");
+            }
+
             var result = await _accountRecoveryManager.EmailVerification(accountToRecoverDTO.Email);
             if (!result.IsSuccessful || result.Payload is null)
             {
@@ -43,8 +47,12 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         [Route("recoveryOtp")]
         public async Task<IActionResult> AuthenticateOtp(OtpToVerifyDTO otpToVerifyDTO)
         {
-            var ipAddress = HttpContext.Connection.RemoteIpAddress!.ToString();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid request.");
+            }
 
+            var ipAddress = HttpContext.Connection.RemoteIpAddress!.ToString();
             var otpResult = await _accountRecoveryManager.AuthenticateOTP(otpToVerifyDTO.Otp, ipAddress);
             if (!otpResult.IsSuccessful || otpResult.Payload == false)
             {
