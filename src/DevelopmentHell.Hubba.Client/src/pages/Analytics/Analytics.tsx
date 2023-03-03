@@ -29,7 +29,7 @@ const Analytics: React.FC<Props> = (props) => {
     const [loaded, setLoaded] = useState(false);
 
     useEffect(() => {
-        async function getData() {
+        const getData = async () => {
             const response = await Ajax.get<AnalyticsData>("/analytics/data");
             setData(response.data);
             setError(response.error);

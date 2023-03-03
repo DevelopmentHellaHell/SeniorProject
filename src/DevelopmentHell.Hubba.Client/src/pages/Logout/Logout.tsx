@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Ajax } from "../../Ajax";
 import { Auth } from "../../Auth";
 import Button from "../../components/Button/Button";
 import Footer from "../../components/Footer/Footer";
@@ -16,15 +17,14 @@ const Logout: React.FC<Props> = (props) => {
     const navigate = useNavigate();
 
     useEffect(() => {
-		Auth.removeCookie("access_token");
-
-        // const response = await Ajax.post("/authentication/logout", ({ accountId: accountId }));
-                    // if (response.error) {
-                    //     alert(response.error);
-                    //     return;
-                    // }
-
-        navigate("/");
+        (async () => {
+            const response = await Ajax.post("/authentication/logout", {});
+            if (response.error) {
+                // Do nothing
+            }
+            Auth.removeCookie("access_token");
+            navigate("/");
+        })();    
     }, []);
 
     return (

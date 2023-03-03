@@ -7,7 +7,6 @@ using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
 using System.Configuration;
 using System.Security.Claims;
-using System.Security.Principal;
 
 namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
 {
@@ -105,5 +104,35 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
 
             return await _authorizationService.GenerateToken(accountId).ConfigureAwait(false);
         }
+
+        public Result Logout()
+        {
+			Result result = new Result();
+
+			var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            var email = principal.FindFirstValue(ClaimTypes.Email);
+            if (email is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error, unexpected error. Please context system administrator.";
+                return result;
+            }
+           
+
+			string userHashKey = ConfigurationManager.AppSettings["UserHashKey"]!;
+			Result<HashData> userHashResult = HashService.HashString(email, userHashKey);
+			if (!userHashResult.IsSuccessful || userHashResult.Payload is null)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Error, unexpected error. Please contact system administrator.";
+				return result;
+			}
+
+			string userHash = Convert.ToBase64String(userHashResult.Payload.Hash!);
+			_loggerService.Log(LogLevel.INFO, Category.BUSINESS, $"Successful logout attempt from: {email}.", userHash);
+
+            result.IsSuccessful = true;
+            return result;
+		}
     }
 }
