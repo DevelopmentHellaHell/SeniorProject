@@ -107,13 +107,13 @@ CREATE LOGIN [NT AUTHORITY\SYSTEM] FROM WINDOWS WITH DEFAULT_DATABASE=[master], 
 GO
 /* For security reasons the login is created disabled and with a random password. */
 /****** Object:  Login [DevelopmentHell.Hubba.SqlUser.User]    Script Date: 12/13/2022 10:50:54 PM ******/
-CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.User] WITH PASSWORD='password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
+CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.User] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
 GO
 ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.User] ENABLE
 GO
 /* For security reasons the login is created disabled and with a random password. */
 /****** Object:  Login [DevelopmentHell.Hubba.SqlUser.Logging]    Script Date: 12/13/2022 10:50:54 PM ******/
-CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] WITH PASSWORD='password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
+CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
 GO
 ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] ENABLE
 GO
