@@ -1,11 +1,11 @@
 import React from 'react';
 import "./Loading.css";
 
-interface Props {
+interface ILoadingProps {
     title?: string;
 }
 
-const Loading: React.FC<Props> = (props) => {
+const Loading: React.FC<ILoadingProps> = (props) => {
     return (
         <div className="loader-wrapper">
             <div className="loader"/>

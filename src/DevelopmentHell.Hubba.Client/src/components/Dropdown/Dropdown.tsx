@@ -1,12 +1,12 @@
 import React from "react";
 import './Dropdown.css';
 
-interface Props {
+interface IDropdownProps {
     children?: React.ReactNode;
     title: string;
 }
 
-const Dropdown: React.FC<Props> = (props: React.PropsWithChildren<Props>) => {
+const Dropdown: React.FC<IDropdownProps> = (props: React.PropsWithChildren<IDropdownProps>) => {
     return (
         // Code adapted from w3schools.
         // Link: https://www.w3schools.com/howto/howto_css_dropdown.asp

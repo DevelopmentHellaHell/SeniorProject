@@ -7,57 +7,92 @@ import Footer from "../../components/Footer/Footer";
 import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
 import "./AccountRecovery.css";
 
-interface Props {
+interface IAccountRecoveryProps {
 
 }
 
-const AccountRecovery: React.FC<Props> = (props) => {
+const AccountRecovery: React.FC<IAccountRecoveryProps> = (props) => {
     const [email, setEmail] = useState("");
+    const [showOtp, setShowOtp] = useState(false);
+    const [otp, setOtp] = useState("");
     const [error, setError] = useState("");
-    const isValidEmail = (email : string) => (
-        /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i
-    ).test(email);
+    const [loaded, setLoaded] = useState(true);
 
     const navigate = useNavigate();
 
-    const authData = Auth.isAuthenticated();
-
+    const isValidEmail = (email : string) => (
+        /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i
+    ).test(email);
+    const onError = (message: string) => {
+        setError(message);
+        setLoaded(true);
+    }
+    
     return (
-        <div className="recovery-container">
+        <div className="accountrecovery-container">
             <NavbarGuest />
 
-            <div className="recovery-wrapper">
-                <div className="recovery-card">
-                    <h1>Account Recovery</h1>
-                    <p className="info">Enter your registered email to recover your account.</p>
+            <div className="accountrecovery-wrapper">
+                <div className="accountrecovery-card">
+                    <h1>Recover Account</h1>
                     <div>
                         <div className="input-field">
                             <label>Email</label>
-                            <input type="email" placeholder="Your email" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                            <input type="text" placeholder="Your Email" {...{readOnly: showOtp}} onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                                 setEmail(event.target.value);
                             }}/>
+                            
                         </div>
-                        
+                        {showOtp && 
+                            <div className="input-field">
+                                <label>Recovery OTP</label>
+                                <input type="text" maxLength={8} placeholder="Your OTP" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                    setOtp(event.target.value);
+                                }}/>
+                            </div>
+                        }
                         <div className="buttons">
-                            <Button title="Submit" onClick={async () => {
-                                if (!email) {
-                                    setError("Email cannot be empty, please try again.");
-                                    return;
-                                }
-                                if(!isValidEmail(email)) {
-                                    setError("Invalid email, please try again.");
-                                    return;
-                                }
+                            <Button title="Submit" loading={!loaded} onClick={async () => {
+                                setLoaded(false);
 
-                                setError("");
+                                if (!showOtp) {
+                                    if (!email) {
+                                        onError("Email cannot be empty.");
+                                        return;
+                                    }
+                                    
+                                    if(!isValidEmail(email)) {
+                                        onError("Invalid email.");
+                                        return;
+                                    }
+                                    
+                                    const response = await Ajax.post("/accountrecovery/emailVerification", ({ email: email }));
+                                    if (response.error) {
+                                        onError(response.error);
+                                        return;
+                                    }
 
-                                // const response = await Ajax.post("/authentication/recovery", ({ email: email, accountId: authData?.accountId }));
-                                // if (response.error) {
-                                //     setError(response.error);
-                                //     return;
-                                // }
-                                
-                                navigate("/otp");
+                                    setError("");
+                                    setShowOtp(true);
+                                    setLoaded(true);
+                                } else {
+                                    const response = await Ajax.post("/accountrecovery/recoveryOtp", ({ otp: otp }));
+                                    if (response.error) {
+                                        onError(response.error);
+                                        return;
+                                    }
+                                    const authData = Auth.isAuthenticated();
+                                    if (authData && authData.role == "DefaultUser") {
+                                        setLoaded(true);
+                                        Auth.removeCookie("access_token");
+                                        alert("Request sent to admin");
+                                        navigate("/");
+                                        return;
+                                    }
+
+                                    setLoaded(true);
+                                    navigate("/account");
+                                }
                             }}/>
                         </div>
                         {error &&

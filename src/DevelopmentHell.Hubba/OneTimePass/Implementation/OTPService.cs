@@ -2,6 +2,7 @@
 using DevelopmentHell.Hubba.Emailing.Service;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
+using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 
 namespace DevelopmentHell.Hubba.OneTimePassword.Service.Implementation
@@ -10,10 +11,10 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service.Implementation
 	public class OTPService : IOTPService
 	{
 		private static readonly string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-		private IOTPDataAccess _dao;
+		private IOTPDataAccess _otpDao;
 		public OTPService(IOTPDataAccess dao)
 		{
-			_dao = dao;
+			_otpDao = dao;
 		}
 
 		public async Task<Result<string>> NewOTP(int accountId)
@@ -23,7 +24,7 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service.Implementation
 			byte[] eotp = EncryptionService.Encrypt(otp);
 			DateTime expiration = DateTime.Now.AddMinutes(2); // TODO: move to config
 
-			Result result = await _dao.NewOTP(accountId, eotp, expiration).ConfigureAwait(false);
+			Result result = await _otpDao.NewOTP(accountId, eotp, expiration).ConfigureAwait(false);
 			return new Result<string>()
 			{
 				IsSuccessful = result.IsSuccessful,
@@ -36,7 +37,7 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service.Implementation
 		{
 			Result result = new Result();
 
-			Result<byte[]> getResult = await _dao.GetOTP(accountId);
+			Result<byte[]> getResult = await _otpDao.GetOTP(accountId);
 			if (!getResult.IsSuccessful)
 			{
 				result.IsSuccessful = false;

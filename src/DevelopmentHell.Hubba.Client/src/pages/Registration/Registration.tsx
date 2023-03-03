@@ -6,11 +6,11 @@ import Footer from "../../components/Footer/Footer";
 import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
 import "./Registration.css";
 
-interface Props {
+interface IRegistrationProps {
 
 }
 
-const Registration: React.FC<Props> = (props) => {
+const Registration: React.FC<IRegistrationProps> = (props) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmedPassword, setConfirmedPassword] = useState("");
@@ -34,7 +34,7 @@ const Registration: React.FC<Props> = (props) => {
             <div className="registration-wrapper">
                 <div className="registration-card">
                     <h1>Registration</h1>
-                    <p className="info">Already registered? Login <u onClick={() => { navigate("/login") }}>HERE →</u></p>
+                    <p className="info">Already registered? Login <u onClick={() => { navigate("/login") }}>HERE ←</u></p>
                     <div>
                         <div className="input-field">
                             <label>Email</label>
@@ -59,20 +59,20 @@ const Registration: React.FC<Props> = (props) => {
                                 setLoaded(false);
 
                                 if (!email) {
-                                    onError("Email cannot be empty, please try again.");
+                                    onError("Email cannot be empty.");
                                     return;
                                 }
                                 if(!isValidEmail(email)) {
-                                    onError("Invalid email, please try again.");
+                                    onError("Invalid email.");
                                     return;
                                 }
 
                                 if (!password) {
-                                    onError("Password cannot be empty, please try again.");
+                                    onError("Password cannot be empty.");
                                     return;
                                 }
                                 if (password.length < 8) {
-                                    onError("Invalid password, please try again.");
+                                    onError("Invalid password.");
                                     return;
                                 }
 

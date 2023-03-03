@@ -102,6 +102,12 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
                 return result;
             }
 
+            Result registerIpAddress = await _authenticationService.RegisterIpAddress(accountId, ipAddress).ConfigureAwait(false);
+            if (!registerIpAddress.IsSuccessful)
+            {
+                // do nothing
+            }
+
             return await _authorizationService.GenerateToken(accountId).ConfigureAwait(false);
         }
 

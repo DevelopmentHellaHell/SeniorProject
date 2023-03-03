@@ -4,18 +4,19 @@ using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Validation.Service;
-using System.Security.Principal;
 
 namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 {
 	public class AuthenticationService : IAuthenticationService
 	{
-		private IUserAccountDataAccess _dao;
+		private IUserAccountDataAccess _userAccountDataAccess;
+		private IUserLoginDataAccess _userLoginDataAccess;
 		private ILoggerService _loggerService;
 
-		public AuthenticationService(IUserAccountDataAccess dao, ILoggerService loggerService)
+		public AuthenticationService(IUserAccountDataAccess userAccountDataAccess, IUserLoginDataAccess userLoginDataAccess, ILoggerService loggerService)
 		{
-			_dao = dao;
+			_userAccountDataAccess = userAccountDataAccess;
+			_userLoginDataAccess = userLoginDataAccess;
 			_loggerService = loggerService;
 		}
 
@@ -26,23 +27,23 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 			if (!ValidationService.ValidateEmail(email).IsSuccessful)
 			{
 				result.IsSuccessful = false;
-				result.ErrorMessage = "Invalid username or password provided. Retry again or contact system admin";
+				result.ErrorMessage = "Invalid email or password provided. Retry again or contact system admin";
 				return result;
 			}
 
-			Result<UserAccount> userHashData = await _dao.GetHashData(email).ConfigureAwait(false);
+			Result<UserAccount> userHashData = await _userAccountDataAccess.GetHashData(email).ConfigureAwait(false);
 			UserAccount payload = userHashData.Payload!;
 			if (!userHashData.IsSuccessful || payload is null)
 			{
 				result.IsSuccessful = false;
-				result.ErrorMessage = "Invalid username or password provided. Retry again or contact system admin";
+				result.ErrorMessage = "Invalid email or password provided. Retry again or contact system admin";
 				return result;
 			}
 
 			Result<HashData> hashData = HashService.HashString(password, payload.PasswordSalt!);
 			var oldHash = payload.PasswordHash;
 			var newHash = Convert.ToBase64String(hashData.Payload!.Hash!);
-			Result<int> getIdFromEmail = await _dao.GetId(email).ConfigureAwait(false);
+			Result<int> getIdFromEmail = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
 
 			int accountIdFromEmail = getIdFromEmail.Payload;
 
@@ -53,7 +54,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 				if (accountIdFromEmail != 0)
 				{
 					DateTime currentTime = DateTime.Now;
-					Result<UserAccount> getAttemptResult = await _dao.GetAttempt(accountIdFromEmail).ConfigureAwait(false);
+					Result<UserAccount> getAttemptResult = await _userAccountDataAccess.GetAttempt(accountIdFromEmail).ConfigureAwait(false);
 					UserAccount? loginAttemptData = getAttemptResult.Payload;
 					if (!getAttemptResult.IsSuccessful || loginAttemptData is null)
 					{
@@ -87,7 +88,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 						disabled = true;
 					}
 
-					Result updateResult = await _dao.Update(new UserAccount()
+					Result updateResult = await _userAccountDataAccess.Update(new UserAccount()
 					{
 						Id = accountIdFromEmail,
 						FailureTime = failureTime,
@@ -102,11 +103,11 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 					}
 				}
 				result.IsSuccessful = false;
-				result.ErrorMessage = "Invalid username or password provided. Retry again or contact system admin";
+				result.ErrorMessage = "Invalid email or password provided. Retry again or contact system admin";
 				return result;
 			}
 
-			Result<bool> getDisabledResult = await _dao.GetDisabled(accountIdFromEmail).ConfigureAwait(false);
+			Result<bool> getDisabledResult = await _userAccountDataAccess.GetDisabled(accountIdFromEmail).ConfigureAwait(false);
 			if (!getDisabledResult.IsSuccessful)
 			{
 				result.IsSuccessful = false;
@@ -121,7 +122,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 				return result;
 			}
 
-			Result updateResult1 = await _dao.Update(new UserAccount()
+			Result updateResult1 = await _userAccountDataAccess.Update(new UserAccount()
 			{
 				Id = accountIdFromEmail,
 				FailureTime = DBNull.Value,
@@ -137,6 +138,22 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 			result.IsSuccessful = true;
 			result.Payload = accountIdFromEmail;
 			return result;
+		}
+
+		public async Task<Result> RegisterIpAddress(int accoundId, string ipAddress)
+		{
+			Result result = new Result();
+
+			Result registerIpAddress = await _userLoginDataAccess.AddLogin(accoundId, ipAddress).ConfigureAwait(false);
+			if (!registerIpAddress.IsSuccessful)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Address already exists.";
+				return result;
+			}
+
+			result.IsSuccessful = true;
+			return result; ;
 		}
     }
 }

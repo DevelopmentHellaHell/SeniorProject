@@ -21,10 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\App.config" Link="App.config" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\DevelopmentHell.Hubba.AuthenticationManager\DevelopmentHell.Hubba.Authentication.Manager.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.RegistrationManager\DevelopmentHell.Hubba.Registration.Manager.csproj" />
   </ItemGroup>

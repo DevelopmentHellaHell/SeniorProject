@@ -3,11 +3,11 @@ import Footer from "../../components/Footer/Footer";
 import NavbarUser from "../../components/NavbarUser/NavbarUser";
 import "./Notification.css";
 
-interface Props {
+interface INotificationProps {
 
 }
 
-const Notification: React.FC<Props> = (props) => {
+const Notification: React.FC<INotificationProps> = (props) => {
     return (
         <div className="notification-container">
             <NavbarUser />

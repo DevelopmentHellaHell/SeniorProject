@@ -1,8 +1,8 @@
-interface Props {
+interface IUnauthorizedProps {
     
 }
 
-const Unauthorized: React.FC<Props> = (props) => {
+const Unauthorized: React.FC<IUnauthorizedProps> = (props) => {
     return (
         <div>403 Unauthorized</div>
     );
