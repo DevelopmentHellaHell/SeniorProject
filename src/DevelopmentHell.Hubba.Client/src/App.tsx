@@ -38,7 +38,7 @@ const App: React.FC<Props> = (props) => {
 							<Login />
 						</PublicOutlet>
 					} />
-					<Route path="/recover" element={
+					<Route path="/account-recovery" element={
 						<PublicOutlet redirectPath="/">
 							<RecoverAccount />
 						</PublicOutlet>

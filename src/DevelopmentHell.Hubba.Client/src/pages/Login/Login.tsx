@@ -90,7 +90,7 @@ const Login: React.FC<Props> = (props) => {
                             <p className="error">{error}</p>
                         }
                         {showRecovery &&
-                            <p className="error">Navigate to Account Recovery page <u onClick={() => { navigate("/recover") }}>HERE ←</u></p> 
+                            <p className="error">Navigate to Account Recovery page <u onClick={() => { navigate("/account-recovery") }}>HERE ←</u></p> 
                         }
                     </div>
                 </div>
