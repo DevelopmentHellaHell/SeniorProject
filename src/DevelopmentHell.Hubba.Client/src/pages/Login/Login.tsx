@@ -33,7 +33,7 @@ const Login: React.FC<Props> = (props) => {
             <div className="login-wrapper">
                 <div className="login-card">
                     <h1>Login</h1>
-                    <p className="info">Already registered? Register <u onClick={() => { navigate("/registration") }}>HERE →</u></p>
+                    <p className="info"> Create a new account <u onClick={() => { navigate("/registration") }}>HERE →</u></p>
                     <div>
                         <div className="input-field">
                             <label>Email</label>
@@ -47,6 +47,8 @@ const Login: React.FC<Props> = (props) => {
                                 setPassword(event.target.value);
                             }}/>
                         </div>
+                        <p className="info" style={{marginLeft:80}}> Account Recovery <u onClick={() => { navigate("/account-recovery") }}>HERE →</u></p>
+                   
                         <div className="buttons">
                             <Button title="Submit" loading={!loaded} onClick={async () => {
                                 setLoaded(false);
