@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 import Button from "../Button/Button";
 import './NavbarGuest.css';
 
-interface Props {
+interface INavbarGuestProps {
 
 }
 
-const NavbarGuest: React.FC<Props> = (props) => {
+const NavbarGuest: React.FC<INavbarGuestProps> = (props) => {
     const navigate = useNavigate();
 
     return (

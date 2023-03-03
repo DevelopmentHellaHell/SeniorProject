@@ -7,11 +7,11 @@ import Footer from "../../components/Footer/Footer";
 import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
 import "./Logout.css";
 
-interface Props {
+interface ILogoutProps {
 
 }
 
-const Logout: React.FC<Props> = (props) => {
+const Logout: React.FC<ILogoutProps> = (props) => {
     const [error, setError] = useState("");
     
     const navigate = useNavigate();

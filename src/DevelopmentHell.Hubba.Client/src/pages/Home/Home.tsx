@@ -5,11 +5,11 @@ import NavbarUser from "../../components/NavbarUser/NavbarUser";
 import { Auth } from "../../Auth";
 import './Home.css';
 
-interface Props {
+interface IHomeProps {
     
 }
 
-const Home: React.FC<Props> = (props) => {
+const Home: React.FC<IHomeProps> = (props) => {
     const authData = Auth.isAuthenticated();
 
     return (

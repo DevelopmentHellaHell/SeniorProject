@@ -4,11 +4,11 @@ import Dropdown from "../Dropdown/Dropdown";
 import { Auth } from "../../Auth";
 import './NavbarUser.css';
 
-interface Props {
+interface INavbarUserProps {
 
 }
 
-const NavbarUser: React.FC<Props> = (props) => {
+const NavbarUser: React.FC<INavbarUserProps> = (props) => {
     const navigate = useNavigate();
     const authData = Auth.isAuthenticated();
 

@@ -6,11 +6,11 @@ import Footer from "../../components/Footer/Footer";
 import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
 import "./Login.css";
 
-interface Props {
+interface ILoginProps {
 
 }
 
-const Login: React.FC<Props> = (props) => {
+const Login: React.FC<ILoginProps> = (props) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");

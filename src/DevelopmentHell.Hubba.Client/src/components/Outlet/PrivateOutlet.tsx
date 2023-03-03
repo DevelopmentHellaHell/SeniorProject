@@ -1,13 +1,13 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { Auth } from "../../Auth";
 
-interface Props {
+interface IPrivateOuteletProps {
     children?: React.ReactNode;
 	allowedRoles: string[];
 	redirectPath: string;
 }
 
-const PrivateOutlet: React.FC<Props> = (props: React.PropsWithChildren<Props>) => {
+const PrivateOutlet: React.FC<IPrivateOuteletProps> = (props: React.PropsWithChildren<IPrivateOuteletProps>) => {
 	const location = useLocation();
 	const data = Auth.isAuthenticated();
 

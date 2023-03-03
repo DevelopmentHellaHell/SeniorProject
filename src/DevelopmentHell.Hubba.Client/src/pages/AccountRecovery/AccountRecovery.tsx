@@ -7,11 +7,11 @@ import Footer from "../../components/Footer/Footer";
 import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
 import "./AccountRecovery.css";
 
-interface Props {
+interface IAccountRecoveryProps {
 
 }
 
-const RecoverAccount: React.FC<Props> = (props) => {
+const AccountRecovery: React.FC<IAccountRecoveryProps> = (props) => {
     const [email, setEmail] = useState("");
     const [showOtp, setShowOtp] = useState(false);
     const [otp, setOtp] = useState("");
@@ -35,7 +35,6 @@ const RecoverAccount: React.FC<Props> = (props) => {
             <div className="accountrecovery-wrapper">
                 <div className="accountrecovery-card">
                     <h1>Recover Account</h1>
-                    {/* <p className="info">Already registered? Register <u onClick={() => { navigate("/registration") }}>HERE ←</u></p> */}
                     <div>
                         <div className="input-field">
                             <label>Email</label>
@@ -108,4 +107,4 @@ const RecoverAccount: React.FC<Props> = (props) => {
     );
 }
 
-export default RecoverAccount;
+export default AccountRecovery;

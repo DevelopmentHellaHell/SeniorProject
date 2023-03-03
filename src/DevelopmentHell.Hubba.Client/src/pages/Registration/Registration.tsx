@@ -6,11 +6,11 @@ import Footer from "../../components/Footer/Footer";
 import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
 import "./Registration.css";
 
-interface Props {
+interface IRegistrationProps {
 
 }
 
-const Registration: React.FC<Props> = (props) => {
+const Registration: React.FC<IRegistrationProps> = (props) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmedPassword, setConfirmedPassword] = useState("");

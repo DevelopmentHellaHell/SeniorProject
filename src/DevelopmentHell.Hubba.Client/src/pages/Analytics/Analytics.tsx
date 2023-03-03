@@ -9,11 +9,11 @@ import './Analytics.css';
 
 const REFRESH_CHARTS_INTERVAL_MILLISECONDS = 60000;
 
-interface Props {
+interface IAnalyticsProps {
 
 }
 
-interface AnalyticsData {
+interface IAnalyticsData {
     [name: string]: {
         [date: string]: number,
     },
@@ -23,14 +23,14 @@ ChartJS.register(...registerables);
 ChartJS.defaults.color = "rgb(50, 63, 65)";
 ChartJS.defaults.borderColor = "rgb(50, 63, 65)";
 
-const Analytics: React.FC<Props> = (props) => {
-    const [data, setData] = useState<AnalyticsData | null>(null);
+const Analytics: React.FC<IAnalyticsProps> = (props) => {
+    const [data, setData] = useState<IAnalyticsData | null>(null);
     const [error, setError] = useState("");
     const [loaded, setLoaded] = useState(false);
 
     useEffect(() => {
         const getData = async () => {
-            const response = await Ajax.get<AnalyticsData>("/analytics/data");
+            const response = await Ajax.get<IAnalyticsData>("/analytics/data");
             setData(response.data);
             setError(response.error);
             setLoaded(response.loaded);

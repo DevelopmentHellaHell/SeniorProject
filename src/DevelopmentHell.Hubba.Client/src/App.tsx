@@ -16,11 +16,11 @@ import { Auth } from "./Auth";
 import RecoverAccount from "./pages/AccountRecovery/AccountRecovery";
 
 
-interface Props {
+interface IAppProps {
 
 }
 
-const App: React.FC<Props> = (props) => {
+const App: React.FC<IAppProps> = (props) => {
 	return (
 		<div className="App">
 			<BrowserRouter>

@@ -7,11 +7,11 @@ import Footer from "../../components/Footer/Footer";
 import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
 import "./Otp.css";
 
-interface Props {
+interface IOtpProps {
 
 }
 
-const Otp: React.FC<Props> = (props) => {
+const Otp: React.FC<IOtpProps> = (props) => {
     const [otp, setOtp] = useState("");
     const [error, setError] = useState("");
     const [loaded, setLoaded] = useState(true);
