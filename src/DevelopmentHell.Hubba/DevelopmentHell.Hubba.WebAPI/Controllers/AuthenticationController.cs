@@ -11,11 +11,11 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
     [Route("[controller]")]
     public class AuthenticationController : Controller
     {
-        private readonly IAuthenticationManager _AuthenticationManager;
+        private readonly IAuthenticationManager _authenticationManager;
 
-        public AuthenticationController(IAuthenticationManager AuthenticationManager)
+        public AuthenticationController(IAuthenticationManager authenticationManager)
         {
-            _AuthenticationManager = AuthenticationManager;
+            _authenticationManager = authenticationManager;
         }
 
 #if DEBUG
@@ -37,7 +37,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 			}
 
 			var ipAddress = HttpContext.Connection.RemoteIpAddress!.ToString();
-			var result = await _AuthenticationManager.Login(userToLoginDTO.Email, userToLoginDTO.Password, ipAddress);
+			var result = await _authenticationManager.Login(userToLoginDTO.Email, userToLoginDTO.Password, ipAddress);
             if (!result.IsSuccessful || result.Payload is null)
             {
                 return BadRequest(result.ErrorMessage);
@@ -57,7 +57,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 			}
 			var ipAddress = HttpContext.Connection.RemoteIpAddress!.ToString();
 
-			var result = await _AuthenticationManager.AuthenticateOTP(userToAuthenticateOtpDTO.Otp, ipAddress);
+			var result = await _authenticationManager.AuthenticateOTP(userToAuthenticateOtpDTO.Otp, ipAddress);
             if (!result.IsSuccessful || result.Payload is null)
             {
                 return BadRequest(result.ErrorMessage);
@@ -68,5 +68,18 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             HttpContext.Response.Cookies.Append("access_token", result.Payload, new CookieOptions {  SameSite=SameSiteMode.None, Secure=true });//, new CookieOptions { HttpOnly = true });
 			return Ok();
         }
+
+        [HttpPost]
+        [Route("logout")]
+        public IActionResult Logout()
+        {
+            var result = _authenticationManager.Logout();
+            if (!result.IsSuccessful)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+
+            return Ok();
+		}
     }
 }
