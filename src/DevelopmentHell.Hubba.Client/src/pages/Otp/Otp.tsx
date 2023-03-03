@@ -36,7 +36,7 @@ const Otp: React.FC<Props> = (props) => {
 
             <div className="otp-wrapper">
                 <div className="otp-card">
-                    <h1>One-Time Passcode Required</h1>
+                    <h1>Login</h1>
                     <p className="info">We sent an One-Time Passcode to your registered email. Please enter it below.</p>
                     <div>
                         <div className="input-field">

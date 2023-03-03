@@ -2,7 +2,6 @@ import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home/Home";
 import Account from "./pages/Account/Account";
-import AccountRecovery from "./pages/AccountRecovery/AccountRecovery";
 import Analytics from "./pages/Analytics/Analytics";
 import Login from "./pages/Login/Login";
 import Logout from "./pages/Logout/Logout";
@@ -37,11 +36,7 @@ const App: React.FC<Props> = (props) => {
 							<Login />
 						</PublicOutlet>
 					} />
-					<Route path="/account-recovery" element={
-						<PublicOutlet redirectPath="/">
-							<AccountRecovery />
-						</PublicOutlet>
-					} />
+					
 					{/* Protect/private routes */}
 					<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.DEFAULT_USER]}/>}>
 						<Route path="/otp" element={<Otp />} />
