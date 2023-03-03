@@ -52,9 +52,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Service.Implementation
             Result<string[]> getIpAddress = await _userLoginDataAccess.GetIPAddress(accountId).ConfigureAwait(false);
             if (!getIpAddress.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Could not retreive IP address for given account.";
-                return result;
+                // Do nothing
             }
             string[] successfulIpAddress = getIpAddress.Payload!;
 
