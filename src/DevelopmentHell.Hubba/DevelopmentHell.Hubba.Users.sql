@@ -7,13 +7,76 @@ GO
 USE [master]
 GO
 
-/****** Object:  Database [DevelopmentHell.Hubba.Users]    Script Date: 12/13/2022 11:09:26 PM ******/
+ALTER TABLE [dbo].[UserOTPs] DROP CONSTRAINT [FK_UserOTPs_UserAccounts]
+GO
+ALTER TABLE [dbo].[UserLogins] DROP CONSTRAINT [FK_UserLogins_UserAccounts]
+GO
+ALTER TABLE [dbo].[RecoveryRequests] DROP CONSTRAINT [FK_RecoveryRequests_UserAccounts]
+GO
+/****** Object:  Table [dbo].[UserOTPs]    Script Date: 3/2/2023 10:22:31 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UserOTPs]') AND type in (N'U'))
+DROP TABLE [dbo].[UserOTPs]
+GO
+/****** Object:  Table [dbo].[UserLogins]    Script Date: 3/2/2023 10:22:31 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UserLogins]') AND type in (N'U'))
+DROP TABLE [dbo].[UserLogins]
+GO
+/****** Object:  Table [dbo].[UserAccounts]    Script Date: 3/2/2023 10:22:31 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UserAccounts]') AND type in (N'U'))
+DROP TABLE [dbo].[UserAccounts]
+GO
+/****** Object:  Table [dbo].[RecoveryRequests]    Script Date: 3/2/2023 10:22:31 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[RecoveryRequests]') AND type in (N'U'))
+DROP TABLE [dbo].[RecoveryRequests]
+GO
+/****** Object:  User [DevelopmentHell.Hubba.SqlUser.User]    Script Date: 3/2/2023 10:22:31 PM ******/
+DROP USER [DevelopmentHell.Hubba.SqlUser.User]
+GO
+USE [master]
+GO
+/****** Object:  Login [##MS_PolicyEventProcessingLogin##]    Script Date: 3/2/2023 10:22:31 PM ******/
+DROP LOGIN [##MS_PolicyEventProcessingLogin##]
+GO
+/****** Object:  Login [##MS_PolicyTsqlExecutionLogin##]    Script Date: 3/2/2023 10:22:31 PM ******/
+DROP LOGIN [##MS_PolicyTsqlExecutionLogin##]
+GO
+/****** Object:  Login [BUILTIN\Users]    Script Date: 3/2/2023 10:22:31 PM ******/
+DROP LOGIN [BUILTIN\Users]
+GO
+/****** Object:  Login [DESKTOP-O5102E2\goodg]    Script Date: 3/2/2023 10:22:31 PM ******/
+DROP LOGIN [DESKTOP-O5102E2\goodg]
+GO
+/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.Logging]    Script Date: 3/2/2023 10:22:31 PM ******/
+DROP LOGIN [DevelopmentHell.Hubba.SqlUser.Logging]
+GO
+/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.User]    Script Date: 3/2/2023 10:22:31 PM ******/
+DROP LOGIN [DevelopmentHell.Hubba.SqlUser.User]
+GO
+/****** Object:  Login [NT AUTHORITY\SYSTEM]    Script Date: 3/2/2023 10:22:31 PM ******/
+DROP LOGIN [NT AUTHORITY\SYSTEM]
+GO
+/****** Object:  Login [NT Service\MSSQL$SQLEXPRESS]    Script Date: 3/2/2023 10:22:31 PM ******/
+DROP LOGIN [NT Service\MSSQL$SQLEXPRESS]
+GO
+/****** Object:  Login [NT SERVICE\SQLTELEMETRY$SQLEXPRESS]    Script Date: 3/2/2023 10:22:31 PM ******/
+DROP LOGIN [NT SERVICE\SQLTELEMETRY$SQLEXPRESS]
+GO
+/****** Object:  Login [NT SERVICE\SQLWriter]    Script Date: 3/2/2023 10:22:31 PM ******/
+DROP LOGIN [NT SERVICE\SQLWriter]
+GO
+/****** Object:  Login [NT SERVICE\Winmgmt]    Script Date: 3/2/2023 10:22:31 PM ******/
+DROP LOGIN [NT SERVICE\Winmgmt]
+GO
+/****** Object:  Database [DevelopmentHell.Hubba.Users]    Script Date: 3/2/2023 10:22:31 PM ******/
+DROP DATABASE [DevelopmentHell.Hubba.Users]
+GO
+/****** Object:  Database [DevelopmentHell.Hubba.Users]    Script Date: 3/2/2023 10:22:31 PM ******/
 CREATE DATABASE [DevelopmentHell.Hubba.Users]
  CONTAINMENT = NONE
  ON  PRIMARY 
-( NAME = N'DevelopmentHell.Hubba.Accounts', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\DATA\DevelopmentHell.Hubba.Accounts.mdf' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB )
+( NAME = N'DevelopmentHell.Hubba.Accounts', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL15.SQLEXPRESS\MSSQL\DATA\DevelopmentHell.Hubba.Accounts.mdf' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB )
  LOG ON 
-( NAME = N'DevelopmentHell.Hubba.Accounts_log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\DATA\DevelopmentHell.Hubba.Accounts_log.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )
+( NAME = N'DevelopmentHell.Hubba.Accounts_log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL15.SQLEXPRESS\MSSQL\DATA\DevelopmentHell.Hubba.Accounts_log.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )
  WITH CATALOG_COLLATION = DATABASE_DEFAULT
 GO
 ALTER DATABASE [DevelopmentHell.Hubba.Users] SET COMPATIBILITY_LEVEL = 150
@@ -83,68 +146,66 @@ ALTER DATABASE [DevelopmentHell.Hubba.Users] SET DELAYED_DURABILITY = DISABLED
 GO
 ALTER DATABASE [DevelopmentHell.Hubba.Users] SET ACCELERATED_DATABASE_RECOVERY = OFF  
 GO
-EXEC sys.sp_db_vardecimal_storage_format N'DevelopmentHell.Hubba.Users', N'ON'
-GO
 ALTER DATABASE [DevelopmentHell.Hubba.Users] SET QUERY_STORE = OFF
 GO
-/****** Object:  Login [NT SERVICE\Winmgmt]    Script Date: 12/13/2022 11:09:26 PM ******/
+/****** Object:  Login [NT SERVICE\Winmgmt]    Script Date: 3/2/2023 10:22:31 PM ******/
 CREATE LOGIN [NT SERVICE\Winmgmt] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
-/****** Object:  Login [NT SERVICE\SQLWriter]    Script Date: 12/13/2022 11:09:26 PM ******/
+/****** Object:  Login [NT SERVICE\SQLWriter]    Script Date: 3/2/2023 10:22:31 PM ******/
 CREATE LOGIN [NT SERVICE\SQLWriter] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
-/****** Object:  Login [NT SERVICE\SQLTELEMETRY]    Script Date: 12/13/2022 11:09:26 PM ******/
-CREATE LOGIN [NT SERVICE\SQLTELEMETRY] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
+/****** Object:  Login [NT SERVICE\SQLTELEMETRY$SQLEXPRESS]    Script Date: 3/2/2023 10:22:31 PM ******/
+CREATE LOGIN [NT SERVICE\SQLTELEMETRY$SQLEXPRESS] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
-/****** Object:  Login [NT SERVICE\SQLSERVERAGENT]    Script Date: 12/13/2022 11:09:26 PM ******/
-CREATE LOGIN [NT SERVICE\SQLSERVERAGENT] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
+/****** Object:  Login [NT Service\MSSQL$SQLEXPRESS]    Script Date: 3/2/2023 10:22:31 PM ******/
+CREATE LOGIN [NT Service\MSSQL$SQLEXPRESS] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
-/****** Object:  Login [NT Service\MSSQLSERVER]    Script Date: 12/13/2022 11:09:26 PM ******/
-CREATE LOGIN [NT Service\MSSQLSERVER] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
-GO
-/****** Object:  Login [NT AUTHORITY\SYSTEM]    Script Date: 12/13/2022 11:09:26 PM ******/
+/****** Object:  Login [NT AUTHORITY\SYSTEM]    Script Date: 3/2/2023 10:22:31 PM ******/
 CREATE LOGIN [NT AUTHORITY\SYSTEM] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.User]    Script Date: 12/13/2022 11:09:26 PM ******/
-CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.User] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
+/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.User]    Script Date: 3/2/2023 10:22:31 PM ******/
+CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.User] WITH PASSWORD='password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
 GO
 ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.User] ENABLE
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.Logging]    Script Date: 12/13/2022 11:09:26 PM ******/
-CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
+/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.Logging]    Script Date: 3/2/2023 10:22:31 PM ******/
+CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] WITH PASSWORD='password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
 GO
 ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] ENABLE
 GO
-/****** Object:  Login [BRYANS-LAPTOP\bryan]    Script Date: 12/13/2022 11:09:26 PM ******/
-CREATE LOGIN [BRYANS-LAPTOP\bryan] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
+/****** Object:  Login [DESKTOP-O5102E2\goodg]    Script Date: 3/2/2023 10:22:31 PM ******/
+CREATE LOGIN [DESKTOP-O5102E2\goodg] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
+GO
+/****** Object:  Login [BUILTIN\Users]    Script Date: 3/2/2023 10:22:31 PM ******/
+CREATE LOGIN [BUILTIN\Users] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [##MS_PolicyTsqlExecutionLogin##]    Script Date: 12/13/2022 11:09:26 PM ******/
-CREATE LOGIN [##MS_PolicyTsqlExecutionLogin##] WITH PASSWORD=N'hij5dV9ALjPzRdWi9ZXR/BuNMxYOsdqJOfyeDr0O3/A=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
+/****** Object:  Login [##MS_PolicyTsqlExecutionLogin##]    Script Date: 3/2/2023 10:22:31 PM ******/
+CREATE LOGIN [##MS_PolicyTsqlExecutionLogin##] WITH PASSWORD=N'Nia5XWAgaK8lxu5xfRl7nLc8BR9FrsgOYrst9fSGarc=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
+GO
+ALTER LOGIN [##MS_PolicyTsqlExecutionLogin##] DISABLE
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [##MS_PolicyEventProcessingLogin##]    Script Date: 12/13/2022 11:09:26 PM ******/
-CREATE LOGIN [##MS_PolicyEventProcessingLogin##] WITH PASSWORD=N'fTjiawe1cd50DBy6gcPlqpdju0Zn+6Qstjy44twj0Kw=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
+/****** Object:  Login [##MS_PolicyEventProcessingLogin##]    Script Date: 3/2/2023 10:22:31 PM ******/
+CREATE LOGIN [##MS_PolicyEventProcessingLogin##] WITH PASSWORD=N'8D5tCb4IctHPAumqh1AM5oSW78S1OpqCJ6SaWv8XJZU=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
 GO
 ALTER LOGIN [##MS_PolicyEventProcessingLogin##] DISABLE
 GO
-ALTER AUTHORIZATION ON DATABASE::[DevelopmentHell.Hubba.Users] TO [BRYANS-LAPTOP\bryan]
+ALTER AUTHORIZATION ON DATABASE::[DevelopmentHell.Hubba.Users] TO [DESKTOP-O5102E2\goodg]
 GO
 ALTER SERVER ROLE [sysadmin] ADD MEMBER [NT SERVICE\Winmgmt]
 GO
 ALTER SERVER ROLE [sysadmin] ADD MEMBER [NT SERVICE\SQLWriter]
 GO
-ALTER SERVER ROLE [sysadmin] ADD MEMBER [NT SERVICE\SQLSERVERAGENT]
+ALTER SERVER ROLE [sysadmin] ADD MEMBER [NT Service\MSSQL$SQLEXPRESS]
 GO
-ALTER SERVER ROLE [sysadmin] ADD MEMBER [NT Service\MSSQLSERVER]
-GO
-ALTER SERVER ROLE [sysadmin] ADD MEMBER [BRYANS-LAPTOP\bryan]
+ALTER SERVER ROLE [sysadmin] ADD MEMBER [DESKTOP-O5102E2\goodg]
 GO
 USE [DevelopmentHell.Hubba.Users]
 GO
-/****** Object:  User [DevelopmentHell.Hubba.SqlUser.User]    Script Date: 12/13/2022 11:09:26 PM ******/
+/****** Object:  User [DevelopmentHell.Hubba.SqlUser.User]    Script Date: 3/2/2023 10:22:31 PM ******/
 CREATE USER [DevelopmentHell.Hubba.SqlUser.User] FOR LOGIN [DevelopmentHell.Hubba.SqlUser.User] WITH DEFAULT_SCHEMA=[dbo]
 GO
 ALTER ROLE [db_datareader] ADD MEMBER [DevelopmentHell.Hubba.SqlUser.User]
@@ -165,7 +226,23 @@ GRANT VIEW ANY COLUMN ENCRYPTION KEY DEFINITION TO [public] AS [dbo]
 GO
 GRANT VIEW ANY COLUMN MASTER KEY DEFINITION TO [public] AS [dbo]
 GO
-/****** Object:  Table [dbo].[UserAccounts]    Script Date: 12/13/2022 11:09:26 PM ******/
+/****** Object:  Table [dbo].[RecoveryRequests]    Script Date: 3/2/2023 10:22:31 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[RecoveryRequests](
+	[Id] [int] NOT NULL,
+	[RequestTime] [datetime] NOT NULL,
+ CONSTRAINT [PK_RecoveryRequests_1] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER AUTHORIZATION ON [dbo].[RecoveryRequests] TO  SCHEMA OWNER 
+GO
+/****** Object:  Table [dbo].[UserAccounts]    Script Date: 3/2/2023 10:22:31 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -178,7 +255,7 @@ CREATE TABLE [dbo].[UserAccounts](
 	[LoginAttempts] [int] NOT NULL,
 	[FailureTime] [datetime] NULL,
 	[Disabled] [bit] NOT NULL,
-	[Role] [varchar](32) NOT NULL
+	[Role] [varchar](32) NOT NULL,
  CONSTRAINT [PK_UserAccounts] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -187,7 +264,24 @@ CREATE TABLE [dbo].[UserAccounts](
 GO
 ALTER AUTHORIZATION ON [dbo].[UserAccounts] TO  SCHEMA OWNER 
 GO
-/****** Object:  Table [dbo].[UserOTPs]    Script Date: 12/13/2022 11:09:26 PM ******/
+/****** Object:  Table [dbo].[UserLogins]    Script Date: 3/2/2023 10:22:31 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserLogins](
+	[Id] [int] NOT NULL,
+	[IPAddress] [varchar](16) NOT NULL,
+ CONSTRAINT [PK_UserLogins] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC,
+	[IPAddress] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER AUTHORIZATION ON [dbo].[UserLogins] TO  SCHEMA OWNER 
+GO
+/****** Object:  Table [dbo].[UserOTPs]    Script Date: 3/2/2023 10:22:31 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -204,8 +298,21 @@ CREATE TABLE [dbo].[UserOTPs](
 GO
 ALTER AUTHORIZATION ON [dbo].[UserOTPs] TO  SCHEMA OWNER 
 GO
+ALTER TABLE [dbo].[RecoveryRequests]  WITH CHECK ADD  CONSTRAINT [FK_RecoveryRequests_UserAccounts] FOREIGN KEY([Id])
+REFERENCES [dbo].[UserAccounts] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[RecoveryRequests] CHECK CONSTRAINT [FK_RecoveryRequests_UserAccounts]
+GO
+ALTER TABLE [dbo].[UserLogins]  WITH CHECK ADD  CONSTRAINT [FK_UserLogins_UserAccounts] FOREIGN KEY([Id])
+REFERENCES [dbo].[UserAccounts] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[UserLogins] CHECK CONSTRAINT [FK_UserLogins_UserAccounts]
+GO
 ALTER TABLE [dbo].[UserOTPs]  WITH CHECK ADD  CONSTRAINT [FK_UserOTPs_UserAccounts] FOREIGN KEY([UserAccountId])
 REFERENCES [dbo].[UserAccounts] ([Id])
+ON DELETE CASCADE
 GO
 ALTER TABLE [dbo].[UserOTPs] CHECK CONSTRAINT [FK_UserOTPs_UserAccounts]
 GO
