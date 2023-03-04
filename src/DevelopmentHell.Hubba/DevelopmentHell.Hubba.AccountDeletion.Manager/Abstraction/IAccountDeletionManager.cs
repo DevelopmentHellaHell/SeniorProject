@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Abstraction
 {
-    internal interface IAccountDeletionManager
+    public interface IAccountDeletionManager
     {
-        Task<Result> DeleteAccount(int accountID, IPrincipal? principal = null);
+        Task<Result> DeleteAccount(int accountId);
 
     }
 }

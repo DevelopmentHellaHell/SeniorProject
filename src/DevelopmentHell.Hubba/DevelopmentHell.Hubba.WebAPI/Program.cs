@@ -22,6 +22,9 @@ using HubbaConfig = System.Configuration;
 using DevelopmentHell.Hubba.AccountRecovery.Manager.Abstractions;
 using DevelopmentHell.Hubba.AccountRecovery.Manager.Implementation;
 using DevelopmentHell.Hubba.AccountRecovery.Service.Implementation;
+using DevelopmentHell.Hubba.AccountDeletion.Manager.Implementation;
+using DevelopmentHell.Hubba.AccountDeletion.Manager.Abstraction;
+using DevelopmentHell.Hubba.AccountDeletion.Service.Implementation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -146,6 +149,21 @@ builder.Services.AddTransient<IAccountRecoveryManager, AccountRecoveryManager>(s
         s.GetService<IAuthorizationService>()!,
 		s.GetService<ILoggerService>()!
 	)
+);
+
+builder.Services.AddTransient<IAccountDeletionManager, AccountDeletionManager>(s =>
+    new AccountDeletionManager(
+        new AccountDeletionService(
+            new UserAccountDataAccess(
+                HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+                HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
+            ),
+            s.GetService<ILoggerService>()!
+        ),
+		s.GetService<IAuthenticationManager>()!,
+        s.GetService<IAuthorizationService>()!,
+        s.GetService<ILoggerService>()!
+    )
 );
 
 //Found on google, source lost

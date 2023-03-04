@@ -3,12 +3,9 @@ using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.AccountDeletion.Service.Abstractions;
-using System.Configuration;
-using System.Security.Principal;
-using System.Text;
-using DevelopmentHell.Hubba.Authorization.Service.Implementation;
-using Microsoft.Identity.Client;
 using DevelopmentHell.Hubba.AccountDeletion.Manager.Abstraction;
+using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
+using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementation
 {
@@ -17,14 +14,16 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementation
         private IAccountDeletionService _accountDeletionService;
         private ILoggerService _loggerService;
         private IAuthorizationService _authorizationService;
-        public AccountDeletionManager(IAccountDeletionService accountDeletionService, IAuthorizationService authorizationService, ILoggerService loggerService)
+        private IAuthenticationManager _authenticationManager;
+        public AccountDeletionManager(IAccountDeletionService accountDeletionService,IAuthenticationManager authenticationManager, IAuthorizationService authorizationService, ILoggerService loggerService)
         {
             _accountDeletionService = accountDeletionService;
             _loggerService = loggerService;
             _authorizationService = authorizationService;
+            _authenticationManager = authenticationManager;
         }
 
-        public async Task<Result> DeleteAccount(int accountID, IPrincipal? principal = null)
+        public async Task<Result> DeleteAccount(int accountId)
         {
             Result result = new Result();
             if (Thread.CurrentPrincipal is null)
@@ -34,50 +33,40 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementation
                 return result;
             }
 
-            if (principal is null)
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, user is not logged in";
-                return result;
-            }
-
-            if (Thread.CurrentPrincipal.Identity is null || Thread.CurrentPrincipal.Identity.Name is null)
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, no identity associated with calling user";
-                return result;
-            }
+            var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
 
             // Get the ID of current thread
-            string thisAccountIDStr = Thread.CurrentPrincipal.Identity.Name;
+            string thisAccountIDStr = principal.FindFirstValue("accountId");
 
             if (int.TryParse(thisAccountIDStr, out int thisAccountIDInt))
             {
-                if (_authorizationService.authorize(principal, new string[] { "VerifiedUser" }).IsSuccessful)
+                if (_authorizationService.authorize(new string[] { "VerifiedUser" }).IsSuccessful)
                 {
-                    // current thread is a verified user who is deleting someone else's account
-                    if (thisAccountIDInt != accountID)
+                    // this is a verified user who is deleting someone else's account
+                    if (thisAccountIDInt != accountId)
                     {
                         result.IsSuccessful = false;
                         result.ErrorMessage = "Error, cannot delete selected user";
                         return result;
                     }
-                    // this thread is a verified user who is deleting their own account
-                    Result deletionResult = await DeleteAccountNotifyListingsBookings(accountID);
+                    // this is a verified user who is deleting their own account
+                    Result deletionResult = await DeleteAccountNotifyListingsBookings(accountId);
                     if (!deletionResult.IsSuccessful)
                     {
                         result.IsSuccessful = false;
                         result.ErrorMessage = deletionResult.ErrorMessage;
                         return result;
                     }
+                    // log the user out before deleting their account
+                    _authenticationManager.Logout();
                     return deletionResult;
                 }
 
                 // The user is an admin
-                else if (_authorizationService.authorize(principal, new string[] { "Admin" }).IsSuccessful)
+                else if (_authorizationService.authorize(new string[] { "AdminUser" }).IsSuccessful)
                 {
                     // The user is trying to delete itself
-                    if (thisAccountIDInt == accountID)
+                    if (thisAccountIDInt == accountId)
                     {
                         Result<int> countAdminResult = await _accountDeletionService.CountAdmin().ConfigureAwait(false);
                         if (countAdminResult.IsSuccessful)
@@ -91,7 +80,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementation
                         }
                     }
                     // Admin deleting any other account than their own
-                    Result deletionResult = await DeleteAccountNotifyListingsBookings(accountID);
+                    Result deletionResult = await DeleteAccountNotifyListingsBookings(accountId);
                     if (!deletionResult.IsSuccessful)
                     {
                         result.IsSuccessful = false;

@@ -14,5 +14,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 		Task<Result> Update(UserAccount userAccount);
 		Task<Result> Delete(int id);
 		Task<Result> Delete(string email);
-	}
+		Task<Result<int>> CountAdmin();
+
+    }
 }
