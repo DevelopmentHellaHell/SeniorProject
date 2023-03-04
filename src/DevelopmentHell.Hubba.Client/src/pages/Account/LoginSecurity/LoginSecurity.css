@@ -1,0 +1,16 @@
+.login-security-wrapper {
+    color: var(--primary-text-dark);
+    text-align: left;
+    padding-bottom: 2.5rem;
+    padding-left: 325px;
+}
+
+.login-security-wrapper .inline-text {
+    display: inline-block;
+    width: 20%;
+    margin-right: 50px;
+}
+
+.login-security-wrapper .buttons {
+    display: inline-block;
+}

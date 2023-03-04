@@ -1,7 +1,8 @@
 :root {
     --white: rgb(255, 255, 255);
-    --primary-background-light: rgb(241, 252, 250);
+    --primary-background-light: rgb(230, 248, 245);
     --primary-background-dark: rgb(50, 50, 50);
+    --secondary-background-light: rgb(246, 252, 251);
     --primary-text-light: rgb(255, 255, 255);
     --secondary-text-light: rgb(192, 203, 205);
     --primary-text-dark: rgb(50, 63, 65);
