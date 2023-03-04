@@ -45,7 +45,7 @@
 .accountrecovery-card .info {
     color: var(--secondary-text-dark);
 }
-.accountrecovery-card .info:hover{
+.accountrecovery-card .info:hover {
     color: var(--primary-text-dark);
 }
 

@@ -13,8 +13,7 @@ import PrivateRoute from "./components/Outlet/PrivateOutlet";
 import PublicOutlet from "./components/Outlet/PublicOutlet";
 import Unauthorized from "./pages/Unauthorized/Unauthorized";
 import { Auth } from "./Auth";
-import RecoverAccount from "./pages/AccountRecovery/AccountRecovery";
-
+import AccountRecovery from "./pages/AccountRecovery/AccountRecovery";
 
 interface IAppProps {
 
@@ -25,7 +24,9 @@ const App: React.FC<IAppProps> = (props) => {
 		<div className="App">
 			<BrowserRouter>
 				<Routes>
+					{/* Anyone can access */}
 					<Route index element={<Home />} /> 
+					<Route path="/unauthorized" element={<Unauthorized />} />
 					
 					{/* Public routes */}
 					<Route path="/registration" element={
@@ -40,7 +41,7 @@ const App: React.FC<IAppProps> = (props) => {
 					} />
 					<Route path="/account-recovery" element={
 						<PublicOutlet redirectPath="/">
-							<RecoverAccount />
+							<AccountRecovery />
 						</PublicOutlet>
 					} />
 					
@@ -49,7 +50,6 @@ const App: React.FC<IAppProps> = (props) => {
 					<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.DEFAULT_USER]}/>}>
 						<Route path="/otp" element={<Otp />} />
 					</Route>
-
 					<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.VERIFIED_USER, Auth.Roles.ADMIN_USER]} />}>
 						<Route path="/account" element={<Account />} />
 						<Route path="/logout" element={<Logout />} />
@@ -58,10 +58,6 @@ const App: React.FC<IAppProps> = (props) => {
 					<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.ADMIN_USER]}/>}>
 						<Route path="/analytics" element={<Analytics />} />
 					</Route>
-	
-
-					{/* Anyone can access */}
-					<Route path="/unauthorized" element={<Unauthorized />} />
 				</Routes>
 			</BrowserRouter>
 		</div>

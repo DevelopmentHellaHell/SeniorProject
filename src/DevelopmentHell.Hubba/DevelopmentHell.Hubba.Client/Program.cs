@@ -1,10 +1,18 @@
+﻿using DevelopmentHell.Hubba.AccountDeletion.Manager;
+using DevelopmentHell.Hubba.AccountDeletion.Service.Abstractions;
+using DevelopmentHell.Hubba.AccountDeletion.Service.Implementation;
+using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
+using DevelopmentHell.Hubba.Authorization.Service.Implementation;
+using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 ﻿using DevelopmentHell.Hubba.AccountRecovery.Manager;
 using DevelopmentHell.Hubba.AccountRecovery.Service.Implementation;
 using DevelopmentHell.Hubba.Analytics.Service.Implementation;
 using DevelopmentHell.Hubba.Logging.Service.Implementation;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
+using Microsoft.Identity.Client;
 using System.Configuration;
+using System.Security.Principal;
 
 namespace DevelopmentHell.Hubba.Client
 {
