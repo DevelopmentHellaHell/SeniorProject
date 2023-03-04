@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 import Button from "../Button/Button";
 import './NavbarGuest.css';
 
-interface Props {
+interface INavbarGuestProps {
 
 }
 
-const NavbarGuest: React.FC<Props> = (props) => {
+const NavbarGuest: React.FC<INavbarGuestProps> = (props) => {
     const navigate = useNavigate();
 
     return (
@@ -18,19 +18,9 @@ const NavbarGuest: React.FC<Props> = (props) => {
                 <li><p onClick={() => {alert("2")}}>About Us</p></li>
             </nav>
             <div className="buttons">
-                <Button
-                    title="Sign Up" 
-                    onClick={() => {
-                        alert("Sign Up");
-                    }
-                }/>
+                <Button title="Sign Up" onClick={() => { navigate("/registration") }}/>
                 <div className="divider" />
-                <Button
-                    title="Login" 
-                    onClick={() => {
-                        alert("Login");
-                    }
-                }/>
+                <Button title="Login" onClick={() => { navigate("/login") }}/>
             </div>
         </header>
     );

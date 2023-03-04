@@ -6,3 +6,7 @@
     border: none;
     border-radius: 5px;
 }
+
+.btn:hover {
+    background-color: var(--primary-button-light-hover);
+}

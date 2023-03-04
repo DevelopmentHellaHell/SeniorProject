@@ -11,13 +11,16 @@ namespace DevelopmentHell.Hubba.Emailing.Service
 		{
 			string username = ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!;
 			string companyEmail = ConfigurationManager.AppSettings["COMPANY_EMAIL"]!;
-			SmtpClient client = new SmtpClient("smtp.sendgrid.net", 587)
+			//string username = "apikey";
+			//string companyEmail = "noreply.Hubba@gmail.com";
+
+            SmtpClient client = new SmtpClient("smtp.sendgrid.net", 587)
 			{
 				Credentials = new NetworkCredential(username, ConfigurationManager.AppSettings["SENDGRID_API_KEY"]),
 
 				EnableSsl = true,
 			};
-
+			
 			MailAddress to = new MailAddress(email);
 			MailAddress from = new MailAddress(companyEmail);
 

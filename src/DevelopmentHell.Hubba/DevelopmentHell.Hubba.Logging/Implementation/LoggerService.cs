@@ -6,11 +6,11 @@ namespace DevelopmentHell.Hubba.Logging.Service.Implementation
 {
 	public class LoggerService : ILoggerService
 	{
-		private readonly ILoggerDataAccess _dao;
+		private readonly ILoggerDataAccess _LoggerDataAccess;
 
-		public LoggerService(ILoggerDataAccess insertDataAccess)
+		public LoggerService(ILoggerDataAccess loggerDataAccess)
 		{
-			_dao = insertDataAccess;
+			_LoggerDataAccess = loggerDataAccess;
 		}
 
 		public Result Log(LogLevel logLevel, Category category, string message, string userName = "")
@@ -32,7 +32,7 @@ namespace DevelopmentHell.Hubba.Logging.Service.Implementation
 
 			try
 			{
-				var dataAccessResult = _dao.LogData(logLevel, category, userName, message);
+				var dataAccessResult = _LoggerDataAccess.LogData(logLevel, category, userName, message);
 				result.IsSuccessful = true;
 			}
 			catch (Exception e)

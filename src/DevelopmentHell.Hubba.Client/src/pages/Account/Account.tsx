@@ -3,11 +3,11 @@ import Footer from "../../components/Footer/Footer";
 import NavbarUser from "../../components/NavbarUser/NavbarUser";
 import "./Account.css";
 
-interface Props {
+interface IAccountProps {
 
 }
 
-const Account: React.FC<Props> = (props) => {
+const Account: React.FC<IAccountProps> = (props) => {
     return (
         <div className="account-container">
             <NavbarUser />

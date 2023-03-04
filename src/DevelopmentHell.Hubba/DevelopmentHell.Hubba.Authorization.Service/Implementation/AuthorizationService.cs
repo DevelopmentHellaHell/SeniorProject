@@ -1,38 +1,88 @@
 ﻿using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
-using System.Security.Principal;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using System.Collections.Specialized;
+using DevelopmentHell.Hubba.SqlDataAccess;
+using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 
 namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
 {
 	public class AuthorizationService : IAuthorizationService
 	{
-		public Result authorize(IPrincipal? principal, string[]? roles = null)
+		private readonly NameValueCollection _configuration;
+		private IUserAccountDataAccess _userAccountDataAccess;
+		private ILoggerService _loggerService;
+
+        public AuthorizationService(NameValueCollection configuration, IUserAccountDataAccess userAccountDataAccess, ILoggerService loggerService)
+		{
+			_configuration = configuration;
+			_userAccountDataAccess = userAccountDataAccess;
+			_loggerService = loggerService;
+		}
+
+		public async Task<Result<string>> GenerateToken(int accountId, bool defaultUser = false)
+		{
+			var result = new Result<string>();
+
+			var getResult = await _userAccountDataAccess.GetUser(accountId).ConfigureAwait(false);
+			if (!getResult.IsSuccessful || getResult.Payload is null)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Invalid email.";
+				return result;
+			}
+
+			var role = getResult.Payload.Role;
+			var email = getResult.Payload.Email;
+			if (role is null || email is null)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Empty user.";
+				return result;
+			}
+
+            try
+			{
+				var handler = new JwtSecurityTokenHandler();
+				var date = DateTime.Now;
+				var descriptor = new SecurityTokenDescriptor
+				{
+					Subject = new ClaimsIdentity(new[] { new Claim("accountId", accountId.ToString()), new Claim(ClaimTypes.Role, defaultUser ? "DefaultUser" : role), new Claim(ClaimTypes.Email, email) }),
+					//TODO: Magic Number
+					Expires = date.AddMinutes(!defaultUser ? 60 : 2),
+					NotBefore = date,
+					SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["JwtKey"]!)), SecurityAlgorithms.HmacSha256Signature)
+				};
+
+				var token = handler.CreateToken(descriptor);
+				return new() { IsSuccessful = true, Payload = handler.WriteToken(token) };
+			}
+			catch
+			{
+				return new() { IsSuccessful = false, ErrorMessage = "Unable to Generate access token." };
+			}
+		}
+
+        public Result authorize(string[] roles)
 		{
 			Result result = new Result()
 			{
 				IsSuccessful = false,
 			};
 
-			// No account and no roles = authorized
-			if (principal is null && roles is null)
-			{
-				result.IsSuccessful = true;
-				return result;
-			}
-			// Account and no roles = authorized
-			else if (principal is not null && roles is null)
-			{
-				result.IsSuccessful = true;
-				return result;
-			}
-			// No account and roles = not authorized
-			else if (principal is null && roles is not null)
+			var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
+
+			if (principal is null)
 			{
 				result.IsSuccessful = false;
+				result.ErrorMessage = "Unauthorized.";
 				return result;
 			}
-			// Account and roles = check if principal is in roles
-			else if (principal is not null && roles is not null)
+			
+			if (principal is not null)
 			{
 				foreach (string role in roles)
 				{
@@ -44,7 +94,8 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
 				}
 			}
 
-			result.ErrorMessage = "Fatal error.";
+			result.IsSuccessful = false;
+			result.ErrorMessage = "Unauthorized.";
 			return result;
 		}
 	}

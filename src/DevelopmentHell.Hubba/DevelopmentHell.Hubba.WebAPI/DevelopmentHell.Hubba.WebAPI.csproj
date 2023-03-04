@@ -11,11 +11,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.14" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DevelopmentHell.Hubba.AccountRecovery.Manager\DevelopmentHell.Hubba.AccountRecovery.Manager.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.Analytics.Service\DevelopmentHell.Hubba.Analytics.Service.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.AuthenticationManager\DevelopmentHell.Hubba.Authentication.Manager.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.RegistrationManager\DevelopmentHell.Hubba.Registration.Manager.csproj" />
   </ItemGroup>
 
 </Project>

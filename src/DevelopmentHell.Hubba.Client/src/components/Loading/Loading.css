@@ -8,8 +8,8 @@
 }
 
 .loader {
-    border: 0.3vw solid rgb(150, 150, 150);
-    border-top: 0.3vw solid rgb(60, 60, 60);
+    border: 0.3vw solid var(--white);
+    border-top: 0.3vw solid var(--primary-button-light-hover);
     border-radius: 50%;
     animation: spin 2s linear infinite;
     width: 0.8vw;
