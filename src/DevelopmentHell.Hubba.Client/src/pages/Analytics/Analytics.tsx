@@ -19,9 +19,13 @@ interface IAnalyticsData {
     },
 }
 
+const getColor = (theme: string) => {
+    return getComputedStyle(document.documentElement).getPropertyValue(theme);
+}
+
 ChartJS.register(...registerables);
-ChartJS.defaults.color = "rgb(50, 63, 65)";
-ChartJS.defaults.borderColor = "rgb(50, 63, 65)";
+ChartJS.defaults.color = getColor("--secondary-background-dark");
+ChartJS.defaults.borderColor = getColor("--secondary-background-dark");
 
 const Analytics: React.FC<IAnalyticsProps> = (props) => {
     const [data, setData] = useState<IAnalyticsData | null>(null);
@@ -64,6 +68,7 @@ const Analytics: React.FC<IAnalyticsProps> = (props) => {
                             labels: [],
                             datasets: [{
                                 data: [],
+                                borderColor: getColor("--primary-background-dark")
                             }],
                         };
                         const indexed = data[key];

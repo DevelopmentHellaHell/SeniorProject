@@ -9,7 +9,7 @@
 }
 
 .accountrecovery-card {
-    background-color: var(--primary-background-light);
+    background-color: var(--primary-background-dark);
     padding: 20px 70px;
     border: none;
     border-radius: 10px;

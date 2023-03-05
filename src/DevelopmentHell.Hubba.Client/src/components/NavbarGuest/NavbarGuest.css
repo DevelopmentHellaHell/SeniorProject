@@ -5,7 +5,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: var(--primary-background-light);
+    background-color: var(--primary-background-dark);
     box-sizing: border-box;
     margin: 0;
     padding: 30px 5%;
@@ -14,11 +14,12 @@
 
 .nav-guest .nav-links {
     list-style: none;
-    margin-left: 85px;
+    color: var(--primary-text-light)
 }
 
 .nav-guest .nav-links li {
     display: inline-block;
+    position: relative;
     padding: 0px 20px;
 }
 
@@ -28,13 +29,13 @@
 }
 
 .nav-guest .logo {
-    color: var(--primary-button-light);
+    color: var(--white);
     font-size: 30px;
     font-weight: 700;
 }
 
 .nav-guest .logo:hover {
-    color: var(--primary-button-light-hover);
+    color: var(--primary-text-light);
 }
 
 .nav-guest .divider {

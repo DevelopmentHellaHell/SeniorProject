@@ -6,7 +6,8 @@
 /* Dropdown Button */
 .drop-btn {
     background-color: var(--primary-button-light);
-    color: var(--primary-text-light);
+    color: var(--primary-text-dark);
+    font-weight: 700;
     padding: 16px;
     font-size: 16px;
     border: none;
@@ -27,7 +28,7 @@
 .dropdown-content {
     display: none;
     position: absolute;
-    background-color: var(--primary-background-dark);
+    background-color: var(--secondary-background-dark);
     border-radius: 10px;
     min-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);

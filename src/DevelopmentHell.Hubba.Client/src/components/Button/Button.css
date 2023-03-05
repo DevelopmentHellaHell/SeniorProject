@@ -1,8 +1,9 @@
 .btn {
     background-color: var(--primary-button-light);
-    color: var(--primary-text-light);
+    color: var(--primary-text-dark);
     padding: 16px;
     font-size: 16px;
+    font-weight: 700;
     border: none;
     border-radius: 5px;
 }
