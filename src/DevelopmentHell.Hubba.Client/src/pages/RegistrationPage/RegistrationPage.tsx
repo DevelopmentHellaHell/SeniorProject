@@ -35,27 +35,27 @@ const RegistrationPage: React.FC<IRegistrationPageProps> = (props) => {
                 <div className="registration-wrapper">
                     <div className="registration-card">
                         <h1>Registration</h1>
-                        <p className="info">Already registered? Login <u onClick={() => { navigate("/login") }}>HERE ←</u></p>
+                        <p className="info"> <u id='redirect-login' onClick={() => { navigate("/login") }}>Already registered? Login HERE ←</u></p>
                         <div>
                             <div className="input-field">
                                 <label>Email</label>
-                                <input type="text" placeholder="Your Email" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                <input id="email" type="text" placeholder="Your Email" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                                     setEmail(event.target.value);
                                 }}/>
                             </div>
                             <div className="input-field">
                                 <label>Password</label>
-                                <input type="password" placeholder="Your Password" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                <input id='password' type="password" placeholder="Your Password" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                                     setPassword(event.target.value);
                                 }}/>
                             </div>
                             <div className="input-field">
                                 <label>Confirm Password {}</label>
-                                <input type="password" placeholder="Your Password" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                <input id='confirm-password' type="password" placeholder="Your Password" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                                     setConfirmedPassword(event.target.value);
                                 }}/>
                             </div>
-                            <div className="buttons">
+                            <div id='submit-btn' className="buttons">
                                 <Button title="Submit" theme={ButtonTheme.DARK} loading={!loaded} onClick={async () => {
                                     setLoaded(false);
 
