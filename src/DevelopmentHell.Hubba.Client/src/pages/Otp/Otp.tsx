@@ -2,7 +2,7 @@ import { useState } from "react";
 import { redirect, useNavigate } from "react-router-dom";
 import { Ajax } from "../../Ajax";
 import { Auth } from "../../Auth";
-import Button, { ButtonStyles } from "../../components/Button/Button";
+import Button, { ButtonTheme } from "../../components/Button/Button";
 import Footer from "../../components/Footer/Footer";
 import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
 import "./Otp.css";
@@ -47,7 +47,7 @@ const Otp: React.FC<IOtpProps> = (props) => {
                         </div>
                         
                         <div className="buttons">
-                            <Button title="Submit" loading={!loaded} style={ButtonStyles.DARK} onClick={async () => {
+                            <Button title="Submit" loading={!loaded} theme={ButtonTheme.DARK} onClick={async () => {
                                 setLoaded(false);
                                 if (!otp) {
                                     onError("OTP cannot be empty.");
@@ -61,7 +61,7 @@ const Otp: React.FC<IOtpProps> = (props) => {
                                 }
                                 
                                 setLoaded(true);
-                                navigate("/account");
+                                navigate("/");
                             }}/>
                         </div>
                         {error &&

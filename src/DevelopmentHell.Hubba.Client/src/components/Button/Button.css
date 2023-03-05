@@ -1,13 +1,13 @@
 .btn {
     background-color: var(--primary-button-light);
     color: var(--primary-text-dark);
-    padding: 16px;
+    padding: 8px 10px;
     font-size: 16px;
     font-weight: 700;
-    border: none;
     border-radius: 5px;
+    border: 5px solid 
 }
 
 .btn:hover {
-    background-color: var(--primary-button-light-hover);
+    box-shadow: inset 0 0 100px 100px rgba(0, 0, 0, 0.05);
 }

@@ -9,7 +9,7 @@
 }
 
 .registration-card {
-    background-color: var(--primary-background-dark);
+    background-color: var(--primary-background-light);
     padding: 20px 70px;
     border: none;
     border-radius: 10px;

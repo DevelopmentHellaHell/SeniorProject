@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Ajax } from "../../Ajax";
-import Button, { ButtonStyles } from "../../components/Button/Button";
+import Button, { ButtonTheme } from "../../components/Button/Button";
 import Footer from "../../components/Footer/Footer";
 import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
 import "./Login.css";
@@ -49,7 +49,7 @@ const Login: React.FC<ILoginProps> = (props) => {
                             }}/>
                         </div>
                         <div className="buttons">
-                            <Button title="Submit" style={ButtonStyles.DARK} loading={!loaded} onClick={async () => {
+                            <Button title="Submit" theme={ButtonTheme.DARK} loading={!loaded} onClick={async () => {
                                 setLoaded(false);
 
                                 if (!email) {
