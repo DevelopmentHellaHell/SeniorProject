@@ -1,5 +1,4 @@
-﻿using DevelopmentHell.Hubba.Cryptography.Service;
-using DevelopmentHell.Hubba.Logging.Service.Abstractions;
+﻿using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.AccountDeletion.Service.Abstractions;
