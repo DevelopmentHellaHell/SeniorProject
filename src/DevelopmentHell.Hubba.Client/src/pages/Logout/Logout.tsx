@@ -31,17 +31,19 @@ const Logout: React.FC<ILogoutProps> = (props) => {
         <div className="logout-container">
             <NavbarGuest />
 
-            <div className="logout-wrapper">
-                <div className="logout-card">
-                    <h1>Logging out...</h1>
-                    <p className="info">If page is not refreshed automatically, please click the button below to return to Home Page</p>
-                    <div>
-                        <div className="buttons">
-                            <Button title="Home Page" onClick={() => {navigate("/")}} />
+            <div className="logout-content">
+                <div className="logout-wrapper">
+                    <div className="logout-card">
+                        <h1>Logging out...</h1>
+                        <p className="info">If page is not refreshed automatically, please click the button below to return to Home Page</p>
+                        <div>
+                            <div className="buttons">
+                                <Button title="Home Page" onClick={() => {navigate("/")}} />
+                            </div>
+                            {error &&
+                                <p className="info">{error}</p>
+                            }
                         </div>
-                        {error &&
-                            <p className="info">{error}</p>
-                        }
                     </div>
                 </div>
             </div>

@@ -1,20 +1,9 @@
-.otp-container {
-    position: relative;
-    min-height: 100vh;
-}
-
-.otp-wrapper {
-    color: var(--primary-text-dark);
-    padding-bottom: 2.5rem;
-}
-
 .otp-card {
     background-color: var(--primary-background-light);
     padding: 20px 70px;
     border: none;
     border-radius: 10px;
-    width: fit-content;
-    margin: 200px auto;
+    width: 300px;
     text-align: center;
 }
 
@@ -26,7 +15,7 @@
 }
 
 .otp-card .input-field label {
-    width: 250px;
+    width: 50px;
     margin-right: 10px;
 }
 

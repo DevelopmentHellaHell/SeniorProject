@@ -2,11 +2,9 @@ import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home/Home";
 import Account from "./pages/Account/Account";
-import Analytics from "./pages/Analytics/Analytics";
 import Login from "./pages/Login/Login";
 import Logout from "./pages/Logout/Logout";
 import Notification from "./pages/Notification/Notification";
-import Otp from "./pages/Otp/Otp";
 import Registration from "./pages/Registration/Registration";
 import "./Theme.css";
 import PrivateRoute from "./components/Outlet/PrivateOutlet";
@@ -14,6 +12,8 @@ import PublicOutlet from "./components/Outlet/PublicOutlet";
 import Unauthorized from "./pages/Unauthorized/Unauthorized";
 import { Auth } from "./Auth";
 import AccountRecovery from "./pages/AccountRecovery/AccountRecovery";
+import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
+import "./App.css";
 
 interface IAppProps {
 
@@ -28,7 +28,7 @@ const App: React.FC<IAppProps> = (props) => {
 					<Route index element={<Home />} /> 
 					<Route path="/unauthorized" element={<Unauthorized />} />
 					
-					{/* Public routes */}
+					{/* Public routes - no auth */}
 					<Route path="/registration" element={
 						<PublicOutlet redirectPath="/">
 							<Registration />
@@ -46,17 +46,14 @@ const App: React.FC<IAppProps> = (props) => {
 					} />
 					
 					
-					{/* Protect/private routes */}
-					<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.DEFAULT_USER]}/>}>
-						<Route path="/otp" element={<Otp />} />
-					</Route>
+					{/* Protect/private routes - with auth */}
 					<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.VERIFIED_USER, Auth.Roles.ADMIN_USER]} />}>
 						<Route path="/account" element={<Account />} />
 						<Route path="/logout" element={<Logout />} />
 						<Route path="/notification" element={<Notification />} />
 					</Route>
 					<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.ADMIN_USER]}/>}>
-						<Route path="/analytics" element={<Analytics />} />
+						<Route path="/admin-dashboard" element={<AdminDashboard />} />
 					</Route>
 				</Routes>
 			</BrowserRouter>

@@ -3,7 +3,7 @@ import { redirect } from "react-router-dom";
 import { Auth } from "../../Auth";
 import Footer from "../../components/Footer/Footer";
 import NavbarUser from "../../components/NavbarUser/NavbarUser";
-import SidebarAccount from "../../components/Sidebar/Sidebar";
+import Sidebar from "../../components/Sidebar/Sidebar";
 import "./Account.css";
 import DeleteAccount from "./LoginSecurity/DeleteAccount/DeleteAccount";
 import LoginSecurity from "./LoginSecurity/LoginSecurity";
@@ -56,17 +56,20 @@ const Account: React.FC<IAccountProps> = (props) => {
     return (
         <div className="account-container">
             <NavbarUser />
-            <SidebarAccount>
-                <li><p onClick={() => {alert("1")}}>Edit Profile</p></li>
-                <li><p onClick={() => { setView(AccountViews.LOGIN_SECURITY) }}>Login & Security</p></li>
-                <li><p onClick={() => {alert("3")}}>Notification Settings</p></li>
-                <li><p onClick={() => {alert("4")}}>Scheduling History</p></li>
-                <li><p onClick={() => {alert("5")}}>Manage Listings</p></li>
-                <li><p onClick={() => {alert("6")}}>Project Showcase</p></li>
-            </SidebarAccount>
 
-            <div className="account-wrapper">
-                {renderView(view)}
+            <div className="account-content">
+                <Sidebar>
+                    <li><p onClick={() => {alert("1")}}>Edit Profile</p></li>
+                    <li><p onClick={() => { setView(AccountViews.LOGIN_SECURITY) }}>Login & Security</p></li>
+                    <li><p onClick={() => {alert("3")}}>Notification Settings</p></li>
+                    <li><p onClick={() => {alert("4")}}>Scheduling History</p></li>
+                    <li><p onClick={() => {alert("5")}}>Manage Listings</p></li>
+                    <li><p onClick={() => {alert("6")}}>Project Showcase</p></li>
+                </Sidebar>
+
+                <div className="account-wrapper">
+                    {renderView(view)}
+                </div>
             </div>
 
             <Footer />

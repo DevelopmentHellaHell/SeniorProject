@@ -9,15 +9,17 @@ interface INotificationProps {
 
 const Notification: React.FC<INotificationProps> = (props) => {
     return (
-        <div className="notification-container">
+        <div className="notificaiton-container">
             <NavbarUser />
 
-            <div className="notification-wrapper">
-                <h1>Notification Todo</h1>
+            <div className="notificaiton-content">
+                <div className="notificaiton-wrapper">
+                    <h1>Notificaiton Todo</h1>
+                </div>
             </div>
-
+            
             <Footer />
-        </div> 
+        </div>
     );
 }
 

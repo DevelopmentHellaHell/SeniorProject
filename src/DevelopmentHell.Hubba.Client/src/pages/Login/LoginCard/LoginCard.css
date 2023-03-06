@@ -1,25 +1,3 @@
-.login-container {
-    position: relative;
-    display: flex;
-    flex-flow: column;
-    flex-grow: 1
-}
-
-.login-container .login-content {
-    display: flex;
-    padding-bottom: 2.5rem;
-    flex-grow: 1;
-}
-
-.login-container .login-content .login-wrapper {
-    color: var(--primary-text-dark);
-    text-align: center;
-    width: 100%;
-    align-items: center;
-    justify-content: center;
-    display: flex;
-}
-
 .login-card {
     background-color: var(--primary-background-light);
     padding: 20px 70px;

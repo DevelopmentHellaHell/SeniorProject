@@ -1,17 +1,17 @@
-.account-container {
+.admin-dashboard-container {
     position: relative;
     display: flex;
     flex-flow: column;
     flex-grow: 1;
 }
 
-.account-container .account-content {
+.admin-dashboard-container .admin-dashboard-content {
     display: flex;
     padding-bottom: 2.5rem;
     flex-grow: 1;
 }
 
-.account-container .account-container .account-wrapper {
+.admin-dashboard-container .admin-dashboard-content .admin-dashboard-wrapper {
     color: var(--primary-text-dark);
     text-align: center;
 }

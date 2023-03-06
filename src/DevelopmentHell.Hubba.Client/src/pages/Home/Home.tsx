@@ -18,8 +18,10 @@ const Home: React.FC<IHomeProps> = (props) => {
                 <NavbarUser /> : <NavbarGuest /> 
             }
 
-             <div className="home-wrapper">
-                <h1>Home Todo</h1>
+            <div className="home-content">
+                <div className="home-wrapper">
+                    <h1>Home Todo</h1>
+                </div>
             </div>
             
             <Footer />

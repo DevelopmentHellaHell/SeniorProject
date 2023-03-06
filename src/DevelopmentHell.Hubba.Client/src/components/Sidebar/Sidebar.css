@@ -1,10 +1,9 @@
 
 .sidebar .links {
-    position: fixed;
     height: 100%;
+    flex-grow: 1;
     width: 300px;
     background-color: var(--secondary-background-light);
-    top: 6.2em;
 }
 
 .sidebar .links li {
