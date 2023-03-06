@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Ajax } from "../../Ajax";
 import { Auth } from "../../Auth";
-import Button from "../../components/Button/Button";
+import Button, { ButtonTheme } from "../../components/Button/Button";
 import Footer from "../../components/Footer/Footer";
 import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
 import "./LogoutPage.css";
@@ -38,7 +38,7 @@ const LogoutPage: React.FC<ILogoutPageProps> = (props) => {
                         <p className="info">If page is not refreshed automatically, please click the button below to return to Home Page</p>
                         <div>
                             <div className="buttons">
-                                <Button title="Home Page" onClick={() => {navigate("/")}} />
+                                <Button title="Home Page" theme={ButtonTheme.DARK} onClick={() => {navigate("/")}} />
                             </div>
                             {error &&
                                 <p className="info">{error}</p>
