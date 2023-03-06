@@ -1,8 +1,37 @@
-﻿using DevelopmentHell.Hubba.Models;
+﻿using DevelopmentHell.Hubba.CellPhoneProvider.Service.Implementations;
+using DevelopmentHell.Hubba.Logging.Service.Implementation;
+using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.Notification.Manager.Implementations;
+using DevelopmentHell.Hubba.Notification.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using System.Configuration;
 
-var notificationDataAccess = new NotificationDataAccess(ConfigurationManager.AppSettings["NotificationsConnectionString"]!, ConfigurationManager.AppSettings["UserNotificationsTable"]!);
-var result = await notificationDataAccess.AddNotification(1, "aondfionfidsnaifdsaindisoncisdnciosadnficnsasidncidsnciosdanicnasicnsadcnidiosancioaondfionfidsnaifdsaindisoncisdnciosadnficnsasidncidsnciosdanicnasicnsadcnidiosancioaondfionfidsnaifdsaindisoncisdnciosadnficnsasidncidsnciosdanicnasicnsadcnidiosancioaondfionfidsnaifdsaindisoncisdnciosadnficnsasidncidsnciosdanicnasicnsadcnidiosancioaondfionfidsnaifdsaindisoncisdnciosadnficnsasidncidsnciosdanicnasicnsadcnidiosancioaondfionfidsnaifdsaindisoncisdnciosadnficnsasidncidsnciosdanicnasicnsadcnidiosancioaondfionfidsnaifdsaindisoncisdnciosadnficnsasidncidsnciosdanicnasicnsadcnidiosancioaondfionfidsnaifdsaindisoncisdnciosadnficnsasidncidsnciosdanicnasicnsadcnidiosancioaondfionfidsnaifdsaindisoncisdnciosadnficnsasidncidsnciosdanicnasicnsadcnidiosancioaondfionfidsnaifdsaindisoncisdnciosadnficnsasidncidsnciosdanicnasicnsadcnidiosancioaondfionfidsnaifdsaindisoncisdnciosadnficnsasidncidsnciosdanicnasicnsadcnidiosancioaondfionfidsnaifdsaindisoncisdnciosadnficnsasidncidsnciosdanicnasicnsadcnidiosancioaondfionfidsnaifdsaindisoncisdnciosadnficnsasidncidsnciosdanicnasicnsadcnidiosancioaondfionfidsnaifdsaindisoncisdnciosadnficnsasidncidsnciosdanicnasicnsadcnidiosancio", NotificationType.OTHER).ConfigureAwait(false);
+var loggerService = new LoggerService(
+    new LoggerDataAccess(
+        ConfigurationManager.AppSettings["LogsConnectionString"]!,
+        ConfigurationManager.AppSettings["LogsTable"]!
+    ) 
+);
+var notificationManager = new NotificationManager(
+    new NotificationService(
+        new NotificationDataAccess(
+            ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
+            ConfigurationManager.AppSettings["UserNotificationsTable"]!
+        ),
+        new NotificationSettingsDataAccess(
+            ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
+            ConfigurationManager.AppSettings["NotificationSettingsTable"]!
+        ),
+        new UserAccountDataAccess(
+            ConfigurationManager.AppSettings["UsersConnectionString"]!,
+            ConfigurationManager.AppSettings["UserAccountsTable"]!
+        ),
+        loggerService
+    ),
+    new CellPhoneProviderService(),
+    loggerService
+);
+
+Result result = await notificationManager.CreateNewNotification(9, "hi", NotificationType.OTHER).ConfigureAwait(false);
 Console.WriteLine(result.IsSuccessful);
 Console.WriteLine(result.ErrorMessage);

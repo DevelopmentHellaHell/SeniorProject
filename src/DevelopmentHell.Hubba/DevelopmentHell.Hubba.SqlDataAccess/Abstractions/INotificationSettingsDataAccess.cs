@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DevelopmentHell.Hubba.Models;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
 {
-    internal interface INotificationSettingsDataAccess
+    public interface INotificationSettingsDataAccess
     {
+        Task<Result> CreateUserNotificationSettings(NotificationSettings settings);
+        Task<Result> UpdateUserNotificationSettings(NotificationSettings settings);
+        Task<Result<NotificationSettings>> SelectUserNotificationSettings(int userId);
     }
 }

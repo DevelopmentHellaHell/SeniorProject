@@ -6,4 +6,11 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DevelopmentHell.Hubba.CellPhoneProvider.Service\DevelopmentHell.Hubba.CellPhoneProvider.Service.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.Mailing\DevelopmentHell.Hubba.Emailing.Service.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.Models\DevelopmentHell.Hubba.Models.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.Notifications.Service\DevelopmentHell.Hubba.Notification.Service.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -25,6 +25,7 @@ using DevelopmentHell.Hubba.AccountRecovery.Service.Implementation;
 using DevelopmentHell.Hubba.AccountDeletion.Manager.Implementation;
 using DevelopmentHell.Hubba.AccountDeletion.Manager.Abstraction;
 using DevelopmentHell.Hubba.AccountDeletion.Service.Implementation;
+using DevelopmentHell.Hubba.Notification.Service.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,12 +72,27 @@ builder.Services.AddTransient<IRegistrationManager, RegistrationManager>(s =>
 		new AuthorizationService(
 			HubbaConfig.ConfigurationManager.AppSettings,
 			new UserAccountDataAccess(
-					HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-					HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
+				HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+				HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
 			),
 			s.GetService<ILoggerService>()!
 		),
-		s.GetService<ILoggerService>()!
+		new NotificationService(
+			new NotificationDataAccess(
+				HubbaConfig.ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
+				HubbaConfig.ConfigurationManager.AppSettings["UserNotificationsTable"]!
+			),
+			new NotificationSettingsDataAccess(
+				HubbaConfig.ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
+				HubbaConfig.ConfigurationManager.AppSettings["NotificationSettingsTable"]!
+			),
+			new UserAccountDataAccess(
+				HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+				HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
+			),
+			s.GetService<ILoggerService>()!
+		),
+        s.GetService<ILoggerService>()!
 	)
 );
 builder.Services.AddTransient<IAuthorizationService, AuthorizationService>(s =>

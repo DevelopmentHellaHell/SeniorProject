@@ -101,7 +101,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Notif
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Features", "Features", "{307E617F-C023-4041-A86D-3E23B67866B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.Notifications.Service", "DevelopmentHell.Hubba.Notifications.Service\DevelopmentHell.Hubba.Notifications.Service.csproj", "{1D36B380-074F-451F-B76E-915338582E5B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Notification.Service", "DevelopmentHell.Hubba.Notifications.Service\DevelopmentHell.Hubba.Notification.Service.csproj", "{1D36B380-074F-451F-B76E-915338582E5B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Features", "Features", "{629C2E91-06B4-4B72-9BCF-7BA00EB8CBED}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Notification.Manager", "DevelopmentHell.Hubba.Notification.Manager\DevelopmentHell.Hubba.Notification.Manager.csproj", "{B7210643-EEB1-48A7-B3E0-4FA01FD24190}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.CellPhoneProvider.Service", "DevelopmentHell.Hubba.CellPhoneProvider.Service\DevelopmentHell.Hubba.CellPhoneProvider.Service.csproj", "{1E39B711-9734-4B29-85A2-40FBBB406193}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -221,6 +227,14 @@ Global
 		{1D36B380-074F-451F-B76E-915338582E5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D36B380-074F-451F-B76E-915338582E5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D36B380-074F-451F-B76E-915338582E5B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7210643-EEB1-48A7-B3E0-4FA01FD24190}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7210643-EEB1-48A7-B3E0-4FA01FD24190}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7210643-EEB1-48A7-B3E0-4FA01FD24190}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7210643-EEB1-48A7-B3E0-4FA01FD24190}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E39B711-9734-4B29-85A2-40FBBB406193}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E39B711-9734-4B29-85A2-40FBBB406193}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E39B711-9734-4B29-85A2-40FBBB406193}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E39B711-9734-4B29-85A2-40FBBB406193}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -259,6 +273,9 @@ Global
 		{06789E89-0606-41E0-8DC4-2E5570D2BEA0} = {0E8013DB-F597-49E1-9C90-367A98C5BE69}
 		{307E617F-C023-4041-A86D-3E23B67866B0} = {33222376-EAA6-4A44-A1D7-B6DB5BE1E13B}
 		{1D36B380-074F-451F-B76E-915338582E5B} = {307E617F-C023-4041-A86D-3E23B67866B0}
+		{629C2E91-06B4-4B72-9BCF-7BA00EB8CBED} = {40E173BC-9166-4234-90FF-582A6F31AD58}
+		{B7210643-EEB1-48A7-B3E0-4FA01FD24190} = {629C2E91-06B4-4B72-9BCF-7BA00EB8CBED}
+		{1E39B711-9734-4B29-85A2-40FBBB406193} = {33222376-EAA6-4A44-A1D7-B6DB5BE1E13B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E49330E5-F92F-4990-A904-E75E376A2656}

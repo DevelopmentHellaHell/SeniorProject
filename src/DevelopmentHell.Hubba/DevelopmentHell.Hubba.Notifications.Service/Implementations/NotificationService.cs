@@ -1,6 +1,7 @@
 ﻿using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Notification.Service.Abstractions;
+using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 
 namespace DevelopmentHell.Hubba.Notification.Service.Implementations
@@ -8,13 +9,18 @@ namespace DevelopmentHell.Hubba.Notification.Service.Implementations
     public class NotificationService : INotificationService
     {
         private INotificationDataAccess _notificationDataAccess;
+        private INotificationSettingsDataAccess _notificationSettingsDataAccess;
+        private IUserAccountDataAccess _userAccountDataAccess;
         private ILoggerService _loggerService;
-        public NotificationService(INotificationDataAccess notificationDataAccess, ILoggerService loggerService)
+        
+        public NotificationService(INotificationDataAccess notificationDataAccess, INotificationSettingsDataAccess notificationSettingsDataAccess, IUserAccountDataAccess userAccountDataAccess, ILoggerService loggerService)
         {
             _notificationDataAccess = notificationDataAccess;
+            _notificationSettingsDataAccess = notificationSettingsDataAccess;
+            _userAccountDataAccess = userAccountDataAccess;
             _loggerService = loggerService;
         }
-        public async Task<Result> AddNotification(int id, string message, NotificationType tag)
+        public async Task<Result> AddNotification(int userId, string message, NotificationType tag)
         {
             Result result = new Result();
             if (message.Length > 256)
@@ -24,7 +30,27 @@ namespace DevelopmentHell.Hubba.Notification.Service.Implementations
                 return result;
             }
 
-            return await _notificationDataAccess.AddNotification(id, message, tag).ConfigureAwait(false);
+            return await _notificationDataAccess.AddNotification(userId, message, tag).ConfigureAwait(false);
+        }
+
+        public async Task<Result> CreateNewNotificationSettings(NotificationSettings settings)
+        {
+            return await _notificationSettingsDataAccess.CreateUserNotificationSettings(settings).ConfigureAwait(false);
+        }
+
+        public async Task<Result<NotificationSettings>> SelectUserNotificationSettings(int userId)
+        {
+            return await _notificationSettingsDataAccess.SelectUserNotificationSettings(userId).ConfigureAwait(false);
+        }
+
+        public async Task<Result<UserAccount>> GetUser(int userId)
+        {
+            return await _userAccountDataAccess.GetUser(userId).ConfigureAwait(false);
+        }
+
+        public async Task<Result<int>> GetId(string email)
+        {
+            return await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
         }
     }
 }
