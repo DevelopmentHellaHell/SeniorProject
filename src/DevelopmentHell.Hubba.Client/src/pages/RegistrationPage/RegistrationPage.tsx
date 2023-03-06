@@ -55,7 +55,7 @@ const RegistrationPage: React.FC<IRegistrationPageProps> = (props) => {
                                     setConfirmedPassword(event.target.value);
                                 }}/>
                             </div>
-                            <div id='submit-btn' className="buttons">
+                            <div  className="buttons">
                                 <Button title="Submit" theme={ButtonTheme.DARK} loading={!loaded} onClick={async () => {
                                     setLoaded(false);
 

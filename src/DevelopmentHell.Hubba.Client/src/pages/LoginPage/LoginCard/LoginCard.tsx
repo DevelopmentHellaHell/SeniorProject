@@ -18,7 +18,7 @@ const LoginCard: React.FC<ILoginCardProps> = (props) => {
     const navigate = useNavigate();
 
     const isValidEmail = (email : string) => (
-        /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i
+        /^[A-Z0-9._%+-]+@[A-Z0-9_.-]+\.[A-Z]{2,4}$/i
     ).test(email);
     const onError = (message: string) => {
         setError(message);

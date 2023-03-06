@@ -1,16 +1,42 @@
 /// <reference types="cypress" />
+/* cy.get(), cy.contains()
+** https://filiphric.com/cypress-basics-selecting-elements
+** https://on.cypress.io/type
+*/
 
-let url: string = 'http://localhost:3000/login';
+let registrationUrl: string = 'http://localhost:3000/registration'
+let loginUrl: string = 'http://localhost:3000/login'
 
-describe('registration-pass', () => {
-  beforeEach(()=> {
-    cy.visit('http://localhost:3000/registration')
+//describe.only to run a single test case
+describe('working-links', () => {
+  beforeEach(() => {
+    cy.visit(registrationUrl)
+  })
+
+  it('working-sign-up-button', () => {
+    //#element_id
+    //cy.get('.nav-guest .buttons Button').click()
+    cy.contains("Sign Up").click()
+    cy.url().should('eq', registrationUrl)
+  })
+
+  it('working-login-button', () => {
+    //#element_id
+    //cy.get('.nav-guest .buttons Button').click()
+    cy.contains("Login").click()
+    cy.url().should('eq', loginUrl)
   })
 
   it('working-redirect-login-link', () => {
     //#element_id
     cy.get('#redirect-login').click()
-    cy.url().should('eq',url)
+    cy.url().should('eq', loginUrl)
+  })
+})
+
+describe('registration-pass', () => {
+  beforeEach(() => {
+    cy.visit(registrationUrl)
   })
 
   it('registration-successful', () => {
@@ -19,22 +45,22 @@ describe('registration-pass', () => {
       .should('have.value', 'registration@gmail.com')
 
     cy.get('#password')
-    .type('12345678')
-    .should('have.value', '12345678')
+      .type('12345678')
+      .should('have.value', '12345678')
 
     cy.get('#confirm-password')
-    .type('12345678')
-    .should('have.value', '12345678')
+      .type('12345678')
+      .should('have.value', '12345678')
 
-    cy.get('.registration-card .buttons Button').click()
-    cy.url().should('eq', url)
+    cy.contains("Submit").click()
+    cy.url().should('eq', loginUrl)
   })
 
 })
 
 describe('registration-fail-email-existed', () => {
   beforeEach(() => {
-    cy.visit('http://localhost:3000/registration')
+    cy.visit(registrationUrl)
   })
   it('register-new-email', () => {
     cy.get('#email')
@@ -49,8 +75,8 @@ describe('registration-fail-email-existed', () => {
       .type('12345678')
       .should('have.value', '12345678')
 
-    cy.get('.registration-card .buttons Button').click()
-    cy.url().should('eq', url)
+    cy.contains("Submit").click()
+    cy.url().should('eq', loginUrl)
   })
 
   it('register-again', () => {
@@ -66,14 +92,14 @@ describe('registration-fail-email-existed', () => {
       .type('12345678')
       .should('have.value', '12345678')
 
-    cy.get('.registration-card .buttons Button').click()
+    cy.contains("Submit").click()
     cy.get('error').should('not.be.empty')
   })
 })
 
-describe('registration-fail-empty-input', () => {
+describe('registration-fail-invalid-input', () => {
   beforeEach(() => {
-    cy.visit('http://localhost:3000/registration')
+    cy.visit(registrationUrl)
   })
 
   it('empty-email', () => {
@@ -85,7 +111,7 @@ describe('registration-fail-empty-input', () => {
       .type('12345678')
       .should('have.value', '12345678')
 
-    cy.get('.registration-card .buttons Button').click()
+    cy.contains("Submit").click()
     cy.get('error').should('not.be.empty')
   })
 
@@ -94,7 +120,7 @@ describe('registration-fail-empty-input', () => {
       .type('registration@gmail.com')
       .should('have.value', 'registration@gmail.com')
 
-    cy.get('.registration-card .buttons Button').click()
+    cy.contains("Submit").click()
     cy.get('error').should('not.be.empty')
   })
 
@@ -104,21 +130,14 @@ describe('registration-fail-empty-input', () => {
       .should('have.value', 'registration@gmail.com')
 
     cy.get('#password')
-    .type('12345679')
-    .should('have.value', '12345679')
+      .type('12345679')
+      .should('have.value', '12345679')
 
-    cy.get('.registration-card .buttons Button').click()
+    cy.contains("Submit").click()
     cy.get('error').should('not.be.empty')
   })
-}) 
 
-describe('registration-fail-passwords-unmatched', () => {
-  beforeEach(() => {
-    cy.visit('http://localhost:3000/registration')
-  })
-
-  it('type email, pw, confirmed pw, click Submit button, result Error message', () => {
-    // https://on.cypress.io/type
+  it('passwords-unmatched', () => {
     cy.get('#email')
       .type('registration@gmail.com')
       .should('have.value', 'registration@gmail.com')
@@ -131,39 +150,33 @@ describe('registration-fail-passwords-unmatched', () => {
       .type('12345679')
       .should('have.value', '12345679')
 
-    cy.get('.registration-card .buttons Button').click()
+    cy.contains("Submit").click()
     cy.get('error').should('not.be.empty')
   })
-}) 
 
-describe('registration-fail-invalid-input', () => {
-  beforeEach(() => {
-    cy.visit('http://localhost:3000/registration')
-  })
   it('invalid email', () => {
     cy.get('#email')
       .type('registrationgmail.com')
       .should('have.value', 'registrationgmail.com')
 
-    cy.get('.registration-card .buttons Button').click()
+    cy.contains("Submit").click()
     cy.get('error').should('not.be.empty')
   })
 
   it('invalid-password', () => {
-    // https://on.cypress.io/type
     cy.get('#email')
       .type('registration@gmail.com')
       .should('have.value', 'registration@gmail.com')
-    
+
     cy.get('#password')
-    .type('1234567')
-    .should('have.value', '1234567')
+      .type('1234567')
+      .should('have.value', '1234567')
 
     cy.get('#confirm-password')
       .type('1234567')
       .should('have.value', '1234567')
 
-    cy.get('.registration-card .buttons Button').click()
+    cy.contains("Submit").click()
     cy.get('error').should('not.be.empty')
   })
 })
