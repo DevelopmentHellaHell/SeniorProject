@@ -1,30 +1,36 @@
-﻿using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
-using DevelopmentHell.Hubba.Cryptography.Service;
+﻿using System.Configuration;
+using System.Security.Claims;
+using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
+using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
-using DevelopmentHell.Hubba.Validation.Service;
+using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 
 namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 {
-	public class AuthenticationService : IAuthenticationService
+    public class AuthenticationService : IAuthenticationService
 	{
 		private IUserAccountDataAccess _userAccountDataAccess;
 		private IUserLoginDataAccess _userLoginDataAccess;
-		private ILoggerService _loggerService;
+        private ICryptographyService _cryptographyService;
+		private IValidationService _validationService;
+        private ILoggerService _loggerService;
 
-		public AuthenticationService(IUserAccountDataAccess userAccountDataAccess, IUserLoginDataAccess userLoginDataAccess, ILoggerService loggerService)
+		public AuthenticationService(IUserAccountDataAccess userAccountDataAccess, IUserLoginDataAccess userLoginDataAccess, ICryptographyService cryptographyService, IValidationService validationService, ILoggerService loggerService)
 		{
 			_userAccountDataAccess = userAccountDataAccess;
 			_userLoginDataAccess = userLoginDataAccess;
-			_loggerService = loggerService;
+			_cryptographyService = cryptographyService;
+			_validationService = validationService;
+            _loggerService = loggerService;
 		}
 
 		public async Task<Result<int>> AuthenticateCredentials(string email, string password, string ipAddress)
 		{
 			Result<int> result = new Result<int>();
 
-			if (!ValidationService.ValidateEmail(email).IsSuccessful)
+			if (!_validationService.ValidateEmail(email).IsSuccessful)
 			{
 				result.IsSuccessful = false;
 				result.ErrorMessage = "Invalid email or password provided. Retry again or contact system admin";
@@ -40,7 +46,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 				return result;
 			}
 
-			Result<HashData> hashData = HashService.HashString(password, payload.PasswordSalt!);
+			Result<HashData> hashData = _cryptographyService.HashString(password, payload.PasswordSalt!);
 			var oldHash = payload.PasswordHash;
 			var newHash = Convert.ToBase64String(hashData.Payload!.Hash!);
 			Result<int> getIdFromEmail = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
@@ -155,5 +161,35 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 			result.IsSuccessful = true;
 			return result; ;
 		}
+
+        public Result Logout()
+        {
+            Result result = new Result();
+
+            var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            var email = principal.FindFirstValue(ClaimTypes.Email);
+            if (email is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error, unexpected error. Please context system administrator.";
+                return result;
+            }
+
+
+            string userHashKey = ConfigurationManager.AppSettings["UserHashKey"]!;
+            Result<HashData> userHashResult = _cryptographyService.HashString(email, userHashKey);
+            if (!userHashResult.IsSuccessful || userHashResult.Payload is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error, unexpected error. Please contact system administrator.";
+                return result;
+            }
+
+            string userHash = Convert.ToBase64String(userHashResult.Payload.Hash!);
+            _loggerService.Log(LogLevel.INFO, Category.BUSINESS, $"Successful logout attempt from: {email}.", userHash);
+
+            result.IsSuccessful = true;
+            return result;
+        }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
-using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
-using System.Globalization;
+using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
@@ -18,7 +17,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			_tableName = tableName;
 		}
 
-		public async Task<Result> LogData(LogLevel logLevel, Category category, string userName, string message)
+		public async Task<Result> LogData(LogLevel logLevel, Category category, string message, string? userName = null)
 		{
 			if (!Enum.IsDefined(typeof(Category), category))
 			{
@@ -34,7 +33,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 				{ "Timestamp", DateTime.Now },
 				{ "LogLevel", logLevel },
 				{ "Category", category },
-				{ "UserName", userName },
+				{ "UserName", userName ?? Convert.DBNull },
 				{ "Message", message },
 			};
 

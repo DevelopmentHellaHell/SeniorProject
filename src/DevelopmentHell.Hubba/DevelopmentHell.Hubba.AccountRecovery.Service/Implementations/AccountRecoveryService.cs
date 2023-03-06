@@ -2,22 +2,25 @@
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
-using DevelopmentHell.Hubba.Validation.Service;
+using DevelopmentHell.Hubba.Validation.Service.Abstractions;
+using DevelopmentHell.Hubba.Validation.Service.Implementations;
 
-namespace DevelopmentHell.Hubba.AccountRecovery.Service.Implementation
+namespace DevelopmentHell.Hubba.AccountRecovery.Service.Implementations
 {
     public class AccountRecoveryService : IAccountRecoveryService
     {
         private IUserAccountDataAccess _userAccountDataAccess;
         private IUserLoginDataAccess _userLoginDataAccess;
         private IRecoveryRequestDataAccess _recoveryRequestDataAccess;
+        private IValidationService _validationService;
         private ILoggerService _loggerService;
 
-        public AccountRecoveryService(IUserAccountDataAccess userAccountDataAccess, IUserLoginDataAccess userLoginDataAccess, IRecoveryRequestDataAccess recoveryRequestDataAccess, ILoggerService loggerService)
+        public AccountRecoveryService(IUserAccountDataAccess userAccountDataAccess, IUserLoginDataAccess userLoginDataAccess, IRecoveryRequestDataAccess recoveryRequestDataAccess, IValidationService validationService, ILoggerService loggerService)
         {
             _userAccountDataAccess = userAccountDataAccess;
             _userLoginDataAccess = userLoginDataAccess;
             _recoveryRequestDataAccess = recoveryRequestDataAccess;
+            _validationService = validationService;
             _loggerService = loggerService;
         }
 
@@ -25,7 +28,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Service.Implementation
         {
             Result<int> result = new Result<int>();
 
-            if (!ValidationService.ValidateEmail(email).IsSuccessful)
+            if (!_validationService.ValidateEmail(email).IsSuccessful)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Invalid email. Retry again or contact system admin";

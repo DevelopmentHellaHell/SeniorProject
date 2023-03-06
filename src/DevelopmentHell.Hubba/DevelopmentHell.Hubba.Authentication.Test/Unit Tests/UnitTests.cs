@@ -1,5 +1,5 @@
-using DevelopmentHell.Hubba.Authentication.Service.Implementation;
-using DevelopmentHell.Hubba.Logging.Service.Implementation;
+using DevelopmentHell.Hubba.Authentication.Service.Implementations;
+using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using System.Security.Principal;

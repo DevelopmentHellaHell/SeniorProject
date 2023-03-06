@@ -1,5 +1,4 @@
-﻿using System.Security.Principal;
-using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
+﻿using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
@@ -8,7 +7,7 @@ using DevelopmentHell.Hubba.AccountRecovery.Service.Abstractions;
 using DevelopmentHell.Hubba.AccountRecovery.Manager.Abstractions;
 using System.Security.Claims;
 
-namespace DevelopmentHell.Hubba.AccountRecovery.Manager.Implementation
+namespace DevelopmentHell.Hubba.AccountRecovery.Manager.Implementations
 {
 
     public class AccountRecoveryManager : IAccountRecoveryManager
@@ -28,7 +27,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager.Implementation
             _loggerService = loggerService;
         }
 
-        public async Task<Result<string>> EmailVerification(string email, bool enabledSend = true)
+        public async Task<Result<string>> EmailVerification(string email)
         {
             Result<string> result = new();
 
@@ -52,7 +51,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager.Implementation
             Result<string> otpResult = await _otpService.NewOTP(accountId).ConfigureAwait(false);
             string otp = otpResult.Payload!.ToString();
 
-            Result sendOTPResult = _otpService.SendOTP(email, otp, enabledSend);
+            Result sendOTPResult = _otpService.SendOTP(email, otp);
             if (!sendOTPResult.IsSuccessful)
             {
                 result.IsSuccessful = false;
@@ -136,7 +135,11 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager.Implementation
             }
 
             return result;
+        }
 
+        public Result Logout()
+        {
+            return _authenticationService.Logout();
         }
     }
 }

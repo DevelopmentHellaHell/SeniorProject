@@ -1,30 +1,35 @@
 ﻿using DevelopmentHell.Hubba.Cryptography.Service;
-using DevelopmentHell.Hubba.Emailing.Service;
+using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
+using DevelopmentHell.Hubba.Email.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
-using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 
-namespace DevelopmentHell.Hubba.OneTimePassword.Service.Implementation
+namespace DevelopmentHell.Hubba.OneTimePassword.Service.Implementations
 
 {
-	public class OTPService : IOTPService
+    public class OTPService : IOTPService
 	{
 		private static readonly string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-		private IOTPDataAccess _otpDao;
-		public OTPService(IOTPDataAccess dao)
+		private IOTPDataAccess _otpDataAccess;
+		private IEmailService _emailService;
+		private ICryptographyService _cryptographyService;
+
+		public OTPService(IOTPDataAccess otpDataAccess, IEmailService emailService, ICryptographyService cryptographyService)
 		{
-			_otpDao = dao;
+			_otpDataAccess = otpDataAccess;
+			_emailService = emailService;
+			_cryptographyService = cryptographyService;
 		}
 
 		public async Task<Result<string>> NewOTP(int accountId)
 		{
 			Random random = new((int)(DateTime.Now.Ticks << 4 >> 4));
 			string otp = new(Enumerable.Repeat(validChars, 8).Select(s => s[random.Next(s.Length)]).ToArray());
-			byte[] eotp = EncryptionService.Encrypt(otp);
+			byte[] eotp = _cryptographyService.Encrypt(otp);
 			DateTime expiration = DateTime.Now.AddMinutes(2); // TODO: move to config
 
-			Result result = await _otpDao.NewOTP(accountId, eotp, expiration).ConfigureAwait(false);
+			Result result = await _otpDataAccess.NewOTP(accountId, eotp, expiration).ConfigureAwait(false);
 			return new Result<string>()
 			{
 				IsSuccessful = result.IsSuccessful,
@@ -37,7 +42,7 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service.Implementation
 		{
 			Result result = new Result();
 
-			Result<byte[]> getResult = await _otpDao.GetOTP(accountId);
+			Result<byte[]> getResult = await _otpDataAccess.GetOTP(accountId);
 			if (!getResult.IsSuccessful)
 			{
 				result.IsSuccessful = false;
@@ -53,7 +58,7 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service.Implementation
 			}
 
 			byte[] eotpDb = getResult.Payload;
-			string otpDb = EncryptionService.Decrypt(eotpDb);
+			string otpDb = _cryptographyService.Decrypt(eotpDb);
 
 			if (otp != otpDb)
 			{
@@ -66,14 +71,14 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service.Implementation
 			return result;
 		}
 
-		public Result SendOTP(string email, string otp, bool enabledSend)
+		public Result SendOTP(string email, string otp)
 		{
 			Result result = new Result()
 			{
 				IsSuccessful = false,
 			};
 
-			Result sendEmail = EmailService.SendEmail(email, "Hubba Authentication", $"Your one time password is: {otp}", enabledSend);
+			Result sendEmail = _emailService.SendEmail(email, "Hubba Authentication", $"Your one time password is: {otp}");
 			if (!sendEmail.IsSuccessful)
 			{
 				result.ErrorMessage = "Serverside issue sending the OTP, please try again later.";

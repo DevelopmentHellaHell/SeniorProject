@@ -1,11 +1,11 @@
 using DevelopmentHell.Hubba.AccountDeletion.Manager;
-using DevelopmentHell.Hubba.AccountDeletion.Manager.Implementation;
+using DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations;
 using DevelopmentHell.Hubba.AccountDeletion.Service.Abstractions;
-using DevelopmentHell.Hubba.AccountDeletion.Service.Implementation;
+using DevelopmentHell.Hubba.AccountDeletion.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
-using DevelopmentHell.Hubba.Authorization.Service.Implementation;
+using DevelopmentHell.Hubba.Authorization.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
-using DevelopmentHell.Hubba.Logging.Service.Implementation;
+using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using Microsoft.Identity.Client;

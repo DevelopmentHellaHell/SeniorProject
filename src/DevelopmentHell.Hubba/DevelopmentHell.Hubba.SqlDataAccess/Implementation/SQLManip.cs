@@ -1,4 +1,4 @@
-﻿namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
+﻿namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 {
 	public struct Comparator
 	{

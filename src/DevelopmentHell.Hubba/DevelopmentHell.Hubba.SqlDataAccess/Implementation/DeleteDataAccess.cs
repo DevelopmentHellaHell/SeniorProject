@@ -2,7 +2,7 @@
 using Microsoft.Data.SqlClient;
 using System.Text;
 
-namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
+namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 {
 	internal class DeleteDataAccess
 	{

@@ -1,12 +1,12 @@
 //using DevelopmentHell.Hubba.Authentication.Manager;
-//using DevelopmentHell.Hubba.Authentication.Service.Implementation;
-//using DevelopmentHell.Hubba.Authorization.Service.Implementation;
+//using DevelopmentHell.Hubba.Authentication.Service.Implementations;
+//using DevelopmentHell.Hubba.Authorization.Service.Implementations;
 //using DevelopmentHell.Hubba.Cryptography.Service;
-//using DevelopmentHell.Hubba.Logging.Service.Implementation;
+//using DevelopmentHell.Hubba.Logging.Service.Implementations;
 //using DevelopmentHell.Hubba.Models;
-//using DevelopmentHell.Hubba.OneTimePassword.Service.Implementation;
+//using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 //using DevelopmentHell.Hubba.Registration.Manager.Implementations;
-//using DevelopmentHell.Hubba.Registration.Service.Implementation;
+//using DevelopmentHell.Hubba.Registration.Service.Implementations;
 //using DevelopmentHell.Hubba.SqlDataAccess;
 //using System.Configuration;
 //using System.Security.Principal;

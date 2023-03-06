@@ -1,5 +1,5 @@
-﻿using DevelopmentHell.Hubba.AccountRecovery.Service.Implementation;
-using DevelopmentHell.Hubba.Logging.Service.Implementation;
+﻿using DevelopmentHell.Hubba.AccountRecovery.Service.Implementations;
+using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using System;
 using System.Collections.Generic;

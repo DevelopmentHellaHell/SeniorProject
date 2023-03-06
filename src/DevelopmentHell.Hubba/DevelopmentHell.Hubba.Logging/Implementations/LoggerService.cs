@@ -2,7 +2,7 @@
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 
-namespace DevelopmentHell.Hubba.Logging.Service.Implementation
+namespace DevelopmentHell.Hubba.Logging.Service.Implementations
 {
 	public class LoggerService : ILoggerService
 	{
@@ -13,7 +13,7 @@ namespace DevelopmentHell.Hubba.Logging.Service.Implementation
 			_LoggerDataAccess = loggerDataAccess;
 		}
 
-		public Result Log(LogLevel logLevel, Category category, string message, string userName = "")
+		public Result Log(LogLevel logLevel, Category category, string message, string? userName = null)
 		{
 			Result result = new Result();
 
@@ -23,7 +23,7 @@ namespace DevelopmentHell.Hubba.Logging.Service.Implementation
 				return result;
 			}
 
-			if (userName.Length > 256)
+			if (userName is not null && userName.Length > 256)
 			{
 				result.IsSuccessful = false;
 				result.ErrorMessage = "Logging user was over 256 characters.";
@@ -32,7 +32,7 @@ namespace DevelopmentHell.Hubba.Logging.Service.Implementation
 
 			try
 			{
-				var dataAccessResult = _LoggerDataAccess.LogData(logLevel, category, userName, message);
+				var dataAccessResult = _LoggerDataAccess.LogData(logLevel, category, message, userName);
 				result.IsSuccessful = true;
 			}
 			catch (Exception e)

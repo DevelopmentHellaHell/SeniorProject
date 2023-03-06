@@ -8,7 +8,7 @@ using System.Collections.Specialized;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 
-namespace DevelopmentHell.Hubba.Authorization.Service.Implementation
+namespace DevelopmentHell.Hubba.Authorization.Service.Implementations
 {
 	public class AuthorizationService : IAuthorizationService
 	{

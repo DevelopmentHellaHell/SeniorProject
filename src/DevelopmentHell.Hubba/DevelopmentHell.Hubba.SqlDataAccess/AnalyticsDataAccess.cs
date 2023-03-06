@@ -1,6 +1,6 @@
 ﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
-using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
+using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 using System.Data.SqlTypes;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess

@@ -1,17 +1,17 @@
-.notificaiton-container {
+.notification-container {
     position: relative;
     display: flex;
     flex-flow: column;
     flex-grow: 1
 }
 
-.notificaiton-container .notificaiton-content {
+.notification-container .notification-content {
     display: flex;
     padding-bottom: 2.5rem;
     flex-grow: 1;
 }
 
-.notificaiton-container .notificaiton-content .notificaiton-wrapper {
+.notification-container .notification-content .notification-wrapper {
     color: var(--primary-text-dark);
     text-align: center;
     width: 100%;

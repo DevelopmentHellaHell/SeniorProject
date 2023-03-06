@@ -1,7 +1,7 @@
 using DevelopmentHell.Hubba.Models;
 using Microsoft.Data.SqlClient;
 
-namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
+namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 {
 
 	public class InsertDataAccess

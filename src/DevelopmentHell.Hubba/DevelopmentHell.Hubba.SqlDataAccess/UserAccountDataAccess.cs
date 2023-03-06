@@ -1,5 +1,5 @@
 ﻿using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
+using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {

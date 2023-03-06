@@ -3,23 +3,24 @@ using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.AccountDeletion.Service.Abstractions;
 using DevelopmentHell.Hubba.AccountDeletion.Manager.Abstraction;
-using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
 using System.Security.Claims;
+using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 
-namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementation
+namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations
 {
     public class AccountDeletionManager : IAccountDeletionManager
     {
         private IAccountDeletionService _accountDeletionService;
         private ILoggerService _loggerService;
         private IAuthorizationService _authorizationService;
-        private IAuthenticationManager _authenticationManager;
-        public AccountDeletionManager(IAccountDeletionService accountDeletionService,IAuthenticationManager authenticationManager, IAuthorizationService authorizationService, ILoggerService loggerService)
+        private IAuthenticationService _authenticationService;
+
+        public AccountDeletionManager(IAccountDeletionService accountDeletionService, IAuthenticationService authenticationService, IAuthorizationService authorizationService, ILoggerService loggerService)
         {
             _accountDeletionService = accountDeletionService;
             _loggerService = loggerService;
             _authorizationService = authorizationService;
-            _authenticationManager = authenticationManager;
+            _authenticationService = authenticationService;
         }
 
         public async Task<Result> DeleteAccount(int accountId)
@@ -57,7 +58,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementation
                         return result;
                     }
                     // log the user out before deleting their account
-                    _authenticationManager.Logout();
+                    _authenticationService.Logout();
                     return deletionResult;
                 }
 
@@ -112,7 +113,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementation
             //    result.ErrorMessage = deletionResult.ErrorMessage;
             //    return result;
             //}
-            Result logRes = _loggerService.Log(Models.LogLevel.INFO, Category.BUSINESS, "AccountDelectionManager.DeleteAccount", $"Account has been deleted. ID: {accountID}");
+            Result logRes = _loggerService.Log(Models.LogLevel.INFO, Category.BUSINESS, $"Account has been deleted. ID: {accountID}", null);
 
             return deletionResult;
         }
