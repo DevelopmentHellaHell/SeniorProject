@@ -1,13 +1,13 @@
 using DevelopmentHell.Hubba.Authentication.Manager;
 using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
 using DevelopmentHell.Hubba.Authentication.Service.Implementations;
-using DevelopmentHell.Hubba.Authorization.Service.Implementation;
+using DevelopmentHell.Hubba.Authorization.Service.Implementations;
 using DevelopmentHell.Hubba.Cryptography.Service;
-using DevelopmentHell.Hubba.Logging.Service.Implementation;
+using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.OneTimePassword.Service.Implementation;
+using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Manager.Implementations;
-using DevelopmentHell.Hubba.Registration.Service.Implementation;
+using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using System.Configuration;
 using System.Diagnostics;
@@ -132,7 +132,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
 			Result<int> getNewAccountId = await userAccountDataAccess.GetId(email).ConfigureAwait(false);
 			int newAccountId = getNewAccountId.Payload;
 			Result<byte[]> getOtp = await otpDataAccess.GetOTP(newAccountId).ConfigureAwait(false);
-			string otp = EncryptionService.Decrypt(getOtp.Payload!);
+			string otp = CryptographyService.Decrypt(getOtp.Payload!);
 
 			// Act
 			Result<GenericPrincipal> authenticationResult = await authenticationManager.AuthenticateOTP(getNewAccountId.Payload, otp, dummyIp).ConfigureAwait(false);

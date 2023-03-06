@@ -2,17 +2,23 @@
 .sidebar .links {
     height: 100%;
     flex-grow: 1;
-    width: 300px;
-    background-color: var(--secondary-background-light);
+    width: 275px;
+    background-color: rgb(var(--secondary-background-light));
 }
 
 .sidebar .links li {
     font-weight: 500;
     font-size: 20px;
-    display: block;
-    text-align: left;
-    padding: 5px 10px 5px 50px;
-    color: var(--primary-text-dark);
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    padding: 5px 5px 5px 25px;
+    color: rgb(var(--primary-text-dark));
+    cursor: pointer;
+}
+
+.sidebar .links li p {
+    margin-left: 5px;
 }
 
 .sidebar .links li:hover {

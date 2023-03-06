@@ -67,7 +67,7 @@ const AccountRecoveryPage: React.FC<IAccountRecoveryPageProps> = (props) => {
                                             return;
                                         }
                                         
-                                        const response = await Ajax.post("/account-recovery/emailVerification", ({ email: email }));
+                                        const response = await Ajax.post("/accountrecovery/emailVerification", ({ email: email }));
                                         if (response.error) {
                                             onError(response.error);
                                             return;
@@ -77,7 +77,7 @@ const AccountRecoveryPage: React.FC<IAccountRecoveryPageProps> = (props) => {
                                         setShowOtp(true);
                                         setLoaded(true);
                                     } else {
-                                        const response = await Ajax.post("/account-recovery/recoveryOtp", ({ otp: otp }));
+                                        const response = await Ajax.post("/accountrecovery/recoveryOtp", ({ otp: otp }));
                                         if (response.error) {
                                             onError(response.error);
                                             return;

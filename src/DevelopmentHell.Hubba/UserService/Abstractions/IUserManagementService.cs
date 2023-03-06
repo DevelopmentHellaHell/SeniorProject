@@ -1,6 +1,6 @@
 ﻿using DevelopmentHell.Hubba.Models;
 
-namespace DevelopmentHell.Hubba.UserService.Implementation
+namespace DevelopmentHell.Hubba.UserService.Implementations
 {
     public interface IUserManagementService
     {

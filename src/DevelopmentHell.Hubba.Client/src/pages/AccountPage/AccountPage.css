@@ -12,6 +12,13 @@
 }
 
 .account-container .account-container .account-wrapper {
-    color: var(--primary-text-dark);
+    color: rgb(var(--primary-text-dark));
     text-align: center;
+}
+
+.account-container .selection-bar {
+    width: 5px;
+    height: 20px;
+    border-radius: 3px;
+    background-color: rgb(var(--primary-text-dark));
 }

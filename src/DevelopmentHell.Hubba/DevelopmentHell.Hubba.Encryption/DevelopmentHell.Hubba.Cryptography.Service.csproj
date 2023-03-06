@@ -10,4 +10,8 @@
     <ProjectReference Include="..\DevelopmentHell.Hubba.Models\DevelopmentHell.Hubba.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
+  </ItemGroup>
+
 </Project>

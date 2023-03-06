@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import "./Theme.css";
 import PrivateRoute from "./components/Outlet/PrivateOutlet";
 import PublicOutlet from "./components/Outlet/PublicOutlet";
@@ -25,7 +25,8 @@ const App: React.FC<IAppProps> = (props) => {
 			<BrowserRouter>
 				<Routes>
 					{/* Anyone can access */}
-					<Route index element={<HomePage />} /> 
+					<Route index element={<HomePage />} />
+					<Route path="*" element={<Navigate to='/' replace />} />
 					<Route path="/unauthorized" element={<Unauthorized />} />
 					
 					{/* Public routes - no auth */}

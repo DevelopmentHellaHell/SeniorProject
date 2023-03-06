@@ -1,5 +1,5 @@
 .otp-card {
-    background-color: var(--primary-background-light);
+    background-color: rgb(var(--primary-background-light));
     padding: 20px 70px;
     border: none;
     border-radius: 10px;
@@ -22,7 +22,7 @@
 .otp-card .input-field input {
     width: 100%;
     padding: 8px 10px;
-    border: 1px solid var(--primary-text-dark);
+    border: 1px solid rgb(var(--primary-text-dark));
     border-radius: 3px;
 }
 
@@ -32,9 +32,9 @@
 }
 
 .otp-card .info {
-    color: var(--secondary-text-dark);
+    color: rgb(var(--secondary-text-dark));
 }
 
 .otp-card .error {
-    color: var(--error-text);
+    color: rgb(var(--error-text));
 }

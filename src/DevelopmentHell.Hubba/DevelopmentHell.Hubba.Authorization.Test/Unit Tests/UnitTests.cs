@@ -1,4 +1,4 @@
-using DevelopmentHell.Hubba.Authorization.Service.Implementation;
+using DevelopmentHell.Hubba.Authorization.Service.Implementations;
 using DevelopmentHell.Hubba.Models;
 using System.Security.Principal;
 

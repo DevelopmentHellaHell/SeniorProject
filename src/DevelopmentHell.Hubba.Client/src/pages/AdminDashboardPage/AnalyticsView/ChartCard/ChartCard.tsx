@@ -1,5 +1,5 @@
 import { Chart as ChartJS, ChartData, registerables } from 'chart.js';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import './ChartCard.css';
 
@@ -12,11 +12,20 @@ const getColor = (theme: string) => {
     return getComputedStyle(document.documentElement).getPropertyValue(theme);
 }
 
-ChartJS.register(...registerables);
-ChartJS.defaults.color = getColor("--secondary-background-dark");
-ChartJS.defaults.borderColor = getColor("--secondary-background-dark");
 
 const ChartCard: React.FC<IChartCardProps> = (props) => {
+    const [mounted, setMounted] = useState(false);
+
+    if (!mounted) {
+        ChartJS.defaults.color = `rgb(${getColor("--primary-background-dark")})`;
+        ChartJS.defaults.borderColor = `rgb(${getColor("--primary-background-dark")})`;
+        ChartJS.register(...registerables);
+    }
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
     return (
         <div className="chart-box">
             <h2>{props.name.charAt(0).toUpperCase() + props.name.slice(1)}</h2>

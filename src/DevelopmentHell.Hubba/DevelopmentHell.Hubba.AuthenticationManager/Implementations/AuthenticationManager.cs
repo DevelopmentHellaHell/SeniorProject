@@ -1,7 +1,7 @@
 ﻿using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
 using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
-using DevelopmentHell.Hubba.Cryptography.Service;
+using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
@@ -15,13 +15,15 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
         private IAuthenticationService _authenticationService;
         private IOTPService _otpService;
         private IAuthorizationService _authorizationService;
+        private ICryptographyService _cryptographyService;
         private ILoggerService _loggerService;
 
-        public AuthenticationManager(IAuthenticationService authenticationService, IOTPService otpService, IAuthorizationService authorizationService, ILoggerService loggerService)
+        public AuthenticationManager(IAuthenticationService authenticationService, IOTPService otpService, IAuthorizationService authorizationService, ICryptographyService cryptographyService, ILoggerService loggerService)
         {
             _authenticationService = authenticationService;
             _otpService = otpService;
             _authorizationService = authorizationService;
+            _cryptographyService = cryptographyService;
             _loggerService = loggerService;
         }
         
@@ -48,7 +50,7 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
             Result<string> otpResult = await _otpService.NewOTP(accountId).ConfigureAwait(false);
             string otp = otpResult.Payload!.ToString();
 
-            Result sendOTPResult = _otpService.SendOTP(email, otp, enabledSend);
+            Result sendOTPResult = _otpService.SendOTP(email, otp);
             if (!sendOTPResult.IsSuccessful)
             {
                 result.IsSuccessful = false;
@@ -57,7 +59,7 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
             }
 
             string userHashKey = ConfigurationManager.AppSettings["UserHashKey"]!;
-            Result<HashData> userHashResult = HashService.HashString(email, userHashKey);
+            Result<HashData> userHashResult = _cryptographyService.HashString(email, userHashKey);
             if (!userHashResult.IsSuccessful || userHashResult.Payload is null)
             {
                 result.IsSuccessful = false;
@@ -126,7 +128,7 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
            
 
 			string userHashKey = ConfigurationManager.AppSettings["UserHashKey"]!;
-			Result<HashData> userHashResult = HashService.HashString(email, userHashKey);
+			Result<HashData> userHashResult = _cryptographyService.HashString(email, userHashKey);
 			if (!userHashResult.IsSuccessful || userHashResult.Payload is null)
 			{
 				result.IsSuccessful = false;

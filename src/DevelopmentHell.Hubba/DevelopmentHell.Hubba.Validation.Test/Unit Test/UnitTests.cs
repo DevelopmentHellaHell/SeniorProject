@@ -1,10 +1,10 @@
 
 using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.Validation.Service;
+using DevelopmentHell.Hubba.Validation.Service.Implementations;
 
 namespace DevelopmentHell.Hubba.Validation.Test
 {
-	[TestClass]
+    [TestClass]
 	public class UnitTests
 	{
 		/*

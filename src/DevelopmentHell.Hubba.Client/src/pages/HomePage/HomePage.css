@@ -7,12 +7,35 @@
 
 .home-container .home-content {
     display: flex;
+    justify-content: center;
     padding-bottom: 2.5rem;
     flex-grow: 1;
 }
 
 .home-container .home-content .home-wrapper {
-    color: var(--primary-text-dark);
+    display: flex;
+    margin-top: 10vh;
+    width: 70%;
+}
+
+.home-container .introduction {
+    display: flex;
+    height: 35vh;
+    align-items: center;
+    justify-content: space-around;
     text-align: center;
-    width: 100%;
+}
+
+.home-container .introduction-text {
+    width: 40%;
+    text-align: left;
+    font-size: 20px;
+}
+
+.home-container .introduction-text h2 {
+    color: rgb(var(--primary-text-dark));
+}
+
+.home-container .introduction-text p {
+    color: rgba(var(--primary-text-dark), 0.9);
 }

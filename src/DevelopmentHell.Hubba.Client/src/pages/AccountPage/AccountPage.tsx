@@ -13,13 +13,20 @@ interface IAccountPageProps {
 }
 
 enum AccountViews {
-    EDIT_PROFILE,
-    LOGIN_SECURITY,
-    LOGIN_SECURITY_UPDATE_PASSWORD,
-    LOGIN_SECURITY_ACCOUNT_DELETION,
-    NOTIFICATION_SETTINGS,
-    SCHEDULING_HISTORY,
-    MANAGE_LISTINGS,
+    EDIT_PROFILE = "Edit Profile",
+    LOGIN_SECURITY = "Login & Security",
+    LOGIN_SECURITY_UPDATE_PASSWORD = "Update Password",
+    LOGIN_SECURITY_ACCOUNT_DELETION = "Account Deletion",
+    NOTIFICATION_SETTINGS = "Notification Settings",
+    SCHEDULING_HISTORY = "Scheduling History",
+    MANAGE_LISTINGS = "Manage Listings",
+    PROJECT_SHOWCASES = "Project Showcases",
+}
+
+const SubViews: {
+    [view in AccountViews]?: AccountViews[];
+} = {
+    [AccountViews.LOGIN_SECURITY]: [AccountViews.LOGIN_SECURITY_ACCOUNT_DELETION, AccountViews.LOGIN_SECURITY_UPDATE_PASSWORD]
 }
 
 const AccountPage: React.FC<IAccountPageProps> = (props) => {
@@ -50,7 +57,20 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
                 return <></>; //TODO
             case AccountViews.MANAGE_LISTINGS:
                 return <></>; //TODO
+            case AccountViews.PROJECT_SHOWCASES:
+                return <></>; //TODO
         }
+    }
+
+    const getListItem = (actualView: AccountViews, currentView: AccountViews) => {
+        return (
+            <li>
+                {/* Selection bar */}
+                {currentView == actualView || SubViews[actualView]?.includes(currentView) ? <div className="selection-bar"></div> : null}
+                {/* View */}
+                <p onClick={() => { setView(actualView) }}>{actualView}</p>
+            </li>
+        );
     }
 
     return (
@@ -59,12 +79,12 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
 
             <div className="account-content">
                 <Sidebar>
-                    <li><p onClick={() => {alert("1")}}>Edit Profile</p></li>
-                    <li><p onClick={() => { setView(AccountViews.LOGIN_SECURITY) }}>Login & Security</p></li>
-                    <li><p onClick={() => {alert("3")}}>Notification Settings</p></li>
-                    <li><p onClick={() => {alert("4")}}>Scheduling History</p></li>
-                    <li><p onClick={() => {alert("5")}}>Manage Listings</p></li>
-                    <li><p onClick={() => {alert("6")}}>Project Showcase</p></li>
+                    {getListItem(AccountViews.EDIT_PROFILE, view)}
+                    {getListItem(AccountViews.LOGIN_SECURITY, view)}
+                    {getListItem(AccountViews.NOTIFICATION_SETTINGS, view)}
+                    {getListItem(AccountViews.SCHEDULING_HISTORY, view)}
+                    {getListItem(AccountViews.MANAGE_LISTINGS, view)}
+                    {getListItem(AccountViews.PROJECT_SHOWCASES, view)}
                 </Sidebar>
 
                 <div className="account-wrapper">

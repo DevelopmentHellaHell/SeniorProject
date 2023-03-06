@@ -5,7 +5,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: var(--primary-background-dark);
+    background-color: rgb(var(--primary-background-dark));
     box-sizing: border-box;
     margin: 0;
     padding: 30px 5%;
@@ -14,7 +14,8 @@
 
 .nav-user .nav-links {
     list-style: none;
-    color: var(--primary-text-light)
+    color: rgb(var(--primary-text-light));
+    cursor: pointer;
 }
 
 .nav-user .nav-links li {
@@ -28,11 +29,11 @@
 }
 
 .nav-user .logo {
-    color: var(--white);
+    color: rgb(var(--white));
     font-size: 30px;
     font-weight: 700;
 }
 
 .nav-user .logo:hover {
-    color: var(--primary-button-light-hover);
+    color: rgb(var(--primary-button-light-hover));
 }

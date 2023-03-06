@@ -1,16 +1,16 @@
 ﻿using DevelopmentHell.Hubba.Authentication.Service.Implementations;
-using DevelopmentHell.Hubba.Authorization.Service.Implementation;
+using DevelopmentHell.Hubba.Authorization.Service.Implementations;
 using DevelopmentHell.Hubba.Cryptography.Service;
-using DevelopmentHell.Hubba.Logging.Service.Implementation;
+using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.OneTimePassword.Service.Implementation;
+using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using System.Configuration;
 using System.Security.Principal;
-using DevelopmentHell.Hubba.AccountRecovery.Service.Implementation;
-using DevelopmentHell.Hubba.AccountRecovery.Manager.Implementation;
+using DevelopmentHell.Hubba.AccountRecovery.Service.Implementations;
+using DevelopmentHell.Hubba.AccountRecovery.Manager.Implementations;
 using DevelopmentHell.Hubba.Registration.Manager.Implementations;
-using DevelopmentHell.Hubba.Registration.Service.Implementation;
+using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -141,7 +141,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             var stringAccountId = claimsPrincipal?.FindFirstValue("accountId");
 
             Result<byte[]> getOtp = await otpDataAccess.GetOTP(int.Parse(stringAccountId!)).ConfigureAwait(false);
-            string otp = EncryptionService.Decrypt(getOtp.Payload!);
+            string otp = CryptographyService.Decrypt(getOtp.Payload!);
 
             await accountRecoveryManager.AuthenticateOTP(otp, dummyIp);
             var actual = await accountRecoveryManager.AccountAccess(dummyIp);
@@ -244,7 +244,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             Result<int> getNewAccountId = await userAccountDataAccess.GetId(email).ConfigureAwait(false);
             int newAccountId = getNewAccountId.Payload;
             Result<byte[]> getOtp = await otpDataAccess.GetOTP(newAccountId).ConfigureAwait(false);
-            string otp = EncryptionService.Decrypt(getOtp.Payload!);
+            string otp = CryptographyService.Decrypt(getOtp.Payload!);
             decodeJWT(loginResult.Payload!);
             await authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
 
@@ -261,7 +261,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             var stringAccountId = claimsPrincipal?.FindFirstValue("accountId");
 
             getOtp = await otpDataAccess.GetOTP(int.Parse(stringAccountId!)).ConfigureAwait(false);
-            otp = EncryptionService.Decrypt(getOtp.Payload!);
+            otp = CryptographyService.Decrypt(getOtp.Payload!);
 
             await accountRecoveryManager.AuthenticateOTP(otp, dummyIp);
             var actual = await accountRecoveryManager.AccountAccess(dummyIp);
@@ -360,7 +360,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             Result<int> getNewAccountId = await userAccountDataAccess.GetId(email).ConfigureAwait(false);
             int newAccountId = getNewAccountId.Payload;
             Result<byte[]> getOtp = await otpDataAccess.GetOTP(newAccountId).ConfigureAwait(false);
-            string otp = EncryptionService.Decrypt(getOtp.Payload!);
+            string otp = CryptographyService.Decrypt(getOtp.Payload!);
             decodeJWT(loginResult.Payload!);
             await authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
 
@@ -386,7 +386,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             var stringAccountId = claimsPrincipal?.FindFirstValue("accountId");
 
             getOtp = await otpDataAccess.GetOTP(int.Parse(stringAccountId!)).ConfigureAwait(false);
-            otp = EncryptionService.Decrypt(getOtp.Payload!);
+            otp = CryptographyService.Decrypt(getOtp.Payload!);
 
             await accountRecoveryManager.AuthenticateOTP(otp, dummyIp);
             var actual = await accountRecoveryManager.AccountAccess(dummyIp);

@@ -25,24 +25,24 @@ const Button: React.FC<IButtonProps> = (props) => {
         [style in ButtonTheme]: any
      } = {
         [ButtonTheme.LIGHT]: {
-            background: getColor("--primary-button-light"),
-            color: getColor("--primary-text-dark"),
-            border: `4px solid ${getColor("--primary-button-light")}`,
+            background: `rgb(${getColor("--primary-button-light")})`,
+            color: `rgb(${getColor("--primary-text-dark")})`,
+            border: `4px solid rgb(${getColor("--primary-button-light")})`,
         },
         [ButtonTheme.DARK]: {
-            background: getColor("--primary-button-dark"),
-            color: getColor("--primary-text-light"),
-            border: `4px solid ${getColor("--primary-button-dark")}`,
+            background: `rgb(${getColor("--primary-button-dark")})`,
+            color: `rgb(${getColor("--primary-text-light")})`,
+            border: `4px solid rgb(${getColor("--primary-button-dark")})`,
         },
         [ButtonTheme.HOLLOW_LIGHT]: {
             background: "rgb(0, 0, 0, 0)",
-            color: getColor("--primary-text-light"),
-            border: `4px solid ${getColor("--primary-text-light")}`
+            color: `rgb(${getColor("--primary-text-light")})`,
+            border: `4px solid rgb(${getColor("--primary-text-light")})`
         },
         [ButtonTheme.HOLLOW_DARK]: {
             background: "rgb(0, 0, 0, 0)",
-            color: getColor("--primary-text-dark"),
-            border: `4px solid ${getColor("--primary-text-dark")}`
+            color: `rgb(${getColor("--primary-text-dark")})`,
+            border: `4px solid rgb(${getColor("--primary-text-dark")})`
         }
     }
 

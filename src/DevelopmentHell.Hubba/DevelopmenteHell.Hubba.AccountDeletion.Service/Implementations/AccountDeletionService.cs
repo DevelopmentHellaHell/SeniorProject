@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DevelopmentHell.Hubba.AccountDeletion.Service.Implementation
+namespace DevelopmentHell.Hubba.AccountDeletion.Service.Implementations
 {
     public class AccountDeletionService : IAccountDeletionService
     {

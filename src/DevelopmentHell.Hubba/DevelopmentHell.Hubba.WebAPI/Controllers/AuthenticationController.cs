@@ -1,9 +1,6 @@
 ﻿using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
 using DevelopmentHell.Hubba.WebAPI.DTO.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
-using System.Net;
-using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.WebAPI.Controllers
 {

@@ -1,10 +1,10 @@
 .footer-wrapper {
-    background-color: var(--secondary-background-dark);
+    background-color: rgb(var(--secondary-background-dark));
     width: 100%;
     height: 2.5rem;
     bottom: 0;
     position: absolute;
-    color: var(--secondary-text-light);
+    color: rgb(var(--secondary-text-light));
     align-items: center;
     justify-content: center;
     display: flex;
