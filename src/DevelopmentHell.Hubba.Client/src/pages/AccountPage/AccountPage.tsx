@@ -4,11 +4,11 @@ import { Auth } from "../../Auth";
 import Footer from "../../components/Footer/Footer";
 import NavbarUser from "../../components/NavbarUser/NavbarUser";
 import Sidebar from "../../components/Sidebar/Sidebar";
-import "./Account.css";
-import DeleteAccount from "./LoginSecurity/DeleteAccount/DeleteAccount";
-import LoginSecurity from "./LoginSecurity/LoginSecurity";
+import "./AccountPage.css";
+import DeleteAccountView from "./LoginSecurityView/DeleteAccountView/DeleteAccountView";
+import LoginSecurityView from "./LoginSecurityView/LoginSecurityView";
 
-interface IAccountProps {
+interface IAccountPageProps {
 
 }
 
@@ -22,7 +22,7 @@ enum AccountViews {
     MANAGE_LISTINGS,
 }
 
-const Account: React.FC<IAccountProps> = (props) => {
+const AccountPage: React.FC<IAccountPageProps> = (props) => {
     const [view, setView] = useState(AccountViews.EDIT_PROFILE);
     const authData = Auth.isAuthenticated();
 
@@ -36,14 +36,14 @@ const Account: React.FC<IAccountProps> = (props) => {
             case AccountViews.EDIT_PROFILE:
                 return <></>; //TODO
             case AccountViews.LOGIN_SECURITY:
-                return <LoginSecurity
+                return <LoginSecurityView
                     onUpdateClick={() => { setView(AccountViews.LOGIN_SECURITY_UPDATE_PASSWORD) }}
                     onDeleteClick={() => { setView(AccountViews.LOGIN_SECURITY_ACCOUNT_DELETION) }}
                 />;
             case AccountViews.LOGIN_SECURITY_UPDATE_PASSWORD:
                 return <></>; //TODO
             case AccountViews.LOGIN_SECURITY_ACCOUNT_DELETION:
-                return <DeleteAccount onCancelClick={() => { setView(AccountViews.LOGIN_SECURITY) }}/>;
+                return <DeleteAccountView onCancelClick={() => { setView(AccountViews.LOGIN_SECURITY) }}/>;
             case AccountViews.NOTIFICATION_SETTINGS:
                 return <></>; //TODO
             case AccountViews.SCHEDULING_HISTORY:
@@ -77,4 +77,4 @@ const Account: React.FC<IAccountProps> = (props) => {
     );
 }
 
-export default Account;
+export default AccountPage;

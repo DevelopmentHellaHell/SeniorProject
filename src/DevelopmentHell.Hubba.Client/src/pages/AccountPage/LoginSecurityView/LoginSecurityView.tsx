@@ -1,13 +1,13 @@
 import React from "react";
 import Button from "../../../components/Button/Button";
-import "./LoginSecurity.css";
+import "./LoginSecurityView.css";
 
-interface ILoginSecurityProps {
+interface ILoginSecurityViewProps {
     onUpdateClick: () => void;
     onDeleteClick: () => void;
 }
 
-const LoginSecurity: React.FC<ILoginSecurityProps> = (props) => {
+const LoginSecurityView: React.FC<ILoginSecurityViewProps> = (props) => {
     return (
         <div className="login-security-wrapper">
             <h1>Login & Security</h1>
@@ -31,4 +31,4 @@ const LoginSecurity: React.FC<ILoginSecurityProps> = (props) => {
     );
 }
 
-export default LoginSecurity;
+export default LoginSecurityView;

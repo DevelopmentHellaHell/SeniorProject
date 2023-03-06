@@ -2,14 +2,13 @@ import { Chart as ChartJS, ChartData, registerables } from 'chart.js';
 import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Ajax } from '../../../Ajax';
-import Footer from '../../../components/Footer/Footer';
 import Loading from '../../../components/Loading/Loading';
-import NavbarUser from '../../../components/NavbarUser/NavbarUser';
-import './Analytics.css';
+import './AnalyticsView.css';
+import ChartCard from './ChartCard/ChartCard';
 
 const REFRESH_CHARTS_INTERVAL_MILLISECONDS = 60000;
 
-interface IAnalyticsProps {
+interface IAnalyticsViewProps {
 
 }
 
@@ -27,7 +26,7 @@ ChartJS.register(...registerables);
 ChartJS.defaults.color = getColor("--secondary-background-dark");
 ChartJS.defaults.borderColor = getColor("--secondary-background-dark");
 
-const Analytics: React.FC<IAnalyticsProps> = (props) => {
+const AnalyticsView: React.FC<IAnalyticsViewProps> = (props) => {
     const [data, setData] = useState<IAnalyticsData | null>(null);
     const [error, setError] = useState("");
     const [loaded, setLoaded] = useState(false);
@@ -76,42 +75,7 @@ const Analytics: React.FC<IAnalyticsProps> = (props) => {
                     });
 
                     return (
-                        <div className="chart-box" key={`chart-${key}`}>
-                            <h2>{key.charAt(0).toUpperCase() + key.slice(1)}</h2>
-                            <Line
-                                data={chartData}
-                                options={{
-                                    scales: {
-                                        x: {
-                                            title: {
-                                                display: true,
-                                                text: "DATE",
-                                            },  
-                                            suggestedMin: 0,
-                                            ticks: {
-                                                maxTicksLimit: 20,
-                                            },
-                                        },
-                                        y: {
-                                            title: {
-                                                display: true,
-                                                text: "COUNT",
-                                            },  
-                                            suggestedMin: 0,
-                                            ticks: {
-                                                stepSize: 1,
-                                                maxTicksLimit: 20,
-                                            }
-                                        },
-                                    },
-                                    plugins: {
-                                        legend: {
-                                            display: false,
-                                        },
-                                    },
-                                }}
-                            />
-                        </div>
+                        <ChartCard key={`chart-card-${key}`} name={key} data={chartData} />
                     );
                 })}
             </div>
@@ -119,4 +83,4 @@ const Analytics: React.FC<IAnalyticsProps> = (props) => {
     );
 }
 
-export default Analytics;
+export default AnalyticsView;

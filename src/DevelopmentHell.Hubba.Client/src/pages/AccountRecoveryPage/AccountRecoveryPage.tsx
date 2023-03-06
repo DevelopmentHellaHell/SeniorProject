@@ -5,13 +5,13 @@ import { Auth } from "../../Auth";
 import Button, { ButtonTheme } from "../../components/Button/Button";
 import Footer from "../../components/Footer/Footer";
 import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
-import "./AccountRecovery.css";
+import "./AccountRecoveryPage.css";
 
-interface IAccountRecoveryProps {
+interface IAccountRecoveryPageProps {
 
 }
 
-const AccountRecovery: React.FC<IAccountRecoveryProps> = (props) => {
+const AccountRecoveryPage: React.FC<IAccountRecoveryPageProps> = (props) => {
     const [email, setEmail] = useState("");
     const [showOtp, setShowOtp] = useState(false);
     const [otp, setOtp] = useState("");
@@ -109,4 +109,4 @@ const AccountRecovery: React.FC<IAccountRecoveryProps> = (props) => {
     );
 }
 
-export default AccountRecovery;
+export default AccountRecoveryPage;

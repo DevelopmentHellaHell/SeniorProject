@@ -5,13 +5,13 @@ import { Auth } from "../../Auth";
 import Button from "../../components/Button/Button";
 import Footer from "../../components/Footer/Footer";
 import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
-import "./Logout.css";
+import "./LogoutPage.css";
 
-interface ILogoutProps {
+interface ILogoutPageProps {
 
 }
 
-const Logout: React.FC<ILogoutProps> = (props) => {
+const LogoutPage: React.FC<ILogoutPageProps> = (props) => {
     const [error, setError] = useState("");
     
     const navigate = useNavigate();
@@ -53,4 +53,4 @@ const Logout: React.FC<ILogoutProps> = (props) => {
     );
 }
 
-export default Logout;
+export default LogoutPage;

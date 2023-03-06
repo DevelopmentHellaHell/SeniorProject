@@ -4,13 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { Ajax } from "../../../../Ajax";
 import { Auth } from "../../../../Auth";
 import Button from "../../../../components/Button/Button";
-import "./DeleteAccount.css";
+import "./DeleteAccountView.css";
 
-interface IDeleteAccountProps {
+interface IDeleteAccountViewProps {
     onCancelClick: () => void;
 }
 
-const DeleteAccount: React.FC<IDeleteAccountProps> = (props) => {
+const DeleteAccountView: React.FC<IDeleteAccountViewProps> = (props) => {
     const [error, setError] = useState("");
     const [loaded, setLoaded] = useState(true);
 
@@ -58,4 +58,4 @@ const DeleteAccount: React.FC<IDeleteAccountProps> = (props) => {
     );
 }
 
-export default DeleteAccount;
+export default DeleteAccountView;

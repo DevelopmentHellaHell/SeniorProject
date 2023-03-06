@@ -4,13 +4,13 @@ import { Ajax } from "../../Ajax";
 import Button, { ButtonTheme } from "../../components/Button/Button";
 import Footer from "../../components/Footer/Footer";
 import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
-import "./Registration.css";
+import "./RegistrationPage.css";
 
-interface IRegistrationProps {
+interface IRegistrationPageProps {
 
 }
 
-const Registration: React.FC<IRegistrationProps> = (props) => {
+const RegistrationPage: React.FC<IRegistrationPageProps> = (props) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmedPassword, setConfirmedPassword] = useState("");
@@ -105,4 +105,4 @@ const Registration: React.FC<IRegistrationProps> = (props) => {
     );
 }
 
-export default Registration;
+export default RegistrationPage;

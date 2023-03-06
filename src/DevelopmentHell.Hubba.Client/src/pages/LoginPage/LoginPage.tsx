@@ -2,15 +2,15 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Footer from "../../components/Footer/Footer";
 import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
-import "./Login.css";
 import LoginCard from "./LoginCard/LoginCard";
 import OtpCard from "./OtpCard/OtpCard";
+import "./LoginPage.css";
 
-interface ILoginProps {
+interface ILoginPageProps {
 
 }
 
-const Login: React.FC<ILoginProps> = (props) => {
+const LoginPage: React.FC<ILoginPageProps> = (props) => {
     const [showOtp, setShowOtp] = useState(false);
     
     const navigate = useNavigate();
@@ -33,4 +33,4 @@ const Login: React.FC<ILoginProps> = (props) => {
     );
 }
 
-export default Login;
+export default LoginPage;

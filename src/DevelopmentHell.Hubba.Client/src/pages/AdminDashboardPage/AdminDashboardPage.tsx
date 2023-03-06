@@ -4,10 +4,10 @@ import { Auth } from "../../Auth";
 import Footer from "../../components/Footer/Footer";
 import NavbarUser from "../../components/NavbarUser/NavbarUser";
 import Sidebar from "../../components/Sidebar/Sidebar";
-import "./AdminDashboard.css";
-import Analytics from "./Analytics/Analytics";
+import AnalyticsView from "./AnalyticsView/AnalyticsView";
+import "./AdminDashboardPage.css";
 
-interface IAdminDashboardProps {
+interface IAdminDashboardPageProps {
 
 }
 
@@ -15,7 +15,7 @@ enum AdminDashboardViews {
     ANALYTICS,
 }
 
-const AdminDashboard: React.FC<IAdminDashboardProps> = (props) => {
+const AdminDashboardPage: React.FC<IAdminDashboardPageProps> = (props) => {
     const [view, setView] = useState(AdminDashboardViews.ANALYTICS);
     const authData = Auth.isAuthenticated();
 
@@ -27,7 +27,7 @@ const AdminDashboard: React.FC<IAdminDashboardProps> = (props) => {
     const renderView = (view: AdminDashboardViews) => {
         switch(view) {
             case AdminDashboardViews.ANALYTICS:
-                return <Analytics />; 
+                return <AnalyticsView />; 
         }
     }
 
@@ -50,4 +50,4 @@ const AdminDashboard: React.FC<IAdminDashboardProps> = (props) => {
     );
 }
 
-export default AdminDashboard;
+export default AdminDashboardPage;

@@ -3,13 +3,13 @@ import Footer from "../../components/Footer/Footer";
 import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
 import NavbarUser from "../../components/NavbarUser/NavbarUser";
 import { Auth } from "../../Auth";
-import './Home.css';
+import './HomePage.css';
 
-interface IHomeProps {
+interface IHomePageProps {
     
 }
 
-const Home: React.FC<IHomeProps> = (props) => {
+const HomePage: React.FC<IHomePageProps> = (props) => {
     const authData = Auth.isAuthenticated();
 
     return (
@@ -29,4 +29,4 @@ const Home: React.FC<IHomeProps> = (props) => {
     );
 }
 
-export default Home;
+export default HomePage;

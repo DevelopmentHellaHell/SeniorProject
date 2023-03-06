@@ -1,13 +1,13 @@
 import React from "react";
 import Footer from "../../components/Footer/Footer";
 import NavbarUser from "../../components/NavbarUser/NavbarUser";
-import "./Notification.css";
+import "./NotificationPage.css";
 
-interface INotificationProps {
+interface INotificationPageProps {
 
 }
 
-const Notification: React.FC<INotificationProps> = (props) => {
+const NotificationPage: React.FC<INotificationPageProps> = (props) => {
     return (
         <div className="notificaiton-container">
             <NavbarUser />
@@ -23,4 +23,4 @@ const Notification: React.FC<INotificationProps> = (props) => {
     );
 }
 
-export default Notification;
+export default NotificationPage;
