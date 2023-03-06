@@ -35,7 +35,7 @@ const RegistrationPage: React.FC<IRegistrationPageProps> = (props) => {
                 <div className="registration-wrapper">
                     <div className="registration-card">
                         <h1>Registration</h1>
-                        <p className="info"> <u id='redirect-login' onClick={() => { navigate("/login") }}>Already registered? Login HERE ←</u></p>
+                        <p className="info"> <u id="redirect-login" onClick={() => { navigate("/login") }}>Already registered? Login HERE ←</u></p>
                         <div>
                             <div className="input-field">
                                 <label>Email</label>
