@@ -29,7 +29,7 @@ const HomePage: React.FC<IHomePageProps> = (props) => {
                         <div className="introduction-text">
                             <h2>We'll help you to find the best workspace, Hubbist!</h2>
                             <p>Looking for a work station for your freelance gigs? How about renting your spare workshop for fellow enthusiasts who share your mutual interest? With Hubba, you can do this and more!</p>
-                            <Button title="Get Started" theme={ButtonTheme.DARK} onClick={() => { navigate("/registration") }} />
+                            <Button title="Get Started" theme={ButtonTheme.DARK} onClick={() => { navigate("/registration") }} /> {/* TODO: Navigate to profile page instead */}
                         </div>
                         <WebsiteImage />
                     </div>
