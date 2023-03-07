@@ -20,6 +20,7 @@ enum AccountViews {
     NOTIFICATION_SETTINGS,
     SCHEDULING_HISTORY,
     MANAGE_LISTINGS,
+    PROJECT_SHOWCASES,
 }
 
 const AccountPage: React.FC<IAccountPageProps> = (props) => {
@@ -50,7 +51,23 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
                 return <></>; //TODO
             case AccountViews.MANAGE_LISTINGS:
                 return <></>; //TODO
+            case AccountViews.PROJECT_SHOWCASES:
+                return <></>; //TODO
         }
+    }
+
+    const getSelectionBar = (actualView: AccountViews, currentView: AccountViews, ) => {
+        return (
+            <>
+                {currentView == actualView ? <div className="selection-bar"></div> : null}
+            </>
+        )
+    }
+
+    const getListItem = (title: string, actualView: AccountViews, currentView: AccountViews,) => {
+        return (
+            <li>{getSelectionBar(actualView, currentView)}<p onClick={() => { setView(actualView) }}>{title}</p></li>
+        );
     }
 
     return (
@@ -59,12 +76,12 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
 
             <div className="account-content">
                 <Sidebar>
-                    <li><p onClick={() => {alert("1")}}>Edit Profile</p></li>
-                    <li><p onClick={() => { setView(AccountViews.LOGIN_SECURITY) }}>Login & Security</p></li>
-                    <li><p onClick={() => {alert("3")}}>Notification Settings</p></li>
-                    <li><p onClick={() => {alert("4")}}>Scheduling History</p></li>
-                    <li><p onClick={() => {alert("5")}}>Manage Listings</p></li>
-                    <li><p onClick={() => {alert("6")}}>Project Showcase</p></li>
+                    {getListItem("Edit Profile", AccountViews.EDIT_PROFILE, view)}
+                    {getListItem("Login & Security", AccountViews.LOGIN_SECURITY, view)}
+                    {getListItem("Notification Settings", AccountViews.NOTIFICATION_SETTINGS, view)}
+                    {getListItem("Scheduling History", AccountViews.SCHEDULING_HISTORY, view)}
+                    {getListItem("Manage Listings", AccountViews.MANAGE_LISTINGS, view)}
+                    {getListItem("Project Showcases", AccountViews.PROJECT_SHOWCASES, view)}
                 </Sidebar>
 
                 <div className="account-wrapper">
