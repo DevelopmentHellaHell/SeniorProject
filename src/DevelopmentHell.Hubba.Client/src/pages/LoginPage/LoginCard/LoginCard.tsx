@@ -28,7 +28,7 @@ const LoginCard: React.FC<ILoginCardProps> = (props) => {
     return (
         <div className="login-card">
             <h1>Login</h1>
-            <p className="info">Already registered? Register <u onClick={() => { navigate("/registration") }}>HERE ←</u></p>
+            <p className="info">Don't have an account? Register <u onClick={() => { navigate("/registration") }}>HERE ←</u></p>
             <div>
                 <div className="input-field">
                     <label>Email</label>
