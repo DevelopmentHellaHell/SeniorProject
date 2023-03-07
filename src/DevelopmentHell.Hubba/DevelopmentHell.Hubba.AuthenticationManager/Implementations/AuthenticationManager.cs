@@ -31,7 +31,7 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
         {
             Result<string> result = new();
 
-            if (_authorizationService.authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
+            if (_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Error, user already logged in.";
@@ -78,7 +78,7 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
 
             Result<string> result = new();
 
-            if (_authorizationService.authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
+            if (_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Error, user already logged in.";

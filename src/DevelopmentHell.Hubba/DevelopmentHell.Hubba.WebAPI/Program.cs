@@ -96,7 +96,7 @@ builder.Services.AddTransient<IOTPService, OTPService>(s =>
 });
 builder.Services.AddTransient<IAuthorizationService, AuthorizationService>(s =>
 	new AuthorizationService(
-		HubbaConfig.ConfigurationManager.AppSettings,
+		HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!,
         new UserAccountDataAccess(
                 HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
                 HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
