@@ -1,4 +1,5 @@
 ﻿using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
+using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
 using DevelopmentHell.Hubba.WebAPI.DTO.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,10 +10,12 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
     public class AuthenticationController : Controller
     {
         private readonly IAuthenticationManager _authenticationManager;
+        private readonly IOTPService _otpService;
 
-        public AuthenticationController(IAuthenticationManager authenticationManager)
+        public AuthenticationController(IAuthenticationManager authenticationManager, IOTPService otpService)
         {
             _authenticationManager = authenticationManager;
+            _otpService = otpService;
         }
 
 #if DEBUG
@@ -24,7 +27,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 		}
 #endif
 
-		[HttpPost]
+        [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login(UserToLoginDTO userToLoginDTO)
         {

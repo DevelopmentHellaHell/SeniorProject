@@ -38,7 +38,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 			}
 		}
 
-		public async Task<Result> Delete(string source, List<Comparator> filters)
+		public async Task<Result> Delete(string source, List<Comparator>? filters)
 		{
 
 			//TODO add implementation for group by, order by, having
@@ -46,18 +46,24 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 			{
 				bool first = true;
 				StringBuilder sbFilter = new();
-				foreach (var filter in filters)
+				string where = "";
+				if (filters is not null)
 				{
-					if (!first)
+					foreach (var filter in filters)
 					{
-						sbFilter.Append(" AND ");
-					}
-					first = false;
-					sbFilter.Append($"{filter.Key} {filter.Op} @{filter.Key}");
+						if (!first)
+						{
+							sbFilter.Append(" AND ");
+						}
+						first = false;
+						sbFilter.Append($"{filter.Key} {filter.Op} @{filter.Key}");
 
-					insertQuery.Parameters.Add(new SqlParameter(filter.Key.ToString(), filter.Value.ToString()));
+						insertQuery.Parameters.Add(new SqlParameter(filter.Key.ToString(), filter.Value.ToString()));
+					}
+					where = $" WHERE {sbFilter.ToString()}";
 				}
-				insertQuery.CommandText = $"DELETE FROM {source} WHERE {sbFilter.ToString()}";
+
+				insertQuery.CommandText = $"DELETE FROM {source}";
 
 				return await SendQuery(insertQuery).ConfigureAwait(false);
 			}
