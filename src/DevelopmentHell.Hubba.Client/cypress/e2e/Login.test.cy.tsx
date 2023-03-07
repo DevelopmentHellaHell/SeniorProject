@@ -1,38 +1,84 @@
 /// <reference types="cypress" />
-
-let otpUrl: string = 'http://localhost:3000/otp';
-
 //TODO
 
-// describe('login-pass', () => {
-//     cy.visit(loginUrl)
+describe('login-fail-invalid-input', () => {
+    beforeEach(() => {
+        cy.visit(Cypress.env('loginUrl'))
+        cy.fixture('/credentials')
+        .then((myCredentials) => {
+            this.credentials = myCredentials
+        })
+    })
 
-//     it('login-successful', () => {
-//         cy.get('#email')
-//             .type('login@gmail.com')
-//             .should('have.value', 'login@gmail.com')
-//         cy.get('#password')
-//             .type('12345678')
-//             .should('have.value', '12345678')
-//         cy.get('#confirm-password')
-//             .type('12345678')
-//             .should('have.value', '12345678')
-//         cy.get('.registration-card .buttons Button').click()
+    it('empty-email', () => {
+        cy.get('#password')
+            .type(this.credentials.standardPassword)
+            .should('have.value', this.credentials.standardPassword)
 
-//         //navigate to Login Page
+        cy.contains("Submit").click()
+        cy.get('error').should('not.be.empty')
+    })
+
+    it('empty-password', () => {
+        cy.get('#email')
+            .type(this.credentials.standardEmail)
+            .should('have.value', this.credentials.standardEmail)
+
+        cy.contains("Submit").click()
+        cy.get('error').should('not.be.empty')
+    })
+
+    it('invalid email', () => {
+        cy.get('#email')
+            .type(this.credentials.dummyEmail)
+            .should('have.value', this.credentials.dummyEmail)
+
+        cy.contains("Submit").click()
+        cy.get('error').should('not.be.empty')
+    })
+
+    it('invalid-password', () => {
+        cy.get('#email')
+            .type(this.credentials.standardEmail)
+            .should('have.value', this.credentials.standardEmail)
+
+        cy.get('#password')
+            .type(this.credentials.dummyPassword)
+            .should('have.value', this.credentials.dummyPassword)
+
+        cy.contains("Submit").click()
+        cy.get('error').should('not.be.empty')
+    })
+})
+
+describe.only('login-pass', () => {
+    beforeEach(() => {
+        cy.visit(Cypress.env("loginUrl"))
+        cy.fixture('/credentials')
+        .then((myCredentials) => {
+            this._credentials = myCredentials
+        })
+    })
+
+    it('login-successful-under-5s', () => {
+
+        cy.get('#email')
+            .type(this._credentials.tienEmail)
+            .should('have.value', this._credentials.tienEmail);
+        cy.get('#password')
+            .type(this._credentials.tienPassword)
+            .should('have.value', this._credentials.tienPassword)
+
+        cy.get('.login-card .buttons Button').click()
+            .should('have.property', 'status', 200) //successful AJAX HTTP POST request
         
-//         //#element_id
-//         cy.get('#redirect-registration').click()
-//         cy.url().should('eq', registrationUrl)
-    
-//         cy.get('#email')
-//             .type('login@gmail.com')
-//             .should('have.value', 'login@gmail.com');
-//         cy.get('#password')
-//             .type('12345678')
-//             .should('have.value', '12345678')
-//         cy.get('.login-card .buttons Button').click()
-//         cy.url().should('eq', otpUrl)
-//     })
+        cy.get('.otp-card')
+            .should('exist')
+            .should('be.visible')
+        cy.getCookie('access_token')
+            .then((myCookie) => {
+                cy.log('my cookie= ', myCookie)
+            })
 
-// })
+    })
+})
