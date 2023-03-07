@@ -20,11 +20,17 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
             _loggerService = loggerService;
         }
 
+        //Retrieves preferences from user
+        public async Task<Result<NotificationSettings>> GetNotificationSettings(int userId)
+        {
+            return await _notificationService.SelectUserNotificationSettings(userId).ConfigureAwait(false);
+        }
+
         public async Task<Result> CreateNewNotification(int userId, string message, NotificationType tag)
         {
             Result result = new Result();
 
-            Result<NotificationSettings> notificationSettingsResult = await _notificationService.SelectUserNotificationSettings(userId).ConfigureAwait(false);
+            Result<NotificationSettings> notificationSettingsResult = await GetNotificationSettings(userId).ConfigureAwait(false);
             if (!notificationSettingsResult.IsSuccessful || notificationSettingsResult is null)
             {
                 result.IsSuccessful = false;
@@ -83,8 +89,15 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
 
             return await _notificationService.AddNotification(userId, message, tag).ConfigureAwait(false);
         }
+        public async Task<Result> UpdateNotificationSettings(NotificationSettings settings)
+        {
+
+            return await _notificationService.UpdateNotificationSettings(settings).ConfigureAwait(false);  
+        }
     }
     //TODO: task<result> UpdateNotificationSettings(NotificationSettings settings) -> NotificationSettingsDA
+    
+
     //TODO: method to get notifications list
 
 }

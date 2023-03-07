@@ -43,6 +43,11 @@ namespace DevelopmentHell.Hubba.Notification.Service.Implementations
             return await _notificationSettingsDataAccess.SelectUserNotificationSettings(userId).ConfigureAwait(false);
         }
 
+        public async Task<Result> UpdateNotificationSettings(NotificationSettings settings)
+        {
+            return await _notificationSettingsDataAccess.UpdateUserNotificationSettings(settings).ConfigureAwait(false);
+        }
+
         public async Task<Result<UserAccount>> GetUser(int userId)
         {
             return await _userAccountDataAccess.GetUser(userId).ConfigureAwait(false);

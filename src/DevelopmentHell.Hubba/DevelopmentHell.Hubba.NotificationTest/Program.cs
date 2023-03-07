@@ -32,6 +32,15 @@ var notificationManager = new NotificationManager(
     loggerService
 );
 
-Result result = await notificationManager.CreateNewNotification(9, "hi", NotificationType.OTHER).ConfigureAwait(false);
+//Result result = await notificationManager.CreateNewNotification(9, "hi", NotificationType.OTHER).ConfigureAwait(false);
+
+Result<NotificationSettings> settingsResult = await notificationManager.GetNotificationSettings(8).ConfigureAwait(false);
+
+NotificationSettings settings = settingsResult.Payload!;
+settings.TypeProjectShowcase = false;
+settings.TextNotifications = false;
+settings.SiteNotifications = false;
+
+Result result = await notificationManager.UpdateNotificationSettings(settings);
 Console.WriteLine(result.IsSuccessful);
 Console.WriteLine(result.ErrorMessage);
