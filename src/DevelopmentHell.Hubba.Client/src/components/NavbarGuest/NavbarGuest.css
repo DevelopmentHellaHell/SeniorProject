@@ -14,7 +14,8 @@
 
 .nav-guest .nav-links {
     list-style: none;
-    color: rgb(var(--primary-text-light))
+    color: rgb(var(--primary-text-light));
+    cursor: pointer;
 }
 
 .nav-guest .nav-links li {

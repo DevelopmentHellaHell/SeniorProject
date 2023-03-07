@@ -14,6 +14,7 @@
     justify-content: left;
     padding: 5px 5px 5px 25px;
     color: rgb(var(--primary-text-dark));
+    cursor: pointer;
 }
 
 .sidebar .links li p {

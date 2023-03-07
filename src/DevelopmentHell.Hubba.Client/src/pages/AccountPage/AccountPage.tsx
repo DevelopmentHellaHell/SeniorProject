@@ -13,14 +13,20 @@ interface IAccountPageProps {
 }
 
 enum AccountViews {
-    EDIT_PROFILE,
-    LOGIN_SECURITY,
-    LOGIN_SECURITY_UPDATE_PASSWORD,
-    LOGIN_SECURITY_ACCOUNT_DELETION,
-    NOTIFICATION_SETTINGS,
-    SCHEDULING_HISTORY,
-    MANAGE_LISTINGS,
-    PROJECT_SHOWCASES,
+    EDIT_PROFILE = "Edit Profile",
+    LOGIN_SECURITY = "Login & Security",
+    LOGIN_SECURITY_UPDATE_PASSWORD = "Update Password",
+    LOGIN_SECURITY_ACCOUNT_DELETION = "Account Deletion",
+    NOTIFICATION_SETTINGS = "Notification Settings",
+    SCHEDULING_HISTORY = "Scheduling History",
+    MANAGE_LISTINGS = "Manage Listings",
+    PROJECT_SHOWCASES = "Project Showcases",
+}
+
+const SubViews: {
+    [view in AccountViews]?: AccountViews[];
+} = {
+    [AccountViews.LOGIN_SECURITY]: [AccountViews.LOGIN_SECURITY_ACCOUNT_DELETION, AccountViews.LOGIN_SECURITY_UPDATE_PASSWORD]
 }
 
 const AccountPage: React.FC<IAccountPageProps> = (props) => {
@@ -56,17 +62,14 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
         }
     }
 
-    const getSelectionBar = (actualView: AccountViews, currentView: AccountViews, ) => {
+    const getListItem = (actualView: AccountViews, currentView: AccountViews) => {
         return (
-            <>
-                {currentView == actualView ? <div className="selection-bar"></div> : null}
-            </>
-        )
-    }
-
-    const getListItem = (title: string, actualView: AccountViews, currentView: AccountViews,) => {
-        return (
-            <li>{getSelectionBar(actualView, currentView)}<p onClick={() => { setView(actualView) }}>{title}</p></li>
+            <li>
+                {/* Selection bar */}
+                {currentView == actualView || SubViews[actualView]?.includes(currentView) ? <div className="selection-bar"></div> : null}
+                {/* View */}
+                <p onClick={() => { setView(actualView) }}>{actualView}</p>
+            </li>
         );
     }
 
@@ -76,12 +79,12 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
 
             <div className="account-content">
                 <Sidebar>
-                    {getListItem("Edit Profile", AccountViews.EDIT_PROFILE, view)}
-                    {getListItem("Login & Security", AccountViews.LOGIN_SECURITY, view)}
-                    {getListItem("Notification Settings", AccountViews.NOTIFICATION_SETTINGS, view)}
-                    {getListItem("Scheduling History", AccountViews.SCHEDULING_HISTORY, view)}
-                    {getListItem("Manage Listings", AccountViews.MANAGE_LISTINGS, view)}
-                    {getListItem("Project Showcases", AccountViews.PROJECT_SHOWCASES, view)}
+                    {getListItem(AccountViews.EDIT_PROFILE, view)}
+                    {getListItem(AccountViews.LOGIN_SECURITY, view)}
+                    {getListItem(AccountViews.NOTIFICATION_SETTINGS, view)}
+                    {getListItem(AccountViews.SCHEDULING_HISTORY, view)}
+                    {getListItem(AccountViews.MANAGE_LISTINGS, view)}
+                    {getListItem(AccountViews.PROJECT_SHOWCASES, view)}
                 </Sidebar>
 
                 <div className="account-wrapper">

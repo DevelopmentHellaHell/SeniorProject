@@ -12,7 +12,7 @@ interface IAdminDashboardPageProps {
 }
 
 enum AdminDashboardViews {
-    ANALYTICS,
+    ANALYTICS = "Analytics",
 }
 
 const AdminDashboardPage: React.FC<IAdminDashboardPageProps> = (props) => {
@@ -31,13 +31,24 @@ const AdminDashboardPage: React.FC<IAdminDashboardPageProps> = (props) => {
         }
     }
 
+    const getListItem = (actualView: AdminDashboardViews, currentView: AdminDashboardViews) => {
+        return (
+            <li>
+                {/* Selection bar */}
+                {currentView == actualView ? <div className="selection-bar"></div> : null}
+                {/* View */}
+                <p onClick={() => { setView(actualView) }}>{actualView}</p>
+            </li>
+        );
+    }
+
     return (
         <div className="admin-dashboard-container">
             <NavbarUser />
             
             <div className="admin-dashboard-content">
                 <Sidebar>
-                    <li><p onClick={() => { setView(AdminDashboardViews.ANALYTICS) }}>Analytics</p></li>
+                    {getListItem(AdminDashboardViews.ANALYTICS, view)}
                 </Sidebar>
 
                 <div className="admin-dashboard-wrapper">

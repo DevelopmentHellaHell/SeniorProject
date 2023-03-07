@@ -64,7 +64,8 @@ const AnalyticsView: React.FC<IAnalyticsViewProps> = (props) => {
                         labels: [],
                         datasets: [{
                             data: [],
-                            borderColor: getColor("--primary-background-dark")
+                            borderColor: `rgb(${getColor("--primary-background-dark")})`,
+                            backgroundColor: `rgb(${getColor("--white")})`
                         }],
                     };
                     const indexed = data[key];

@@ -12,6 +12,7 @@
     font-size: 16px;
     border: none;
     border-radius: 5px;
+    cursor: pointer;
 }
 
 .drop-btn:hover {
@@ -22,6 +23,7 @@
 .dropdown {
     position: relative;
     display: inline-block;
+    cursor: pointer;
 }
 
 /* Dropdown Content (Hidden by Default) */
