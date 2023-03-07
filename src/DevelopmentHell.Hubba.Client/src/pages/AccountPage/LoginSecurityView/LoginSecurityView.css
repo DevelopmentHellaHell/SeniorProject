@@ -1,5 +1,5 @@
 .login-security-wrapper {
-    color: var(--primary-text-dark);
+    color: rgb(var(--primary-text-dark));
     padding-bottom: 2.5rem;
     padding-left: 20px;
 }

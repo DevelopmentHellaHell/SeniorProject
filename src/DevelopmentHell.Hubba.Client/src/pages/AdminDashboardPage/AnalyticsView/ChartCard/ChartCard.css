@@ -1,7 +1,7 @@
 .chart-box {
     flex: 0 0 500px;
     padding: 20px;
-    background: var(--primary-background-light);
+    background: rgb(var(--primary-background-light));
     border-radius: 10px;
     text-align: center;
 }

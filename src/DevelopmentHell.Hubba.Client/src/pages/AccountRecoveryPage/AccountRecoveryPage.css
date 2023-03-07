@@ -12,7 +12,7 @@
 }
 
 .account-recovery-container .account-recovery-content .account-recovery-wrapper {
-    color: var(--primary-text-dark);
+    color: rgb(var(--primary-text-dark));
     text-align: center;
     width: 100%;
     align-items: center;
@@ -21,7 +21,7 @@
 }
 
 .account-recovery-card {
-    background-color: var(--primary-background-light);
+    background-color: rgb(var(--primary-background-light));
     padding: 20px 70px;
     border: none;
     border-radius: 10px;
@@ -44,7 +44,7 @@
 .account-recovery-card .input-field input {
     width: 100%;
     padding: 8px 10px;
-    border: 1px solid var(--primary-text-dark);
+    border: 1px solid rgb(var(--primary-text-dark));
     border-radius: 3px;
 }
 
@@ -54,12 +54,12 @@
 }
 
 .account-recovery-card .info {
-    color: var(--secondary-text-dark);
+    color: rgb(var(--secondary-text-dark));
 }
 .account-recovery-card .info:hover {
-    color: var(--primary-text-dark);
+    color: rgb(var(--primary-text-dark));
 }
 
 .account-recovery-card .error {
-    color: var(--error-text);
+    color: rgb(var(--error-text));
 }

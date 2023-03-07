@@ -12,6 +12,6 @@
 }
 
 .admin-dashboard-container .admin-dashboard-content .admin-dashboard-wrapper {
-    color: var(--primary-text-dark);
+    color: rgb(var(--primary-text-dark));
     text-align: center;
 }

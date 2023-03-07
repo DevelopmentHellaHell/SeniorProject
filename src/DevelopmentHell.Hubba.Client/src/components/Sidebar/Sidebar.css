@@ -3,7 +3,7 @@
     height: 100%;
     flex-grow: 1;
     width: 300px;
-    background-color: var(--secondary-background-light);
+    background-color: rgb(var(--secondary-background-light));
 }
 
 .sidebar .links li {
@@ -12,7 +12,7 @@
     display: block;
     text-align: left;
     padding: 5px 10px 5px 50px;
-    color: var(--primary-text-dark);
+    color: rgb(var(--primary-text-dark));
 }
 
 .sidebar .links li:hover {

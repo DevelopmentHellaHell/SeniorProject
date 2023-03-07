@@ -1,4 +1,4 @@
 .analytics-wrapper {
-    color: var(--primary-text-dark);
+    color: rgb(var(--primary-text-dark));
     text-align: center;
 }
