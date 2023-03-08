@@ -32,7 +32,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager.Implementations
             Result<string> result = new();
 
 
-            if (_authorizationService.authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
+            if (_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Error, user already logged in.";
@@ -69,7 +69,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager.Implementations
                 IsSuccessful = false,
             };
 
-            if (_authorizationService.authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
+            if (_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
             {
                 _loggerService.Log(LogLevel.INFO, Category.BUSINESS, $"{ipAddress} failed OTP authentication.");
                 result.ErrorMessage = "Error, user already logged in.";

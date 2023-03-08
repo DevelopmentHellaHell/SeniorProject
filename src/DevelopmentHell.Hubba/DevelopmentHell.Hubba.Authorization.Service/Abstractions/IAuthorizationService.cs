@@ -4,8 +4,7 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Abstractions
 {
 	public interface IAuthorizationService
 	{
-		Result authorize(string[] roles);
+		Result Authorize(string[] roles);
 		Task<Result<string>> GenerateToken(int accountId, bool defaultUser = false);
-
     }
 }

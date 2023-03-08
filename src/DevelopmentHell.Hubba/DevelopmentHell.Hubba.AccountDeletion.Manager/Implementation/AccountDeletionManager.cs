@@ -40,7 +40,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations
 
             if (int.TryParse(thisAccountIDStr, out int thisAccountIDInt))
             {
-                if (_authorizationService.authorize(new string[] { "VerifiedUser" }).IsSuccessful)
+                if (_authorizationService.Authorize(new string[] { "VerifiedUser" }).IsSuccessful)
                 {
                     // this is a verified user who is deleting someone else's account
                     if (thisAccountIDInt != accountId)
@@ -63,7 +63,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations
                 }
 
                 // The user is an admin
-                else if (_authorizationService.authorize(new string[] { "AdminUser" }).IsSuccessful)
+                else if (_authorizationService.Authorize(new string[] { "AdminUser" }).IsSuccessful)
                 {
                     // The user is trying to delete itself
                     if (thisAccountIDInt == accountId)
