@@ -93,17 +93,13 @@ builder.Services.AddTransient<IOTPService, OTPService>(s =>
 			HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
 			HubbaConfig.ConfigurationManager.AppSettings["UserOTPsTable"]!
 		),
-		new EmailService(
-			HubbaConfig.ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!,
-			HubbaConfig.ConfigurationManager.AppSettings["SENDGRID_API_KEY"]!,
-			HubbaConfig.ConfigurationManager.AppSettings["COMPANY_EMAIL"]!
-		),
+		new EmailService(),
 		s.GetService<ICryptographyService>()!
 	);
 });
 builder.Services.AddTransient<IAuthorizationService, AuthorizationService>(s =>
 	new AuthorizationService(
-		HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!,
+		HubbaConfig.ConfigurationManager.AppSettings,
         new UserAccountDataAccess(
                 HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
                 HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!

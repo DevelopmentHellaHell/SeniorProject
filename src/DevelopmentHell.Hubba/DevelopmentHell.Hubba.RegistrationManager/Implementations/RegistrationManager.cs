@@ -27,7 +27,7 @@ namespace DevelopmentHell.Hubba.Registration.Manager.Implementations
         {
             Result result = new Result();
 
-			if (_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
+			if (_authorizationService.authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
 			{
 				result.IsSuccessful = false;
 				result.ErrorMessage = "Error, user already logged in.";

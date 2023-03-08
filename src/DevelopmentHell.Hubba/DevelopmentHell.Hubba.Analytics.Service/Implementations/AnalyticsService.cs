@@ -37,7 +37,7 @@ namespace DevelopmentHell.Hubba.Analytics.Service.Implementations
 		public async Task<Result<Dictionary<string, Dictionary<string, int>>>> GetData(DateTime fromTimeMonths)
 		{
 			var result = new Result<Dictionary<string, Dictionary<string, int>>>();
-			if (!_authorizationService.Authorize(new string[] { "AdminUser" }).IsSuccessful)
+			if (!_authorizationService.authorize(new string[] { "AdminUser" }).IsSuccessful)
 			{
 				result.IsSuccessful = false;
 				result.ErrorMessage = "Unauthorized.";

@@ -44,6 +44,7 @@ export namespace Ajax {
                 data = response.data as T;
             })
             .catch((err: Error | AxiosError) => {
+                console.log(err);
                 if (axios.isAxiosError(err))  {
                     if (err.response?.data) {
                         error = err.response.data;
