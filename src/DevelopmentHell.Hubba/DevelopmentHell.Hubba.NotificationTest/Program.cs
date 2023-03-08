@@ -34,13 +34,15 @@ var notificationManager = new NotificationManager(
 
 //Result result = await notificationManager.CreateNewNotification(9, "hi", NotificationType.OTHER).ConfigureAwait(false);
 
-Result<NotificationSettings> settingsResult = await notificationManager.GetNotificationSettings(8).ConfigureAwait(false);
+//Result<NotificationSettings> settingsResult = await notificationManager.GetNotificationSettings(8).ConfigureAwait(false);
 
-NotificationSettings settings = settingsResult.Payload!;
-settings.TypeProjectShowcase = false;
-settings.TextNotifications = false;
-settings.SiteNotifications = false;
+//NotificationSettings settings = settingsResult.Payload!;
+//settings.TypeProjectShowcase = false;
+//settings.TextNotifications = false;
+//settings.SiteNotifications = false;
+//Result result = await notificationManager.UpdateNotificationSettings(settings);
 
-Result result = await notificationManager.UpdateNotificationSettings(settings);
+Result result = await notificationManager.ClearNotifications(8);
+
 Console.WriteLine(result.IsSuccessful);
 Console.WriteLine(result.ErrorMessage);

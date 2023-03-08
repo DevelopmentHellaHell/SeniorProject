@@ -9,23 +9,27 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
     public class NotificationDataAccess : INotificationDataAccess
     {
         private InsertDataAccess _insertDataAccess;
+        private UpdateDataAccess _updateDataAccess;
         private SelectDataAccess _selectDataAccess;
+        private DeleteDataAccess _deleteDataAccess;
         private string _tableName;
 
         public NotificationDataAccess(string connectionString, string tableName)
         {
             _insertDataAccess = new InsertDataAccess(connectionString);
-            _selectDataAccess = new SelectDataAccess(tableName);
+            _updateDataAccess= new UpdateDataAccess(connectionString);
+            _selectDataAccess = new SelectDataAccess(connectionString);
+            _deleteDataAccess = new DeleteDataAccess(connectionString);
             _tableName = tableName;
         }
 
-        public async Task<Result> AddNotification(int id, string message, NotificationType tag)
+        public async Task<Result> AddNotification(int userId, string message, NotificationType tag)
         {
             Result insertResult = await _insertDataAccess.Insert(
                 _tableName,
                 new Dictionary<string, object>()
                 {
-                    { "UserId", id },
+                    { "UserId", userId },
                     { "Tag", tag },
                     { "Message", message },
                     { "Hide", false },
@@ -36,7 +40,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return insertResult;
         }
 
-        public async Task<Result<List<Dictionary<string, object>>>> GetNotifications(int id)
+        public async Task<Result<List<Dictionary<string, object>>>> GetNotifications(int userId)
         {
             Result<List<Dictionary<string, object>>> result = new Result<List<Dictionary<string, object>>>();
             
@@ -45,7 +49,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 new List<string>() { "*" },
                 new List<Comparator>
                 {
-                    new Comparator("UserId", "=", id),
+                    new Comparator("UserId", "=", userId),
                     new Comparator("Hide", "=", 0)
                 }
             ).ConfigureAwait(false);
@@ -59,21 +63,47 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             List<Dictionary<string, object>> payload = selectResult.Payload;
 
+            //whats going on here: need explanation
             result.IsSuccessful = true;
             if (payload.Count > 0) result.Payload = payload;
             return result;
         }
 
         //TODO: should I still call it Delete Notification even though we don't delete it? DateTime datatype?
-        public async Task<Result> DeleteNotification(List<Dictionary<string, object>> selectedNotifications)
-        {
-
-        }
+        //public async Task<Result> HideIndividualNotification(List<Dictionary<string, object>> selectedNotifications)
+        //{
+            
+        //}
 
         //Makes all notifications of user hidden
-        public async Task<Result> ClearAllNotifications(int userId)
+        public async Task<Result> ClearAllNotifications(int userId) //change to HideAll
         {
+            Result updateResult = await _updateDataAccess.Update(
+                _tableName,
+                new List<Comparator>()
+                {
+                    new Comparator("UserId", "=", userId),
+                },
+                new Dictionary<string, object>() 
+                {
+                    { "Hide", true }
+                }
+            ).ConfigureAwait(false);
 
+            return updateResult;
+        }
+
+        public async Task<Result> DeleteAllNotifications(int userId)
+        {
+            Result deleteResult = await _deleteDataAccess.Delete(
+                _tableName,
+                new List<Comparator>()
+                {
+                    new Comparator("UserId", "=", userId),
+                }
+            ).ConfigureAwait(false);
+
+            return deleteResult;
         }
     }
 }

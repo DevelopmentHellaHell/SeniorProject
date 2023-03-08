@@ -8,6 +8,7 @@ namespace DevelopmentHell.Hubba.Notification.Service.Abstractions
         Task<Result> CreateNewNotificationSettings(NotificationSettings settings);
         Task<Result<NotificationSettings>> SelectUserNotificationSettings(int userId);
         Task<Result> UpdateNotificationSettings(NotificationSettings settings);
+        Task<Result> ClearNotifications(int userId);
         Task<Result<UserAccount>> GetUser(int userId);
         Task<Result<int>> GetId(string email);
     }

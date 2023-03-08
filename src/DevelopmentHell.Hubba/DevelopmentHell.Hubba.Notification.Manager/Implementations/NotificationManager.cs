@@ -26,7 +26,7 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
             return await _notificationService.SelectUserNotificationSettings(userId).ConfigureAwait(false);
         }
 
-        public async Task<Result> CreateNewNotification(int userId, string message, NotificationType tag)
+        public async Task<Result> CreateNewNotification(int userId, string message, NotificationType tag, bool supressTextNotification = false)
         {
             Result result = new Result();
 
@@ -69,7 +69,8 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
             
             if ((bool)notificationSettings.TextNotifications!
                 && userAccount.CellPhoneNumber is not null
-                && userAccount.CellPhoneProvider is not null)
+                && userAccount.CellPhoneProvider is not null
+                && !supressTextNotification)
             {
                 string providerEmail = userAccount.CellPhoneNumber + _cellPhoneProviderService.GetProviderEmail((CellPhoneProviders)userAccount.CellPhoneProvider);
 
@@ -91,9 +92,39 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
         }
         public async Task<Result> UpdateNotificationSettings(NotificationSettings settings)
         {
+            Result result = new Result();
 
-            return await _notificationService.UpdateNotificationSettings(settings).ConfigureAwait(false);  
+            Result updateNotificationResult = await _notificationService.UpdateNotificationSettings(settings).ConfigureAwait(false);
+            if (!updateNotificationResult.IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = updateNotificationResult.ErrorMessage;
+                return result;
+            }
+
+            string message = "Your Notification Settings have been changed.";
+            Result createNotificationResult = await CreateNewNotification(
+                settings.UserId,
+                message,
+                NotificationType.OTHER,
+                true
+            ).ConfigureAwait(false);
+
+            if (!createNotificationResult.IsSuccessful) {
+                result.IsSuccessful = false;
+                result.ErrorMessage = createNotificationResult.ErrorMessage;
+                return result;
+            }
+
+            result.IsSuccessful = true;
+            return result;
         }
+
+        public async Task<Result> ClearNotifications(int userId)
+        {
+            return await _notificationService.ClearNotifications(userId).ConfigureAwait(false);
+        }
+
     }
     //TODO: task<result> UpdateNotificationSettings(NotificationSettings settings) -> NotificationSettingsDA
     

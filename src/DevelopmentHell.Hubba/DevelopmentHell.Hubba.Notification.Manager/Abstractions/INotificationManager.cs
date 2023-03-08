@@ -5,9 +5,9 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Abstractions
     public interface INotificationManager
     {
         Task<Result<NotificationSettings>> GetNotificationSettings(int id);
-        Task<Result> CreateNewNotification(int id, string message, NotificationType tag);
+        Task<Result> CreateNewNotification(int id, string message, NotificationType tag, bool supressTextNotification = false);
         Task<Result> UpdateNotificationSettings(NotificationSettings settings);
-        Task<Result> DeleteNotification(List<Dictionary<string, object>> selectedNotifications);
-        Task<Result> ClearAllNotifications(int userId);
+        //Task<Result> DeleteNotification(List<Dictionary<string, object>> selectedNotifications);
+        Task<Result> ClearNotifications(int userId);
     }
 }

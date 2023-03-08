@@ -9,6 +9,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         private InsertDataAccess _insertDataAccess;
         private UpdateDataAccess _updateDataAccess;
         private SelectDataAccess _selectDataAccess;
+        private DeleteDataAccess _deleteDataAccess;
         private string _tableName;
 
         public NotificationSettingsDataAccess(string connectionString, string tableName)
@@ -16,6 +17,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             _insertDataAccess = new InsertDataAccess(connectionString);
             _updateDataAccess = new UpdateDataAccess(connectionString);
             _selectDataAccess = new SelectDataAccess(connectionString);
+            _deleteDataAccess = new DeleteDataAccess(connectionString);
             _tableName = tableName;
         }
 
@@ -106,6 +108,19 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 TypeOther = (bool)payload.First()["TypeOther"]
             };
             return result;
+        }
+
+        public async Task<Result> DeleteNotificationSettings(int userId)
+        {
+            Result deleteResult = await _deleteDataAccess.Delete(
+                _tableName,
+                new List<Comparator>()
+                {
+                    new Comparator("UserId", "=", userId),
+                }
+            ).ConfigureAwait(false);
+
+            return deleteResult;
         }
     }
 }
