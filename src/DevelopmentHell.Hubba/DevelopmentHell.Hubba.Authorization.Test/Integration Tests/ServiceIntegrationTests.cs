@@ -16,15 +16,15 @@ using System.Text;
 namespace DevelopmentHell.Hubba.Authorization.Test
 {
 	[TestClass]
-	public class IntegrationTests
+	public class ServiceIntegrationTests
 	{
-		// Service to test
-		private IAuthorizationService _authorizationService;
-		// Helper services
-		private IRegistrationService _registrationService;
-		private IUserAccountDataAccess _userAccountDataAccess;
+		// Class to test
+		private readonly IAuthorizationService _authorizationService;
+		// Helper classes
+		private readonly IRegistrationService _registrationService;
+		private readonly IUserAccountDataAccess _userAccountDataAccess;
 
-		public IntegrationTests()
+		public ServiceIntegrationTests()
 		{
 			_userAccountDataAccess = new UserAccountDataAccess(
 				ConfigurationManager.AppSettings["UsersConnectionString"]!,
@@ -92,104 +92,71 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 			Assert.IsNotNull(_authorizationService);
 		}
 
-		[TestMethod]
-		public async Task ShouldGenerateJwtToken()
+		[DataTestMethod]
+		[DataRow(false, "VerifiedUser")]
+		[DataRow(true, "DefaultUser")]
+		public async Task ShouldGenerateJwtToken(bool defaultUser, string role)
 		{
 			// Arrange
-			//    Setup user
+			//  - Setup user and initial state
 			var email = "test@gmail.com";
 			var password = "12345678";
-			var registrationResult = await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+			await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
 			var userIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
 			var id = userIdResult.Payload;
-			var userResult = await _userAccountDataAccess.GetUser(id).ConfigureAwait(false);
 
-			var expectedId = id;
-			var expectedEmail = email;
-			var expectedRole = userResult.Payload!.Role;
+			var expectedResultSuccess = true;
+			var expectedRole = role;
 
 			// Actual
-			var actualToken = await _authorizationService.GenerateToken(id).ConfigureAwait(false);
+			var actualTokenResult = await _authorizationService.GenerateToken(id, defaultUser).ConfigureAwait(false);
 			ClaimsPrincipal? actualPrincipal = null;
-			if (actualToken.IsSuccessful)
+			if (actualTokenResult.IsSuccessful)
 			{
-				decodeJWT(actualToken.Payload!);
+				decodeJWT(actualTokenResult.Payload!);
 				actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 			}
 
 			// Assert
-			Assert.IsTrue(actualToken.IsSuccessful);
+			Assert.IsTrue(expectedResultSuccess == actualTokenResult.IsSuccessful);
 			Assert.IsNotNull(actualPrincipal);
-			Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Email)! == expectedEmail);
+			Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Email)! == email);
 			Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Role)! == expectedRole);
-			Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue("accountId")!) == expectedId);
+			Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue("accountId")!) == id);
 
-			// Cleanup
-			await _userAccountDataAccess.Delete(id).ConfigureAwait(false);
-		}
-
-		[TestMethod]
-		public async Task ShouldGenerateDefaultJwtToken()
-		{
-			// Arrange
-			//    Setup user
-			var email = "test@gmail.com";
-			var password = "12345678";
-			var registrationResult = await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
-			var userIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
-			var id = userIdResult.Payload;
-
-			var expectedId = id;
-			var expectedEmail = email;
-			var expectedRole = "DefaultUser";
-
-			// Actual
-			var actualToken = await _authorizationService.GenerateToken(id, true).ConfigureAwait(false);
-			ClaimsPrincipal? actualPrincipal = null;
-			if (actualToken.IsSuccessful)
-			{
-				decodeJWT(actualToken.Payload!);
-				actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
-			}
-
-			// Assert
-			Assert.IsTrue(actualToken.IsSuccessful);
-			Assert.IsNotNull(actualPrincipal);
-			Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Email)! == expectedEmail);
-			Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Role)! == expectedRole);
-			Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue("accountId")!) == expectedId);
-
-			// Cleanup
+			//  - Cleanup
 			await _userAccountDataAccess.Delete(id).ConfigureAwait(false);
 		}
 
 		[DataTestMethod]
 		[DataRow("AdminUser")]
 		[DataRow("DefaultUser", "VerifiedUser")]
+		[DataRow("")]
 		public async Task ShouldAuthorize(params string[] roles)
 		{
 			// Arrange
+			//  - Setup user and initial state
 			var email = "test@gmail.com";
 			var password = "12345678";
-			var registrationResult = await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+			await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
 			var userIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
 			var id = userIdResult.Payload;
-			var userResult = await _userAccountDataAccess.GetUser(id).ConfigureAwait(false);
-			var actualToken = await _authorizationService.GenerateToken(id, true).ConfigureAwait(false);
-			if (actualToken.IsSuccessful)
+			var actualTokenResult = await _authorizationService.GenerateToken(id, true).ConfigureAwait(false);
+			if (actualTokenResult.IsSuccessful)
 			{
-				decodeJWT(actualToken.Payload!);
+				decodeJWT(actualTokenResult.Payload!);
 			}
 
-			var expectedRole = userResult.Payload!.Role;
+			var expectedRole = "VerifiedUser";
+			var expectedResultSuccess = roles.Contains(expectedRole);
 
 			// Actual
 			var actual = _authorizationService.Authorize(roles);
 
 			// Assert
-			Assert.IsTrue(roles.Contains(expectedRole) == actual.IsSuccessful);
+			Assert.IsTrue(expectedResultSuccess == actual.IsSuccessful);
 
-			// Cleanup
+			//  - Cleanup
 			await _userAccountDataAccess.Delete(id).ConfigureAwait(false);
 		}
 	}

@@ -24,8 +24,4 @@
     <ProjectReference Include="..\DevelopmentHell.Hubba.Registration\DevelopmentHell.Hubba.Registration.Service.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Unit Tests\" />
-  </ItemGroup>
-
 </Project>

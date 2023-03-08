@@ -27,7 +27,7 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
             _loggerService = loggerService;
         }
         
-        public async Task<Result<string>> Login(string email, string password, string ipAddress, bool enabledSend = true)
+        public async Task<Result<string>> Login(string email, string password, string ipAddress)
         {
             Result<string> result = new();
 
