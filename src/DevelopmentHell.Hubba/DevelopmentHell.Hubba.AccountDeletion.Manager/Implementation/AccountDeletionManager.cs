@@ -50,7 +50,11 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations
                         return result;
                     }
                     // this is a verified user who is deleting their own account
-                    Result deletionResult = await DeleteAccountNotifyListingsBookings(accountId);
+
+                    //TODO: GOLD PLATING notify other users affiliated with this account
+                    //Result<List<Dictionary<string, object>>> listingsBookingsResult = await _accountDeletionService.GetListingsBookings(accountId).ConfigureAwait(false);
+
+                    Result deletionResult = await DeleteAccountAndLog(accountId);
                     if (!deletionResult.IsSuccessful)
                     {
                         result.IsSuccessful = false;
@@ -59,6 +63,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations
                     }
                     // log the user out before deleting their account
                     _authenticationService.Logout();
+
                     return deletionResult;
                 }
 
@@ -80,13 +85,14 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations
                         }
                     }
                     // Admin deleting any other account than their own
-                    Result deletionResult = await DeleteAccountNotifyListingsBookings(accountId);
+                    Result deletionResult = await DeleteAccountAndLog(accountId);
                     if (!deletionResult.IsSuccessful)
                     {
                         result.IsSuccessful = false;
                         result.ErrorMessage = deletionResult.ErrorMessage;
                         return result;
                     }
+
                     return deletionResult;
                 }
                 else
@@ -103,17 +109,13 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations
                 return result;
             }
         }
-        private async Task<Result> DeleteAccountNotifyListingsBookings(int accountID)
-        {     // The user is deleting an account
-            Result result = new();
-            Result deletionResult = await _accountDeletionService.DeleteAccountNotifyListingsBookings(accountID).ConfigureAwait(false);
-            //if (!deletionResult.IsSuccessful)
-            //{
-            //    result.IsSuccessful = false;
-            //    result.ErrorMessage = deletionResult.ErrorMessage;
-            //    return result;
-            //}
-            Result logRes = _loggerService.Log(Models.LogLevel.INFO, Category.BUSINESS, $"Account has been deleted. ID: {accountID}", null);
+        private async Task<Result> DeleteAccountAndLog(int accountID)
+        {
+            Result deletionResult = await _accountDeletionService.DeleteAccount(accountID).ConfigureAwait(false);
+            if (deletionResult.IsSuccessful)
+            {
+                Result logRes = _loggerService.Log(Models.LogLevel.INFO, Category.BUSINESS, $"Account has been deleted. ID: {accountID}", null);
+            }
 
             return deletionResult;
         }
