@@ -95,6 +95,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Accou
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.AccountRecovery.Test", "DevelopmentHell.Hubba.AccountRecovery.Test\DevelopmentHell.Hubba.AccountRecovery.Test.csproj", "{27DD639C-883B-441A-8967-D080EE2239AF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{CACAE86A-55F9-459A-967B-38978156B681}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -205,6 +207,10 @@ Global
 		{27DD639C-883B-441A-8967-D080EE2239AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{27DD639C-883B-441A-8967-D080EE2239AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27DD639C-883B-441A-8967-D080EE2239AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CACAE86A-55F9-459A-967B-38978156B681}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CACAE86A-55F9-459A-967B-38978156B681}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CACAE86A-55F9-459A-967B-38978156B681}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CACAE86A-55F9-459A-967B-38978156B681}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -239,6 +245,7 @@ Global
 		{C148935E-7532-4BE6-A091-8AB8F8E7A874} = {B0CA7BBB-28E5-4E0B-8469-CB306F709D85}
 		{CD2F5DD5-56A2-480A-BF9D-6FFB3F7D8721} = {AF8ADA89-9511-4DF9-B861-281AC81D112D}
 		{27DD639C-883B-441A-8967-D080EE2239AF} = {5A528968-95F9-4E5A-98CB-501EE0759FDC}
+		{CACAE86A-55F9-459A-967B-38978156B681} = {0E8013DB-F597-49E1-9C90-367A98C5BE69}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E49330E5-F92F-4990-A904-E75E376A2656}
