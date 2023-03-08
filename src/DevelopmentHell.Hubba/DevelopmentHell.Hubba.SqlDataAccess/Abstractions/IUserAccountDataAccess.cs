@@ -4,7 +4,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 {
 	public interface IUserAccountDataAccess
 	{
-		Task<Result> CreateUserAccount(string email, HashData password);
+		Task<Result> CreateUserAccount(string email, HashData password, string role);
 		Task<Result<int>> GetId(string email);
 		Task<Result<int>> GetId(string email, HashData password);
 		Task<Result<UserAccount>> GetUser(int id);
@@ -15,6 +15,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 		Task<Result> Delete(int id);
 		Task<Result> Delete(string email);
 		Task<Result<int>> CountAdmin();
+		Task<Result> InsertUpdateAccount(string email, Dictionary<string, object> data);
+		Task<Result> SetEnabledStatus(string email, bool enabled);
+		Task<Result> SetEnabledStatus(int id, bool enabled);
 
     }
 }

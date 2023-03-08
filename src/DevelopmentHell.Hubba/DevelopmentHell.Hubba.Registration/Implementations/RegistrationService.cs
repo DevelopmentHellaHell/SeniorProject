@@ -22,7 +22,7 @@ namespace DevelopmentHell.Hubba.Registration.Service.Implementations
             _loggerService = loggerService;
 		}
 
-		public async Task<Result> RegisterAccount(string email, string password)
+		public async Task<Result> RegisterAccount(string email, string password, string accountType = "VerifiedUser")
 		{
 			Result result = new Result();
 
@@ -46,7 +46,7 @@ namespace DevelopmentHell.Hubba.Registration.Service.Implementations
 
 				Console.WriteLine(getResult.ErrorMessage);
 				result.IsSuccessful = false;
-				result.ErrorMessage = "Unable to assign username. Retry again or contact system administrator";
+				result.ErrorMessage = "Unable to check for previous use of email. Retry again or contact system administrator";
 				return result;
 			}
 
@@ -60,7 +60,7 @@ namespace DevelopmentHell.Hubba.Registration.Service.Implementations
 			Random random = new((int)(DateTime.Now.Ticks << 4 >> 4));
 			string salt = new(Enumerable.Repeat(_cryptographyService.GetSaltValidChars(), 64).Select(s => s[random.Next(s.Length)]).ToArray());
 			HashData hashData = _cryptographyService.HashString(password, salt).Payload!;
-			Result createResult = await _userAccountDataAccess.CreateUserAccount(email, hashData);
+			Result createResult = await _userAccountDataAccess.CreateUserAccount(email, hashData, accountType);
 			return createResult;
 		}
 	}

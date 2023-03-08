@@ -19,7 +19,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			_tableName = tableName;
 		}
 
-		public async Task<Result> CreateUserAccount(string email, HashData password)
+		public async Task<Result> CreateUserAccount(string email, HashData password, string role = "VerifiedUser")
 		{
 			Result insertResult = await _insertDataAccess.Insert(
 				_tableName,
@@ -31,7 +31,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 					{ "LoginAttempts", 0 },
 					{ "FailureTime", DBNull.Value },
 					{ "Disabled", false },
-					{ "Role", "VerifiedUser" }
+					{ "Role", role }
 				}
 			).ConfigureAwait(false);
 
@@ -326,6 +326,21 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			result.Payload = (int)payload[0]["AdminCount"];
 
             return result;
+        }
+
+        public Task<Result> InsertUpdateAccount(string email, Dictionary<string, object> data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Result> SetEnabledStatus(string email, bool enabled)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Result> SetEnabledStatus(int id, bool enabled)
+        {
+            throw new NotImplementedException();
         }
     }
 }
