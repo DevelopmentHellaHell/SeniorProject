@@ -76,7 +76,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         //}
 
         //Makes all notifications of user hidden
-        public async Task<Result> ClearAllNotifications(int userId) //change to HideAll
+        public async Task<Result> HideAllNotifications(int userId) //change to HideAll
         {
             Result updateResult = await _updateDataAccess.Update(
                 _tableName,

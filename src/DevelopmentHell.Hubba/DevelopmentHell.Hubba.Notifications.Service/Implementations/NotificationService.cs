@@ -33,6 +33,11 @@ namespace DevelopmentHell.Hubba.Notification.Service.Implementations
             return await _notificationDataAccess.AddNotification(userId, message, tag).ConfigureAwait(false);
         }
 
+        public async Task<Result<List<Dictionary<string, object>>>> GetNotifications(int userId)
+        {
+            return await _notificationDataAccess.GetNotifications(userId).ConfigureAwait(false);
+        }
+
         public async Task<Result> CreateNewNotificationSettings(NotificationSettings settings)
         {
             return await _notificationSettingsDataAccess.CreateUserNotificationSettings(settings).ConfigureAwait(false);
@@ -48,14 +53,29 @@ namespace DevelopmentHell.Hubba.Notification.Service.Implementations
             return await _notificationSettingsDataAccess.UpdateUserNotificationSettings(settings).ConfigureAwait(false);
         }
 
-        public async Task<Result> ClearNotifications(int userId)
+        public async Task<Result> HideNotifications(int userId)
         {
-            return await _notificationDataAccess.ClearAllNotifications(userId).ConfigureAwait(false);
+            return await _notificationDataAccess.HideAllNotifications(userId).ConfigureAwait(false);
+        }
+
+        public async Task<Result> DeleteNotificationSettings(int userId)
+        {
+            return await _notificationSettingsDataAccess.DeleteNotificationSettings(userId).ConfigureAwait(false);
+        }
+
+        public async Task<Result> DeleteAllNotifications(int userId)
+        {
+            return await _notificationDataAccess.DeleteAllNotifications(userId).ConfigureAwait(false);
         }
 
         public async Task<Result<UserAccount>> GetUser(int userId)
         {
             return await _userAccountDataAccess.GetUser(userId).ConfigureAwait(false);
+        }
+
+        public async Task<Result<List<Dictionary<string, object>>>> GetNotifications(int userId)
+        {
+            return await _notificationDataAccess.GetNotifications(userId).ConfigureAwait(false);
         }
 
         public async Task<Result<int>> GetId(string email)

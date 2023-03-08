@@ -90,6 +90,13 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
 
             return await _notificationService.AddNotification(userId, message, tag).ConfigureAwait(false);
         }
+
+        //TODO: idk why its acting like this
+        public async Task<Result<List<Dictionary<string, object>>>> GetNotifications(int userId)
+        {
+            return await _notificationService.GetNotifications(userId).ConfigureAwait(false);
+        }
+
         public async Task<Result> UpdateNotificationSettings(NotificationSettings settings)
         {
             Result result = new Result();
@@ -120,13 +127,21 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
             return result;
         }
 
-        public async Task<Result> ClearNotifications(int userId)
+        public async Task<Result> HideNotifications(int userId)
         {
-            return await _notificationService.ClearNotifications(userId).ConfigureAwait(false);
+            return await _notificationService.HideNotifications(userId).ConfigureAwait(false);
         }
 
+        public async Task<Result> DeleteNotificationSettings(int userId)
+        {
+            return await _notificationService.DeleteNotificationSettings(userId).ConfigureAwait(false);
+        }
+
+        public async Task<Result> DeleteAllNotifications(int userId)
+        {
+            return await _notificationService.DeleteAllNotifications(userId).ConfigureAwait(false);
+        }
     }
-    //TODO: task<result> UpdateNotificationSettings(NotificationSettings settings) -> NotificationSettingsDA
     
 
     //TODO: method to get notifications list
