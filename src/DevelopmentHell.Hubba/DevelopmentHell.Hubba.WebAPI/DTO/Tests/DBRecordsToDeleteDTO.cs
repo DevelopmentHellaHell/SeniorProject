@@ -1,9 +1,7 @@
-﻿using DevelopmentHell.Hubba.Models.Tests;
-
-namespace DevelopmentHell.Hubba.WebAPI.DTO.Tests
+﻿namespace DevelopmentHell.Hubba.WebAPI.DTO.Tests
 {
 	public class DBRecordsToDeleteDTO
 	{
-		public Databases Database { get; set; }
+		public string Database { get; set; }
 	}
 }

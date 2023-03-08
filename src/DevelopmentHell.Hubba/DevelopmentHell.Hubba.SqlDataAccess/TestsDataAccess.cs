@@ -83,5 +83,25 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			result.IsSuccessful = true;
 			return result;
 		}
-	}
+
+        public Databases? GetDatabase(string dbStr)
+        {
+            foreach (var kvp in _databaseStructure)
+			{
+				if (Enum.GetName(kvp.Key)!.ToUpper() == dbStr.ToUpper()) return kvp.Key;
+			}
+
+			return null;
+        }
+
+		public Tables? GetTable(Databases db, string tStr)
+		{
+			foreach (var kvp in _databaseStructure[db].Item3)
+			{
+                if (Enum.GetName(kvp.Key)!.ToUpper() == tStr.ToUpper()) return kvp.Key;
+            }
+
+            return null;
+        }
+    }
 }
