@@ -1,4 +1,5 @@
-﻿using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
+﻿using DevelopmentHell.Hubba.Models.Tests;
+using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.WebAPI.DTO.Tests;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +37,13 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 				return BadRequest("Invalid request.");
 			}
 
-			var deleteResult = await _testsDataAccess.DeleteDatabaseRecords(dbRecordsToDeleteDTO.Database).ConfigureAwait(false);
+			var db = _testsDataAccess.GetDatabase(dbRecordsToDeleteDTO.Database);
+			if (db is null)
+			{
+				return BadRequest($"Could not find database {dbRecordsToDeleteDTO.Database}");
+			}
+
+            var deleteResult = await _testsDataAccess.DeleteDatabaseRecords((Databases)db).ConfigureAwait(false);
 			if (!deleteResult.IsSuccessful)
 			{
 				return BadRequest(deleteResult.ErrorMessage);
@@ -49,7 +56,24 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 		[Route("deleteTableRecords")]
 		public async Task<IActionResult> DeleteTableRecords(TRecordsToDeleteDTO tRecordsToDeleteDTO)
 		{
-			var deleteResult = await _testsDataAccess.DeleteTableRecords(tRecordsToDeleteDTO.Database, tRecordsToDeleteDTO.Table).ConfigureAwait(false);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid request.");
+            }
+
+            var db = _testsDataAccess.GetDatabase(tRecordsToDeleteDTO.Database);
+            if (db is null)
+            {
+                return BadRequest($"Could not find database {tRecordsToDeleteDTO.Database}");
+            }
+
+			var t = _testsDataAccess.GetTable((Databases)db, tRecordsToDeleteDTO.Table);
+			if (t is null)
+			{
+				return BadRequest($"Could not find table {tRecordsToDeleteDTO.Table} in {tRecordsToDeleteDTO.Database}");
+			}
+
+            var deleteResult = await _testsDataAccess.DeleteTableRecords((Databases)db, (Tables)t).ConfigureAwait(false);
 			if (!deleteResult.IsSuccessful)
 			{
 				return BadRequest(deleteResult.ErrorMessage);
