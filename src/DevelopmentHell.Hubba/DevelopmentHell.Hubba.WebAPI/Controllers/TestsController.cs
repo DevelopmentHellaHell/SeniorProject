@@ -1,6 +1,8 @@
-﻿using DevelopmentHell.Hubba.SqlDataAccess;
+﻿using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
+using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.WebAPI.DTO.Tests;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.WebAPI.Controllers
 {
@@ -9,10 +11,12 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 	public class TestsController : Controller
 	{
 		private readonly TestsDataAccess _testsDataAccess;
+		private readonly IOTPService _otpService;
 
-		public TestsController(TestsDataAccess testsDataAccess)
+		public TestsController(TestsDataAccess testsDataAccess, IOTPService otpService)
 		{
 			_testsDataAccess = testsDataAccess;
+			_otpService = otpService;
 		}
 
 #if DEBUG
@@ -53,7 +57,27 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 
 			return Ok();
 		}
-#endif
 
+		[HttpGet]
+		[Route("getOtp")]
+		public async Task<IActionResult> GetOTP()
+		{
+			var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+			var stringAccountId = claimsPrincipal?.FindFirstValue("accountId");
+			if (stringAccountId is null)
+			{
+				return BadRequest("Error, invalid access token format.");
+			}
+
+			var accountId = int.Parse(stringAccountId);
+			var result = await _otpService.GetOTP(accountId).ConfigureAwait(false);
+			if (!result.IsSuccessful || result.Payload is null)
+			{
+				return BadRequest(result.ErrorMessage);
+			}
+
+			return Ok(result.Payload);
+		}
+#endif
 	}
 }
