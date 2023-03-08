@@ -23,6 +23,7 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 		// Helper classes
 		private readonly IRegistrationService _registrationService;
 		private readonly IUserAccountDataAccess _userAccountDataAccess;
+		private readonly TestsDataAccess _testsDataAccess;
 
 		public ServiceIntegrationTests()
 		{
@@ -51,6 +52,8 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 				new ValidationService(),
 				loggerService
 			);
+
+			_testsDataAccess = new TestsDataAccess();
 		}
 
 		private void decodeJWT(string token)
@@ -158,6 +161,12 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 
 			//  - Cleanup
 			await _userAccountDataAccess.Delete(id).ConfigureAwait(false);
+		}
+
+		[TestCleanup]
+		public async Task Cleanup()
+		{
+			await _testsDataAccess.DeleteAllRecords().ConfigureAwait(false);
 		}
 	}
 }

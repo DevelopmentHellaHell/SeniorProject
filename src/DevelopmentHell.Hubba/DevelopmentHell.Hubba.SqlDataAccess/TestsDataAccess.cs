@@ -65,5 +65,23 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			DeleteDataAccess deleteDataAccess = new DeleteDataAccess(_databaseStructure[db].Item2);
 			return await deleteDataAccess.Delete(tValue, null).ConfigureAwait(false);
 		}
+
+		public async Task<Result> DeleteAllRecords()
+		{
+			Result result = new Result();
+			foreach (Databases db in Enum.GetValues(typeof(Databases)))
+			{
+				Result deleteResult = await DeleteDatabaseRecords(db).ConfigureAwait(false);
+				if (!deleteResult.IsSuccessful)
+				{
+					result.IsSuccessful = false;
+					result.ErrorMessage = deleteResult.ErrorMessage;
+					return result;
+				}
+			}
+
+			result.IsSuccessful = true;
+			return result;
+		}
 	}
 }
