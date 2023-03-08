@@ -91,8 +91,7 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
             return await _notificationService.AddNotification(userId, message, tag).ConfigureAwait(false);
         }
 
-        //TODO: idk why its acting like this
-        public async Task<Result<List<Dictionary<string, object>>>> GetNotifications(int userId)
+        public async Task<Result<List<Dictionary<string, object>>>> GetNotificaions(int userId)
         {
             return await _notificationService.GetNotifications(userId).ConfigureAwait(false);
         }

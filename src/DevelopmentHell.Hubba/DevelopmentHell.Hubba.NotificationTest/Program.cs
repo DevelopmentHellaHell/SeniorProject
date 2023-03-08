@@ -42,7 +42,7 @@ var notificationManager = new NotificationManager(
 //settings.SiteNotifications = false;
 //Result result = await notificationManager.UpdateNotificationSettings(settings);
 
-Result result = await notificationManager.ClearNotifications(8);
+Result result = await notificationManager.HideNotifications(8);
 
 Console.WriteLine(result.IsSuccessful);
 Console.WriteLine(result.ErrorMessage);

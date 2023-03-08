@@ -73,11 +73,6 @@ namespace DevelopmentHell.Hubba.Notification.Service.Implementations
             return await _userAccountDataAccess.GetUser(userId).ConfigureAwait(false);
         }
 
-        public async Task<Result<List<Dictionary<string, object>>>> GetNotifications(int userId)
-        {
-            return await _notificationDataAccess.GetNotifications(userId).ConfigureAwait(false);
-        }
-
         public async Task<Result<int>> GetId(string email)
         {
             return await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
