@@ -12,13 +12,13 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementations
 {
 	public class AuthorizationService : IAuthorizationService
 	{
-		private readonly NameValueCollection _configuration;
+		private readonly string _jwtKey;
 		private IUserAccountDataAccess _userAccountDataAccess;
 		private ILoggerService _loggerService;
 
-        public AuthorizationService(NameValueCollection configuration, IUserAccountDataAccess userAccountDataAccess, ILoggerService loggerService)
+        public AuthorizationService(string jwtKey, IUserAccountDataAccess userAccountDataAccess, ILoggerService loggerService)
 		{
-			_configuration = configuration;
+			_jwtKey = jwtKey;
 			_userAccountDataAccess = userAccountDataAccess;
 			_loggerService = loggerService;
 		}
@@ -54,7 +54,7 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementations
 					//TODO: Magic Number
 					Expires = date.AddMinutes(!defaultUser ? 60 : 2),
 					NotBefore = date,
-					SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["JwtKey"]!)), SecurityAlgorithms.HmacSha256Signature)
+					SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtKey)), SecurityAlgorithms.HmacSha256Signature)
 				};
 
 				var token = handler.CreateToken(descriptor);
@@ -66,7 +66,7 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementations
 			}
 		}
 
-        public Result authorize(string[] roles)
+        public Result Authorize(string[] roles)
 		{
 			Result result = new Result()
 			{

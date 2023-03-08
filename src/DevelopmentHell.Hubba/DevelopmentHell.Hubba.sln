@@ -65,7 +65,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Valid
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Authorization.Service", "DevelopmentHell.Hubba.Authorization.Service\DevelopmentHell.Hubba.Authorization.Service.csproj", "{1D21CC28-BBBD-4D0F-8342-675EC3A17FEB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.HashService.Test", "DevelopmentHell.Hubba.HashService.Test\DevelopmentHell.Hubba.HashService.Test.csproj", "{704040F7-A1DB-4610-B7F3-F3A126D4B34A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Cryptography.Test", "DevelopmentHell.Hubba.HashService.Test\DevelopmentHell.Hubba.Cryptography.Test.csproj", "{704040F7-A1DB-4610-B7F3-F3A126D4B34A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Authorization.Test", "DevelopmentHell.Hubba.Authorization.Test\DevelopmentHell.Hubba.Authorization.Test.csproj", "{1A770B3B-EF63-4420-98AC-DD4E13E1DC2B}"
 EndProject
