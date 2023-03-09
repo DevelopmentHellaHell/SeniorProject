@@ -13,6 +13,7 @@ using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
+using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
 using Microsoft.IdentityModel.Tokens;
@@ -23,38 +24,46 @@ using System.Text;
 
 namespace DevelopmentHell.Hubba.Authentication.Test
 {
-	[TestClass]
+    [TestClass]
 	public class ManagerIntegrationTests
 	{
-		// Class to test
-		private readonly IAuthenticationManager _authenticationManager;
+        private string _usersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
+        private string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
+        private string _userOTPsTable = ConfigurationManager.AppSettings["UserOTPsTable"]!;
+        private string _userLoginsTable = ConfigurationManager.AppSettings["UserLoginsTable"]!;
+        private string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
+        private string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
+		private string _jwtKey = ConfigurationManager.AppSettings["JwtKey"]!;
+
+        // Class to test
+        private readonly IAuthenticationManager _authenticationManager;
 		// Helper classes
 		private readonly IUserAccountDataAccess _userAccountDataAccess;
 		private readonly IRegistrationService _registrationService;
 		private readonly IOTPService _otpService;
-		private readonly TestsDataAccess _testsDataAccess;
+		private readonly TestingService _testingService;
 
 		public ManagerIntegrationTests()
 		{
 			ILoggerService loggerService = new LoggerService(
 				new LoggerDataAccess(
-					ConfigurationManager.AppSettings["LogsConnectionString"]!,
-					ConfigurationManager.AppSettings["LogsTable"]!
-				)
+                    _logsConnectionString,
+                    _logsTable
+                )
 			);
 			_userAccountDataAccess = new UserAccountDataAccess(
-				ConfigurationManager.AppSettings["UsersConnectionString"]!,
-				ConfigurationManager.AppSettings["UserAccountsTable"]!
-			);
+                _usersConnectionString,
+                _userAccountsTable
+            );
 			ICryptographyService cryptographyService = new CryptographyService(
 				ConfigurationManager.AppSettings["CryptographyKey"]!
 			);
 			IValidationService validationService = new ValidationService();
 			_otpService = new OTPService(
 				new OTPDataAccess(
-					ConfigurationManager.AppSettings["UsersConnectionString"]!,
-					ConfigurationManager.AppSettings["UserOTPsTable"]!
-				),
+                    _usersConnectionString,
+                    _userOTPsTable
+                ),
 				new EmailService(
 					ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!,
 					ConfigurationManager.AppSettings["SENDGRID_API_KEY"]!,
@@ -62,73 +71,39 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 				),
 				cryptographyService
 			);
-
 			_authenticationManager = new AuthenticationManager(
 				new AuthenticationService(
 					_userAccountDataAccess,
 					new UserLoginDataAccess(
-						ConfigurationManager.AppSettings["UsersConnectionString"]!,
-						ConfigurationManager.AppSettings["UserLoginsTable"]!
-					),
+                        _usersConnectionString,
+                        _userLoginsTable
+                    ),
 					cryptographyService,
 					validationService,
 					loggerService
 				),
 				_otpService,
 				new AuthorizationService(
-					ConfigurationManager.AppSettings["JwtKey"]!,
-					new UserAccountDataAccess(
-						ConfigurationManager.AppSettings["UsersConnectionString"]!,
-						ConfigurationManager.AppSettings["UserAccountsTable"]!
-					),
+                    _jwtKey,
+                    new UserAccountDataAccess(
+                        _usersConnectionString,
+                        _userAccountsTable
+                    ),
 					loggerService
 				),
 				cryptographyService,
 				loggerService
 			);
-
 			_registrationService = new RegistrationService(
 				_userAccountDataAccess,
 				cryptographyService,
 				validationService,
 				loggerService
 			);
-
-			_testsDataAccess = new TestsDataAccess();
-		}
-
-		private void decodeJWT(string token)
-		{
-
-			if (token is not null)
-			{
-				// Parse the JWT token and extract the principal
-				var tokenHandler = new JwtSecurityTokenHandler();
-				var key = Encoding.ASCII.GetBytes(ConfigurationManager.AppSettings["JwtKey"]!);
-				var validationParameters = new TokenValidationParameters
-				{
-					ValidateIssuer = false,
-					ValidateAudience = false,
-					ValidateLifetime = true,
-					IssuerSigningKey = new SymmetricSecurityKey(key)
-				};
-
-				try
-				{
-					SecurityToken validatedToken;
-					var principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
-
-					Thread.CurrentPrincipal = principal;
-					return;
-				}
-				catch (Exception)
-				{
-					// Handle token validation errors
-					Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "DefaultUser") }));
-					return;
-				}
-			}
-		}
+            _testingService = new TestingService(
+                new TestsDataAccess()
+            );
+        }
 
 		[TestMethod]
 		public void ShouldInstansiateCtor()
@@ -160,7 +135,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			ClaimsPrincipal? actualPrincipal = null;
 			if (actualLoginResult.IsSuccessful)
 			{
-				decodeJWT(actualLoginResult.Payload!);
+				_testingService.DecodeJWT(actualLoginResult.Payload!);
 				actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 			}
 
@@ -224,11 +199,11 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			Result<string> actualLoginResult = new Result<string>();
 			//  - Log in attempt #1
 			actualLoginResult = await _authenticationManager.Login(credentialEmail, credentialPassword, ipAddress);
-			decodeJWT(actualLoginResult.Payload!);
+			_testingService.DecodeJWT(actualLoginResult.Payload!);
 			//  - Get valid OTP from database
 			var otpResult = await _otpService.GetOTP(id).ConfigureAwait(false);
 			var authenticateOTPResult = await _authenticationManager.AuthenticateOTP(otpResult.Payload!, ipAddress).ConfigureAwait(false);
-			decodeJWT(authenticateOTPResult.Payload!);
+			_testingService.DecodeJWT(authenticateOTPResult.Payload!);
 			
 			//  - Log in attempt #2
 			actualLoginResult = await _authenticationManager.Login(credentialEmail, credentialPassword, ipAddress);
@@ -253,7 +228,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			var userIdResult = await _userAccountDataAccess.GetId(credentialEmail).ConfigureAwait(false);
 			var id = userIdResult.Payload;
 			var actualLoginResult = await _authenticationManager.Login(credentialEmail, credentialPassword, ipAddress);
-			decodeJWT(actualLoginResult.Payload!);
+			_testingService.DecodeJWT(actualLoginResult.Payload!);
 
 			var expectedResultSuccess = false;
 			var expectedRole = "DefaultUser";
@@ -263,7 +238,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			ClaimsPrincipal? actualPrincipal = null;
 			if (actualLoginResult.IsSuccessful)
 			{
-				decodeJWT(actualLoginResult.Payload!);
+				_testingService.DecodeJWT(actualLoginResult.Payload!);
 				actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 			}
 
@@ -287,7 +262,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			var userIdResult = await _userAccountDataAccess.GetId(credentialEmail).ConfigureAwait(false);
 			var id = userIdResult.Payload;
 			var loginResult = await _authenticationManager.Login(credentialEmail, credentialPassword, ipAddress);
-			decodeJWT(loginResult.Payload!);
+			_testingService.DecodeJWT(loginResult.Payload!);
 			//  - Get valid OTP from database
 			var otpResult = await _otpService.GetOTP(id).ConfigureAwait(false);
 
@@ -299,7 +274,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			ClaimsPrincipal? actualPrincipal = null;
 			if (actualAuthenticateOTPResult.IsSuccessful)
 			{
-				decodeJWT(actualAuthenticateOTPResult.Payload!);
+				_testingService.DecodeJWT(actualAuthenticateOTPResult.Payload!);
 				actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 			}
 
@@ -347,7 +322,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 		[TestCleanup]
 		public async Task Cleanup()
 		{
-			await _testsDataAccess.DeleteAllRecords().ConfigureAwait(false);
+			await _testingService.DeleteAllRecords().ConfigureAwait(false);
 		}
 	}
 }

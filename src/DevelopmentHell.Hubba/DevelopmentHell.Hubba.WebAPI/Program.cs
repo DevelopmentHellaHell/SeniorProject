@@ -32,12 +32,19 @@ using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
+using DevelopmentHell.Hubba.Testing.Service.Implementations;
+using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.Services.AddSingleton<TestsDataAccess>();
+builder.Services.AddSingleton<ITestingService, TestingService>(s =>
+{
+	return new TestingService(
+		new TestsDataAccess()
+	);
+});
 
 // Transient new instance for every controller and service
 // Scoped is same object from same request but different for other requests??
