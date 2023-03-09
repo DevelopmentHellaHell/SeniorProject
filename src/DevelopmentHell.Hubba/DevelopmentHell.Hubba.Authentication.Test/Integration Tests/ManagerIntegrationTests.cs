@@ -13,6 +13,7 @@ using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
+using DevelopmentHell.Hubba.Testing.Service;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
 using Microsoft.IdentityModel.Tokens;
@@ -32,7 +33,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 		private readonly IUserAccountDataAccess _userAccountDataAccess;
 		private readonly IRegistrationService _registrationService;
 		private readonly IOTPService _otpService;
-		private readonly TestsDataAccess _testsDataAccess;
+		private readonly TestingService _testingService;
 
 		public ManagerIntegrationTests()
 		{
@@ -94,7 +95,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 				loggerService
 			);
 
-			_testsDataAccess = new TestsDataAccess();
+			_testingService = new TestingService();
 		}
 
 		private void decodeJWT(string token)
@@ -160,7 +161,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			ClaimsPrincipal? actualPrincipal = null;
 			if (actualLoginResult.IsSuccessful)
 			{
-				decodeJWT(actualLoginResult.Payload!);
+				_testingService.DecodeJWT(actualLoginResult.Payload!);
 				actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 			}
 
@@ -224,11 +225,11 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			Result<string> actualLoginResult = new Result<string>();
 			//  - Log in attempt #1
 			actualLoginResult = await _authenticationManager.Login(credentialEmail, credentialPassword, ipAddress);
-			decodeJWT(actualLoginResult.Payload!);
+			_testingService.DecodeJWT(actualLoginResult.Payload!);
 			//  - Get valid OTP from database
 			var otpResult = await _otpService.GetOTP(id).ConfigureAwait(false);
 			var authenticateOTPResult = await _authenticationManager.AuthenticateOTP(otpResult.Payload!, ipAddress).ConfigureAwait(false);
-			decodeJWT(authenticateOTPResult.Payload!);
+			_testingService.DecodeJWT(authenticateOTPResult.Payload!);
 			
 			//  - Log in attempt #2
 			actualLoginResult = await _authenticationManager.Login(credentialEmail, credentialPassword, ipAddress);
@@ -253,7 +254,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			var userIdResult = await _userAccountDataAccess.GetId(credentialEmail).ConfigureAwait(false);
 			var id = userIdResult.Payload;
 			var actualLoginResult = await _authenticationManager.Login(credentialEmail, credentialPassword, ipAddress);
-			decodeJWT(actualLoginResult.Payload!);
+			_testingService.DecodeJWT(actualLoginResult.Payload!);
 
 			var expectedResultSuccess = false;
 			var expectedRole = "DefaultUser";
@@ -263,7 +264,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			ClaimsPrincipal? actualPrincipal = null;
 			if (actualLoginResult.IsSuccessful)
 			{
-				decodeJWT(actualLoginResult.Payload!);
+				_testingService.DecodeJWT(actualLoginResult.Payload!);
 				actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 			}
 
@@ -287,7 +288,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			var userIdResult = await _userAccountDataAccess.GetId(credentialEmail).ConfigureAwait(false);
 			var id = userIdResult.Payload;
 			var loginResult = await _authenticationManager.Login(credentialEmail, credentialPassword, ipAddress);
-			decodeJWT(loginResult.Payload!);
+			_testingService.DecodeJWT(loginResult.Payload!);
 			//  - Get valid OTP from database
 			var otpResult = await _otpService.GetOTP(id).ConfigureAwait(false);
 
@@ -299,7 +300,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			ClaimsPrincipal? actualPrincipal = null;
 			if (actualAuthenticateOTPResult.IsSuccessful)
 			{
-				decodeJWT(actualAuthenticateOTPResult.Payload!);
+				_testingService.DecodeJWT(actualAuthenticateOTPResult.Payload!);
 				actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 			}
 
@@ -347,7 +348,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 		[TestCleanup]
 		public async Task Cleanup()
 		{
-			await _testsDataAccess.DeleteAllRecords().ConfigureAwait(false);
+			await _testingService.DeleteAllRecords().ConfigureAwait(false);
 		}
 	}
 }

@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using DevelopmentHell.Hubba.Testing.Service;
 
 namespace DevelopmentHell.Hubba.Authorization.Test
 {
@@ -23,7 +24,7 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 		// Helper classes
 		private readonly IRegistrationService _registrationService;
 		private readonly IUserAccountDataAccess _userAccountDataAccess;
-		private readonly TestsDataAccess _testsDataAccess;
+		private readonly TestingService _testingService;
 
 		public ServiceIntegrationTests()
 		{
@@ -53,40 +54,7 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 				loggerService
 			);
 
-			_testsDataAccess = new TestsDataAccess();
-		}
-
-		private void decodeJWT(string token)
-		{
-
-			if (token is not null)
-			{
-				// Parse the JWT token and extract the principal
-				var tokenHandler = new JwtSecurityTokenHandler();
-				var key = Encoding.ASCII.GetBytes(ConfigurationManager.AppSettings["JwtKey"]!);
-				var validationParameters = new TokenValidationParameters
-				{
-					ValidateIssuer = false,
-					ValidateAudience = false,
-					ValidateLifetime = true,
-					IssuerSigningKey = new SymmetricSecurityKey(key)
-				};
-
-				try
-				{
-					SecurityToken validatedToken;
-					var principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
-
-					Thread.CurrentPrincipal = principal;
-					return;
-				}
-				catch (Exception)
-				{
-					// Handle token validation errors
-					Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "DefaultUser") }));
-					return;
-				}
-			}
+			_testingService = new TestingService();
 		}
 
 		[TestMethod]
@@ -116,7 +84,7 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 			ClaimsPrincipal? actualPrincipal = null;
 			if (actualTokenResult.IsSuccessful)
 			{
-				decodeJWT(actualTokenResult.Payload!);
+				_testingService.DecodeJWT(actualTokenResult.Payload!);
 				actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 			}
 
@@ -147,7 +115,7 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 			var actualTokenResult = await _authorizationService.GenerateToken(id, true).ConfigureAwait(false);
 			if (actualTokenResult.IsSuccessful)
 			{
-				decodeJWT(actualTokenResult.Payload!);
+                _testingService.DecodeJWT(actualTokenResult.Payload!);
 			}
 
 			var expectedRole = "VerifiedUser";
@@ -166,7 +134,7 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 		[TestCleanup]
 		public async Task Cleanup()
 		{
-			await _testsDataAccess.DeleteAllRecords().ConfigureAwait(false);
+			await _testingService.DeleteAllRecords().ConfigureAwait(false);
 		}
 	}
 }
