@@ -1,13 +1,15 @@
 :root {
-    --white: rgb(255, 255, 255);
-    --primary-background-light: rgb(230, 248, 245);
-    --primary-background-dark: rgb(50, 50, 50);
-    --secondary-background-light: rgb(246, 252, 251);
-    --primary-text-light: rgb(255, 255, 255);
-    --secondary-text-light: rgb(192, 203, 205);
-    --primary-text-dark: rgb(50, 63, 65);
-    --secondary-text-dark: rgb(125, 125, 125);
-    --error-text: rgb(252, 125, 125);
-    --primary-button-light: rgb(27, 198, 167);
-    --primary-button-light-hover: rgb(65, 212, 185);
+    --white: 255, 255, 255;
+    --primary-background-light: 224, 242, 234;
+    --primary-background-dark: 77, 100, 106;
+    --secondary-background-dark: 50, 50, 50;
+    --secondary-background-light: 246, 252, 251;
+    --primary-text-light: 241, 252, 250;
+    --secondary-text-light: 192, 203, 205;
+    --primary-text-dark: 77, 100, 106;
+    --secondary-text-dark: 125, 125, 125;
+    --error-text: 252, 125, 125;
+    --primary-button-light: 224, 242, 234;
+    --primary-button-dark: 77, 100, 106;
+    --primary-button-light-hover: 203, 222, 213;
 }

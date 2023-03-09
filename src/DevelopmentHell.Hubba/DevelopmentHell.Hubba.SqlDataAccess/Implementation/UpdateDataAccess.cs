@@ -2,9 +2,9 @@
 using Microsoft.Data.SqlClient;
 using System.Text;
 
-namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
+namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 {
-	public class UpdateDataAccess
+	internal class UpdateDataAccess
 	{
 		private string connectionPath;
 		public UpdateDataAccess(string inPath)

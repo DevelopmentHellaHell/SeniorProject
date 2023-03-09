@@ -1,5 +1,5 @@
 ﻿using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
+using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
@@ -313,7 +313,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 new List<string>() { "COUNT(*) as AdminCount" },
                 new List<Comparator>()
                 {
-                    new Comparator("AdminUser","=", "1"),
+                    new Comparator("Role","=", "AdminUser"),
                 }
             ).ConfigureAwait(false);
             if (!selectResult.IsSuccessful || selectResult.Payload is null)

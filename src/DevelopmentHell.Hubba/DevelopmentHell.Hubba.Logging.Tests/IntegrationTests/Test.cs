@@ -1,4 +1,4 @@
-﻿using DevelopmentHell.Hubba.Logging.Implementation;
+﻿using DevelopmentHell.Hubba.Logging.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using System;
 using System.Collections.Generic;

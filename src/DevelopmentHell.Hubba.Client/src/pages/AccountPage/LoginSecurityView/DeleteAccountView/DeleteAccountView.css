@@ -1,0 +1,15 @@
+.delete-account-wrapper {
+    color: rgb(var(--primary-text-dark));
+    text-align: left;
+    padding-bottom: 2.5rem;
+    padding-left: 20px;
+}
+
+.delete-account-wrapper .buttons button {
+    margin-top: 10px;
+    margin-right: 20px;
+}
+
+.delete-account-wrapper .error {
+    color: rgb(var(--error-text));
+}

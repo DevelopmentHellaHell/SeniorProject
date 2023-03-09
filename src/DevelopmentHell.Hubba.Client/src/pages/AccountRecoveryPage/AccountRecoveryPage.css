@@ -1,0 +1,65 @@
+.account-recovery-container {
+    position: relative;
+    display: flex;
+    flex-flow: column;
+    flex-grow: 1
+}
+
+.account-recovery-container .account-recovery-content {
+    display: flex;
+    padding-bottom: 2.5rem;
+    flex-grow: 1;
+}
+
+.account-recovery-container .account-recovery-content .account-recovery-wrapper {
+    color: rgb(var(--primary-text-dark));
+    text-align: center;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+
+.account-recovery-card {
+    background-color: rgb(var(--primary-background-light));
+    padding: 20px 70px;
+    border: none;
+    border-radius: 10px;
+    width: fit-content;
+    text-align: center;
+}
+
+.account-recovery-card .input-field {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    text-align: left;
+}
+
+.account-recovery-card .input-field label {
+    width: 250px;
+    margin-right: 10px;
+}
+
+.account-recovery-card .input-field input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid rgb(var(--primary-text-dark));
+    border-radius: 3px;
+}
+
+.account-recovery-card .buttons {
+    display: flex;
+    justify-content: right;
+}
+
+.account-recovery-card .info {
+    color: rgb(var(--secondary-text-dark));
+}
+.account-recovery-card .info:hover {
+    color: rgb(var(--primary-text-dark));
+}
+
+.account-recovery-card .error {
+    color: rgb(var(--error-text));
+}

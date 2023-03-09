@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import Button from "../Button/Button";
+import Button, { ButtonTheme } from "../Button/Button";
 import './NavbarGuest.css';
 
 interface INavbarGuestProps {
@@ -18,7 +18,7 @@ const NavbarGuest: React.FC<INavbarGuestProps> = (props) => {
                 <li><p onClick={() => {alert("2")}}>About Us</p></li>
             </nav>
             <div className="buttons">
-                <Button title="Sign Up" onClick={() => { navigate("/registration") }}/>
+                <Button title="Sign Up" theme={ButtonTheme.HOLLOW_LIGHT} onClick={() => { navigate("/registration") }}/>
                 <div className="divider" />
                 <Button title="Login" onClick={() => { navigate("/login") }}/>
             </div>

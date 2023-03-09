@@ -1,0 +1,66 @@
+.registration-container {
+    position: relative;
+    display: flex;
+    flex-flow: column;
+    flex-grow: 1
+}
+
+.registration-container .registration-content {
+    display: flex;
+    padding-bottom: 2.5rem;
+    flex-grow: 1;
+}
+
+.registration-container .registration-content .registration-wrapper {
+    color: rgb(var(--primary-text-dark));
+    text-align: center;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+
+.registration-card {
+    background-color: rgb(var(--primary-background-light));
+    padding: 20px 70px;
+    border: none;
+    border-radius: 10px;
+    width: fit-content;
+    text-align: center;
+}
+
+.registration-card .input-field {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    text-align: left;
+}
+
+.registration-card .input-field label {
+    width: 240px;
+    margin-right: 10px;
+}
+
+.registration-card .input-field input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid rgb(var(--primary-text-dark));
+    border-radius: 3px;
+}
+
+.registration-card .buttons {
+    display: flex;
+    justify-content: right;
+}
+
+.registration-card .info {
+    color: rgb(var(--secondary-text-dark));
+}
+
+.registration-card .info:hover {
+    color: rgb(var(--primary-text-dark));
+}
+
+.registration-card .error {
+    color: rgb(var(--error-text));
+}

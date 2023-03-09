@@ -3,7 +3,7 @@ using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Validaition;
 
-namespace DevelopmentHell.Hubba.UserService.Implementation
+namespace DevelopmentHell.Hubba.UserService.Implementations
 {
 	public class UserManagementService : IUserManagementService
 	{

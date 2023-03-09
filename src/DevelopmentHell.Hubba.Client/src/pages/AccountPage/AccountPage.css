@@ -1,0 +1,24 @@
+.account-container {
+    position: relative;
+    display: flex;
+    flex-flow: column;
+    flex-grow: 1;
+}
+
+.account-container .account-content {
+    display: flex;
+    padding-bottom: 2.5rem;
+    flex-grow: 1;
+}
+
+.account-container .account-container .account-wrapper {
+    color: rgb(var(--primary-text-dark));
+    text-align: center;
+}
+
+.account-container .selection-bar {
+    width: 5px;
+    height: 20px;
+    border-radius: 3px;
+    background-color: rgb(var(--primary-text-dark));
+}

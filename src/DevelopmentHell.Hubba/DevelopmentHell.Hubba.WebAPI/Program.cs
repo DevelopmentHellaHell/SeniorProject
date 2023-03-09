@@ -1,16 +1,16 @@
 using DevelopmentHell.Hubba.Analytics.Service.Abstractions;
 using DevelopmentHell.Hubba.Analytics.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
-using DevelopmentHell.Hubba.Logging.Service.Implementation;
+using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Manager.Abstractions;
 using DevelopmentHell.Hubba.Registration.Manager.Implementations;
-using DevelopmentHell.Hubba.Registration.Service.Implementation;
+using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
 using HubbaAuthenticationManager = DevelopmentHell.Hubba.Authentication.Manager.Implementations;
-using HubbaAuthenticationService = DevelopmentHell.Hubba.Authentication.Service.Implementations;
-using DevelopmentHell.Hubba.OneTimePassword.Service.Implementation;
+using DevelopmentHell.Hubba.Authentication.Service.Implementations;
+using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
-using DevelopmentHell.Hubba.Authorization.Service.Implementation;
+using DevelopmentHell.Hubba.Authorization.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -20,16 +20,34 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using HubbaConfig = System.Configuration;
 using DevelopmentHell.Hubba.AccountRecovery.Manager.Abstractions;
-using DevelopmentHell.Hubba.AccountRecovery.Manager.Implementation;
-using DevelopmentHell.Hubba.AccountRecovery.Service.Implementation;
-using DevelopmentHell.Hubba.AccountDeletion.Manager.Implementation;
+using DevelopmentHell.Hubba.AccountRecovery.Manager.Implementations;
+using DevelopmentHell.Hubba.AccountRecovery.Service.Implementations;
+using DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations;
 using DevelopmentHell.Hubba.AccountDeletion.Manager.Abstraction;
 using DevelopmentHell.Hubba.AccountDeletion.Service.Implementation;
 using DevelopmentHell.Hubba.Notification.Service.Implementations;
+using DevelopmentHell.Hubba.AccountDeletion.Service.Implementations;
+using DevelopmentHell.Hubba.Email.Service.Implementations;
+using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
+using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
+using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
+using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
+using DevelopmentHell.Hubba.Validation.Service.Abstractions;
+using DevelopmentHell.Hubba.Validation.Service.Implementations;
+using DevelopmentHell.Hubba.Testing.Service.Implementations;
+using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+
+builder.Services.AddSingleton<ITestingService, TestingService>(s =>
+{
+	return new TestingService(
+		new TestsDataAccess()
+	);
+});
+
 // Transient new instance for every controller and service
 // Scoped is same object from same request but different for other requests??
 // Singleton is one instance across all requests
@@ -49,16 +67,17 @@ builder.Services.AddSingleton<IAnalyticsService, AnalyticsService>(s =>
 			HubbaConfig.ConfigurationManager.AppSettings["LogsConnectionString"]!,
 			HubbaConfig.ConfigurationManager.AppSettings["LogsTable"]!
 		),
-		new AuthorizationService(
-			HubbaConfig.ConfigurationManager.AppSettings,
-			new UserAccountDataAccess(
-					HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-					HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
-			),
-			s.GetService<ILoggerService>()!
-		),
+		s.GetService<IAuthorizationService>()!,
 		s.GetService<ILoggerService>()!
 	);
+});
+builder.Services.AddScoped<IValidationService, ValidationService>(s =>
+{
+	return new ValidationService();
+});
+builder.Services.AddTransient<ICryptographyService, CryptographyService>(s =>
+{
+	return new CryptographyService(HubbaConfig.ConfigurationManager.AppSettings["CryptographyKey"]!);
 });
 builder.Services.AddTransient<IRegistrationManager, RegistrationManager>(s => 
 	new RegistrationManager(
@@ -67,16 +86,12 @@ builder.Services.AddTransient<IRegistrationManager, RegistrationManager>(s =>
 				HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
 				HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
 			),
-			s.GetService<ILoggerService>()!
+			s.GetService<ICryptographyService>()!,
+			s.GetService<IValidationService>()!,
+            s.GetService<ILoggerService>()!
 		),
-		new AuthorizationService(
-			HubbaConfig.ConfigurationManager.AppSettings,
-			new UserAccountDataAccess(
-				HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-				HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
-			),
-			s.GetService<ILoggerService>()!
-		),
+        s.GetService<IAuthorizationService>()!,
+        s.GetService<ICryptographyService>()!,
 		new NotificationService(
 			new NotificationDataAccess(
 				HubbaConfig.ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
@@ -92,12 +107,28 @@ builder.Services.AddTransient<IRegistrationManager, RegistrationManager>(s =>
 			),
 			s.GetService<ILoggerService>()!
 		),
-        s.GetService<ILoggerService>()!
+		s.GetService<ILoggerService>()!
+
 	)
 );
+builder.Services.AddTransient<IOTPService, OTPService>(s =>
+{
+	return new OTPService(
+		new OTPDataAccess(
+			HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+			HubbaConfig.ConfigurationManager.AppSettings["UserOTPsTable"]!
+		),
+		new EmailService(
+			HubbaConfig.ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!,
+			HubbaConfig.ConfigurationManager.AppSettings["SENDGRID_API_KEY"]!,
+			HubbaConfig.ConfigurationManager.AppSettings["COMPANY_EMAIL"]!
+		),
+		s.GetService<ICryptographyService>()!
+	);
+});
 builder.Services.AddTransient<IAuthorizationService, AuthorizationService>(s =>
 	new AuthorizationService(
-		HubbaConfig.ConfigurationManager.AppSettings,
+		HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!,
         new UserAccountDataAccess(
                 HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
                 HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
@@ -105,26 +136,27 @@ builder.Services.AddTransient<IAuthorizationService, AuthorizationService>(s =>
 		s.GetService<ILoggerService>()!
 	)
 );
+builder.Services.AddTransient<IAuthenticationService, AuthenticationService>(s =>
+    new AuthenticationService(
+        new UserAccountDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
+        ),
+        new UserLoginDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["UserLoginsTable"]!
+        ),
+        s.GetService<ICryptographyService>()!,
+        s.GetService<IValidationService>()!,
+        s.GetService<ILoggerService>()!
+    )
+);
 builder.Services.AddTransient<IAuthenticationManager, HubbaAuthenticationManager.AuthenticationManager>(s =>
     new HubbaAuthenticationManager.AuthenticationManager(
-        new HubbaAuthenticationService.AuthenticationService(
-            new UserAccountDataAccess(
-                HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-                HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
-            ),
-			new UserLoginDataAccess(
-                HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-                HubbaConfig.ConfigurationManager.AppSettings["UserLoginsTable"]!
-            ),
-            s.GetService<ILoggerService>()!
-        ),
-		new OTPService(
-			new OTPDataAccess(
-                HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-                HubbaConfig.ConfigurationManager.AppSettings["UserOTPsTable"]!
-			)
-		),
+        s.GetService<IAuthenticationService>()!,
+		s.GetService<IOTPService>()!,
 		s.GetService<IAuthorizationService>()!,
+        s.GetService<ICryptographyService>()!,
         s.GetService<ILoggerService>()!
     )
 );
@@ -143,30 +175,15 @@ builder.Services.AddTransient<IAccountRecoveryManager, AccountRecoveryManager>(s
 				HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
 				HubbaConfig.ConfigurationManager.AppSettings["RecoveryRequestsTable"]!
 			),
+            s.GetService<IValidationService>()!,
             s.GetService<ILoggerService>()!
         ),
-        new OTPService(
-            new OTPDataAccess(
-                HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-                HubbaConfig.ConfigurationManager.AppSettings["UserOTPsTable"]!
-            )
-        ),
-        new HubbaAuthenticationService.AuthenticationService(
-            new UserAccountDataAccess(
-				HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-				HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
-			),
-            new UserLoginDataAccess(
-				HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-				HubbaConfig.ConfigurationManager.AppSettings["UserLoginsTable"]!
-			),
-            s.GetService<ILoggerService>()!
-		),
+        s.GetService<IOTPService>()!,
+        s.GetService<IAuthenticationService>()!,
         s.GetService<IAuthorizationService>()!,
 		s.GetService<ILoggerService>()!
 	)
 );
-
 builder.Services.AddTransient<IAccountDeletionManager, AccountDeletionManager>(s =>
     new AccountDeletionManager(
         new AccountDeletionService(
@@ -176,7 +193,7 @@ builder.Services.AddTransient<IAccountDeletionManager, AccountDeletionManager>(s
             ),
             s.GetService<ILoggerService>()!
         ),
-		s.GetService<IAuthenticationManager>()!,
+        s.GetService<IAuthenticationService>()!,
         s.GetService<IAuthorizationService>()!,
         s.GetService<ILoggerService>()!
     )

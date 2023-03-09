@@ -1,19 +1,19 @@
 import React from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Home from "./pages/Home/Home";
-import Account from "./pages/Account/Account";
-import Analytics from "./pages/Analytics/Analytics";
-import Login from "./pages/Login/Login";
-import Logout from "./pages/Logout/Logout";
-import Notification from "./pages/Notification/Notification";
-import Otp from "./pages/Otp/Otp";
-import Registration from "./pages/Registration/Registration";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import "./Theme.css";
 import PrivateRoute from "./components/Outlet/PrivateOutlet";
 import PublicOutlet from "./components/Outlet/PublicOutlet";
-import Unauthorized from "./pages/Unauthorized/Unauthorized";
+import Unauthorized from "./pages/UnauthorizedPage/UnauthorizedPage";
 import { Auth } from "./Auth";
-import AccountRecovery from "./pages/AccountRecovery/AccountRecovery";
+import HomePage from "./pages/HomePage/HomePage";
+import AccountPage from "./pages/AccountPage/AccountPage";
+import LoginPage from "./pages/LoginPage/LoginPage";
+import LogoutPage from "./pages/LogoutPage/LogoutPage";
+import NotificationPage from "./pages/NotificationPage/NotificationPage";
+import RegistrationPage from "./pages/RegistrationPage/RegistrationPage";
+import AdminDashboardPage from "./pages/AdminDashboardPage/AdminDashboardPage";
+import AccountRecoveryPage from "./pages/AccountRecoveryPage/AccountRecoveryPage";
+import "./App.css";
 
 interface IAppProps {
 
@@ -25,38 +25,36 @@ const App: React.FC<IAppProps> = (props) => {
 			<BrowserRouter>
 				<Routes>
 					{/* Anyone can access */}
-					<Route index element={<Home />} /> 
+					<Route index element={<HomePage />} />
+					<Route path="*" element={<Navigate to='/' replace />} />
 					<Route path="/unauthorized" element={<Unauthorized />} />
 					
-					{/* Public routes */}
+					{/* Public routes - no auth */}
 					<Route path="/registration" element={
 						<PublicOutlet redirectPath="/">
-							<Registration />
+							<RegistrationPage />
 						</PublicOutlet>
 					} />
 					<Route path="/login" element={
 						<PublicOutlet redirectPath="/">
-							<Login />
+							<LoginPage />
 						</PublicOutlet>
 					} />
 					<Route path="/account-recovery" element={
 						<PublicOutlet redirectPath="/">
-							<AccountRecovery />
+							<AccountRecoveryPage />
 						</PublicOutlet>
 					} />
 					
 					
-					{/* Protect/private routes */}
-					<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.DEFAULT_USER]}/>}>
-						<Route path="/otp" element={<Otp />} />
-					</Route>
+					{/* Protect/private routes - with auth */}
 					<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.VERIFIED_USER, Auth.Roles.ADMIN_USER]} />}>
-						<Route path="/account" element={<Account />} />
-						<Route path="/logout" element={<Logout />} />
-						<Route path="/notification" element={<Notification />} />
+						<Route path="/account" element={<AccountPage />} />
+						<Route path="/logout" element={<LogoutPage />} />
+						<Route path="/notification" element={<NotificationPage />} />
 					</Route>
 					<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.ADMIN_USER]}/>}>
-						<Route path="/analytics" element={<Analytics />} />
+						<Route path="/admin-dashboard" element={<AdminDashboardPage />} />
 					</Route>
 				</Routes>
 			</BrowserRouter>

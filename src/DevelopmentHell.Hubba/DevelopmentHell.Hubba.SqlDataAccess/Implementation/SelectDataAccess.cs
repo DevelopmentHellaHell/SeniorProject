@@ -3,9 +3,9 @@ using Microsoft.Data.SqlClient;
 using System.Data;
 using System.Text;
 
-namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
+namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 {
-	public class SelectDataAccess
+	internal class SelectDataAccess
 	{
 		private string connectionPath;
 		public SelectDataAccess(string inPath)

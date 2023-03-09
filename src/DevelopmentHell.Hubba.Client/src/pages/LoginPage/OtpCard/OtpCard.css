@@ -1,0 +1,40 @@
+.otp-card {
+    background-color: rgb(var(--primary-background-light));
+    padding: 20px 70px;
+    border: none;
+    border-radius: 10px;
+    width: 300px;
+    text-align: center;
+}
+
+.otp-card .input-field {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    text-align: left;
+}
+
+.otp-card .input-field label {
+    width: 50px;
+    margin-right: 10px;
+}
+
+.otp-card .input-field input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid rgb(var(--primary-text-dark));
+    border-radius: 3px;
+}
+
+.otp-card .buttons {
+    display: flex;
+    justify-content: right;
+}
+
+.otp-card .info {
+    color: rgb(var(--secondary-text-dark));
+}
+
+.otp-card .error {
+    color: rgb(var(--error-text));
+}

@@ -1,9 +1,7 @@
 ﻿using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
+using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
 using DevelopmentHell.Hubba.WebAPI.DTO.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
-using System.Net;
-using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.WebAPI.Controllers
 {
@@ -27,7 +25,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 		}
 #endif
 
-		[HttpPost]
+        [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login(UserToLoginDTO userToLoginDTO)
         {

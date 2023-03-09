@@ -1,0 +1,16 @@
+.chart-box {
+    flex: 0 0 500px;
+    padding: 20px;
+    background: rgb(var(--primary-background-light));
+    border-radius: 10px;
+    text-align: center;
+}
+
+.chart-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+    flex-wrap: wrap;
+}

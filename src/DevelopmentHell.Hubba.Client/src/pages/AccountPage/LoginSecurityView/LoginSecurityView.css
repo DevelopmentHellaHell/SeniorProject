@@ -1,0 +1,15 @@
+.login-security-wrapper {
+    color: rgb(var(--primary-text-dark));
+    padding-bottom: 2.5rem;
+    padding-left: 20px;
+}
+
+.login-security-wrapper .inline-text {
+    display: inline-block;
+    width: 150px;
+    margin-right: 50px;
+}
+
+.login-security-wrapper .buttons {
+    display: inline-block;
+}

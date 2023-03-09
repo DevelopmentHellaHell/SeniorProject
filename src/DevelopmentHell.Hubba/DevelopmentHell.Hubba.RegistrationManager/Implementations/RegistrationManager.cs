@@ -1,5 +1,5 @@
 ﻿using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
-using DevelopmentHell.Hubba.Cryptography.Service;
+using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Notification.Service.Abstractions;
@@ -16,11 +16,13 @@ namespace DevelopmentHell.Hubba.Registration.Manager.Implementations
 		private IAuthorizationService _authorizationService;
         private INotificationService _notificationService;
         private ILoggerService _loggerService;
+        private ICryptographyService _cryptographyService;
         
-        public RegistrationManager(IRegistrationService registrationService, IAuthorizationService authorizationService, INotificationService notificationService, ILoggerService loggerService)
+        public RegistrationManager(IRegistrationService registrationService, IAuthorizationService authorizationService, ICryptographyService cryptographyService, INotificationService notificationService, ILoggerService loggerService)
         {
             _registrationService = registrationService;
             _authorizationService = authorizationService;
+            _cryptographyService = cryptographyService;
             _notificationService = notificationService;
             _loggerService = loggerService;
         }
@@ -29,7 +31,7 @@ namespace DevelopmentHell.Hubba.Registration.Manager.Implementations
         {
             Result result = new Result();
 
-			if (_authorizationService.authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
+			if (_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
 			{
 				result.IsSuccessful = false;
 				result.ErrorMessage = "Error, user already logged in.";
@@ -61,7 +63,7 @@ namespace DevelopmentHell.Hubba.Registration.Manager.Implementations
             }
 
             string userHashKey = ConfigurationManager.AppSettings["UserHashKey"]!;
-            Result<HashData> userHashResult = HashService.HashString(email, userHashKey);
+            Result<HashData> userHashResult = _cryptographyService.HashString(email, userHashKey);
             if (!userHashResult.IsSuccessful || userHashResult.Payload is null)
             {
                 result.IsSuccessful = false;
