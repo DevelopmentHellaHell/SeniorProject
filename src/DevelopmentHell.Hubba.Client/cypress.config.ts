@@ -8,6 +8,7 @@ export default defineConfig({
     },
   },
   env:{
+    baseUrl: "http://localhost:3000/",
     registrationUrl: "http://localhost:3000/registration",
     loginUrl: "http://localhost:3000/login"
   }

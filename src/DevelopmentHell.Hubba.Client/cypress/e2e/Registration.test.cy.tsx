@@ -6,8 +6,6 @@
 */
 
 //describe.only to run a single test case
-
-//User can't access dropdown menu before login
 describe('unauthorized-user-check', () => {
   beforeEach(() => {
     cy.visit(Cypress.env('registrationUrl'))
@@ -17,12 +15,12 @@ describe('unauthorized-user-check', () => {
   })
   it('redirect-to-login-page-when-visit-account-by-broswer-bar', () => {
     cy.visit('/account')
-      .then(()=>{
+      .then(() => {
         cy.url().should('eq', Cypress.env('loginUrl'))
       })
   })
-  it('show-unauthorized-message-when-visit-analytics-by-broswer-bar', () => {
-    cy.visit('http://localhost:3000/analytics')
+  it('show-unauthorized-message-when-visit-analytics-by-browser-bar', () => {
+    cy.visit('/analytics')
     cy.url().should('eq', 'http://localhost:3000/')
   })
 })
@@ -49,8 +47,10 @@ describe('working-links', () => {
 })
 
 describe('registration-with-email-password', () => {
+  let loginUrl = Cypress.env('loginUrl')
+  let registrationUrl = Cypress.env('registrationUrl')
   beforeEach(function () {
-    cy.visit(Cypress.env("registrationUrl"))
+    cy.visit(registrationUrl)
     //load standardEmail, dummyEmail, standardPassword, dummyPassword from /fixtures/credentials.json
     //then reuse in each it block
     //must use function() to wrap the fixture, not () =>
@@ -58,13 +58,12 @@ describe('registration-with-email-password', () => {
       .then((credentials) => {
         this._credentials = credentials
       })
-
   })
 
   it('registration-successful-under-5s', function () {
     cy.get('#email')
-      .type(this._credentials.tienEmail)
-      .should('have.value', this._credentials.tienEmail)
+      .type(this._credentials.standardEmail)
+      .should('have.value', this._credentials.standardEmail)
 
     cy.get('#password')
       .type(this._credentials.standardPassword)
@@ -78,7 +77,7 @@ describe('registration-with-email-password', () => {
     const start: number = Date.now()
     cy.contains("Submit").click()
       .then(() => {
-        cy.url().should('eq', Cypress.env('loginUrl'))
+        cy.url().should('eq', loginUrl)
         const elapsed = Date.now() - start
         expect(elapsed).to.be.lessThan(5000)
       })
