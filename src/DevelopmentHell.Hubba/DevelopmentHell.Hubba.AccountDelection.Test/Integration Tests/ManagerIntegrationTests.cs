@@ -51,7 +51,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             IAuthenticationService _authenticationService = new AuthenticationService(
                 _userAccountDataAccess,
                 new UserLoginDataAccess(
-                    ConfigurationManager.AppSettings["UsersConnectionString"]!,
+                    _usersConnectionString,
                     ConfigurationManager.AppSettings["UserLoginsTable"]!
                 ),
                 _cryptographyService,
