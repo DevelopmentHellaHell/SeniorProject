@@ -8,10 +8,7 @@ using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 
 namespace DevelopmentHell.Hubba.Authorization.Test
@@ -19,8 +16,13 @@ namespace DevelopmentHell.Hubba.Authorization.Test
     [TestClass]
 	public class ServiceIntegrationTests
 	{
-		// Class to test
-		private readonly IAuthorizationService _authorizationService;
+        private string _usersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
+        private string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
+        private string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
+        private string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
+
+        // Class to test
+        private readonly IAuthorizationService _authorizationService;
 		// Helper classes
 		private readonly IRegistrationService _registrationService;
 		private readonly IUserAccountDataAccess _userAccountDataAccess;
@@ -29,14 +31,14 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 		public ServiceIntegrationTests()
 		{
 			_userAccountDataAccess = new UserAccountDataAccess(
-				ConfigurationManager.AppSettings["UsersConnectionString"]!,
-				ConfigurationManager.AppSettings["UserAccountsTable"]!
+				_usersConnectionString,
+				_userAccountsTable
 			);
 			ILoggerService loggerService = new LoggerService(
 				new LoggerDataAccess(
-					ConfigurationManager.AppSettings["LogsConnectionString"]!,
-					ConfigurationManager.AppSettings["LogsTable"]!
-				)
+                    _logsConnectionString,
+                    _logsTable
+                )
 			);
 			_authorizationService = new AuthorizationService(
 				ConfigurationManager.AppSettings["JwtKey"]!,

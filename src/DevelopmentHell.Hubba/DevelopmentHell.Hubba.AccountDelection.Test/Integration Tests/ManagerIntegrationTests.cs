@@ -25,10 +25,10 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
     [TestClass]
     public class ManagerIntegrationTests
     {
-        private string _UsersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
-        private string _UserAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
-        private string _LogsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
-        private string _LogsTable = ConfigurationManager.AppSettings["LogsTable"]!;
+        private string _usersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
+        private string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
+        private string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
+        private string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
 
         private readonly IAuthorizationService _authorizationService;
         private readonly IAuthenticationService _authenticationService;
@@ -43,11 +43,11 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
 
         public ManagerIntegrationTests()
         {
-            _userAccountDataAccess = new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable);
+            _userAccountDataAccess = new UserAccountDataAccess(_usersConnectionString, _userAccountsTable);
             _validationService = new ValidationService();
             _cryptographyService = new CryptographyService(ConfigurationManager.AppSettings["CryptographyKey"]!);
             _loggerService = new LoggerService(
-                new LoggerDataAccess(_LogsConnectionString, _LogsTable)
+                new LoggerDataAccess(_logsConnectionString, _logsTable)
             );
             _accountDeletionService = new AccountDeletionService(
                 _userAccountDataAccess, 

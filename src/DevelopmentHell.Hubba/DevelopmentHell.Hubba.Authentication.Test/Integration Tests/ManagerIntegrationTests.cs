@@ -27,8 +27,16 @@ namespace DevelopmentHell.Hubba.Authentication.Test
     [TestClass]
 	public class ManagerIntegrationTests
 	{
-		// Class to test
-		private readonly IAuthenticationManager _authenticationManager;
+        private string _usersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
+        private string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
+        private string _userOTPsTable = ConfigurationManager.AppSettings["UserOTPsTable"]!;
+        private string _userLoginsTable = ConfigurationManager.AppSettings["UserLoginsTable"]!;
+        private string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
+        private string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
+		private string _jwtKey = ConfigurationManager.AppSettings["JwtKey"]!;
+
+        // Class to test
+        private readonly IAuthenticationManager _authenticationManager;
 		// Helper classes
 		private readonly IUserAccountDataAccess _userAccountDataAccess;
 		private readonly IRegistrationService _registrationService;
@@ -39,23 +47,23 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 		{
 			ILoggerService loggerService = new LoggerService(
 				new LoggerDataAccess(
-					ConfigurationManager.AppSettings["LogsConnectionString"]!,
-					ConfigurationManager.AppSettings["LogsTable"]!
-				)
+                    _logsConnectionString,
+                    _logsTable
+                )
 			);
 			_userAccountDataAccess = new UserAccountDataAccess(
-				ConfigurationManager.AppSettings["UsersConnectionString"]!,
-				ConfigurationManager.AppSettings["UserAccountsTable"]!
-			);
+                _usersConnectionString,
+                _userAccountsTable
+            );
 			ICryptographyService cryptographyService = new CryptographyService(
 				ConfigurationManager.AppSettings["CryptographyKey"]!
 			);
 			IValidationService validationService = new ValidationService();
 			_otpService = new OTPService(
 				new OTPDataAccess(
-					ConfigurationManager.AppSettings["UsersConnectionString"]!,
-					ConfigurationManager.AppSettings["UserOTPsTable"]!
-				),
+                    _usersConnectionString,
+                    _userOTPsTable
+                ),
 				new EmailService(
 					ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!,
 					ConfigurationManager.AppSettings["SENDGRID_API_KEY"]!,
@@ -67,20 +75,20 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 				new AuthenticationService(
 					_userAccountDataAccess,
 					new UserLoginDataAccess(
-						ConfigurationManager.AppSettings["UsersConnectionString"]!,
-						ConfigurationManager.AppSettings["UserLoginsTable"]!
-					),
+                        _usersConnectionString,
+                        _userLoginsTable
+                    ),
 					cryptographyService,
 					validationService,
 					loggerService
 				),
 				_otpService,
 				new AuthorizationService(
-					ConfigurationManager.AppSettings["JwtKey"]!,
-					new UserAccountDataAccess(
-						ConfigurationManager.AppSettings["UsersConnectionString"]!,
-						ConfigurationManager.AppSettings["UserAccountsTable"]!
-					),
+                    _jwtKey,
+                    new UserAccountDataAccess(
+                        _usersConnectionString,
+                        _userAccountsTable
+                    ),
 					loggerService
 				),
 				cryptographyService,
@@ -96,39 +104,6 @@ namespace DevelopmentHell.Hubba.Authentication.Test
                 new TestsDataAccess()
             );
         }
-
-		private void decodeJWT(string token)
-		{
-
-			if (token is not null)
-			{
-				// Parse the JWT token and extract the principal
-				var tokenHandler = new JwtSecurityTokenHandler();
-				var key = Encoding.ASCII.GetBytes(ConfigurationManager.AppSettings["JwtKey"]!);
-				var validationParameters = new TokenValidationParameters
-				{
-					ValidateIssuer = false,
-					ValidateAudience = false,
-					ValidateLifetime = true,
-					IssuerSigningKey = new SymmetricSecurityKey(key)
-				};
-
-				try
-				{
-					SecurityToken validatedToken;
-					var principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
-
-					Thread.CurrentPrincipal = principal;
-					return;
-				}
-				catch (Exception)
-				{
-					// Handle token validation errors
-					Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "DefaultUser") }));
-					return;
-				}
-			}
-		}
 
 		[TestMethod]
 		public void ShouldInstansiateCtor()
