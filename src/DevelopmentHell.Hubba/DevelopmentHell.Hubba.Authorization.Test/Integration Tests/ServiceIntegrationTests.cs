@@ -12,11 +12,11 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using DevelopmentHell.Hubba.Testing.Service;
+using DevelopmentHell.Hubba.Testing.Service.Implementations;
 
 namespace DevelopmentHell.Hubba.Authorization.Test
 {
-	[TestClass]
+    [TestClass]
 	public class ServiceIntegrationTests
 	{
 		// Class to test
@@ -38,13 +38,11 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 					ConfigurationManager.AppSettings["LogsTable"]!
 				)
 			);
-
 			_authorizationService = new AuthorizationService(
 				ConfigurationManager.AppSettings["JwtKey"]!,
 				_userAccountDataAccess,
 				loggerService
 			);
-
 			_registrationService = new RegistrationService(
 				_userAccountDataAccess,
 				new CryptographyService(
@@ -53,8 +51,9 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 				new ValidationService(),
 				loggerService
 			);
-
-			_testingService = new TestingService();
+			_testingService = new TestingService(
+				new TestsDataAccess()
+			);
 		}
 
 		[TestMethod]

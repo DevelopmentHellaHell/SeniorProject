@@ -1,6 +1,6 @@
 ﻿using DevelopmentHell.Hubba.Models.Tests;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
-using DevelopmentHell.Hubba.SqlDataAccess;
+using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.WebAPI.DTO.Tests;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -11,12 +11,12 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 	[Route("[controller]")]
 	public class TestsController : Controller
 	{
-		private readonly TestsDataAccess _testsDataAccess;
+		private readonly ITestingService _testingService;
 		private readonly IOTPService _otpService;
 
-		public TestsController(TestsDataAccess testsDataAccess, IOTPService otpService)
+		public TestsController(ITestingService testingService, IOTPService otpService)
 		{
-			_testsDataAccess = testsDataAccess;
+			_testingService = testingService;
 			_otpService = otpService;
 		}
 
@@ -37,13 +37,13 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 				return BadRequest("Invalid request.");
 			}
 
-			var db = _testsDataAccess.GetDatabase(dbRecordsToDeleteDTO.Database);
+			var db = _testingService.GetDatabase(dbRecordsToDeleteDTO.Database);
 			if (db is null)
 			{
 				return BadRequest($"Could not find database {dbRecordsToDeleteDTO.Database}");
 			}
 
-            var deleteResult = await _testsDataAccess.DeleteDatabaseRecords((Databases)db).ConfigureAwait(false);
+            var deleteResult = await _testingService.DeleteDatabaseRecords((Databases)db).ConfigureAwait(false);
 			if (!deleteResult.IsSuccessful)
 			{
 				return BadRequest(deleteResult.ErrorMessage);
@@ -61,19 +61,19 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 return BadRequest("Invalid request.");
             }
 
-            var db = _testsDataAccess.GetDatabase(tRecordsToDeleteDTO.Database);
+            var db = _testingService.GetDatabase(tRecordsToDeleteDTO.Database);
             if (db is null)
             {
                 return BadRequest($"Could not find database {tRecordsToDeleteDTO.Database}");
             }
 
-			var t = _testsDataAccess.GetTable((Databases)db, tRecordsToDeleteDTO.Table);
+			var t = _testingService.GetTable((Databases)db, tRecordsToDeleteDTO.Table);
 			if (t is null)
 			{
 				return BadRequest($"Could not find table {tRecordsToDeleteDTO.Table} in {tRecordsToDeleteDTO.Database}");
 			}
 
-            var deleteResult = await _testsDataAccess.DeleteTableRecords((Databases)db, (Tables)t).ConfigureAwait(false);
+            var deleteResult = await _testingService.DeleteTableRecords((Databases)db, (Tables)t).ConfigureAwait(false);
 			if (!deleteResult.IsSuccessful)
 			{
 				return BadRequest(deleteResult.ErrorMessage);

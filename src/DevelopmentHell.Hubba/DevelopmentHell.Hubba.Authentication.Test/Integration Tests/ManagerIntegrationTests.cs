@@ -13,7 +13,7 @@ using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
-using DevelopmentHell.Hubba.Testing.Service;
+using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
 using Microsoft.IdentityModel.Tokens;
@@ -24,7 +24,7 @@ using System.Text;
 
 namespace DevelopmentHell.Hubba.Authentication.Test
 {
-	[TestClass]
+    [TestClass]
 	public class ManagerIntegrationTests
 	{
 		// Class to test
@@ -63,7 +63,6 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 				),
 				cryptographyService
 			);
-
 			_authenticationManager = new AuthenticationManager(
 				new AuthenticationService(
 					_userAccountDataAccess,
@@ -87,16 +86,16 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 				cryptographyService,
 				loggerService
 			);
-
 			_registrationService = new RegistrationService(
 				_userAccountDataAccess,
 				cryptographyService,
 				validationService,
 				loggerService
 			);
-
-			_testingService = new TestingService();
-		}
+            _testingService = new TestingService(
+                new TestsDataAccess()
+            );
+        }
 
 		private void decodeJWT(string token)
 		{

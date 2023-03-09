@@ -15,12 +15,10 @@ using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
-using DevelopmentHell.Hubba.Testing.Service;
+using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
 using System.Configuration;
-using System.Security.Principal;
-
 
 namespace DevelopmentHell.Hubba.AccountDeletion.Test
 {
@@ -82,7 +80,9 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
                 _validationService,
                 _loggerService
             );
-            _testingService = new TestingService();
+            _testingService = new TestingService(
+                new TestsDataAccess()
+            );
         }
 
         [TestMethod]
