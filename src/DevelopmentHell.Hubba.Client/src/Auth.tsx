@@ -55,12 +55,15 @@ export namespace Auth {
         const decodedJwt = parseJwt<IJWTDecoded>(cookie);
         if (decodedJwt.exp * 1000 < Date.now()) {
             removeCookie("access_token");
-            removeCookie("id_token");
             alert("Session expired. Please log in again.");
             return;
         }
     
-        console.log(decodedJwt);
         return decodedJwt;
+    }
+
+    export function clearCookies() {
+        removeCookie("access_token");
+        removeCookie("id_token");
     }
 }

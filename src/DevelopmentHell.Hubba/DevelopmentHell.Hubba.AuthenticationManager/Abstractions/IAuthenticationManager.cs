@@ -7,6 +7,6 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Abstractions
 	{
 		Task<Result<string>> Login(string email, string password, string ipAddress);
 		Task<Result<Tuple<string, string>>> AuthenticateOTP(string otp, string ipAddress);
-		Result Logout();
+		Result<string> Logout();
 	}
 }

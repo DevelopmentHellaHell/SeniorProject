@@ -144,9 +144,9 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			if (expectedResultSuccess)
 			{
 				Assert.IsNotNull(actualLoginResult.Payload);
-				Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Email)! == credentialEmail);
+				Assert.IsTrue(actualPrincipal.FindFirstValue("azp")! == credentialEmail);
 				Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Role)! == expectedRole);
-				Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue("accountId")!) == id);
+				Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue(ClaimTypes.NameIdentifier)!) == id);
 			} else
 			{
 				Assert.IsNull(actualLoginResult.Payload);
@@ -244,9 +244,9 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			// Assert
 			Assert.IsTrue(expectedResultSuccess == actualAuthenticateOTPResult.IsSuccessful);
 			Assert.IsNotNull(actualPrincipal);
-			Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Email)! == credentialEmail);
+			Assert.IsTrue(actualPrincipal.FindFirstValue("azp")! == credentialEmail);
 			Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Role)! == expectedRole);
-			Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue("accountId")!) == id);
+			Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue(ClaimTypes.NameIdentifier)!) == id);
         }
 
 		[TestMethod]
@@ -280,9 +280,9 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			// Assert
 			Assert.IsTrue(expectedResultSuccess == actualAuthenticateOTPResult.IsSuccessful);
 			Assert.IsNotNull(actualPrincipal);
-			Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Email)! == credentialEmail);
+			Assert.IsTrue(actualPrincipal.FindFirstValue("azp")! == credentialEmail);
 			Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Role)! == expectedRole);
-			Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue("accountId")!) == id);
+			Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue(ClaimTypes.NameIdentifier)!) == id);
 		}
 
 		// login 3 times and disable account - shoulddisableaccount

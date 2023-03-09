@@ -47,7 +47,7 @@ const DeleteAccountView: React.FC<IDeleteAccountViewProps> = (props) => {
                     }
 
                     setLoaded(true);
-                    Auth.removeCookie("access_token");
+                    Auth.clearCookies();
                     navigate("/");
                 }}/>
             </div>

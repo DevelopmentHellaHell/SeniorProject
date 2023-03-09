@@ -10,7 +10,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Abstraction
 {
     public interface IAccountDeletionManager
     {
-        Task<Result> DeleteAccount(int accountId);
+        Task<Result<string>> DeleteAccount(int accountId);
 
     }
 }

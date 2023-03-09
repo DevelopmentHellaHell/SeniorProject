@@ -35,6 +35,8 @@ using DevelopmentHell.Hubba.Validation.Service.Implementations;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
+using Development.Hubba.JWTHandler.Service.Abstractions;
+using DevelopmentHell.Hubba.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,6 +80,10 @@ builder.Services.AddTransient<ICryptographyService, CryptographyService>(s =>
 {
 	return new CryptographyService(HubbaConfig.ConfigurationManager.AppSettings["CryptographyKey"]!);
 });
+builder.Services.AddTransient<IJWTHandlerService, JWTHandlerService>(s =>
+{
+	return new JWTHandlerService(HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!);
+});
 builder.Services.AddTransient<IRegistrationManager, RegistrationManager>(s => 
 	new RegistrationManager(
 		new RegistrationService(
@@ -111,18 +117,17 @@ builder.Services.AddTransient<IOTPService, OTPService>(s =>
 });
 builder.Services.AddTransient<IAuthorizationService, AuthorizationService>(s =>
 	new AuthorizationService(
-		HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!,
         new UserAccountDataAccess(
                 HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
                 HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
         ),
-		s.GetService<ICryptographyService>()!,
+		s.GetService<IJWTHandlerService>()!,
 		s.GetService<ILoggerService>()!
 	)
 );
 builder.Services.AddTransient<IAuthenticationService, AuthenticationService>(s =>
     new AuthenticationService(
-		HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!,
+		HubbaConfig.ConfigurationManager.AppSettings["CryptographyKey"]!,
 		new UserAccountDataAccess(
             HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
             HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
@@ -132,7 +137,8 @@ builder.Services.AddTransient<IAuthenticationService, AuthenticationService>(s =
             HubbaConfig.ConfigurationManager.AppSettings["UserLoginsTable"]!
         ),
         s.GetService<ICryptographyService>()!,
-        s.GetService<IValidationService>()!,
+		s.GetService<IJWTHandlerService>()!,
+		s.GetService<IValidationService>()!,
         s.GetService<ILoggerService>()!
     )
 );
@@ -206,33 +212,41 @@ var app = builder.Build();
 
 app.Use(async (httpContext, next) =>
 {
-	// inbound code
+	// inbound request
 	var accessToken = httpContext.Request.Cookies["access_token"];
 	var idToken = httpContext.Request.Cookies["id_token"];
-	
-	// TODO verify id token with access token
+	var key = HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!;
+	var jwtHandlerService = new JWTHandlerService(key);
 	if (accessToken is not null)
     {
-		// Parse the JWT token and extract the principal
-		var key = HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!;
-
-		// TODO cleanup JWTHandlerService and move older jwt methods in this class
-		JWTHandlerService test = new JWTHandlerService();
-		if (test.ValidateJwt(accessToken, key))
+		if (jwtHandlerService.ValidateJwt(accessToken))
 		{
-			var principal = test.GetPrincipal(accessToken);
+			var principal = jwtHandlerService.GetPrincipal(accessToken);
 			Thread.CurrentPrincipal = principal;
-			// TODO check id token here
 		} 
 		else
 		{
+			var token = jwtHandlerService.GenerateInvalidToken();
+			httpContext.Response.Cookies.Append("access_token", token, new CookieOptions { SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None, Secure = true });
+			httpContext.Response.Cookies.Append("id_token", token, new CookieOptions { SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None, Secure = true });
+			Thread.CurrentPrincipal = null;
+		}
+	}
+
+	if (idToken is not null && accessToken is not null && Thread.CurrentPrincipal is not null)
+	{
+		if (!jwtHandlerService.ValidateJwt(idToken))
+		{
+			var token = jwtHandlerService.GenerateInvalidToken();
+			httpContext.Response.Cookies.Append("access_token", token, new CookieOptions { SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None, Secure = true });
+			httpContext.Response.Cookies.Append("id_token", token, new CookieOptions { SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None, Secure = true });
 			Thread.CurrentPrincipal = null;
 		}
 	}
 
 	if (Thread.CurrentPrincipal is null)
 	{
-		Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim("role", "DefaultUser") }));
+		Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "DefaultUser") }));
 	}
 
     // Go to next middleware

@@ -3,22 +3,20 @@ using DevelopmentHell.Hubba.Models;
 using System.Security.Claims;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
-using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
+using Development.Hubba.JWTHandler.Service.Abstractions;
 
 namespace DevelopmentHell.Hubba.Authorization.Service.Implementations
 {
 	public class AuthorizationService : IAuthorizationService
 	{
-		private readonly string _jwtKey;
 		private IUserAccountDataAccess _userAccountDataAccess;
-		private ICryptographyService _cryptographyService;
+		private IJWTHandlerService _jwtHandlerService;
 		private ILoggerService _loggerService;
 
-        public AuthorizationService(string jwtKey, IUserAccountDataAccess userAccountDataAccess, ICryptographyService cryptographyService, ILoggerService loggerService)
+        public AuthorizationService(IUserAccountDataAccess userAccountDataAccess, IJWTHandlerService jwtHandlerService, ILoggerService loggerService)
 		{
-			_jwtKey = jwtKey;
 			_userAccountDataAccess = userAccountDataAccess;
-			_cryptographyService = cryptographyService;
+			_jwtHandlerService = jwtHandlerService;
 			_loggerService = loggerService;
 		}
 
@@ -40,13 +38,10 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementations
 			
 			if (principal is not null)
 			{
-				foreach (string role in roles)
+				if (roles.Contains(principal.FindFirstValue(ClaimTypes.Role)))
 				{
-					if (principal.IsInRole(role))
-					{
-						result.IsSuccessful = principal.IsInRole(role);
-						return result;
-					}
+					result.IsSuccessful = true;
+					return result;
 				}
 			}
 
@@ -88,20 +83,13 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementations
 					{ "iss", "Hubba" },
 					{ "aud", "*" },
 					{ "azp", email },
-					{ "sub", accountId },
+					{ ClaimTypes.NameIdentifier, accountId },
 					{ "iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds() },
 					{ "exp", DateTimeOffset.UtcNow.AddMinutes(defaultUser ? 2 : 30).ToUnixTimeSeconds() },
-					{ "role", defaultUser ? "DefaultUser" : "VerifiedUser" }
+					{ ClaimTypes.Role, defaultUser ? "DefaultUser" : role }
 				};
 
-				string headerJson = _cryptographyService.SerializeToJson(header);
-				string headerBase64 = _cryptographyService.EncodeBase64(headerJson);
-				string payloadJson = _cryptographyService.SerializeToJson(payload);
-				string payloadBase64 = _cryptographyService.EncodeBase64(payloadJson);
-
-				string unsignedToken = string.Format("{0}.{1}", headerBase64, payloadBase64);
-				string signature = _cryptographyService.SignToken(unsignedToken, _jwtKey);
-				string jwtToken = string.Format("{0}.{1}", unsignedToken, signature);
+				string jwtToken = _jwtHandlerService.GenerateToken(header, payload);
 
 				result.IsSuccessful = true;
 				result.Payload = jwtToken;

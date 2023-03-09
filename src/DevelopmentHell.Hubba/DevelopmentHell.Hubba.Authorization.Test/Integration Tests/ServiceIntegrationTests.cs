@@ -96,9 +96,9 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 			// Assert
 			Assert.IsTrue(expectedResultSuccess == actualTokenResult.IsSuccessful);
 			Assert.IsNotNull(actualPrincipal);
-			Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Email)! == email);
+			Assert.IsTrue(actualPrincipal.FindFirstValue("azp")! == email);
 			Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Role)! == expectedRole);
-			Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue("accountId")!) == id);
+			Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue(ClaimTypes.NameIdentifier)!) == id);
 
 			//  - Cleanup
 			await _userAccountDataAccess.Delete(id).ConfigureAwait(false);

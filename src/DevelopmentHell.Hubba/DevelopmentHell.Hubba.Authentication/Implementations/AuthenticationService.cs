@@ -1,6 +1,8 @@
 ﻿using System.Configuration;
 using System.Security.Claims;
 using System.Text;
+using Development.Hubba.JWTHandler.Service.Abstractions;
+using Development.Hubba.JWTHandler.Service.Implementations;
 using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
@@ -12,19 +14,21 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 {
     public class AuthenticationService : IAuthenticationService
 	{
-		private readonly string _jwtKey;
+		private readonly string _cryptographyKey;
 		private IUserAccountDataAccess _userAccountDataAccess;
 		private IUserLoginDataAccess _userLoginDataAccess;
         private ICryptographyService _cryptographyService;
+		private IJWTHandlerService _jwtHandlerService;
 		private IValidationService _validationService;
         private ILoggerService _loggerService;
 
-		public AuthenticationService(string jwtKey, IUserAccountDataAccess userAccountDataAccess, IUserLoginDataAccess userLoginDataAccess, ICryptographyService cryptographyService, IValidationService validationService, ILoggerService loggerService)
+		public AuthenticationService(string cryptographyKey, IUserAccountDataAccess userAccountDataAccess, IUserLoginDataAccess userLoginDataAccess, ICryptographyService cryptographyService, IJWTHandlerService jWTHandlerService, IValidationService validationService, ILoggerService loggerService)
 		{
-			_jwtKey = jwtKey;
+			_cryptographyKey = cryptographyKey;
 			_userAccountDataAccess = userAccountDataAccess;
 			_userLoginDataAccess = userLoginDataAccess;
 			_cryptographyService = cryptographyService;
+			_jwtHandlerService = jWTHandlerService;
 			_validationService = validationService;
             _loggerService = loggerService;
 		}
@@ -165,33 +169,11 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 			return result; ;
 		}
 
-        public Result Logout()
+        public Result<string> Logout()
         {
-            Result result = new Result();
-
-            var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
-            var email = principal.FindFirstValue(ClaimTypes.Email);
-            if (email is null)
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, unexpected error. Please context system administrator.";
-                return result;
-            }
-
-
-            string userHashKey = ConfigurationManager.AppSettings["UserHashKey"]!;
-			Result<HashData> userHashResult = _cryptographyService.HashString(email, userHashKey);
-            if (!userHashResult.IsSuccessful || userHashResult.Payload is null)
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, unexpected error. Please contact system administrator.";
-                return result;
-            }
-
-            string userHash = Convert.ToBase64String(userHashResult.Payload.Hash!);
-            _loggerService.Log(LogLevel.INFO, Category.BUSINESS, $"Successful logout attempt from: {email}.", userHash);
-
+			Result<string> result = new Result<string>();
             result.IsSuccessful = true;
+			result.Payload = _jwtHandlerService.GenerateInvalidToken();
 			return result;
 		}
 
@@ -201,7 +183,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 
 			try
 			{
-				Result<HashData> hashData = _cryptographyService.HashString(accessToken, _jwtKey);
+				Result<HashData> hashData = _cryptographyService.HashString(accessToken, _cryptographyKey);
 				if (!hashData.IsSuccessful || hashData.Payload is null)
 				{
 					result.IsSuccessful = false;
@@ -209,7 +191,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 					return result;
 				}
 
-				string accessTokenHash = Encoding.UTF8.GetString(hashData.Payload.Hash!);
+				string accessTokenHash = Convert.ToBase64String(hashData.Payload.Hash!);
 
 				var header = new Dictionary<string, object>()
 				{
@@ -220,20 +202,13 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 				{
 					{ "iss", "Hubba" },
 					{ "aud", "*" },
-					{ "sub", accountId },
+					{ ClaimTypes.NameIdentifier, accountId },
 					{ "iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds() },
 					{ "exp", DateTimeOffset.UtcNow.AddMinutes(30).ToUnixTimeSeconds() },
 					{ "at_hash", accessTokenHash }
 				};
 
-				string headerJson = _cryptographyService.SerializeToJson(header);
-				string headerBase64 = _cryptographyService.EncodeBase64(headerJson);
-				string payloadJson = _cryptographyService.SerializeToJson(payload);
-				string payloadBase64 = _cryptographyService.EncodeBase64(payloadJson);
-
-				string unsignedToken = string.Format("{0}.{1}", headerBase64, payloadBase64);
-				string signature = _cryptographyService.SignToken(unsignedToken, _jwtKey);
-				string jwtToken = string.Format("{0}.{1}", unsignedToken, signature);
+				string jwtToken = _jwtHandlerService.GenerateToken(header, payload);
 
 				result.IsSuccessful = true;
 				result.Payload = jwtToken;
