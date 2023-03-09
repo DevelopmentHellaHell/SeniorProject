@@ -42,25 +42,15 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service.Implementations
 		{
 			Result result = new Result();
 
-			Result<byte[]> getResult = await _otpDataAccess.GetOTP(accountId);
-			if (!getResult.IsSuccessful)
+			Result<string> otpResult = await GetOTP(accountId).ConfigureAwait(false);
+			if (!otpResult.IsSuccessful || otpResult.Payload is null)
 			{
 				result.IsSuccessful = false;
-				result.ErrorMessage = "Error, please contact system administrator.";
+				result.ErrorMessage = otpResult.ErrorMessage;
 				return result;
 			}
 
-			if (getResult.Payload is null)
-			{
-				result.IsSuccessful = false;
-				result.ErrorMessage = "Invalid OTP.";
-				return result;
-			}
-
-			byte[] eotpDb = getResult.Payload;
-			string otpDb = _cryptographyService.Decrypt(eotpDb);
-
-			if (otp != otpDb)
+			if (otp != otpResult.Payload)
 			{
 				result.IsSuccessful = false;
 				result.ErrorMessage = "Invalid OTP.";
@@ -86,6 +76,33 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service.Implementations
 			}
 
 			result.IsSuccessful = true;
+			return result;
+		}
+
+		public async Task<Result<string>> GetOTP(int accountId)
+		{
+			Result<string> result = new Result<string>();
+
+			Result<byte[]> getResult = await _otpDataAccess.GetOTP(accountId);
+			if (!getResult.IsSuccessful)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Error, please contact system administrator.";
+				return result;
+			}
+
+			if (getResult.Payload is null)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Invalid OTP.";
+				return result;
+			}
+
+			byte[] eotpDb = getResult.Payload;
+			string otpDb = _cryptographyService.Decrypt(eotpDb);
+
+			result.IsSuccessful = true;
+			result.Payload = otpDb;
 			return result;
 		}
 	}

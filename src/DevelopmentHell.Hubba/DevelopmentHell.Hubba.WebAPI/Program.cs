@@ -32,10 +32,20 @@ using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
+using DevelopmentHell.Hubba.Testing.Service.Implementations;
+using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+
+builder.Services.AddSingleton<ITestingService, TestingService>(s =>
+{
+	return new TestingService(
+		new TestsDataAccess()
+	);
+});
+
 // Transient new instance for every controller and service
 // Scoped is same object from same request but different for other requests??
 // Singleton is one instance across all requests
@@ -90,13 +100,17 @@ builder.Services.AddTransient<IOTPService, OTPService>(s =>
 			HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
 			HubbaConfig.ConfigurationManager.AppSettings["UserOTPsTable"]!
 		),
-		new EmailService(),
+		new EmailService(
+			HubbaConfig.ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!,
+			HubbaConfig.ConfigurationManager.AppSettings["SENDGRID_API_KEY"]!,
+			HubbaConfig.ConfigurationManager.AppSettings["COMPANY_EMAIL"]!
+		),
 		s.GetService<ICryptographyService>()!
 	);
 });
 builder.Services.AddTransient<IAuthorizationService, AuthorizationService>(s =>
 	new AuthorizationService(
-		HubbaConfig.ConfigurationManager.AppSettings,
+		HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!,
         new UserAccountDataAccess(
                 HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
                 HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!

@@ -77,7 +77,7 @@ describe('registration-with-email-password', () => {
     //timer
     const start: number = Date.now()
     cy.contains("Submit").click()
-      .then(function () {
+      .then(() => {
         cy.url().should('eq', Cypress.env('loginUrl'))
         const elapsed = Date.now() - start
         expect(elapsed).to.be.lessThan(5000)

@@ -13,6 +13,7 @@
 		public string Op { get; }
 		public object Value { get; }
 	}
+
 	public struct Joiner
 	{
 		public Joiner(string table1, string table2, string column1, string column2)
