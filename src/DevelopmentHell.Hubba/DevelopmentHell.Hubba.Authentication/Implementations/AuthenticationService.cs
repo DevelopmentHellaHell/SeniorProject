@@ -202,7 +202,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 				{
 					{ "iss", "Hubba" },
 					{ "aud", "*" },
-					{ ClaimTypes.NameIdentifier, accountId },
+					{ "sub", accountId },
 					{ "iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds() },
 					{ "exp", DateTimeOffset.UtcNow.AddMinutes(30).ToUnixTimeSeconds() },
 					{ "at_hash", accessTokenHash }

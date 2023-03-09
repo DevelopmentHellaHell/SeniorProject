@@ -12,12 +12,8 @@ using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
 using HubbaConfig = System.Configuration;
 using DevelopmentHell.Hubba.AccountRecovery.Manager.Abstractions;
 using DevelopmentHell.Hubba.AccountRecovery.Manager.Implementations;
@@ -36,7 +32,6 @@ using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
 using Development.Hubba.JWTHandler.Service.Abstractions;
-using DevelopmentHell.Hubba.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,6 +40,7 @@ builder.Services.AddControllers();
 builder.Services.AddSingleton<ITestingService, TestingService>(s =>
 {
 	return new TestingService(
+		HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!,
 		new TestsDataAccess()
 	);
 });
@@ -190,22 +186,6 @@ builder.Services.AddTransient<IAccountDeletionManager, AccountDeletionManager>(s
     )
 );
 
-//Found on google, source lost
-builder.Services.AddAuthentication(x =>
-{
-    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(x =>
-{
-    x.RequireHttpsMetadata = false;
-    x.SaveToken = true;
-    x.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!)),
-        ValidateLifetime = true
-    };
-});
 builder.Services.AddCors();
 
 var app = builder.Build();
@@ -246,7 +226,7 @@ app.Use(async (httpContext, next) =>
 
 	if (Thread.CurrentPrincipal is null)
 	{
-		Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "DefaultUser") }));
+		Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim("role", "DefaultUser") }));
 	}
 
     // Go to next middleware

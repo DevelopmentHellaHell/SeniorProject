@@ -87,7 +87,7 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
             }
 
 			var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
-			var stringAccountId = claimsPrincipal?.FindFirstValue(ClaimTypes.NameIdentifier);
+			var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
 			if (stringAccountId is null)
 			{
 				result.IsSuccessful = false;

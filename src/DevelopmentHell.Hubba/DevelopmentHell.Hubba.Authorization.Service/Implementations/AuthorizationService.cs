@@ -38,7 +38,7 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementations
 			
 			if (principal is not null)
 			{
-				if (roles.Contains(principal.FindFirstValue(ClaimTypes.Role)))
+				if (roles.Contains(principal.FindFirstValue("role")))
 				{
 					result.IsSuccessful = true;
 					return result;
@@ -83,10 +83,10 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementations
 					{ "iss", "Hubba" },
 					{ "aud", "*" },
 					{ "azp", email },
-					{ ClaimTypes.NameIdentifier, accountId },
+					{ "sub", accountId },
 					{ "iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds() },
 					{ "exp", DateTimeOffset.UtcNow.AddMinutes(defaultUser ? 2 : 30).ToUnixTimeSeconds() },
-					{ ClaimTypes.Role, defaultUser ? "DefaultUser" : role }
+					{ "role", defaultUser ? "DefaultUser" : role }
 				};
 
 				string jwtToken = _jwtHandlerService.GenerateToken(header, payload);

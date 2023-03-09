@@ -36,7 +36,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations
             var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
 
             // Get the ID of current thread
-            string thisAccountIDStr = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+            string thisAccountIDStr = principal.FindFirstValue("sub");
 
             if (int.TryParse(thisAccountIDStr, out int thisAccountIDInt))
             {

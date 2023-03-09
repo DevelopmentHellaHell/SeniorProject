@@ -56,7 +56,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
                 catch (Exception)
                 {
                     // Handle token validation errors
-                    Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "DefaultUser") }));
+                    Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim("role", "DefaultUser") }));
                     return;
                 }
             }

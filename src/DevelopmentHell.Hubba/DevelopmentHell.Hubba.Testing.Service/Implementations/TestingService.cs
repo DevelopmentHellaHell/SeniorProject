@@ -1,55 +1,52 @@
 ﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Models.Tests;
-using Microsoft.IdentityModel.Tokens;
-using System.Configuration;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
+using Development.Hubba.JWTHandler.Service.Implementations;
 
 namespace DevelopmentHell.Hubba.Testing.Service.Implementations
 {
     public class TestingService : ITestingService
     {
+        private readonly string _jwtKey;
         private TestsDataAccess _testsDataAccess;
-        public TestingService(TestsDataAccess testsDataAccess)
+        
+        public TestingService(string jwtKey, TestsDataAccess testsDataAccess)
         {
+            _jwtKey = jwtKey;
             _testsDataAccess = testsDataAccess;
         }
 
-        public void DecodeJWT(string token)
-        {
+        public void DecodeJWT(string accessToken, string? idToken = null)
+		{
+			var jwtHandlerService = new JWTHandlerService(_jwtKey);
+			if (accessToken is not null)
+			{
+				if (jwtHandlerService.ValidateJwt(accessToken))
+				{
+					var principal = jwtHandlerService.GetPrincipal(accessToken);
+					Thread.CurrentPrincipal = principal;
+				}
+				else
+				{
+					Thread.CurrentPrincipal = null;
+				}
+			}
 
-            if (token is not null)
-            {
-                // Parse the JWT token and extract the principal
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.ASCII.GetBytes(ConfigurationManager.AppSettings["JwtKey"]!);
-                var validationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ValidateLifetime = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key)
-                };
+			if (idToken is not null && accessToken is not null && Thread.CurrentPrincipal is not null)
+			{
+				if (!jwtHandlerService.ValidateJwt(idToken))
+				{
+					Thread.CurrentPrincipal = null;
+				}
+			}
 
-                try
-                {
-                    SecurityToken validatedToken;
-                    var principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
-
-                    Thread.CurrentPrincipal = principal;
-                    return;
-                }
-                catch (Exception)
-                {
-                    // Handle token validation errors
-                    Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "DefaultUser") }));
-                    return;
-                }
-            }
-        }
+			if (Thread.CurrentPrincipal is null)
+			{
+				Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim("role", "DefaultUser") }));
+			}
+		}
 
         public async Task<Result> DeleteDatabaseRecords(Databases db)
         {

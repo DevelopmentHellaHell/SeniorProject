@@ -1,6 +1,5 @@
 using Development.Hubba.JWTHandler.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
-using DevelopmentHell.Hubba.AccountDeletion.Manager;
 using DevelopmentHell.Hubba.AccountDeletion.Manager.Abstraction;
 using DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations;
 using DevelopmentHell.Hubba.AccountDeletion.Service.Abstractions;
@@ -32,6 +31,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
         private string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
         private string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
         private string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
+        private string _jwtKey = ConfigurationManager.AppSettings["JwtKey"]!;
 
         private readonly IAuthorizationService _authorizationService;
         private readonly IAuthenticationService _authenticationService;
@@ -42,18 +42,18 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
 
         public ManagerIntegrationTests()
         {
-            _userAccountDataAccess = new UserAccountDataAccess(_usersConnectionString, _userAccountsTable);
-            IValidationService _validationService = new ValidationService();
-            ICryptographyService _cryptographyService = new CryptographyService(ConfigurationManager.AppSettings["CryptographyKey"]!);
-            IJWTHandlerService _jwtHandlerService = new JWTHandlerService(
-                ConfigurationManager.AppSettings["JwtKey"]!
-            );
-			ILoggerService _loggerService = new LoggerService(
+			_userAccountDataAccess = new UserAccountDataAccess(_usersConnectionString, _userAccountsTable);
+            IValidationService validationService = new ValidationService();
+            ICryptographyService cryptographyService = new CryptographyService(ConfigurationManager.AppSettings["CryptographyKey"]!);
+            IJWTHandlerService jwtHandlerService = new JWTHandlerService(
+				_jwtKey
+			);
+			ILoggerService loggerService = new LoggerService(
                 new LoggerDataAccess(_logsConnectionString, _logsTable)
             );
-            IAccountDeletionService _accountDeletionService = new AccountDeletionService(
+            IAccountDeletionService accountDeletionService = new AccountDeletionService(
                 _userAccountDataAccess, 
-                _loggerService
+                loggerService
             );
             _authenticationService = new AuthenticationService(
 				ConfigurationManager.AppSettings["CryptographyKey"]!,
@@ -62,30 +62,31 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
                     _usersConnectionString,
                     ConfigurationManager.AppSettings["UserLoginsTable"]!
                 ),
-                _cryptographyService,
-                _jwtHandlerService,
-                _validationService,
-                _loggerService
+                cryptographyService,
+                jwtHandlerService,
+                validationService,
+                loggerService
             );
             _authorizationService = new AuthorizationService(
                 _userAccountDataAccess,
-				_jwtHandlerService,
-				_loggerService
+				jwtHandlerService,
+				loggerService
             );
             _accountDeletionManager = new AccountDeletionManager(
-                _accountDeletionService, 
+                accountDeletionService, 
                 _authenticationService, 
                 _authorizationService, 
-                _loggerService
+                loggerService
             );
             _registrationService = new RegistrationService(
                 _userAccountDataAccess,
-               _cryptographyService,
-                _validationService,
-                _loggerService
+               cryptographyService,
+               validationService,
+               loggerService
             );
             _testingService = new TestingService(
-                new TestsDataAccess()
+				_jwtKey,
+				new TestsDataAccess()
             );
         }
 
@@ -178,10 +179,10 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
 
             // log in as admin
             var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId1, false).ConfigureAwait(false);
-            //var idTokenResult = _authenticationService.GenerateIdToken(accountId1, accessTokenResult.Payload!);
-            if (accessTokenResult.IsSuccessful)
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId1, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(accessTokenResult.Payload!);
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
             var expected = new Result { IsSuccessful = true };
 
