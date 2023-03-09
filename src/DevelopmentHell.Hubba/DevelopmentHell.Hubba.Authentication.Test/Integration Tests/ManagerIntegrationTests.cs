@@ -13,6 +13,7 @@ using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
+using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
@@ -41,7 +42,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 		private readonly IUserAccountDataAccess _userAccountDataAccess;
 		private readonly IRegistrationService _registrationService;
 		private readonly IOTPService _otpService;
-		private readonly TestingService _testingService;
+		private readonly ITestingService _testingService;
 
 		public ManagerIntegrationTests()
 		{
@@ -67,7 +68,8 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 				new EmailService(
 					ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!,
 					ConfigurationManager.AppSettings["SENDGRID_API_KEY"]!,
-					ConfigurationManager.AppSettings["COMPANY_EMAIL"]!
+					ConfigurationManager.AppSettings["COMPANY_EMAIL"]!,
+					true
 				),
 				cryptographyService
 			);

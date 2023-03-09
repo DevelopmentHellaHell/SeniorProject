@@ -1,6 +1,9 @@
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.Models.Tests;
 using DevelopmentHell.Hubba.SqlDataAccess;
+using DevelopmentHell.Hubba.Testing.Service.Abstractions;
+using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using Microsoft.Data.SqlClient;
 using System.Configuration;
 using System.Diagnostics;
@@ -15,6 +18,18 @@ namespace DevelopmentHell.Hubba.Logging.Test
 
 		private static string connectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
 		private LoggerDataAccess dataAccess = new LoggerDataAccess(connectionString, ConfigurationManager.AppSettings["LogsTable"]!);
+
+		private string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
+		private string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
+
+		private readonly ITestingService _testingService;
+
+		public IntegrationTests()
+		{
+			_testingService = new TestingService(
+				new TestsDataAccess()
+			);
+		}
 
 		[TestMethod]
 		public async Task ConnectionSuccessful()
@@ -190,6 +205,12 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			// Assert
 			Assert.IsTrue(ev.WaitOne(1000));
 			Assert.IsTrue(actual.IsSuccessful);
+		}
+
+		[TestCleanup]
+		public async Task Cleanup()
+		{
+			await _testingService.DeleteDatabaseRecords(Databases.LOGS).ConfigureAwait(false);
 		}
 	}
 }

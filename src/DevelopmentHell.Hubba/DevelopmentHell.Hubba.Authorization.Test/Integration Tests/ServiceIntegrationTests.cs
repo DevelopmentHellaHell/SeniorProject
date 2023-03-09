@@ -10,6 +10,7 @@ using DevelopmentHell.Hubba.Validation.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using System.Security.Claims;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
+using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 
 namespace DevelopmentHell.Hubba.Authorization.Test
 {
@@ -26,7 +27,7 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 		// Helper classes
 		private readonly IRegistrationService _registrationService;
 		private readonly IUserAccountDataAccess _userAccountDataAccess;
-		private readonly TestingService _testingService;
+		private readonly ITestingService _testingService;
 
 		public ServiceIntegrationTests()
 		{

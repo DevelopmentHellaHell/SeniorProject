@@ -15,6 +15,7 @@ using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
+using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
@@ -34,7 +35,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
         private readonly IUserAccountDataAccess _userAccountDataAccess;
         private readonly IAccountDeletionManager _accountDeletionManager;
         private readonly IRegistrationService _registrationService;
-        private readonly TestingService _testingService;
+        private readonly ITestingService _testingService;
 
         public ManagerIntegrationTests()
         {
