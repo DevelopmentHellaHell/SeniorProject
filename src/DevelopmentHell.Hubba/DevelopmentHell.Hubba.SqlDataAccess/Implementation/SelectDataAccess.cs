@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 {
-	public class SelectDataAccess
+	internal class SelectDataAccess
 	{
 		private string connectionPath;
 		public SelectDataAccess(string inPath)

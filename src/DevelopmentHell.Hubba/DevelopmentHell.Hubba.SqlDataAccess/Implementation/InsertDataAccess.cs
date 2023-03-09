@@ -4,7 +4,7 @@ using Microsoft.Data.SqlClient;
 namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 {
 
-	public class InsertDataAccess
+	internal class InsertDataAccess
 	{
 		private string connectionPath;
 		public InsertDataAccess(string inPath)

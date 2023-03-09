@@ -58,7 +58,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 
 				// Act
 				stopwatch.Start();
-				var actual = sut.Log(logLevel, category, userName, message);
+				var actual = sut.Log(logLevel, category, message, userName);
 				stopwatch.Stop();
 
 				// Assert
@@ -83,7 +83,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 
 				// Act
 				stopwatch.Start();
-				var actual = sut.Log(logLevel, category, userName, message);
+				var actual = sut.Log(logLevel, category, message, userName);
 				stopwatch.Stop();
 
 				// Assert
@@ -108,7 +108,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 
 				// Act
 				stopwatch.Start();
-				var actual = sut.Log(logLevel, category, userName, message);
+				var actual = sut.Log(logLevel, category, message, userName);
 				stopwatch.Stop();
 
 				// Assert
@@ -133,7 +133,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 
 				// Act
 				stopwatch.Start();
-				var actual = sut.Log(logLevel, category, userName, message);
+				var actual = sut.Log(logLevel, category, message, userName);
 				stopwatch.Stop();
 
 				// Assert
@@ -157,7 +157,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 
 			// Act
 			stopwatch.Start();
-			var result = sut.Log(logLevel, category, userName, message);
+			var result = sut.Log(logLevel, category, message, userName);
 			stopwatch.Stop();
 
 			// Assert
@@ -182,7 +182,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
 			// Act
 			ThreadPool.QueueUserWorkItem((e) =>
 			{
-				actual = sut.Log(logLevel, category, userName, message);
+				actual = sut.Log(logLevel, category, message, userName);
 
 				(e as AutoResetEvent)!.Set();
 			}, ev);
