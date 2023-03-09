@@ -146,7 +146,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 		{
 			// Arrange
 			//  - Setup user and initial state
-			var credentialEmail = "test1@gmail.com";
+			var credentialEmail = "test@gmail.com";
 			var credentialPassword = "12345678";
 			var ipAddress = "1.1.1.1";
 			await _registrationService.RegisterAccount(credentialEmail, credentialPassword).ConfigureAwait(false);
@@ -185,7 +185,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 		{
 			// Arrange
 			//  - Setup user and initial state
-			var credentialEmail = "test2@gmail.com";
+			var credentialEmail = "test@gmail.com";
 			var credentialPassword = "12345678";
 			var ipAddress = "1.1.1.1";
 			await _registrationService.RegisterAccount(credentialEmail, credentialPassword).ConfigureAwait(false);
@@ -212,7 +212,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 		{
 			// Arrange
 			//  - Setup user and initial state
-			var credentialEmail = "test3@gmail.com";
+			var credentialEmail = "test@gmail.com";
 			var credentialPassword = "12345678";
 			var ipAddress = "1.1.1.1";
 			var registrationResult = await _registrationService.RegisterAccount(credentialEmail, credentialPassword).ConfigureAwait(false);
@@ -247,7 +247,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 		{
 			// Arrange
 			//  - Setup user and initial state
-			var credentialEmail = "test4@gmail.com";
+			var credentialEmail = "test@gmail.com";
 			var credentialPassword = "12345678";
 			var ipAddress = "1.1.1.1";
 			await _registrationService.RegisterAccount(credentialEmail, credentialPassword).ConfigureAwait(false);
@@ -274,14 +274,14 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Email)! == credentialEmail);
 			Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Role)! == expectedRole);
 			Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue("accountId")!) == id);
-		}
+        }
 
 		[TestMethod]
 		public async Task ShouldAuthenticateCorrectOTP()
 		{
 			// Arrange
 			//  - Setup user and initial state
-			var credentialEmail = "test5@gmail.com";
+			var credentialEmail = "test@gmail.com";
 			var credentialPassword = "12345678";
 			var ipAddress = "1.1.1.1";
 			await _registrationService.RegisterAccount(credentialEmail, credentialPassword).ConfigureAwait(false);
@@ -318,7 +318,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 		{
 			// Arrange
 			//  - Setup user and initial state
-			var credentialEmail = "test6@gmail.com";
+			var credentialEmail = "test@gmail.com";
 			var credentialPassword = "12345678";
 			var invalidPassword = "invalidPassword";
 			var ipAddress = "1.1.1.1";
