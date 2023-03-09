@@ -31,29 +31,24 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
         private string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
 
         private readonly IAuthorizationService _authorizationService;
-        private readonly IAuthenticationService _authenticationService;
         private readonly IUserAccountDataAccess _userAccountDataAccess;
-        private readonly ILoggerService _loggerService;
-        private readonly IAccountDeletionService _accountDeletionService;
         private readonly IAccountDeletionManager _accountDeletionManager;
         private readonly IRegistrationService _registrationService;
-        private readonly IValidationService _validationService;
-        private readonly ICryptographyService _cryptographyService;
         private readonly TestingService _testingService;
 
         public ManagerIntegrationTests()
         {
             _userAccountDataAccess = new UserAccountDataAccess(_usersConnectionString, _userAccountsTable);
-            _validationService = new ValidationService();
-            _cryptographyService = new CryptographyService(ConfigurationManager.AppSettings["CryptographyKey"]!);
-            _loggerService = new LoggerService(
+            IValidationService _validationService = new ValidationService();
+            ICryptographyService _cryptographyService = new CryptographyService(ConfigurationManager.AppSettings["CryptographyKey"]!);
+            ILoggerService _loggerService = new LoggerService(
                 new LoggerDataAccess(_logsConnectionString, _logsTable)
             );
-            _accountDeletionService = new AccountDeletionService(
+            IAccountDeletionService _accountDeletionService = new AccountDeletionService(
                 _userAccountDataAccess, 
                 _loggerService
             );
-            _authenticationService = new AuthenticationService(
+            IAuthenticationService _authenticationService = new AuthenticationService(
                 _userAccountDataAccess,
                 new UserLoginDataAccess(
                     ConfigurationManager.AppSettings["UsersConnectionString"]!,
