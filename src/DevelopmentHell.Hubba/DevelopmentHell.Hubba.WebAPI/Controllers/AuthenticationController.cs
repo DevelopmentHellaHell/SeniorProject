@@ -10,12 +10,10 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
     public class AuthenticationController : Controller
     {
         private readonly IAuthenticationManager _authenticationManager;
-        private readonly IOTPService _otpService;
 
-        public AuthenticationController(IAuthenticationManager authenticationManager, IOTPService otpService)
+        public AuthenticationController(IAuthenticationManager authenticationManager)
         {
             _authenticationManager = authenticationManager;
-            _otpService = otpService;
         }
 
 #if DEBUG
