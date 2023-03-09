@@ -131,6 +131,11 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
             return await _notificationService.HideNotifications(userId).ConfigureAwait(false);
         }
 
+        public async Task<Result> HideIndividualNotifications(List<int> selectedNotifications)
+        {
+            return await _notificationService.HideIndividualNotifications(selectedNotifications).ConfigureAwait(false);
+        }
+
         public async Task<Result> DeleteNotificationSettings(int userId)
         {
             return await _notificationService.DeleteNotificationSettings(userId).ConfigureAwait(false);

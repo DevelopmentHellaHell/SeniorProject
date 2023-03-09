@@ -69,11 +69,36 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return result;
         }
 
-        //TODO: should I still call it Delete Notification even though we don't delete it? DateTime datatype?
-        //public async Task<Result> HideIndividualNotification(List<Dictionary<string, object>> selectedNotifications)
-        //{
-            
-        //}
+        //TODO: when time allows, make custom class to do one visit only
+        public async Task<Result> HideIndividualNotifications(List<int> selectedNotifications)
+        {
+            Result result = new Result();
+
+            foreach(int i in selectedNotifications)
+            {
+                Result updateResult = await _updateDataAccess.Update(
+                    _tableName,
+                    new List<Comparator>()
+                    {
+                        new Comparator("NotificationId", "=", i)
+                    },
+                    new Dictionary<string, object>()
+                    {
+                        {"Hide", true }
+                    }
+                ).ConfigureAwait(false);
+                if (!updateResult.IsSuccessful)
+                {
+                    result.IsSuccessful = false;
+                    result.ErrorMessage = updateResult.ErrorMessage;    
+                    return updateResult;
+                }
+            }
+
+            result.IsSuccessful = true;
+            return result;
+                
+        }
 
         //Makes all notifications of user hidden
         public async Task<Result> HideAllNotifications(int userId) //change to HideAll
