@@ -10,5 +10,8 @@ namespace DevelopmentHell.Hubba.Cryptography.Service.Abstractions
         byte[] DecryptToBytes(byte[] encrypted);
         Result<HashData> HashString(string text, string salt);
         string GetSaltValidChars();
-    }
+        string SerializeToJson(Dictionary<string, object> data);
+        string EncodeBase64(string value);
+        string SignToken(string unsignedToken, string secretKey);
+	}
 }

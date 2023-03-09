@@ -23,6 +23,7 @@ const LogoutPage: React.FC<ILogoutPageProps> = (props) => {
                 // Do nothing
             }
             Auth.removeCookie("access_token");
+            Auth.removeCookie("id_token");
             navigate("/");
         })();    
     }, []);

@@ -9,7 +9,7 @@ interface IPrivateOuteletProps {
 
 const PrivateOutlet: React.FC<IPrivateOuteletProps> = (props: React.PropsWithChildren<IPrivateOuteletProps>) => {
 	const location = useLocation();
-	const data = Auth.isAuthenticated();
+	const data = Auth.getAccessData();
 
 	if (props.allowedRoles.find((role) => data?.role == role)) {
 		return (

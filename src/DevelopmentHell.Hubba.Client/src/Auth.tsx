@@ -6,12 +6,13 @@ export namespace Auth {
     }
 
     export interface IJWTDecoded {
-        accountId: number,
-        role: Roles,
-        email: string,
-        nbf: number,
-        exp: number,
+        iss: string,
+        aud: string,
+        azp?: string,
+        sub: string,
         iat: number,
+        exp: number,
+        role?: string
     }
 
     export function getCookie(name: string): string | undefined {
@@ -45,7 +46,7 @@ export namespace Auth {
         return JSON.parse(jsonPayload) as T;
     }
     
-    export function isAuthenticated(): IJWTDecoded | undefined {
+    export function getAccessData(): IJWTDecoded | undefined {
         const cookie = getCookie("access_token");
         if (!cookie) {
             return;
@@ -54,10 +55,12 @@ export namespace Auth {
         const decodedJwt = parseJwt<IJWTDecoded>(cookie);
         if (decodedJwt.exp * 1000 < Date.now()) {
             removeCookie("access_token");
+            removeCookie("id_token");
             alert("Session expired. Please log in again.");
             return;
         }
     
+        console.log(decodedJwt);
         return decodedJwt;
     }
 }

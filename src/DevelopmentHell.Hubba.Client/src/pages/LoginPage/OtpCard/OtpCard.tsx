@@ -19,7 +19,7 @@ const OtpCard: React.FC<IOtpCardProps> = (props) => {
         setLoaded(true);
     }
 
-    const authData = Auth.isAuthenticated();
+    const authData = Auth.getAccessData();
     if (!authData) {
         redirect("/login");
         return null;

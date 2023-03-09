@@ -95,7 +95,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Accou
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.AccountRecovery.Test", "DevelopmentHell.Hubba.AccountRecovery.Test\DevelopmentHell.Hubba.AccountRecovery.Test.csproj", "{27DD639C-883B-441A-8967-D080EE2239AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.Testing.Service", "DevelopmentHell.Hubba.Testing.Service\DevelopmentHell.Hubba.Testing.Service.csproj", "{0A32B338-85FF-4E01-9EA0-6B8C62CC6C57}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Testing.Service", "DevelopmentHell.Hubba.Testing.Service\DevelopmentHell.Hubba.Testing.Service.csproj", "{0A32B338-85FF-4E01-9EA0-6B8C62CC6C57}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Development.Hubba.JWTHandler.Service", "Development.Hubba.JWTHandler.Service\Development.Hubba.JWTHandler.Service.csproj", "{5EE3F4DA-60BD-4AEC-90A8-B2F0C922B7EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -211,6 +213,10 @@ Global
 		{0A32B338-85FF-4E01-9EA0-6B8C62CC6C57}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A32B338-85FF-4E01-9EA0-6B8C62CC6C57}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A32B338-85FF-4E01-9EA0-6B8C62CC6C57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5EE3F4DA-60BD-4AEC-90A8-B2F0C922B7EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5EE3F4DA-60BD-4AEC-90A8-B2F0C922B7EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5EE3F4DA-60BD-4AEC-90A8-B2F0C922B7EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5EE3F4DA-60BD-4AEC-90A8-B2F0C922B7EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -246,6 +252,7 @@ Global
 		{CD2F5DD5-56A2-480A-BF9D-6FFB3F7D8721} = {AF8ADA89-9511-4DF9-B861-281AC81D112D}
 		{27DD639C-883B-441A-8967-D080EE2239AF} = {5A528968-95F9-4E5A-98CB-501EE0759FDC}
 		{0A32B338-85FF-4E01-9EA0-6B8C62CC6C57} = {33222376-EAA6-4A44-A1D7-B6DB5BE1E13B}
+		{5EE3F4DA-60BD-4AEC-90A8-B2F0C922B7EE} = {33222376-EAA6-4A44-A1D7-B6DB5BE1E13B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E49330E5-F92F-4990-A904-E75E376A2656}

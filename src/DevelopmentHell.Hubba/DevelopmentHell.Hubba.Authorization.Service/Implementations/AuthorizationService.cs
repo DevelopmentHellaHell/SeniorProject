@@ -1,12 +1,9 @@
 ﻿using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
-using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
-using System.Collections.Specialized;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
+using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 
 namespace DevelopmentHell.Hubba.Authorization.Service.Implementations
 {
@@ -14,56 +11,15 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementations
 	{
 		private readonly string _jwtKey;
 		private IUserAccountDataAccess _userAccountDataAccess;
+		private ICryptographyService _cryptographyService;
 		private ILoggerService _loggerService;
 
-        public AuthorizationService(string jwtKey, IUserAccountDataAccess userAccountDataAccess, ILoggerService loggerService)
+        public AuthorizationService(string jwtKey, IUserAccountDataAccess userAccountDataAccess, ICryptographyService cryptographyService, ILoggerService loggerService)
 		{
 			_jwtKey = jwtKey;
 			_userAccountDataAccess = userAccountDataAccess;
+			_cryptographyService = cryptographyService;
 			_loggerService = loggerService;
-		}
-
-		public async Task<Result<string>> GenerateToken(int accountId, bool defaultUser = false)
-		{
-			var result = new Result<string>();
-
-			var getResult = await _userAccountDataAccess.GetUser(accountId).ConfigureAwait(false);
-			if (!getResult.IsSuccessful || getResult.Payload is null)
-			{
-				result.IsSuccessful = false;
-				result.ErrorMessage = "Invalid email.";
-				return result;
-			}
-
-			var role = getResult.Payload.Role;
-			var email = getResult.Payload.Email;
-			if (role is null || email is null)
-			{
-				result.IsSuccessful = false;
-				result.ErrorMessage = "Empty user.";
-				return result;
-			}
-
-            try
-			{
-				var handler = new JwtSecurityTokenHandler();
-				var date = DateTime.Now;
-				var descriptor = new SecurityTokenDescriptor
-				{
-					Subject = new ClaimsIdentity(new[] { new Claim("accountId", accountId.ToString()), new Claim(ClaimTypes.Role, defaultUser ? "DefaultUser" : role), new Claim(ClaimTypes.Email, email) }),
-					//TODO: Magic Number
-					Expires = date.AddMinutes(!defaultUser ? 60 : 2),
-					NotBefore = date,
-					SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtKey)), SecurityAlgorithms.HmacSha256Signature)
-				};
-
-				var token = handler.CreateToken(descriptor);
-				return new() { IsSuccessful = true, Payload = handler.WriteToken(token) };
-			}
-			catch
-			{
-				return new() { IsSuccessful = false, ErrorMessage = "Unable to Generate access token." };
-			}
 		}
 
         public Result Authorize(string[] roles)
@@ -97,6 +53,66 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementations
 			result.IsSuccessful = false;
 			result.ErrorMessage = "Unauthorized.";
 			return result;
+		}
+
+		public async Task<Result<string>> GenerateAccessToken(int accountId, bool defaultUser = false)
+		{
+			var result = new Result<string>();
+
+			var getResult = await _userAccountDataAccess.GetUser(accountId).ConfigureAwait(false);
+			if (!getResult.IsSuccessful || getResult.Payload is null)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Invalid email.";
+				return result;
+			}
+
+			var role = getResult.Payload.Role;
+			var email = getResult.Payload.Email;
+			if (role is null || email is null)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Empty user.";
+				return result;
+			}
+
+			try
+			{
+				var header = new Dictionary<string, object>()
+				{
+					{ "alg", "HS256" },
+					{ "typ", "JWT" }
+				};
+				var payload = new Dictionary<string, object>()
+				{
+					{ "iss", "Hubba" },
+					{ "aud", "*" },
+					{ "azp", email },
+					{ "sub", accountId },
+					{ "iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds() },
+					{ "exp", DateTimeOffset.UtcNow.AddMinutes(defaultUser ? 2 : 30).ToUnixTimeSeconds() },
+					{ "role", defaultUser ? "DefaultUser" : "VerifiedUser" }
+				};
+
+				string headerJson = _cryptographyService.SerializeToJson(header);
+				string headerBase64 = _cryptographyService.EncodeBase64(headerJson);
+				string payloadJson = _cryptographyService.SerializeToJson(payload);
+				string payloadBase64 = _cryptographyService.EncodeBase64(payloadJson);
+
+				string unsignedToken = string.Format("{0}.{1}", headerBase64, payloadBase64);
+				string signature = _cryptographyService.SignToken(unsignedToken, _jwtKey);
+				string jwtToken = string.Format("{0}.{1}", unsignedToken, signature);
+
+				result.IsSuccessful = true;
+				result.Payload = jwtToken;
+				return result;
+			}
+			catch
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Unable to generate access token.";
+				return result;
+			}
 		}
 	}
 }

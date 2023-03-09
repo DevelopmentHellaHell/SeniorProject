@@ -34,6 +34,7 @@ using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
+using Development.Hubba.JWTHandler.Service.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -115,12 +116,14 @@ builder.Services.AddTransient<IAuthorizationService, AuthorizationService>(s =>
                 HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
                 HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
         ),
+		s.GetService<ICryptographyService>()!,
 		s.GetService<ILoggerService>()!
 	)
 );
 builder.Services.AddTransient<IAuthenticationService, AuthenticationService>(s =>
     new AuthenticationService(
-        new UserAccountDataAccess(
+		HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!,
+		new UserAccountDataAccess(
             HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
             HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
         ),
@@ -204,38 +207,32 @@ var app = builder.Build();
 app.Use(async (httpContext, next) =>
 {
 	// inbound code
-	var jwtToken = httpContext.Request.Cookies["access_token"];
-
-	if (jwtToken is not null)
+	var accessToken = httpContext.Request.Cookies["access_token"];
+	var idToken = httpContext.Request.Cookies["id_token"];
+	
+	// TODO verify id token with access token
+	if (accessToken is not null)
     {
 		// Parse the JWT token and extract the principal
-		var tokenHandler = new JwtSecurityTokenHandler();
-		var key = Encoding.ASCII.GetBytes(HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!);
-		var validationParameters = new TokenValidationParameters
-		{
-			ValidateIssuer = false,
-			ValidateAudience = false,
-			ValidateLifetime = true,
-			IssuerSigningKey = new SymmetricSecurityKey(key)
-		};
+		var key = HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!;
 
-		try
+		// TODO cleanup JWTHandlerService and move older jwt methods in this class
+		JWTHandlerService test = new JWTHandlerService();
+		if (test.ValidateJwt(accessToken, key))
 		{
-			SecurityToken validatedToken;
-			var principal = tokenHandler.ValidateToken(jwtToken, validationParameters, out validatedToken);
-
+			var principal = test.GetPrincipal(accessToken);
 			Thread.CurrentPrincipal = principal;
-		}
-		catch (Exception)
+			// TODO check id token here
+		} 
+		else
 		{
-			// Handle token validation errors
 			Thread.CurrentPrincipal = null;
 		}
 	}
 
 	if (Thread.CurrentPrincipal is null)
 	{
-		Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "DefaultUser") }));
+		Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim("role", "DefaultUser") }));
 	}
 
     // Go to next middleware

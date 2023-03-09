@@ -11,6 +11,7 @@ using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using System.Security.Claims;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
+using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 
 namespace DevelopmentHell.Hubba.Authorization.Test
 {
@@ -41,16 +42,18 @@ namespace DevelopmentHell.Hubba.Authorization.Test
                     _logsTable
                 )
 			);
+			ICryptographyService cryptographyService = new CryptographyService(
+				ConfigurationManager.AppSettings["CryptographyKey"]!
+			);
 			_authorizationService = new AuthorizationService(
 				ConfigurationManager.AppSettings["JwtKey"]!,
 				_userAccountDataAccess,
+				cryptographyService,
 				loggerService
 			);
 			_registrationService = new RegistrationService(
 				_userAccountDataAccess,
-				new CryptographyService(
-					ConfigurationManager.AppSettings["CryptographyKey"]!
-				),
+				cryptographyService,
 				new ValidationService(),
 				loggerService
 			);
@@ -82,7 +85,7 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 			var expectedRole = role;
 
 			// Actual
-			var actualTokenResult = await _authorizationService.GenerateToken(id, defaultUser).ConfigureAwait(false);
+			var actualTokenResult = await _authorizationService.GenerateAccessToken(id, defaultUser).ConfigureAwait(false);
 			ClaimsPrincipal? actualPrincipal = null;
 			if (actualTokenResult.IsSuccessful)
 			{
@@ -114,7 +117,7 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 			await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
 			var userIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
 			var id = userIdResult.Payload;
-			var actualTokenResult = await _authorizationService.GenerateToken(id, true).ConfigureAwait(false);
+			var actualTokenResult = await _authorizationService.GenerateAccessToken(id, true).ConfigureAwait(false);
 			if (actualTokenResult.IsSuccessful)
 			{
                 _testingService.DecodeJWT(actualTokenResult.Payload!);

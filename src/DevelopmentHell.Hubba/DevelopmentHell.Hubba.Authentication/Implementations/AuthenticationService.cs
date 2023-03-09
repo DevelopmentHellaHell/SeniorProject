@@ -1,5 +1,6 @@
 ﻿using System.Configuration;
 using System.Security.Claims;
+using System.Text;
 using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
@@ -11,14 +12,16 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 {
     public class AuthenticationService : IAuthenticationService
 	{
+		private readonly string _jwtKey;
 		private IUserAccountDataAccess _userAccountDataAccess;
 		private IUserLoginDataAccess _userLoginDataAccess;
         private ICryptographyService _cryptographyService;
 		private IValidationService _validationService;
         private ILoggerService _loggerService;
 
-		public AuthenticationService(IUserAccountDataAccess userAccountDataAccess, IUserLoginDataAccess userLoginDataAccess, ICryptographyService cryptographyService, IValidationService validationService, ILoggerService loggerService)
+		public AuthenticationService(string jwtKey, IUserAccountDataAccess userAccountDataAccess, IUserLoginDataAccess userLoginDataAccess, ICryptographyService cryptographyService, IValidationService validationService, ILoggerService loggerService)
 		{
+			_jwtKey = jwtKey;
 			_userAccountDataAccess = userAccountDataAccess;
 			_userLoginDataAccess = userLoginDataAccess;
 			_cryptographyService = cryptographyService;
@@ -177,7 +180,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 
 
             string userHashKey = ConfigurationManager.AppSettings["UserHashKey"]!;
-            Result<HashData> userHashResult = _cryptographyService.HashString(email, userHashKey);
+			Result<HashData> userHashResult = _cryptographyService.HashString(email, userHashKey);
             if (!userHashResult.IsSuccessful || userHashResult.Payload is null)
             {
                 result.IsSuccessful = false;
@@ -189,7 +192,59 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
             _loggerService.Log(LogLevel.INFO, Category.BUSINESS, $"Successful logout attempt from: {email}.", userHash);
 
             result.IsSuccessful = true;
-            return result;
-        }
-    }
+			return result;
+		}
+
+		public Result<string> GenerateIdToken(int accountId, string accessToken)
+		{
+			Result<string> result = new Result<string>();
+
+			try
+			{
+				Result<HashData> hashData = _cryptographyService.HashString(accessToken, _jwtKey);
+				if (!hashData.IsSuccessful || hashData.Payload is null)
+				{
+					result.IsSuccessful = false;
+					result.Payload = "Unable to generate access token.";
+					return result;
+				}
+
+				string accessTokenHash = Encoding.UTF8.GetString(hashData.Payload.Hash!);
+
+				var header = new Dictionary<string, object>()
+				{
+					{ "alg", "HS256" },
+					{ "typ", "JWT" }
+				};
+				var payload = new Dictionary<string, object>()
+				{
+					{ "iss", "Hubba" },
+					{ "aud", "*" },
+					{ "sub", accountId },
+					{ "iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds() },
+					{ "exp", DateTimeOffset.UtcNow.AddMinutes(30).ToUnixTimeSeconds() },
+					{ "at_hash", accessTokenHash }
+				};
+
+				string headerJson = _cryptographyService.SerializeToJson(header);
+				string headerBase64 = _cryptographyService.EncodeBase64(headerJson);
+				string payloadJson = _cryptographyService.SerializeToJson(payload);
+				string payloadBase64 = _cryptographyService.EncodeBase64(payloadJson);
+
+				string unsignedToken = string.Format("{0}.{1}", headerBase64, payloadBase64);
+				string signature = _cryptographyService.SignToken(unsignedToken, _jwtKey);
+				string jwtToken = string.Format("{0}.{1}", unsignedToken, signature);
+
+				result.IsSuccessful = true;
+				result.Payload = jwtToken;
+				return result;
+			}
+			catch
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Unable to generate access token.";
+				return result;
+			}
+		}
+	}
 }

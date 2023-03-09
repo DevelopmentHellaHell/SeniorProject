@@ -13,7 +13,7 @@ interface IHomePageProps {
 }
 
 const HomePage: React.FC<IHomePageProps> = (props) => {
-    const authData = Auth.isAuthenticated();
+    const authData = Auth.getAccessData();
 
     const navigate = useNavigate();
 

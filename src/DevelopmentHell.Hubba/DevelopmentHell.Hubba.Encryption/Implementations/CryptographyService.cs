@@ -137,5 +137,55 @@ namespace DevelopmentHell.Hubba.Cryptography.Service.Implementations
         {
             return _saltValidChars;
         }
+
+        public string SerializeToJson(Dictionary<string, object> data)
+        {
+            var json = "{";
+			foreach (var item in data)
+            {
+                json += $"\"{item.Key}\":\"{SerializeToJsonValue(item.Value)}\",";
+            }
+            json = json.Remove(json.Length - 1);
+            json += "}";
+            return json;
+        }
+
+        private string SerializeToJsonValue(object value)
+        {
+            if (value is string)
+            {
+                return (string)value;
+			}
+            else if (value is DateTime)
+            {
+                return string.Format("\"{0:yyyy-MM-ddTHH:mm:ssZ}\"", value);
+            }
+            else
+            {
+                return value.ToString()!;
+            }
+        }
+
+        public string EncodeBase64(string value)
+        {
+            var bytes = Encoding.UTF8.GetBytes(value);
+            return Convert.ToBase64String(bytes)
+                .Replace('+', '-')
+                .Replace('/', '_')
+                .Replace("=", "");
+        }
+
+        public string SignToken(string unsignedToken, string secretKey)
+        {
+            var keyBytes = Encoding.UTF8.GetBytes(secretKey);
+            using (var hmac = new HMACSHA256(keyBytes))
+            {
+                var signatureBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(unsignedToken));
+                return Convert.ToBase64String(signatureBytes)
+					.Replace('+', '-')
+				    .Replace('/', '_')
+				    .Replace("=", "");
+			}
+        }
     }
 }

@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Development.Hubba.JWTHandler.Service\Development.Hubba.JWTHandler.Service.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.AccountDeletion.Manager\DevelopmentHell.Hubba.AccountDeletion.Manager.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.AccountRecovery.Manager\DevelopmentHell.Hubba.AccountRecovery.Manager.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.Analytics.Service\DevelopmentHell.Hubba.Analytics.Service.csproj" />
