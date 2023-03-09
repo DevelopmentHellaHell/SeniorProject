@@ -61,7 +61,23 @@ describe('login-successful', () => {
             })
     })
 
-    it('login-successful-pass-otp-check', function () {
+    it.only('login-successful-pass-otp-check', function () {
+        cy.get('#redirect-registration').click()
+        cy.url().should('eq', registrationUrl)
+        cy.get('#email')
+            .type(this._credentials.tienEmail)
+            .should('have.value', this._credentials.tienEmail)
+        cy.get('#password')
+            .type(this._credentials.standardPassword)
+            .should('have.value', this._credentials.standardPassword)
+        cy.get('#confirm-password')
+            .type(this._credentials.standardPassword)
+            .should('have.value', this._credentials.standardPassword)
+        cy.contains('Submit').click()
+            .then(()=>{
+                cy.url().should('eq', loginUrl)
+            })
+
         cy.get('#email')
             .type(this._credentials.tienEmail)
             .should('have.value', this._credentials.tienEmail)
@@ -77,6 +93,7 @@ describe('login-successful', () => {
                     .then((response) => {
                         cy.wrap(response.body).as('returnedOtp')
                     })
+                
                 cy.get('@returnedOtp')
                     .then((otp) => {
                         cy.get('#otp')
