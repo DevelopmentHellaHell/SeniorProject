@@ -8,8 +8,11 @@ export default defineConfig({
     },
   },
   env:{
-    baseUrl: "http://localhost:3000/",
-    registrationUrl: "http://localhost:3000/registration",
-    loginUrl: "http://localhost:3000/login"
+    baseUrl: "http://localhost:3000",
+    serverUrl: "https://localhost:7137",
+
+    realEmail: "tien.nguyen10@student.csulb.edu",
+    standardEmail: "hubba@gmail.com",
+    standardPassword: '12345678'
   }
 });

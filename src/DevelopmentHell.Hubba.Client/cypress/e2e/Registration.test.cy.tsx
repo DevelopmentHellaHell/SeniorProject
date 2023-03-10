@@ -6,189 +6,214 @@
 */
 
 //describe.only to run a single test case
-describe('unauthorized-user-check', () => {
+describe('unauthorized user can only see certains pages', () => {
   beforeEach(() => {
-    cy.visit(Cypress.env('registrationUrl'))
+    cy.visit(Cypress.env('baseUrl') + "/registration");
   })
-  it('can-only-access-navBar-for-guest', () => {
-    cy.get('.nav-user').should('not.exist')
+  it('only access to Guest NavBar', () => {
+    cy.get('.nav-user').should('not.exist');
   })
-  it('redirect-to-login-page-when-visit-account-by-broswer-bar', () => {
+  it('redirect to LoginPage when visiting VerifiedUser-only page(s) by the browser bar', () => {
     cy.visit('/account')
       .then(() => {
-        cy.url().should('eq', Cypress.env('loginUrl'))
-      })
+        cy.url().should('eq', Cypress.env('baseUrl') + '/login');
+      });
   })
-  it('show-unauthorized-message-when-visit-analytics-by-browser-bar', () => {
-    cy.visit('/analytics')
-    cy.url().should('eq', 'http://localhost:3000/')
+  it('redirect to LoginPage when visiting AdminUser-only page(s) by the browser bar', () => {
+    cy.visit('/analytics');
+    cy.url().should('eq', Cypress.env('baseUrl') + '/');
   })
 })
 
-describe('working-links', () => {
+describe('check working links', () => {
+  let baseUrl = Cypress.env('baseUrl') + "/";
+  let loginUrl = Cypress.env('baseUrl') + "/login";
+  let registrationUrl = Cypress.env("baseUrl") + "/registration";
+  // let realEmail = Cypress.env("realEmail");
+  // let standardEmail = Cypress.env("standardEmail");
+  // let standardPassword = Cypress.env("standardPassword");
+
   beforeEach(() => {
-    cy.visit(Cypress.env("registrationUrl"))
+    cy.visit('/registration');
   })
 
-  it('working-sign-up-button', () => {
-    cy.contains("Sign Up").click()
-    cy.url().should('eq', Cypress.env("registrationUrl"))
+  it('NavBar-Sign Up button', () => {
+    cy.contains("Sign Up").click();
+    cy.url().should('eq', registrationUrl);
   })
 
-  it('working-login-button', () => {
-    cy.contains("Login").click()
-    cy.url().should('eq', Cypress.env("loginUrl"))
+  it('NavBar-Login button', () => {
+    cy.contains("Login").click();
+    cy.url().should('eq', loginUrl);
   })
 
-  it('working-redirect-login-link', () => {
-    cy.get('#redirect-login').click()
-    cy.url().should('eq', Cypress.env("loginUrl"))
+  it('RegistrationCard-Login redirect link', () => {
+    cy.get('#redirect-login').click();
+    cy.url().should('eq', loginUrl);
   })
 })
 
-describe('registration-with-email-password', () => {
-  let loginUrl = Cypress.env('loginUrl')
-  let registrationUrl = Cypress.env('registrationUrl')
-  beforeEach(function () {
-    cy.visit(registrationUrl)
-    //load standardEmail, dummyEmail, standardPassword, dummyPassword from /fixtures/credentials.json
-    //then reuse in each it block
-    //must use function() to wrap the fixture, not () =>
-    cy.fixture('credentials.json')
-      .then((credentials) => {
-        this._credentials = credentials
-      })
+describe('registration successful case', () => {
+  let baseUrl = Cypress.env('baseUrl') + "/";
+  let loginUrl = Cypress.env('baseUrl') + "/login";
+  let registrationUrl = Cypress.env("baseUrl") + "/registration";
+  // let realEmail = Cypress.env("realEmail");
+  let standardEmail = Cypress.env("standardEmail");
+  let standardPassword = Cypress.env("standardPassword");
+
+  beforeEach(() => {
+    cy.visit(registrationUrl);
   })
 
-  it('registration-successful-under-5s', function () {
+  it('register successfully with valid email, password under-5s', () => {
     cy.get('#email')
-      .type(this._credentials.standardEmail)
-      .should('have.value', this._credentials.standardEmail)
+      .type(standardEmail)
+      .should('have.value', standardEmail);
 
     cy.get('#password')
-      .type(this._credentials.standardPassword)
-      .should('have.value', this._credentials.standardPassword)
+      .type(standardPassword)
+      .should('have.value', standardPassword);
 
     cy.get('#confirm-password')
-      .type('12345678')
-      .should('have.value', this._credentials.standardPassword)
+      .type(standardPassword)
+      .should('have.value', standardPassword);
 
     //timer
     const start: number = Date.now()
     cy.contains("Submit").click()
       .then(() => {
-        cy.url().should('eq', loginUrl)
-        const elapsed = Date.now() - start
-        expect(elapsed).to.be.lessThan(5000)
+        cy.url().should('eq', loginUrl);
+        const elapsed = Date.now() - start;
+        expect(elapsed).to.be.lessThan(5000);
       })
   })
 
-  it('registration-fail-email-existed', function () {
+})
+
+describe('registration failed cases', () => {
+  let baseUrl = Cypress.env('baseUrl') + "/";
+  let loginUrl = Cypress.env('baseUrl') + "/login";
+  let registrationUrl = Cypress.env("baseUrl") + "/registration";
+  // let realEmail = Cypress.env("realEmail");
+  let standardEmail = Cypress.env("standardEmail");
+  let standardPassword = Cypress.env("standardPassword");
+
+  beforeEach(() => {
+    cy.visit(registrationUrl);
+  })
+  it('email existed', () => {
     cy.get('#email')
-      .type(this._credentials.standardEmail)
-      .should('have.value', this._credentials.standardEmail)
+      .type(standardEmail)
+      .should('have.value', standardEmail);
 
     cy.get('#password')
-      .type(this._credentials.standardPassword)
-      .should('have.value', this._credentials.standardPassword)
+      .type(standardPassword)
+      .should('have.value', standardPassword);
 
     cy.get('#confirm-password')
-      .type(this._credentials.standardPassword)
-      .should('have.value', this._credentials.standardPassword)
+      .type(standardPassword)
+      .should('have.value', standardPassword);
 
     cy.contains("Submit").click()
       .then(() => {
-        cy.get('error').should('not.be.empty')
-      })
+        cy.get('.registration-card .error')
+          .should('exist').and('be.visible');
+      });
   })
 
-  it('registration-fail-empty-email', function () {
+  it('empty email input', () => {
     cy.get('#password')
-      .type(this._credentials.standardPassword)
-      .should('have.value', this._credentials.standardPassword)
+      .type(standardPassword)
+      .should('have.value', standardPassword);
 
     cy.get('#confirm-password')
-      .type(this._credentials.standardPassword)
-      .should('have.value', this._credentials.standardPassword)
+      .type(standardPassword)
+      .should('have.value', standardPassword);
 
     cy.contains("Submit").click()
       .then(() => {
-        cy.get('error').should('not.be.empty')
-      })
+        cy.get('.registration-card .error')
+          .should('exist').and('be.visible');
+      });
   })
 
-  it('registration-fail-empty-password', function () {
+  it('empty password input', () => {
     cy.get('#email')
-      .type(this._credentials.standardEmail)
-      .should('have.value', this._credentials.standardEmail)
+      .type(standardEmail)
+      .should('have.value', standardEmail);
 
     cy.contains("Submit").click()
       .then(() => {
-        cy.get('error').should('not.be.empty')
-      })
+        cy.get('.registration-card .error')
+          .should('exist').and('be.visible');
+      });
   })
 
-  it('registration-fail-empty-confirm-password', function () {
+  it('empty confirm password input', () => {
     cy.get('#email')
-      .type(this._credentials.standardEmail)
-      .should('have.value', this._credentials.standardEmail)
+      .type(standardEmail)
+      .should('have.value', standardEmail);
 
     cy.get('#password')
-      .type(this._credentials.standardPassword)
-      .should('have.value', this._credentials.standardPassword)
+      .type(standardPassword)
+      .should('have.value', standardPassword);
 
     cy.contains("Submit").click()
       .then(() => {
-        cy.get('error').should('not.be.empty')
-      })
+        cy.get('.registration-card .error')
+          .should('exist').and('be.visible');
+      });
   })
 
-  it('registration-fail-passwords-unmatched', function () {
+  it('passwords input not match', () => {
     cy.get('#email')
-      .type(this._credentials.standardEmail)
-      .should('have.value', this._credentials.standardEmail)
+      .type(standardEmail)
+      .should('have.value', standardEmail);
 
     cy.get('#password')
-      .type(this._credentials.standardPassword)
-      .should('have.value', this._credentials.standardPassword)
+      .type(standardPassword)
+      .should('have.value', standardPassword);
 
     cy.get('#confirm-password')
-      .type(this._credentials.dummyPassword)
-      .should('have.value', this._credentials.dummyPassword)
+      .type('12345679')
+      .should('have.value', '12345679');
 
     cy.contains("Submit").click()
       .then(() => {
-        cy.get('error').should('not.be.empty')
-      })
+        cy.get('.registration-card .error')
+          .should('exist').and('be.visible');
+      });
   })
 
-  it('registration-fail-invalid email', function () {
+  it('invalid email', () => {
     cy.get('#email')
-      .type(this._credentials.dummyEmail)
-      .should('have.value', this._credentials.dummyEmail)
+      .type('hello.com')
+      .should('have.value', 'hello.com');
 
     cy.contains("Submit").click()
       .then(() => {
-        cy.get('error').should('not.be.empty')
-      })
+        cy.get('.registration-card .error')
+          .should('exist').and('be.visible');
+      });
   })
 
-  it('registration-fail-invalid-password', function () {
+  it('invalid password', () => {
     cy.get('#email')
-      .type(this._credentials.standardEmail)
-      .should('have.value', this._credentials.standardEmail)
+      .type(standardEmail)
+      .should('have.value', standardEmail);
 
     cy.get('#password')
-      .type(this._credentials.dummyPassword)
-      .should('have.value', this._credentials.dummyPassword)
+      .type('123456')
+      .should('have.value', '123456');
 
     cy.get('#confirm-password')
-      .type(this._credentials.dummyPassword)
-      .should('have.value', this._credentials.dummyPassword)
+      .type('123456')
+      .should('have.value', '123456');
 
     cy.contains("Submit").click()
       .then(() => {
-        cy.get('error').should('not.be.empty')
+        cy.get('.registration-card .error')
+          .should('exist').and('be.visible');
       })
   })
 })

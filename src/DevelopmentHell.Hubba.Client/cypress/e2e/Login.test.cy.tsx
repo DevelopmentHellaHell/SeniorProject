@@ -2,109 +2,165 @@
 
 
 //TODO
-describe('unauthorized-user-check', () => {
-    let baseUrl = Cypress.env('baseUrl')
-    let loginUrl = Cypress.env('loginUrl')
-    let registrationUrl = Cypress.env('registrationUrl')
+describe('unauthorized user can only access certain pages', () => {
     beforeEach(() => {
-        cy.visit(loginUrl)
+        cy.visit('/login');
     })
-    it('can-only-access-navBar-for-guest', () => {
-        cy.get('.nav-user').should('not.exist')
+    it('only have access to Guest NavBar', () => {
+        cy.get('.nav-user').should('not.exist');
     })
-    it('redirect-to-login-page-when-visit-account-by-broswer-bar', () => {
+    it('redirect to LoginPage when visiting VerifiedUser-only page(s) by the browser bar', () => {
         cy.visit('/account')
             .then(() => {
-                cy.url().should('eq', loginUrl)
-            })
+                cy.url().should('eq', Cypress.env("baseUrl")+"/login")
+            });
     })
-    it('redirect-to-home-page-when-visit-analytics-by-browser-bar', () => {
-        cy.visit('/analytics')
-        cy.url().should('eq', baseUrl)
+    it('redirect to LoginPage when visiting AdminUser-only page(s) by the browser bar', () => {
+        cy.visit('/analytics');
+        cy.url().should('eq', Cypress.env("baseUrl")+"/");
     })
 })
 
-describe('working-links', () => {
-    let baseUrl = Cypress.env('baseUrl')
-    let loginUrl = Cypress.env('loginUrl')
-    let registrationUrl = Cypress.env('registrationUrl')
+describe('check working links', () => {
     beforeEach(() => {
-        cy.visit(loginUrl)
+        cy.visit("/login");
     })
 
-    it('working-sign-up-button', () => {
-        cy.contains("Sign Up").click()
-        cy.url().should('eq', registrationUrl)
+    it('NavBar-Sign Up button', () => {
+        cy.contains("Sign Up").click();
+        cy.url().should('eq', Cypress.env("baseUrl")+"/registration");
     })
 
-    it('working-login-button', () => {
-        cy.contains("Login").click()
-        cy.url().should('eq', loginUrl)
+    it('NavBar-Login button', () => {
+        cy.contains("Login").click();
+        cy.url().should('eq', Cypress.env("baseUrl")+"/login");
     })
 
-    it('working-redirect-registartion-link', () => {
-        cy.get('#redirect-registration').click()
-        cy.url().should('eq', registrationUrl)
+    it('LoginCard-Registration redirect link', () => {
+        cy.get('#redirect-registration').click();
+        cy.url().should('eq', Cypress.env("baseUrl")+"/registration");
     })
 
 })
 
-describe('login-successful', () => {
-    let baseUrl = Cypress.env('baseUrl')
-    let loginUrl = Cypress.env('loginUrl')
-    let registrationUrl = Cypress.env('registrationUrl')
-    beforeEach(function () {
-        cy.visit(loginUrl)
-        cy.fixture('/credentials.json')
-            .then((credentials) => {
-                this._credentials = credentials;
-            })
+describe('login successful case', () => {
+    let baseUrl = Cypress.env('baseUrl')+"/";
+    let loginUrl = Cypress.env('baseUrl')+"/login";
+    let registrationUrl = Cypress.env("baseUrl")+"/registration";
+    let realEmail = Cypress.env("realEmail");
+    // let standardEmail = Cypress.env("standardEmail");
+    let standardPassword = Cypress.env("standardPassword");
+
+    beforeEach(() => {
+        cy.visit(loginUrl);
     })
 
-    it.only('login-successful-pass-otp-check', function () {
-        cy.get('#redirect-registration').click()
-        cy.url().should('eq', registrationUrl)
+    it('-with valid email, password, OTP under 5s', () => {
+        cy.get('#redirect-registration').click();
+        cy.url().should('eq', registrationUrl);
         cy.get('#email')
-            .type(this._credentials.tienEmail)
-            .should('have.value', this._credentials.tienEmail)
+            .type(realEmail)
+            .should('have.value', realEmail);
         cy.get('#password')
-            .type(this._credentials.standardPassword)
-            .should('have.value', this._credentials.standardPassword)
+            .type(standardPassword)
+            .should('have.value', standardPassword);
         cy.get('#confirm-password')
-            .type(this._credentials.standardPassword)
-            .should('have.value', this._credentials.standardPassword)
+            .type(standardPassword)
+            .should('have.value', standardPassword);
         cy.contains('Submit').click()
             .then(()=>{
                 cy.url().should('eq', loginUrl)
-            })
+            });
 
-        cy.get('#email')
-            .type(this._credentials.tienEmail)
-            .should('have.value', this._credentials.tienEmail)
-        cy.get('#password')
-            .type(this._credentials.standardPassword)
-            .should('have.value', this._credentials.standardPassword)
+        cy.get('#email').as('email').type(realEmail);
+        cy.get('@email').should('have.value', realEmail);
+        cy.get('#password').as('password').type(standardPassword);
+        cy.get('@password').should('have.value', standardPassword);
         cy.contains('Submit').click()
             .then(() => {
                 cy.get('.otp-card')
-                    .should('exist').and('be.visible')
-                let returnedOtp
-                cy.request('GET', 'https://localhost:7137/tests/getotp')
+                    .should('exist').and('be.visible');
+
+                cy.request('GET', Cypress.env('serverUrl')+"/tests/getotp")
                     .then((response) => {
                         cy.wrap(response.body).as('returnedOtp')
-                    })
+                    });
                 
                 cy.get('@returnedOtp')
                     .then((otp) => {
                         cy.get('#otp')
                             .type(otp)
-                            .should('have.value', otp)
-                    })
+                            .should('have.value', otp);
+                    });
                 cy.contains('Submit').click()
                     .then(()=>{
-                        cy.url().should('eq', baseUrl)
+                        cy.url().should('eq', baseUrl);
                         cy.get('.nav-user').should('exist').and('be.visible')
-                    })
+                    });
             })
     })
+})
+
+describe('login failed cases', () => {
+    let baseUrl = Cypress.env('baseUrl')+"/";
+    let loginUrl = Cypress.env('baseUrl')+"/login";
+    let registrationUrl = Cypress.env("baseUrl")+"/registration";
+    // let realEmail = Cypress.env("realEmail");
+    let standardEmail = Cypress.env("standardEmail");
+    let standardPassword = Cypress.env("standardPassword");
+    
+    beforeEach(() => {
+        cy.visit('/login');
+    })
+
+    it('empty email input', () => {
+        cy.get('#password')
+            .type(standardPassword);
+        cy.contains('Submit').click()
+            .then(() => {
+                cy.get('.login-card .error').should('exist').and('be.visible');
+            });
+    })
+
+    it('empty password input', () => {
+        cy.get('#email')
+            .type(standardEmail);
+        cy.contains('Submit').click()
+            .then(() => {
+                cy.get('.login-card .error').should('exist').and('be.visible');
+            })
+    })
+
+    it('invalid email input', () => {
+        cy.get('#email')
+            .type('hello.com');
+        cy.get('#password')
+            .type(standardPassword);
+        cy.contains('Submit').click()
+            .then(() => {
+                cy.get('.login-card .error').should('exist').and('be.visible');
+            });
+    })
+
+    it('invalid password input', () => {
+        cy.get('#email')
+            .type(standardEmail);
+        cy.get('#password')
+            .type('123456');
+        cy.contains('Submit').click()
+            .then(() => {
+                cy.get('.login-card .error').should('exist').and('be.visible');
+            });
+    })
+
+    // it.only('login pass, OTP empty', () => {
+    //     cy.registerViaApi(
+    //         Cypress.env('realEmail'),
+    //         Cypress.env('standardPassword'))
+    //     cy.loginViaApi(
+    //         Cypress.env('realEmail'),
+    //         Cypress.env('standardPassword'))
+    //     // cy.get('#otp').should('exist').and('be.visible')
+        
+    // })
 })
