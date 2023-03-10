@@ -1,4 +1,6 @@
-﻿using DevelopmentHell.Hubba.CellPhoneProvider.Service.Implementations;
+﻿using Development.Hubba.JWTHandler.Service.Implementations;
+using DevelopmentHell.Hubba.Authorization.Service.Implementations;
+using DevelopmentHell.Hubba.CellPhoneProvider.Service.Implementations;
 using DevelopmentHell.Hubba.Email.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Models;
@@ -35,10 +37,20 @@ var notificationManager = new NotificationManager(
         ConfigurationManager.AppSettings["SENDGRID_API_KEY"]!,
         ConfigurationManager.AppSettings["COMPANY_EMAIL"]!
     ),
+    new AuthorizationService(
+        new UserAccountDataAccess(
+            ConfigurationManager.AppSettings["UsersConnectionString"]!,
+            ConfigurationManager.AppSettings["UserAccountsTable"]!
+        ),
+        new JWTHandlerService(
+            ConfigurationManager.AppSettings["JwtKey"]!
+        ),
+        loggerService
+    ),
     loggerService
 );
 
-Result result = await notificationManager.CreateNewNotification(9, "hi", NotificationType.OTHER).ConfigureAwait(false);
+Result result = await notificationManager.CreateNewNotification(23, "hi", NotificationType.OTHER).ConfigureAwait(false);
 
 //Result<NotificationSettings> settingsResult = await notificationManager.GetNotificationSettings(8).ConfigureAwait(false);
 

@@ -6,7 +6,7 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Abstractions
     {
         Task<Result<NotificationSettings>> GetNotificationSettings(int id);
         Task<Result> CreateNewNotification(int id, string message, NotificationType tag, bool supressTextNotification = false);
-        Task<Result<List<Dictionary<string, object>>>> GetNotificaions(int userId);
+        Task<Result<List<Dictionary<string, object>>>> GetNotifications(int userId);
         Task<Result> UpdateNotificationSettings(NotificationSettings settings);
         
         Task<Result> HideNotifications(int userId);

@@ -2,6 +2,7 @@
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.Notification.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Manager.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using System.Configuration;
@@ -13,13 +14,15 @@ namespace DevelopmentHell.Hubba.Registration.Manager.Implementations
         private IRegistrationService _registrationService;
 		private IAuthorizationService _authorizationService;
         private ICryptographyService _cryptographyService;
-		private ILoggerService _loggerService;
+        private INotificationService _notificationService; 
+        private ILoggerService _loggerService;
         
-        public RegistrationManager(IRegistrationService registrationService, IAuthorizationService authorizationService, ICryptographyService cryptographyService, ILoggerService loggerService)
+        public RegistrationManager(IRegistrationService registrationService, IAuthorizationService authorizationService, ICryptographyService cryptographyService, INotificationService notificationService, ILoggerService loggerService)
         {
             _registrationService = registrationService;
             _authorizationService = authorizationService;
             _cryptographyService = cryptographyService;
+            _notificationService = notificationService; 
             _loggerService = loggerService;
         }
 
@@ -40,6 +43,22 @@ namespace DevelopmentHell.Hubba.Registration.Manager.Implementations
                 result.IsSuccessful = false;
                 result.ErrorMessage = registerResult.ErrorMessage;
                 return result;
+            }
+
+            Result<int> userResult = await _notificationService.GetId(email).ConfigureAwait(false);
+            if (userResult.IsSuccessful)
+            {
+                Result notificationSettingsResult = await _notificationService.CreateNewNotificationSettings(new NotificationSettings()
+                {
+                    UserId = userResult.Payload,
+                    SiteNotifications = true,
+                    EmailNotifications = false,
+                    TextNotifications = false,
+                    TypeScheduling = true,
+                    TypeWorkspace = true,
+                    TypeProjectShowcase = true,
+                    TypeOther = true
+                }).ConfigureAwait(false);
             }
 
             string userHashKey = ConfigurationManager.AppSettings["UserHashKey"]!;

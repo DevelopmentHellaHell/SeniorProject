@@ -95,7 +95,22 @@ builder.Services.AddTransient<IRegistrationManager, RegistrationManager>(s =>
 		),
         s.GetService<IAuthorizationService>()!,
         s.GetService<ICryptographyService>()!,
-		s.GetService<ILoggerService>()!
+		new NotificationService(
+			new NotificationDataAccess(
+				HubbaConfig.ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
+				HubbaConfig.ConfigurationManager.AppSettings["UserNotificationsTable"]!
+			),
+			new NotificationSettingsDataAccess(
+				HubbaConfig.ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
+				HubbaConfig.ConfigurationManager.AppSettings["NotificationSettingsTable"]!
+			),
+			new UserAccountDataAccess(
+				HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+				HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
+			),
+            s.GetService<ILoggerService>()!
+        ),
+        s.GetService<ILoggerService>()!
 
 	)
 );
