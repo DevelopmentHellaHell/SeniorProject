@@ -17,7 +17,7 @@ enum AdminDashboardViews {
 
 const AdminDashboardPage: React.FC<IAdminDashboardPageProps> = (props) => {
     const [view, setView] = useState(AdminDashboardViews.ANALYTICS);
-    const authData = Auth.isAuthenticated();
+    const authData = Auth.getAccessData();
 
     if (!authData) {
         redirect("/login");

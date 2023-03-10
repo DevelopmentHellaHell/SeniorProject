@@ -10,7 +10,7 @@ interface INavbarUserProps {
 
 const NavbarUser: React.FC<INavbarUserProps> = (props) => {
     const navigate = useNavigate();
-    const authData = Auth.isAuthenticated();
+    const authData = Auth.getAccessData();
 
     if (!authData) {
         redirect("/login");
@@ -27,7 +27,7 @@ const NavbarUser: React.FC<INavbarUserProps> = (props) => {
                     <li><p onClick={() => { navigate("/admin-dashboard") }}>Admin Dashboard</p></li>
                 }
             </nav>
-            <Dropdown title={authData.email ?? "User"}>
+            <Dropdown title={authData.azp ?? "User"}>
                 <p onClick={() => { navigate("/account") }}>Account</p>
                 <p onClick={() => { navigate("/notification") }}>Notification</p>
                 <p onClick={async () => {

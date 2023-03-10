@@ -5,7 +5,7 @@ namespace DevelopmentHell.Hubba.Testing.Service.Abstractions
 {
     public interface ITestingService
     {
-        void DecodeJWT(string token);
+        void DecodeJWT(string token, string? jwtKey = null);
         Task<Result> DeleteDatabaseRecords(Databases db);
         Task<Result> DeleteTableRecords(Databases db, Tables t);
         Task<Result> DeleteAllRecords();

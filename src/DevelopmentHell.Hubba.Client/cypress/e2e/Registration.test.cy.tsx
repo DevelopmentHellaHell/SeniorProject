@@ -72,7 +72,7 @@ describe('registration-fail-email-existed', () => {
   });
 
   afterEach(async () => {
-    await Ajax.post(testsRoute, { database: Databases.USERS });
+    await Ajax.post(testsRoute, { database: Database.Databases.USERS });
   });
 
   it('register-new-email', () => {
@@ -116,7 +116,7 @@ describe('registration-fail-invalid-input', () => {
   });
 
   afterEach(async () => {
-    await Ajax.post(testsRoute, { database: Databases.USERS });
+    await Ajax.post(testsRoute, { database: Database.Databases.USERS });
   });
 
   it('empty-email', () => {

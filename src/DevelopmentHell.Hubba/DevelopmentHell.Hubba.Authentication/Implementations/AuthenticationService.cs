@@ -1,5 +1,8 @@
 ﻿using System.Configuration;
 using System.Security.Claims;
+using System.Text;
+using Development.Hubba.JWTHandler.Service.Abstractions;
+using Development.Hubba.JWTHandler.Service.Implementations;
 using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
@@ -14,14 +17,16 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 		private IUserAccountDataAccess _userAccountDataAccess;
 		private IUserLoginDataAccess _userLoginDataAccess;
         private ICryptographyService _cryptographyService;
+		private IJWTHandlerService _jwtHandlerService;
 		private IValidationService _validationService;
         private ILoggerService _loggerService;
 
-		public AuthenticationService(IUserAccountDataAccess userAccountDataAccess, IUserLoginDataAccess userLoginDataAccess, ICryptographyService cryptographyService, IValidationService validationService, ILoggerService loggerService)
+		public AuthenticationService(IUserAccountDataAccess userAccountDataAccess, IUserLoginDataAccess userLoginDataAccess, ICryptographyService cryptographyService, IJWTHandlerService jWTHandlerService, IValidationService validationService, ILoggerService loggerService)
 		{
 			_userAccountDataAccess = userAccountDataAccess;
 			_userLoginDataAccess = userLoginDataAccess;
 			_cryptographyService = cryptographyService;
+			_jwtHandlerService = jWTHandlerService;
 			_validationService = validationService;
             _loggerService = loggerService;
 		}
@@ -162,34 +167,57 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 			return result; ;
 		}
 
-        public Result Logout()
+        public Result<string> Logout()
         {
-            Result result = new Result();
-
-            var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
-            var email = principal.FindFirstValue(ClaimTypes.Email);
-            if (email is null)
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, unexpected error. Please context system administrator.";
-                return result;
-            }
-
-
-            string userHashKey = ConfigurationManager.AppSettings["UserHashKey"]!;
-            Result<HashData> userHashResult = _cryptographyService.HashString(email, userHashKey);
-            if (!userHashResult.IsSuccessful || userHashResult.Payload is null)
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, unexpected error. Please contact system administrator.";
-                return result;
-            }
-
-            string userHash = Convert.ToBase64String(userHashResult.Payload.Hash!);
-            _loggerService.Log(LogLevel.INFO, Category.BUSINESS, $"Successful logout attempt from: {email}.", userHash);
-
+			Result<string> result = new Result<string>();
             result.IsSuccessful = true;
-            return result;
-        }
-    }
+			result.Payload = _jwtHandlerService.GenerateInvalidToken();
+			return result;
+		}
+
+		public Result<string> GenerateIdToken(int accountId, string accessToken)
+		{
+			Result<string> result = new Result<string>();
+
+			try
+			{
+				Result<HashData> hashData = _cryptographyService.HashString(accessToken);
+				if (!hashData.IsSuccessful || hashData.Payload is null)
+				{
+					result.IsSuccessful = false;
+					result.Payload = "Unable to generate access token.";
+					return result;
+				}
+
+				string accessTokenHash = Convert.ToBase64String(hashData.Payload.Hash!);
+
+				var header = new Dictionary<string, object>()
+				{
+					{ "alg", "HS256" },
+					{ "typ", "JWT" }
+				};
+				var payload = new Dictionary<string, object>()
+				{
+					{ "iss", "Hubba" },
+					{ "aud", "*" },
+					{ "sub", accountId },
+					{ "iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds() },
+					{ "exp", DateTimeOffset.UtcNow.AddMinutes(30).ToUnixTimeSeconds() },
+					{ "at_hash", accessTokenHash }
+				};
+
+				string jwtToken = _jwtHandlerService.GenerateToken(header, payload);
+
+				result.IsSuccessful = true;
+				result.Payload = jwtToken;
+				return result;
+			}
+			catch
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Unable to generate access token.";
+				return result;
+			}
+		}
+	}
 }

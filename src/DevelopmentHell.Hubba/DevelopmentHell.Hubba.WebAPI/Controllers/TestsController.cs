@@ -87,7 +87,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 		public async Task<IActionResult> GetOTP()
 		{
 			var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
-			var stringAccountId = claimsPrincipal?.FindFirstValue("accountId");
+			var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
 			if (stringAccountId is null)
 			{
 				return BadRequest("Error, invalid access token format.");
