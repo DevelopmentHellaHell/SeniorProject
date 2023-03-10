@@ -20,7 +20,6 @@ using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using Microsoft.Identity.Client;
 using System.Configuration;
 
 namespace DevelopmentHell.Hubba.AccountDeletion.Test
@@ -113,7 +112,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             var expected = new Result { IsSuccessful = true};
 
             // Act
-            Result actual = await _accountDeletionManager.DeleteAccount(accountId);
+            Result actual = await _accountDeletionManager.DeleteAccount(accountId).ConfigureAwait(false);
 
             // Assert
             Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
@@ -148,7 +147,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             var expected = new Result { IsSuccessful = true };
 
             // Act
-            Result actual = await _accountDeletionManager.DeleteAccount(accountId2);
+            Result actual = await _accountDeletionManager.DeleteAccount(accountId2).ConfigureAwait(false);
 
             // Assert
             Assert.IsFalse(expected.IsSuccessful == actual.IsSuccessful);
@@ -189,7 +188,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             var expected = new Result { IsSuccessful = true };
 
             // Act
-            Result actual = await _accountDeletionManager.DeleteAccount(accountId2);
+            Result actual = await _accountDeletionManager.DeleteAccount(accountId2).ConfigureAwait(false);
 
             // Assert
             Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
@@ -226,7 +225,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             var expected = new Result { IsSuccessful = false };
 
             // Act
-            Result actual = await _accountDeletionManager.DeleteAccount(accountId);
+            Result actual = await _accountDeletionManager.DeleteAccount(accountId).ConfigureAwait(false);
 
             // Assert
             Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
@@ -276,7 +275,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
 
             // Act
             // delete self
-            Result actual = await _accountDeletionManager.DeleteAccount(accountId1);
+            Result actual = await _accountDeletionManager.DeleteAccount(accountId1).ConfigureAwait(false);
 
             // Assert
             Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
