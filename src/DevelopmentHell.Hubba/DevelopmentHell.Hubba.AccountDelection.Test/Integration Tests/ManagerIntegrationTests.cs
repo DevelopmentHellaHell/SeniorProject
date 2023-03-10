@@ -20,6 +20,7 @@ using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
+using Microsoft.Identity.Client;
 using System.Configuration;
 
 namespace DevelopmentHell.Hubba.AccountDeletion.Test
@@ -103,10 +104,11 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             int accountId = accountIdResult.Payload;
 
             // log in as user
-            var tokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
-            if (tokenResult.IsSuccessful)
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(tokenResult.Payload!);
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
             var expected = new Result { IsSuccessful = true};
 
@@ -137,10 +139,11 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             int accountId2 = accountIdResult2.Payload;
 
             // log in as first user
-            var tokenResult = await _authorizationService.GenerateAccessToken(accountId1, false).ConfigureAwait(false);
-            if (tokenResult.IsSuccessful)
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId1, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId1, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(tokenResult.Payload!);
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
             var expected = new Result { IsSuccessful = true };
 
@@ -214,10 +217,11 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             }
 
             // log in as admin
-            var tokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
-            if (tokenResult.IsSuccessful)
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(tokenResult.Payload!);
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
             var expected = new Result { IsSuccessful = false };
 
@@ -262,10 +266,11 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             }
 
             // log in as first admin
-            var tokenResult = await _authorizationService.GenerateAccessToken(accountId1, false).ConfigureAwait(false);
-            if (tokenResult.IsSuccessful)
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId1, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId1, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(tokenResult.Payload!);
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
             var expected = new Result { IsSuccessful = true };
 
