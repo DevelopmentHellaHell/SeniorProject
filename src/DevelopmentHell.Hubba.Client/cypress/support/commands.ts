@@ -26,8 +26,8 @@ declare global {
 // -- This is a parent command --
 
 Cypress.Commands.add('registerViaApi', (
-    _email = Cypress.env('realEmail'),
-    _password = Cypress.env('standardPassword')) => {
+    _email: string,
+    _password: string) => {
     cy.request('POST', Cypress.env('registerApiUrl'), {
         email: _email,
         password: _password,

@@ -1,7 +1,12 @@
 /// <reference types="cypress" />
+import { describe } from "mocha";
+import { Ajax } from "../../src/Ajax";
+import { Database } from "./TestModels/Database";
 
-
-//TODO
+/**
+ * Unauthenticated user restriction on the web app
+ * User can only navigate to LoginPage, RegistrationPage, HomePage, DiscoverPage
+ */
 describe('unauthorized user can only access certain pages', () => {
     beforeEach(() => {
         cy.visit('/login');
@@ -21,6 +26,10 @@ describe('unauthorized user can only access certain pages', () => {
     })
 })
 
+/**
+ * Test all links and buttons on the page
+ * Logo, NavBar links, NavBar buttons, refirect link
+ */
 describe('check working links', () => {
     beforeEach(() => {
         cy.visit("/login");
@@ -43,6 +52,11 @@ describe('check working links', () => {
 
 })
 
+/**
+ * Login successfully with a valid email and password
+ * OTP card is enabled, user enter OTP to complete login
+ * After clicking Submit button, system responses under 5s
+ */
 describe('login successful case', () => {
     let baseUrl = Cypress.env('baseUrl')+"/";
     let loginUrl = Cypress.env('baseUrl')+"/login";
@@ -50,9 +64,16 @@ describe('login successful case', () => {
     let realEmail = Cypress.env("realEmail");
     // let standardEmail = Cypress.env("standardEmail");
     let standardPassword = Cypress.env("standardPassword");
+    let testsRoute: string = '/tests/deleteDatabaseRecords';
 
     beforeEach(() => {
         cy.visit(loginUrl);
+    })
+    /**
+     * Delete test cases from database after the test
+     */
+    after(async () => {
+        await Ajax.post(testsRoute, { database: Database.Databases.USERS });
     })
 
     it('-with valid email, password, OTP under 5s', () => {
@@ -101,6 +122,11 @@ describe('login successful case', () => {
     })
 })
 
+/**
+ * Login failed cases:
+ * input syntax error
+ * OTP expired
+ */
 describe('login failed cases', () => {
     let baseUrl = Cypress.env('baseUrl')+"/";
     let loginUrl = Cypress.env('baseUrl')+"/login";

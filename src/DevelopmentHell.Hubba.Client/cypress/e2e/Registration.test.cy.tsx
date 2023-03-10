@@ -2,13 +2,17 @@
 import { Ajax } from "../../src/Ajax";
 import { Database } from "./TestModels/Database";
 
-/* cy.get(), cy.contains()
-** https://filiphric.com/cypress-basics-selecting-elements
-** https://on.cypress.io/type
-*/
+// cy.get(), cy.contains()
+// https://filiphric.com/cypress-basics-selecting-elements
+// https://on.cypress.io/type
+
 
 //describe.only to run a single test case
-describe('unauthorized user can only see certains pages', () => {
+/**
+ * Unauthenticated user restriction on the web app
+ * User can only navigate to LoginPage, RegistrationPage, HomePage, DiscoverPage
+ */
+describe('unauthenticated user can only see certains pages', () => {
   beforeEach(() => {
     cy.visit(Cypress.env('baseUrl') + "/registration");
   })
@@ -27,6 +31,10 @@ describe('unauthorized user can only see certains pages', () => {
   })
 })
 
+/**
+ * Test all links and buttons on the page
+ * Logo, NavBar links, NavBar buttons, refirect link
+ */
 describe('check working links', () => {
   let baseUrl = Cypress.env('baseUrl') + "/";
   let loginUrl = Cypress.env('baseUrl') + "/login";
@@ -55,6 +63,10 @@ describe('check working links', () => {
   })
 })
 
+/**
+ * Register successfully with a valid email and password
+ * After clicking Submit button, system responses under 5s
+ */
 describe('registration successful case', () => {
   let baseUrl = Cypress.env('baseUrl') + "/";
   let loginUrl = Cypress.env('baseUrl') + "/login";
@@ -92,6 +104,11 @@ describe('registration successful case', () => {
 
 })
 
+/**
+ * Register failed
+ * test: validate input syntax before sending to the API
+ * test: email existed
+ */
 describe('registration failed cases', () => {
   let baseUrl = Cypress.env('baseUrl') + "/";
   let loginUrl = Cypress.env('baseUrl') + "/login";
@@ -99,12 +116,16 @@ describe('registration failed cases', () => {
   // let realEmail = Cypress.env("realEmail");
   let standardEmail = Cypress.env("standardEmail");
   let standardPassword = Cypress.env("standardPassword");
+  let testsRoute: string = '/tests/deleteDatabaseRecords';
 
   beforeEach(() => {
     cy.visit(registrationUrl);
   })
 
-  afterEach(async () => {
+  /**
+   * Delete test cases from database after the test
+   */
+  after(async () => {
     await Ajax.post(testsRoute, { database: Database.Databases.USERS });
   });
   
