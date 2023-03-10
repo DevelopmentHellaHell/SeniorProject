@@ -24,7 +24,7 @@ using DevelopmentHell.Hubba.AccountRecovery.Manager.Implementations;
 using DevelopmentHell.Hubba.AccountRecovery.Service.Implementations;
 using DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations;
 using DevelopmentHell.Hubba.AccountDeletion.Manager.Abstraction;
-using DevelopmentHell.Hubba.AccountDeletion.Service.Implementation;
+using DevelopmentHell.Hubba.AccountDeletion.Service.Implementations;
 using DevelopmentHell.Hubba.Notification.Service.Implementations;
 using DevelopmentHell.Hubba.AccountDeletion.Service.Implementations;
 using DevelopmentHell.Hubba.Email.Service.Implementations;

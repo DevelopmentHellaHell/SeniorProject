@@ -1,5 +1,6 @@
 ﻿using DevelopmentHell.Hubba.CellPhoneProvider.Service.Implementations;
-using DevelopmentHell.Hubba.Logging.Service.Implementation;
+using DevelopmentHell.Hubba.Email.Service.Implementations;
+using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Notification.Manager.Implementations;
 using DevelopmentHell.Hubba.Notification.Service.Implementations;
@@ -10,7 +11,7 @@ var loggerService = new LoggerService(
     new LoggerDataAccess(
         ConfigurationManager.AppSettings["LogsConnectionString"]!,
         ConfigurationManager.AppSettings["LogsTable"]!
-    ) 
+    )
 );
 var notificationManager = new NotificationManager(
     new NotificationService(
@@ -29,10 +30,15 @@ var notificationManager = new NotificationManager(
         loggerService
     ),
     new CellPhoneProviderService(),
+    new EmailService(
+        ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!,
+        ConfigurationManager.AppSettings["SENDGRID_API_KEY"]!,
+        ConfigurationManager.AppSettings["COMPANY_EMAIL"]!
+    ),
     loggerService
 );
 
-//Result result = await notificationManager.CreateNewNotification(9, "hi", NotificationType.OTHER).ConfigureAwait(false);
+Result result = await notificationManager.CreateNewNotification(9, "hi", NotificationType.OTHER).ConfigureAwait(false);
 
 //Result<NotificationSettings> settingsResult = await notificationManager.GetNotificationSettings(8).ConfigureAwait(false);
 
@@ -42,7 +48,7 @@ var notificationManager = new NotificationManager(
 //settings.SiteNotifications = false;
 //Result result = await notificationManager.UpdateNotificationSettings(settings);
 
-Result result = await notificationManager.HideNotifications(8);
+//Result result = await notificationManager.HideNotifications(8);
 
 Console.WriteLine(result.IsSuccessful);
 Console.WriteLine(result.ErrorMessage);

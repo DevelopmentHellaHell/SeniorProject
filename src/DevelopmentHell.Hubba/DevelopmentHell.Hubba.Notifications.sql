@@ -114,19 +114,19 @@ GO
 /****** Object:  Login [DevelopmentHell.Hubba.SqlUser.User]    Script Date: 3/10/2023 12:30:08 AM ******/
 CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.User] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
 GO
-ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.User] DISABLE
+ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.User] ENABLE
 GO
 /* For security reasons the login is created disabled and with a random password. */
 /****** Object:  Login [DevelopmentHell.Hubba.SqlUser.Notification]    Script Date: 3/10/2023 12:30:08 AM ******/
 CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.Notification] WITH PASSWORD=N'password', DEFAULT_DATABASE=[DevelopmentHell.Hubba.Notifications], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
 GO
-ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.Notification] DISABLE
+ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.Notification] ENABLE
 GO
 /* For security reasons the login is created disabled and with a random password. */
 /****** Object:  Login [DevelopmentHell.Hubba.SqlUser.Logging]    Script Date: 3/10/2023 12:30:08 AM ******/
 CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
 GO
-ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] DISABLE
+ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] ENABLE
 GO
 /****** Object:  Login [BUILTIN\Users]    Script Date: 3/10/2023 12:30:08 AM ******/
 CREATE LOGIN [BUILTIN\Users] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]

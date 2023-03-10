@@ -1,5 +1,5 @@
 ﻿using DevelopmentHell.Hubba.CellPhoneProvider.Service.Abstractions;
-using DevelopmentHell.Hubba.Emailing.Service;
+using DevelopmentHell.Hubba.Email.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Notification.Manager.Abstractions;
@@ -11,12 +11,14 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
     {
         private INotificationService _notificationService;
         private ICellPhoneProviderService _cellPhoneProviderService;
+        private IEmailService _emailService;
         private ILoggerService _loggerService;
 
-        public NotificationManager(INotificationService notificationService, ICellPhoneProviderService cellPhoneProviderService, ILoggerService loggerService) 
+        public NotificationManager(INotificationService notificationService, ICellPhoneProviderService cellPhoneProviderService, IEmailService emailService, ILoggerService loggerService) 
         {
             _notificationService = notificationService;
             _cellPhoneProviderService = cellPhoneProviderService;
+            _emailService = emailService;
             _loggerService = loggerService;
         }
 
@@ -53,11 +55,10 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
             {
                 string userEmail = userAccount.Email;
 
-                Result emailResult = EmailService.SendEmail(
+                Result emailResult = _emailService.SendEmail(
                     userEmail,
                     $"Hubba Notification - {tag}",
-                    message,
-                    true
+                    message
                 );
                 if (!emailResult.IsSuccessful)
                 {
@@ -74,11 +75,10 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
             {
                 string providerEmail = userAccount.CellPhoneNumber + _cellPhoneProviderService.GetProviderEmail((CellPhoneProviders)userAccount.CellPhoneProvider);
 
-                Result emailResult = EmailService.SendEmail(
+                Result emailResult = _emailService.SendEmail(
                     providerEmail,
                     $"Hubba Notification - {tag}",
-                    message,
-                    true
+                    message
                 );
                 if (!emailResult.IsSuccessful)
                 {

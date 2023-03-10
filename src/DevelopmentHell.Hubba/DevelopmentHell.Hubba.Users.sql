@@ -256,6 +256,8 @@ CREATE TABLE [dbo].[UserAccounts](
 	[FailureTime] [datetime] NULL,
 	[Disabled] [bit] NOT NULL,
 	[Role] [varchar](32) NOT NULL,
+	[CellPhoneProvider] [int] NULL,
+	[CellPhoneNumber] [varchar](11) NULL,
  CONSTRAINT [PK_UserAccounts] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
