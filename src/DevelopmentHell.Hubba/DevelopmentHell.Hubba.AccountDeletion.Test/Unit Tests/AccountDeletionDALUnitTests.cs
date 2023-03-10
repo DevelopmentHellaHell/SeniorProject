@@ -47,11 +47,22 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test.Integration_Tests
             );
         }
 
+        [TestInitialize]
+        public async Task Setup()
+        {
+            await _testingService.DeleteAllRecords().ConfigureAwait(false);
+        }
+
+        [TestMethod]
+        public void ShouldInstansiateCtor()
+        {
+            Assert.IsNotNull(_userAccountDataAccess);
+        }
+
         [TestMethod]
         public async Task DeleteVerifiedAccount()
         {
             // Arrange
-            var result = await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.USERS).ConfigureAwait(false);
 
             // generate user account
             string email = "test@gmail.com";
@@ -77,7 +88,6 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test.Integration_Tests
         public async Task DeleteAdminAccount()
         {
             // Arrange
-            var result = await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.USERS).ConfigureAwait(false);
 
             // generate user account
             string email = "test@gmail.com";
@@ -108,7 +118,6 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test.Integration_Tests
         public async Task CountingAdminAccounts()
         {
             // Arrange
-            var result = await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.USERS).ConfigureAwait(false);
 
             // generate first admin
             string email1 = "test1@gmail.com";

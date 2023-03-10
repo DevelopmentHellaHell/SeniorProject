@@ -111,7 +111,13 @@ namespace DevelopmentHell.Hubba.Authentication.Test
             );
         }
 
-		[TestMethod]
+        [TestInitialize]
+        public async Task Setup()
+        {
+            await _testingService.DeleteAllRecords().ConfigureAwait(false);
+        }
+
+        [TestMethod]
 		public void ShouldInstansiateCtor()
 		{
 			Assert.IsNotNull(_authenticationManager);

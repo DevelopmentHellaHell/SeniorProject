@@ -89,11 +89,22 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             );
         }
 
+        [TestInitialize]
+        public async Task Setup()
+        {
+            await _testingService.DeleteAllRecords().ConfigureAwait(false);
+        }
+
+        [TestMethod]
+        public void ShouldInstansiateCtor()
+        {
+            Assert.IsNotNull(_accountDeletionManager);
+        }
+
         [TestMethod]
         public async Task DeleteVerifiedUserAccount()
         {
             // Arrange
-            var result = await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.USERS).ConfigureAwait(false);
             
             // generate user account
             string email = "test@gmail.com";
@@ -124,7 +135,6 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
         public async Task VerifiedUserUnauthorizedDeletion()
         {
             // Arrange
-            var result = await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.USERS).ConfigureAwait(false);
 
             // generate 2 user accounts
             string email1 = "test1@gmail.com";
@@ -159,7 +169,6 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
         public async Task AdminUserDeleteOther()
         {
             // Arrange
-            var result = await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.USERS).ConfigureAwait(false);
             
             // generate 1 user account and 1 admin account
             string email1 = "test1@gmail.com";
@@ -200,7 +209,6 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
         public async Task AdminUserDeleteSelfAsLastAdmin()
         {
             // Arrange
-            var result = await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.USERS).ConfigureAwait(false);
             
             // generate admin
             string email = "test@gmail.com";
@@ -237,7 +245,6 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
         public async Task AdminUserDeleteSelfWithOtherAdmin()
         {
             // Arrange
-            var result = await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.USERS).ConfigureAwait(false);
             
             // generate first admin
             string email1 = "test1@gmail.com";
