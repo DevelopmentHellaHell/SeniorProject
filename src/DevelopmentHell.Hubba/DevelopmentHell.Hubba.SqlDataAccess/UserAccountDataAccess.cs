@@ -139,12 +139,12 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 				Id = id,
 				Email = (string)payload.First()["Email"],
 				LoginAttempts = (int)payload.First()["LoginAttempts"],
-				FailureTime = payload.First()["FailureTime"] == DBNull.Value ? null : payload[0]["FailureTime"],
+				FailureTime = payload.First()["FailureTime"] == DBNull.Value ? null : payload.First()["FailureTime"],
 				Disabled = (bool)payload.First()["Disabled"],
 				Role = (string)payload.First()["Role"],
-				CellPhoneNumber = (string)payload.First()["CellPhoneNumber"],
-				CellPhoneProvider = (CellPhoneProviders)payload.First()["CellPhoneProvider"]
-			};
+				CellPhoneNumber = payload.First()["CellPhoneNumber"] == DBNull.Value ? null : (string)payload.First()["FailureTime"],
+				CellPhoneProvider = payload.First()["CellPhoneProvider"] == DBNull.Value ? null : (CellPhoneProviders)payload.First()["FailureTime"]
+            };
 			return result;
 		}
 
