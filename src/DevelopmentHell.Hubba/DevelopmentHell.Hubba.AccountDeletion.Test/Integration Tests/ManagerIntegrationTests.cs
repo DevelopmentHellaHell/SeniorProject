@@ -1,4 +1,5 @@
-using DevelopmentHell.Hubba.AccountDeletion.Manager;
+using Development.Hubba.JWTHandler.Service.Abstractions;
+using Development.Hubba.JWTHandler.Service.Implementations;
 using DevelopmentHell.Hubba.AccountDeletion.Manager.Abstraction;
 using DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations;
 using DevelopmentHell.Hubba.AccountDeletion.Service.Abstractions;
@@ -30,8 +31,10 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
         private string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
         private string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
         private string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
+        private string _jwtKey = ConfigurationManager.AppSettings["JwtKey"]!;
 
         private readonly IAuthorizationService _authorizationService;
+        private readonly IAuthenticationService _authenticationService;
         private readonly IUserAccountDataAccess _userAccountDataAccess;
         private readonly IAccountDeletionManager _accountDeletionManager;
         private readonly IRegistrationService _registrationService;
@@ -39,53 +42,69 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
 
         public ManagerIntegrationTests()
         {
-            _userAccountDataAccess = new UserAccountDataAccess(_usersConnectionString, _userAccountsTable);
-            IValidationService _validationService = new ValidationService();
-            ICryptographyService _cryptographyService = new CryptographyService(ConfigurationManager.AppSettings["CryptographyKey"]!);
-            ILoggerService _loggerService = new LoggerService(
+			_userAccountDataAccess = new UserAccountDataAccess(_usersConnectionString, _userAccountsTable);
+            IValidationService validationService = new ValidationService();
+            ICryptographyService cryptographyService = new CryptographyService(ConfigurationManager.AppSettings["CryptographyKey"]!);
+            IJWTHandlerService jwtHandlerService = new JWTHandlerService(
+				_jwtKey
+			);
+			ILoggerService loggerService = new LoggerService(
                 new LoggerDataAccess(_logsConnectionString, _logsTable)
             );
-            IAccountDeletionService _accountDeletionService = new AccountDeletionService(
+            IAccountDeletionService accountDeletionService = new AccountDeletionService(
                 _userAccountDataAccess, 
-                _loggerService
+                loggerService
             );
-            IAuthenticationService _authenticationService = new AuthenticationService(
-                _userAccountDataAccess,
+            _authenticationService = new AuthenticationService(
+				_userAccountDataAccess,
                 new UserLoginDataAccess(
                     _usersConnectionString,
                     ConfigurationManager.AppSettings["UserLoginsTable"]!
                 ),
-                _cryptographyService,
-                _validationService,
-                _loggerService
+                cryptographyService,
+                jwtHandlerService,
+                validationService,
+                loggerService
             );
             _authorizationService = new AuthorizationService(
-                ConfigurationManager.AppSettings["JwtKey"]!,
                 _userAccountDataAccess,
-                _loggerService
+				jwtHandlerService,
+				loggerService
             );
             _accountDeletionManager = new AccountDeletionManager(
-                _accountDeletionService, 
+                accountDeletionService, 
                 _authenticationService, 
                 _authorizationService, 
-                _loggerService
+                loggerService
             );
             _registrationService = new RegistrationService(
                 _userAccountDataAccess,
-               _cryptographyService,
-                _validationService,
-                _loggerService
+               cryptographyService,
+               validationService,
+               loggerService
             );
             _testingService = new TestingService(
-                new TestsDataAccess()
+				_jwtKey,
+				new TestsDataAccess()
             );
+        }
+
+        [TestInitialize]
+        public async Task Setup()
+        {
+            await _testingService.DeleteAllRecords().ConfigureAwait(false);
+        }
+
+        [TestMethod]
+        public void ShouldInstansiateCtor()
+        {
+            Assert.IsNotNull(_accountDeletionManager);
         }
 
         [TestMethod]
         public async Task DeleteVerifiedUserAccount()
         {
             // Arrange
-            var result = await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.USERS).ConfigureAwait(false);
             
             // generate user account
             string email = "test@gmail.com";
@@ -95,15 +114,16 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             int accountId = accountIdResult.Payload;
 
             // log in as user
-            var tokenResult = await _authorizationService.GenerateToken(accountId, false).ConfigureAwait(false);
-            if (tokenResult.IsSuccessful)
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(tokenResult.Payload!);
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
             var expected = new Result { IsSuccessful = true};
 
             // Act
-            Result actual = await _accountDeletionManager.DeleteAccount(accountId);
+            Result actual = await _accountDeletionManager.DeleteAccount(accountId).ConfigureAwait(false);
 
             // Assert
             Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
@@ -115,7 +135,6 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
         public async Task VerifiedUserUnauthorizedDeletion()
         {
             // Arrange
-            var result = await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.USERS).ConfigureAwait(false);
 
             // generate 2 user accounts
             string email1 = "test1@gmail.com";
@@ -129,15 +148,16 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             int accountId2 = accountIdResult2.Payload;
 
             // log in as first user
-            var tokenResult = await _authorizationService.GenerateToken(accountId1, false).ConfigureAwait(false);
-            if (tokenResult.IsSuccessful)
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId1, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId1, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(tokenResult.Payload!);
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
             var expected = new Result { IsSuccessful = true };
 
             // Act
-            Result actual = await _accountDeletionManager.DeleteAccount(accountId2);
+            Result actual = await _accountDeletionManager.DeleteAccount(accountId2).ConfigureAwait(false);
 
             // Assert
             Assert.IsFalse(expected.IsSuccessful == actual.IsSuccessful);
@@ -149,7 +169,6 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
         public async Task AdminUserDeleteOther()
         {
             // Arrange
-            var result = await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.USERS).ConfigureAwait(false);
             
             // generate 1 user account and 1 admin account
             string email1 = "test1@gmail.com";
@@ -169,15 +188,16 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             }
 
             // log in as admin
-            var tokenResult = await _authorizationService.GenerateToken(accountId1, false).ConfigureAwait(false);
-            if (tokenResult.IsSuccessful)
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId1, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId1, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(tokenResult.Payload!);
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
             var expected = new Result { IsSuccessful = true };
 
             // Act
-            Result actual = await _accountDeletionManager.DeleteAccount(accountId2);
+            Result actual = await _accountDeletionManager.DeleteAccount(accountId2).ConfigureAwait(false);
 
             // Assert
             Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
@@ -189,7 +209,6 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
         public async Task AdminUserDeleteSelfAsLastAdmin()
         {
             // Arrange
-            var result = await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.USERS).ConfigureAwait(false);
             
             // generate admin
             string email = "test@gmail.com";
@@ -205,15 +224,16 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             }
 
             // log in as admin
-            var tokenResult = await _authorizationService.GenerateToken(accountId, false).ConfigureAwait(false);
-            if (tokenResult.IsSuccessful)
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(tokenResult.Payload!);
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
             var expected = new Result { IsSuccessful = false };
 
             // Act
-            Result actual = await _accountDeletionManager.DeleteAccount(accountId);
+            Result actual = await _accountDeletionManager.DeleteAccount(accountId).ConfigureAwait(false);
 
             // Assert
             Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
@@ -225,7 +245,6 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
         public async Task AdminUserDeleteSelfWithOtherAdmin()
         {
             // Arrange
-            var result = await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.USERS).ConfigureAwait(false);
             
             // generate first admin
             string email1 = "test1@gmail.com";
@@ -253,16 +272,17 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             }
 
             // log in as first admin
-            var tokenResult = await _authorizationService.GenerateToken(accountId1, false).ConfigureAwait(false);
-            if (tokenResult.IsSuccessful)
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId1, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId1, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(tokenResult.Payload!);
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
             var expected = new Result { IsSuccessful = true };
 
             // Act
             // delete self
-            Result actual = await _accountDeletionManager.DeleteAccount(accountId1);
+            Result actual = await _accountDeletionManager.DeleteAccount(accountId1).ConfigureAwait(false);
 
             // Assert
             Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);

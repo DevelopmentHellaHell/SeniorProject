@@ -1,4 +1,6 @@
-﻿using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
+﻿using Development.Hubba.JWTHandler.Service.Abstractions;
+using Development.Hubba.JWTHandler.Service.Implementations;
+using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
 using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
 using DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Implementations;
@@ -56,6 +58,9 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			ICryptographyService cryptographyService = new CryptographyService(
 				ConfigurationManager.AppSettings["CryptographyKey"]!
 			);
+			IJWTHandlerService jwtHandlerService = new JWTHandlerService(
+				_jwtKey
+			);
 			IValidationService validationService = new ValidationService();
 			_otpService = new OTPService(
 				new OTPDataAccess(
@@ -78,16 +83,17 @@ namespace DevelopmentHell.Hubba.Authentication.Test
                         _userLoginsTable
                     ),
 					cryptographyService,
+					jwtHandlerService,
 					validationService,
 					loggerService
 				),
 				_otpService,
 				new AuthorizationService(
-                    _jwtKey,
                     new UserAccountDataAccess(
                         _usersConnectionString,
                         _userAccountsTable
                     ),
+					jwtHandlerService,
 					loggerService
 				),
 				cryptographyService,
@@ -100,11 +106,18 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 				loggerService
 			);
             _testingService = new TestingService(
-                new TestsDataAccess()
+				_jwtKey,
+				new TestsDataAccess()
             );
         }
 
-		[TestMethod]
+        [TestInitialize]
+        public async Task Setup()
+        {
+            await _testingService.DeleteAllRecords().ConfigureAwait(false);
+        }
+
+        [TestMethod]
 		public void ShouldInstansiateCtor()
 		{
 			Assert.IsNotNull(_authenticationManager);
@@ -144,9 +157,9 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			if (expectedResultSuccess)
 			{
 				Assert.IsNotNull(actualLoginResult.Payload);
-				Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Email)! == credentialEmail);
-				Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Role)! == expectedRole);
-				Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue("accountId")!) == id);
+				Assert.IsTrue(actualPrincipal.FindFirstValue("azp")! == credentialEmail);
+				Assert.IsTrue(actualPrincipal.FindFirstValue("role")! == expectedRole);
+				Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue("sub")!) == id);
 			} else
 			{
 				Assert.IsNull(actualLoginResult.Payload);
@@ -202,7 +215,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			//  - Get valid OTP from database
 			var otpResult = await _otpService.GetOTP(id).ConfigureAwait(false);
 			var authenticateOTPResult = await _authenticationManager.AuthenticateOTP(otpResult.Payload!, ipAddress).ConfigureAwait(false);
-			_testingService.DecodeJWT(authenticateOTPResult.Payload!);
+			_testingService.DecodeJWT(authenticateOTPResult.Payload!.Item1, authenticateOTPResult.Payload!.Item2);
 			
 			//  - Log in attempt #2
 			actualLoginResult = await _authenticationManager.Login(credentialEmail, credentialPassword, ipAddress);
@@ -244,9 +257,9 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			// Assert
 			Assert.IsTrue(expectedResultSuccess == actualAuthenticateOTPResult.IsSuccessful);
 			Assert.IsNotNull(actualPrincipal);
-			Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Email)! == credentialEmail);
-			Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Role)! == expectedRole);
-			Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue("accountId")!) == id);
+			Assert.IsTrue(actualPrincipal.FindFirstValue("azp")! == credentialEmail);
+			Assert.IsTrue(actualPrincipal.FindFirstValue("role")! == expectedRole);
+			Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue("sub")!) == id);
         }
 
 		[TestMethod]
@@ -273,16 +286,16 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			ClaimsPrincipal? actualPrincipal = null;
 			if (actualAuthenticateOTPResult.IsSuccessful)
 			{
-				_testingService.DecodeJWT(actualAuthenticateOTPResult.Payload!);
+				_testingService.DecodeJWT(actualAuthenticateOTPResult.Payload!.Item1, actualAuthenticateOTPResult.Payload!.Item2);
 				actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 			}
 
 			// Assert
 			Assert.IsTrue(expectedResultSuccess == actualAuthenticateOTPResult.IsSuccessful);
 			Assert.IsNotNull(actualPrincipal);
-			Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Email)! == credentialEmail);
-			Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Role)! == expectedRole);
-			Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue("accountId")!) == id);
+			Assert.IsTrue(actualPrincipal.FindFirstValue("azp")! == credentialEmail);
+			Assert.IsTrue(actualPrincipal.FindFirstValue("role")! == expectedRole);
+			Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue("sub")!) == id);
 		}
 
 		// login 3 times and disable account - shoulddisableaccount

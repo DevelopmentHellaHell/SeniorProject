@@ -82,10 +82,10 @@ const AccountRecoveryPage: React.FC<IAccountRecoveryPageProps> = (props) => {
                                             onError(response.error);
                                             return;
                                         }
-                                        const authData = Auth.isAuthenticated();
+                                        const authData = Auth.getAccessData();
                                         if (authData && authData.role == "DefaultUser") {
                                             setLoaded(true);
-                                            Auth.removeCookie("access_token");
+                                            Auth.clearCookies();
                                             alert("Request sent to admin");
                                             navigate("/");
                                             return;

@@ -1,4 +1,6 @@
 /// <reference types="cypress" />
+import { Ajax } from "../../src/Ajax";
+import { Database } from "./TestModels/Database";
 
 /* cy.get(), cy.contains()
 ** https://filiphric.com/cypress-basics-selecting-elements
@@ -101,6 +103,11 @@ describe('registration failed cases', () => {
   beforeEach(() => {
     cy.visit(registrationUrl);
   })
+
+  afterEach(async () => {
+    await Ajax.post(testsRoute, { database: Database.Databases.USERS });
+  });
+  
   it('email existed', () => {
     cy.get('#email')
       .type(standardEmail)
