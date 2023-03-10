@@ -10,6 +10,11 @@ namespace DevelopmentHell.Hubba.UserManagement.Manager.Implementations
 {
     public class UserManagementManager : IUserManagementManager
     {
+        public Task<Result> ElevatedCreateAccount(string email, string passphrase, string firstName, string lastName, string accountType)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<Result> ElevatedDeleteAccountNotifyListingsBookings(string email)
         {
             throw new NotImplementedException();

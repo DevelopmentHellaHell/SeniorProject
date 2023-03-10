@@ -24,26 +24,6 @@ namespace DevelopmentHell.Hubba.Registration.Manager.Implementations
             _loggerService = loggerService;
         }
 
-        public async Task<Result> ElevatedCreateAccount(string email, string passphrase, string firstName, string lastName, string accountType)
-        {
-            Result result = new Result();
-
-            if (!_authorizationService.Authorize(new string[] { "AdminUser" }).IsSuccessful)
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, user already logged in.";
-                return result;
-            }
-
-            Result registerResult = await Register(email, passphrase, accountType, true).ConfigureAwait(false);
-            if (!registerResult.IsSuccessful)
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = registerResult.ErrorMessage;
-                return result;
-            }
-        }
-
         public async Task<Result> Register(string email, string password, string accountType = "VerifiedUser", bool bypass = false)
         {
             Result result = new Result();
