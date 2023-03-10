@@ -56,7 +56,6 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
                 loggerService
             );
             _authenticationService = new AuthenticationService(
-				ConfigurationManager.AppSettings["CryptographyKey"]!,
 				_userAccountDataAccess,
                 new UserLoginDataAccess(
                     _usersConnectionString,

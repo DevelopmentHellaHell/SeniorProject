@@ -123,7 +123,6 @@ builder.Services.AddTransient<IAuthorizationService, AuthorizationService>(s =>
 );
 builder.Services.AddTransient<IAuthenticationService, AuthenticationService>(s =>
     new AuthenticationService(
-		HubbaConfig.ConfigurationManager.AppSettings["CryptographyKey"]!,
 		new UserAccountDataAccess(
             HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
             HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!

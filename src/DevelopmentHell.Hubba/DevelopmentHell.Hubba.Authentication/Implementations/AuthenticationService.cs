@@ -14,7 +14,6 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 {
     public class AuthenticationService : IAuthenticationService
 	{
-		private readonly string _cryptographyKey;
 		private IUserAccountDataAccess _userAccountDataAccess;
 		private IUserLoginDataAccess _userLoginDataAccess;
         private ICryptographyService _cryptographyService;
@@ -22,9 +21,8 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 		private IValidationService _validationService;
         private ILoggerService _loggerService;
 
-		public AuthenticationService(string cryptographyKey, IUserAccountDataAccess userAccountDataAccess, IUserLoginDataAccess userLoginDataAccess, ICryptographyService cryptographyService, IJWTHandlerService jWTHandlerService, IValidationService validationService, ILoggerService loggerService)
+		public AuthenticationService(IUserAccountDataAccess userAccountDataAccess, IUserLoginDataAccess userLoginDataAccess, ICryptographyService cryptographyService, IJWTHandlerService jWTHandlerService, IValidationService validationService, ILoggerService loggerService)
 		{
-			_cryptographyKey = cryptographyKey;
 			_userAccountDataAccess = userAccountDataAccess;
 			_userLoginDataAccess = userLoginDataAccess;
 			_cryptographyService = cryptographyService;
@@ -183,7 +181,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 
 			try
 			{
-				Result<HashData> hashData = _cryptographyService.HashString(accessToken, _cryptographyKey);
+				Result<HashData> hashData = _cryptographyService.HashString(accessToken);
 				if (!hashData.IsSuccessful || hashData.Payload is null)
 				{
 					result.IsSuccessful = false;

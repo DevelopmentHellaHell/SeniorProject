@@ -12,6 +12,10 @@ using System.Security.Claims;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
+using Development.Hubba.JWTHandler.Service.Abstractions;
+using Development.Hubba.JWTHandler.Service.Implementations;
+using DevelopmentHell.Hubba.Authentication.Service.Implementations;
+using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 
 namespace DevelopmentHell.Hubba.Authorization.Test
 {
@@ -22,12 +26,14 @@ namespace DevelopmentHell.Hubba.Authorization.Test
         private string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
         private string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
         private string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
+		private string _jwtKey = ConfigurationManager.AppSettings["JwtKey"]!;
 
-        // Class to test
-        private readonly IAuthorizationService _authorizationService;
+		// Class to test
+		private readonly IAuthorizationService _authorizationService;
 		// Helper classes
 		private readonly IRegistrationService _registrationService;
 		private readonly IUserAccountDataAccess _userAccountDataAccess;
+		private readonly IAuthenticationService _authenticationService;
 		private readonly ITestingService _testingService;
 
 		public ServiceIntegrationTests()
@@ -45,10 +51,13 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 			ICryptographyService cryptographyService = new CryptographyService(
 				ConfigurationManager.AppSettings["CryptographyKey"]!
 			);
+			IJWTHandlerService jwtHandlerService = new JWTHandlerService(
+				_jwtKey
+			);
+
 			_authorizationService = new AuthorizationService(
-				ConfigurationManager.AppSettings["JwtKey"]!,
 				_userAccountDataAccess,
-				cryptographyService,
+				jwtHandlerService,
 				loggerService
 			);
 			_registrationService = new RegistrationService(
@@ -57,7 +66,19 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 				new ValidationService(),
 				loggerService
 			);
+			_authenticationService = new AuthenticationService(
+				_userAccountDataAccess,
+				new UserLoginDataAccess(
+					_usersConnectionString,
+					ConfigurationManager.AppSettings["UserLoginsTable"]!
+				),
+				cryptographyService,
+				jwtHandlerService,
+				new ValidationService(),
+				loggerService
+			);
 			_testingService = new TestingService(
+				_jwtKey,
 				new TestsDataAccess()
 			);
 		}
@@ -85,16 +106,17 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 			var expectedRole = role;
 
 			// Actual
-			var actualTokenResult = await _authorizationService.GenerateAccessToken(id, defaultUser).ConfigureAwait(false);
+			var accessTokenResult = await _authorizationService.GenerateAccessToken(id, defaultUser).ConfigureAwait(false);
+			var idTokenResult = _authenticationService.GenerateIdToken(id, accessTokenResult.Payload!);
 			ClaimsPrincipal? actualPrincipal = null;
-			if (actualTokenResult.IsSuccessful)
+			if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
 			{
-				_testingService.DecodeJWT(actualTokenResult.Payload!);
+				_testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
 				actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 			}
 
 			// Assert
-			Assert.IsTrue(expectedResultSuccess == actualTokenResult.IsSuccessful);
+			Assert.IsTrue(expectedResultSuccess == accessTokenResult.IsSuccessful);
 			Assert.IsNotNull(actualPrincipal);
 			Assert.IsTrue(actualPrincipal.FindFirstValue("azp")! == email);
 			Assert.IsTrue(actualPrincipal.FindFirstValue("role")! == expectedRole);
@@ -117,10 +139,11 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 			await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
 			var userIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
 			var id = userIdResult.Payload;
-			var actualTokenResult = await _authorizationService.GenerateAccessToken(id, true).ConfigureAwait(false);
-			if (actualTokenResult.IsSuccessful)
+			var accessTokenResult = await _authorizationService.GenerateAccessToken(id).ConfigureAwait(false);
+			var idTokenResult = _authenticationService.GenerateIdToken(id, accessTokenResult.Payload!);
+			if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
 			{
-                _testingService.DecodeJWT(actualTokenResult.Payload!);
+				_testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
 			}
 
 			var expectedRole = "VerifiedUser";
