@@ -15,8 +15,8 @@ const DeleteAccountView: React.FC<IDeleteAccountViewProps> = (props) => {
     const [loaded, setLoaded] = useState(true);
 
     const navigate = useNavigate();
-    const authData = Auth.isAuthenticated();
-    const accountId = authData?.accountId;
+    const authData = Auth.getAccessData();
+    const accountId = authData?.sub;
 
     const onError = (message: string) => {
         setError(message);
@@ -47,7 +47,7 @@ const DeleteAccountView: React.FC<IDeleteAccountViewProps> = (props) => {
                     }
 
                     setLoaded(true);
-                    Auth.removeCookie("access_token");
+                    Auth.clearCookies();
                     navigate("/");
                 }}/>
             </div>

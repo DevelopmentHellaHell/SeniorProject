@@ -5,7 +5,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Service.Abstractions
 {
     public interface IAccountDeletionService
     {
-        Task<Result> DeleteAccountNotifyListingsBookings(int accountID);
+        Task<Result> DeleteAccount(int accountID);
         Task<Result<int>> CountAdmin();
     }
 }

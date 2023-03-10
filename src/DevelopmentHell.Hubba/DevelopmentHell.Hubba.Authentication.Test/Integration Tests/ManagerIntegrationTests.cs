@@ -1,4 +1,6 @@
-﻿using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
+﻿using Development.Hubba.JWTHandler.Service.Abstractions;
+using Development.Hubba.JWTHandler.Service.Implementations;
+using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
 using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
 using DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Implementations;
@@ -13,122 +15,101 @@ using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
+using DevelopmentHell.Hubba.Testing.Service.Abstractions;
+using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using Microsoft.IdentityModel.Tokens;
 using System.Configuration;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 
 namespace DevelopmentHell.Hubba.Authentication.Test
 {
-	[TestClass]
+    [TestClass]
 	public class ManagerIntegrationTests
 	{
-		// Class to test
-		private readonly IAuthenticationManager _authenticationManager;
+        private string _usersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
+        private string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
+        private string _userOTPsTable = ConfigurationManager.AppSettings["UserOTPsTable"]!;
+        private string _userLoginsTable = ConfigurationManager.AppSettings["UserLoginsTable"]!;
+        private string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
+        private string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
+		private string _jwtKey = ConfigurationManager.AppSettings["JwtKey"]!;
+
+        // Class to test
+        private readonly IAuthenticationManager _authenticationManager;
 		// Helper classes
 		private readonly IUserAccountDataAccess _userAccountDataAccess;
 		private readonly IRegistrationService _registrationService;
 		private readonly IOTPService _otpService;
-		private readonly TestsDataAccess _testsDataAccess;
+		private readonly ITestingService _testingService;
 
 		public ManagerIntegrationTests()
 		{
 			ILoggerService loggerService = new LoggerService(
 				new LoggerDataAccess(
-					ConfigurationManager.AppSettings["LogsConnectionString"]!,
-					ConfigurationManager.AppSettings["LogsTable"]!
-				)
+                    _logsConnectionString,
+                    _logsTable
+                )
 			);
 			_userAccountDataAccess = new UserAccountDataAccess(
-				ConfigurationManager.AppSettings["UsersConnectionString"]!,
-				ConfigurationManager.AppSettings["UserAccountsTable"]!
-			);
+                _usersConnectionString,
+                _userAccountsTable
+            );
 			ICryptographyService cryptographyService = new CryptographyService(
 				ConfigurationManager.AppSettings["CryptographyKey"]!
+			);
+			IJWTHandlerService jwtHandlerService = new JWTHandlerService(
+				_jwtKey
 			);
 			IValidationService validationService = new ValidationService();
 			_otpService = new OTPService(
 				new OTPDataAccess(
-					ConfigurationManager.AppSettings["UsersConnectionString"]!,
-					ConfigurationManager.AppSettings["UserOTPsTable"]!
-				),
+                    _usersConnectionString,
+                    _userOTPsTable
+                ),
 				new EmailService(
 					ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!,
 					ConfigurationManager.AppSettings["SENDGRID_API_KEY"]!,
-					ConfigurationManager.AppSettings["COMPANY_EMAIL"]!
+					ConfigurationManager.AppSettings["COMPANY_EMAIL"]!,
+					true
 				),
 				cryptographyService
 			);
-
 			_authenticationManager = new AuthenticationManager(
 				new AuthenticationService(
 					_userAccountDataAccess,
 					new UserLoginDataAccess(
-						ConfigurationManager.AppSettings["UsersConnectionString"]!,
-						ConfigurationManager.AppSettings["UserLoginsTable"]!
-					),
+                        _usersConnectionString,
+                        _userLoginsTable
+                    ),
 					cryptographyService,
+					jwtHandlerService,
 					validationService,
 					loggerService
 				),
 				_otpService,
 				new AuthorizationService(
-					ConfigurationManager.AppSettings["JwtKey"]!,
-					new UserAccountDataAccess(
-						ConfigurationManager.AppSettings["UsersConnectionString"]!,
-						ConfigurationManager.AppSettings["UserAccountsTable"]!
-					),
+                    new UserAccountDataAccess(
+                        _usersConnectionString,
+                        _userAccountsTable
+                    ),
+					jwtHandlerService,
 					loggerService
 				),
 				cryptographyService,
 				loggerService
 			);
-
 			_registrationService = new RegistrationService(
 				_userAccountDataAccess,
 				cryptographyService,
 				validationService,
 				loggerService
 			);
-
-			_testsDataAccess = new TestsDataAccess();
-		}
-
-		private void decodeJWT(string token)
-		{
-
-			if (token is not null)
-			{
-				// Parse the JWT token and extract the principal
-				var tokenHandler = new JwtSecurityTokenHandler();
-				var key = Encoding.ASCII.GetBytes(ConfigurationManager.AppSettings["JwtKey"]!);
-				var validationParameters = new TokenValidationParameters
-				{
-					ValidateIssuer = false,
-					ValidateAudience = false,
-					ValidateLifetime = true,
-					IssuerSigningKey = new SymmetricSecurityKey(key)
-				};
-
-				try
-				{
-					SecurityToken validatedToken;
-					var principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
-
-					Thread.CurrentPrincipal = principal;
-					return;
-				}
-				catch (Exception)
-				{
-					// Handle token validation errors
-					Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "DefaultUser") }));
-					return;
-				}
-			}
-		}
+            _testingService = new TestingService(
+				_jwtKey,
+				new TestsDataAccess()
+            );
+        }
 
 		[TestMethod]
 		public void ShouldInstansiateCtor()
@@ -145,7 +126,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 		{
 			// Arrange
 			//  - Setup user and initial state
-			var credentialEmail = "test1@gmail.com";
+			var credentialEmail = "test@gmail.com";
 			var credentialPassword = "12345678";
 			var ipAddress = "1.1.1.1";
 			await _registrationService.RegisterAccount(credentialEmail, credentialPassword).ConfigureAwait(false);
@@ -160,7 +141,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			ClaimsPrincipal? actualPrincipal = null;
 			if (actualLoginResult.IsSuccessful)
 			{
-				decodeJWT(actualLoginResult.Payload!);
+				_testingService.DecodeJWT(actualLoginResult.Payload!);
 				actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 			}
 
@@ -170,9 +151,9 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			if (expectedResultSuccess)
 			{
 				Assert.IsNotNull(actualLoginResult.Payload);
-				Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Email)! == credentialEmail);
-				Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Role)! == expectedRole);
-				Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue("accountId")!) == id);
+				Assert.IsTrue(actualPrincipal.FindFirstValue("azp")! == credentialEmail);
+				Assert.IsTrue(actualPrincipal.FindFirstValue("role")! == expectedRole);
+				Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue("sub")!) == id);
 			} else
 			{
 				Assert.IsNull(actualLoginResult.Payload);
@@ -184,7 +165,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 		{
 			// Arrange
 			//  - Setup user and initial state
-			var credentialEmail = "test2@gmail.com";
+			var credentialEmail = "test@gmail.com";
 			var credentialPassword = "12345678";
 			var ipAddress = "1.1.1.1";
 			await _registrationService.RegisterAccount(credentialEmail, credentialPassword).ConfigureAwait(false);
@@ -211,7 +192,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 		{
 			// Arrange
 			//  - Setup user and initial state
-			var credentialEmail = "test3@gmail.com";
+			var credentialEmail = "test@gmail.com";
 			var credentialPassword = "12345678";
 			var ipAddress = "1.1.1.1";
 			var registrationResult = await _registrationService.RegisterAccount(credentialEmail, credentialPassword).ConfigureAwait(false);
@@ -224,11 +205,11 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			Result<string> actualLoginResult = new Result<string>();
 			//  - Log in attempt #1
 			actualLoginResult = await _authenticationManager.Login(credentialEmail, credentialPassword, ipAddress);
-			decodeJWT(actualLoginResult.Payload!);
+			_testingService.DecodeJWT(actualLoginResult.Payload!);
 			//  - Get valid OTP from database
 			var otpResult = await _otpService.GetOTP(id).ConfigureAwait(false);
 			var authenticateOTPResult = await _authenticationManager.AuthenticateOTP(otpResult.Payload!, ipAddress).ConfigureAwait(false);
-			decodeJWT(authenticateOTPResult.Payload!);
+			_testingService.DecodeJWT(authenticateOTPResult.Payload!.Item1, authenticateOTPResult.Payload!.Item2);
 			
 			//  - Log in attempt #2
 			actualLoginResult = await _authenticationManager.Login(credentialEmail, credentialPassword, ipAddress);
@@ -246,14 +227,14 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 		{
 			// Arrange
 			//  - Setup user and initial state
-			var credentialEmail = "test4@gmail.com";
+			var credentialEmail = "test@gmail.com";
 			var credentialPassword = "12345678";
 			var ipAddress = "1.1.1.1";
 			await _registrationService.RegisterAccount(credentialEmail, credentialPassword).ConfigureAwait(false);
 			var userIdResult = await _userAccountDataAccess.GetId(credentialEmail).ConfigureAwait(false);
 			var id = userIdResult.Payload;
 			var actualLoginResult = await _authenticationManager.Login(credentialEmail, credentialPassword, ipAddress);
-			decodeJWT(actualLoginResult.Payload!);
+			_testingService.DecodeJWT(actualLoginResult.Payload!);
 
 			var expectedResultSuccess = false;
 			var expectedRole = "DefaultUser";
@@ -263,31 +244,31 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			ClaimsPrincipal? actualPrincipal = null;
 			if (actualLoginResult.IsSuccessful)
 			{
-				decodeJWT(actualLoginResult.Payload!);
+				_testingService.DecodeJWT(actualLoginResult.Payload!);
 				actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 			}
 
 			// Assert
 			Assert.IsTrue(expectedResultSuccess == actualAuthenticateOTPResult.IsSuccessful);
 			Assert.IsNotNull(actualPrincipal);
-			Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Email)! == credentialEmail);
-			Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Role)! == expectedRole);
-			Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue("accountId")!) == id);
-		}
+			Assert.IsTrue(actualPrincipal.FindFirstValue("azp")! == credentialEmail);
+			Assert.IsTrue(actualPrincipal.FindFirstValue("role")! == expectedRole);
+			Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue("sub")!) == id);
+        }
 
 		[TestMethod]
 		public async Task ShouldAuthenticateCorrectOTP()
 		{
 			// Arrange
 			//  - Setup user and initial state
-			var credentialEmail = "test5@gmail.com";
+			var credentialEmail = "test@gmail.com";
 			var credentialPassword = "12345678";
 			var ipAddress = "1.1.1.1";
 			await _registrationService.RegisterAccount(credentialEmail, credentialPassword).ConfigureAwait(false);
 			var userIdResult = await _userAccountDataAccess.GetId(credentialEmail).ConfigureAwait(false);
 			var id = userIdResult.Payload;
 			var loginResult = await _authenticationManager.Login(credentialEmail, credentialPassword, ipAddress);
-			decodeJWT(loginResult.Payload!);
+			_testingService.DecodeJWT(loginResult.Payload!);
 			//  - Get valid OTP from database
 			var otpResult = await _otpService.GetOTP(id).ConfigureAwait(false);
 
@@ -299,16 +280,16 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			ClaimsPrincipal? actualPrincipal = null;
 			if (actualAuthenticateOTPResult.IsSuccessful)
 			{
-				decodeJWT(actualAuthenticateOTPResult.Payload!);
+				_testingService.DecodeJWT(actualAuthenticateOTPResult.Payload!.Item1, actualAuthenticateOTPResult.Payload!.Item2);
 				actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 			}
 
 			// Assert
 			Assert.IsTrue(expectedResultSuccess == actualAuthenticateOTPResult.IsSuccessful);
 			Assert.IsNotNull(actualPrincipal);
-			Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Email)! == credentialEmail);
-			Assert.IsTrue(actualPrincipal.FindFirstValue(ClaimTypes.Role)! == expectedRole);
-			Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue("accountId")!) == id);
+			Assert.IsTrue(actualPrincipal.FindFirstValue("azp")! == credentialEmail);
+			Assert.IsTrue(actualPrincipal.FindFirstValue("role")! == expectedRole);
+			Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue("sub")!) == id);
 		}
 
 		// login 3 times and disable account - shoulddisableaccount
@@ -317,7 +298,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 		{
 			// Arrange
 			//  - Setup user and initial state
-			var credentialEmail = "test6@gmail.com";
+			var credentialEmail = "test@gmail.com";
 			var credentialPassword = "12345678";
 			var invalidPassword = "invalidPassword";
 			var ipAddress = "1.1.1.1";
@@ -347,7 +328,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 		[TestCleanup]
 		public async Task Cleanup()
 		{
-			await _testsDataAccess.DeleteAllRecords().ConfigureAwait(false);
+			await _testingService.DeleteAllRecords().ConfigureAwait(false);
 		}
 	}
 }

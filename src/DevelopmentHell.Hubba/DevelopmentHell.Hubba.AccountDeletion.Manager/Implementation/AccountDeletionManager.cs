@@ -23,9 +23,9 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations
             _authenticationService = authenticationService;
         }
 
-        public async Task<Result> DeleteAccount(int accountId)
+        public async Task<Result<string>> DeleteAccount(int accountId)
         {
-            Result result = new Result();
+            Result<string> result = new Result<string>();
             if (Thread.CurrentPrincipal is null)
             {
                 result.IsSuccessful = false;
@@ -36,10 +36,13 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations
             var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
 
             // Get the ID of current thread
-            string thisAccountIDStr = principal.FindFirstValue("accountId");
+            string thisAccountIDStr = principal.FindFirstValue("sub");
 
             if (int.TryParse(thisAccountIDStr, out int thisAccountIDInt))
             {
+                //TODO: GOLD PLATING notify other users affiliated with this account
+                // Result<List<Dictionary<string, object>>> listingsBookingsResult = await _accountDeletionService.GetListingsBookings(accountId).ConfigureAwait(false);
+                
                 if (_authorizationService.Authorize(new string[] { "VerifiedUser" }).IsSuccessful)
                 {
                     // this is a verified user who is deleting someone else's account
@@ -50,7 +53,8 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations
                         return result;
                     }
                     // this is a verified user who is deleting their own account
-                    Result deletionResult = await DeleteAccountNotifyListingsBookings(accountId);
+
+                    Result deletionResult = await DeleteAccountAndLog(accountId);
                     if (!deletionResult.IsSuccessful)
                     {
                         result.IsSuccessful = false;
@@ -58,8 +62,17 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations
                         return result;
                     }
                     // log the user out before deleting their account
-                    _authenticationService.Logout();
-                    return deletionResult;
+                    Result<string> logoutResult = _authenticationService.Logout();
+					result.Payload = logoutResult.Payload!;
+
+					// TODO: GOLD PLATING notify affected listings and bookings
+					//Result notifyResult = await _accountDeletionService.NotifyListingsBookings(accountId, listingsBookingsResult.payload).ConfigureAwait(false);
+					//if (!notifyResult.IsSuccessful)
+					//{
+					//    Result logRes = _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, $"Unable to notify affected accounts of account deletion. Deleted ID: {accountID}", null);
+					//}
+					result.IsSuccessful = true;
+					return result;
                 }
 
                 // The user is an admin
@@ -71,6 +84,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations
                         Result<int> countAdminResult = await _accountDeletionService.CountAdmin().ConfigureAwait(false);
                         if (countAdminResult.IsSuccessful)
                         {
+                            // check to make sure there are other admin accounts first
                             if (countAdminResult.Payload == 1)
                             {
                                 result.IsSuccessful = false;
@@ -79,16 +93,29 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations
                             }
                         }
                     }
-                    // Admin deleting any other account than their own
-                    Result deletionResult = await DeleteAccountNotifyListingsBookings(accountId);
+                    Result deletionResult = await DeleteAccountAndLog(accountId);
                     if (!deletionResult.IsSuccessful)
                     {
                         result.IsSuccessful = false;
                         result.ErrorMessage = deletionResult.ErrorMessage;
                         return result;
                     }
-                    return deletionResult;
-                }
+                    // TODO: GOLD PLATING notify affected listings and bookings
+                    //Result notifyResult = await _accountDeletionService.NotifyListingsBookings(accountId, listingsBookingsResult.payload).ConfigureAwait(false);
+                    //if (!notifyResult.IsSuccessful)
+                    //{
+                    //    Result logRes = _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, $"Unable to notify affected accounts of account deletion. Deleted ID: {accountID}", null);
+                    //}
+
+                    if (thisAccountIDInt == accountId)
+                    {
+						Result<string> logoutResult = _authenticationService.Logout();
+						result.Payload = logoutResult.Payload!;
+					}
+
+					result.IsSuccessful = true;
+					return result;
+				}
                 else
                 {
                     result.IsSuccessful = false;
@@ -103,17 +130,13 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations
                 return result;
             }
         }
-        private async Task<Result> DeleteAccountNotifyListingsBookings(int accountID)
-        {     // The user is deleting an account
-            Result result = new();
-            Result deletionResult = await _accountDeletionService.DeleteAccountNotifyListingsBookings(accountID).ConfigureAwait(false);
-            //if (!deletionResult.IsSuccessful)
-            //{
-            //    result.IsSuccessful = false;
-            //    result.ErrorMessage = deletionResult.ErrorMessage;
-            //    return result;
-            //}
-            Result logRes = _loggerService.Log(Models.LogLevel.INFO, Category.BUSINESS, $"Account has been deleted. ID: {accountID}", null);
+        private async Task<Result> DeleteAccountAndLog(int accountID)
+        {
+            Result deletionResult = await _accountDeletionService.DeleteAccount(accountID).ConfigureAwait(false);
+            if (deletionResult.IsSuccessful)
+            {
+                Result logRes = _loggerService.Log(Models.LogLevel.INFO, Category.BUSINESS, $"Account has been deleted. ID: {accountID}", null);
+            }
 
             return deletionResult;
         }

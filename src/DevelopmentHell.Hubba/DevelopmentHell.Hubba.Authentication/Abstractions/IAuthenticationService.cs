@@ -7,6 +7,8 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Abstractions
 	{
 		Task<Result<int>> AuthenticateCredentials(string email, string password, string ipAddress);
 		Task<Result> RegisterIpAddress(int accountId, string ipAddress);
-		Result Logout();
-    }
+		Result<string> Logout();
+		Result<string> GenerateIdToken(int accountId, string accessToken);
+
+	}
 }

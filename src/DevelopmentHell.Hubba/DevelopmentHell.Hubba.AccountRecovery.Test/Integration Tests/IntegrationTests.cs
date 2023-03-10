@@ -1,12 +1,10 @@
 ﻿using DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Implementations;
-using DevelopmentHell.Hubba.Cryptography.Service;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using System.Configuration;
-using System.Security.Principal;
 using DevelopmentHell.Hubba.AccountRecovery.Service.Implementations;
 using DevelopmentHell.Hubba.AccountRecovery.Manager.Implementations;
 using DevelopmentHell.Hubba.Registration.Manager.Implementations;
@@ -58,7 +56,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
                 catch (Exception)
                 {
                     // Handle token validation errors
-                    Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "DefaultUser") }));
+                    Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim("role", "DefaultUser") }));
                     return;
                 }
             }

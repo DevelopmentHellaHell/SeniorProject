@@ -12,12 +12,8 @@ using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
 using HubbaConfig = System.Configuration;
 using DevelopmentHell.Hubba.AccountRecovery.Manager.Abstractions;
 using DevelopmentHell.Hubba.AccountRecovery.Manager.Implementations;
@@ -32,12 +28,22 @@ using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
+using DevelopmentHell.Hubba.Testing.Service.Implementations;
+using DevelopmentHell.Hubba.Testing.Service.Abstractions;
+using Development.Hubba.JWTHandler.Service.Implementations;
+using Development.Hubba.JWTHandler.Service.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.Services.AddSingleton<TestsDataAccess>();
+builder.Services.AddSingleton<ITestingService, TestingService>(s =>
+{
+	return new TestingService(
+		HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!,
+		new TestsDataAccess()
+	);
+});
 
 // Transient new instance for every controller and service
 // Scoped is same object from same request but different for other requests??
@@ -69,6 +75,10 @@ builder.Services.AddScoped<IValidationService, ValidationService>(s =>
 builder.Services.AddTransient<ICryptographyService, CryptographyService>(s =>
 {
 	return new CryptographyService(HubbaConfig.ConfigurationManager.AppSettings["CryptographyKey"]!);
+});
+builder.Services.AddTransient<IJWTHandlerService, JWTHandlerService>(s =>
+{
+	return new JWTHandlerService(HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!);
 });
 builder.Services.AddTransient<IRegistrationManager, RegistrationManager>(s => 
 	new RegistrationManager(
@@ -103,17 +113,17 @@ builder.Services.AddTransient<IOTPService, OTPService>(s =>
 });
 builder.Services.AddTransient<IAuthorizationService, AuthorizationService>(s =>
 	new AuthorizationService(
-		HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!,
         new UserAccountDataAccess(
                 HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
                 HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
         ),
+		s.GetService<IJWTHandlerService>()!,
 		s.GetService<ILoggerService>()!
 	)
 );
 builder.Services.AddTransient<IAuthenticationService, AuthenticationService>(s =>
     new AuthenticationService(
-        new UserAccountDataAccess(
+		new UserAccountDataAccess(
             HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
             HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
         ),
@@ -122,7 +132,8 @@ builder.Services.AddTransient<IAuthenticationService, AuthenticationService>(s =
             HubbaConfig.ConfigurationManager.AppSettings["UserLoginsTable"]!
         ),
         s.GetService<ICryptographyService>()!,
-        s.GetService<IValidationService>()!,
+		s.GetService<IJWTHandlerService>()!,
+		s.GetService<IValidationService>()!,
         s.GetService<ILoggerService>()!
     )
 );
@@ -174,61 +185,47 @@ builder.Services.AddTransient<IAccountDeletionManager, AccountDeletionManager>(s
     )
 );
 
-//Found on google, source lost
-builder.Services.AddAuthentication(x =>
-{
-    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(x =>
-{
-    x.RequireHttpsMetadata = false;
-    x.SaveToken = true;
-    x.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!)),
-        ValidateLifetime = true
-    };
-});
 builder.Services.AddCors();
 
 var app = builder.Build();
 
 app.Use(async (httpContext, next) =>
 {
-	// inbound code
-	var jwtToken = httpContext.Request.Cookies["access_token"];
-
-	if (jwtToken is not null)
+	// inbound request
+	var accessToken = httpContext.Request.Cookies["access_token"];
+	var idToken = httpContext.Request.Cookies["id_token"];
+	var key = HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!;
+	var jwtHandlerService = new JWTHandlerService(key);
+	if (accessToken is not null)
     {
-		// Parse the JWT token and extract the principal
-		var tokenHandler = new JwtSecurityTokenHandler();
-		var key = Encoding.ASCII.GetBytes(HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!);
-		var validationParameters = new TokenValidationParameters
+		if (jwtHandlerService.ValidateJwt(accessToken))
 		{
-			ValidateIssuer = false,
-			ValidateAudience = false,
-			ValidateLifetime = true,
-			IssuerSigningKey = new SymmetricSecurityKey(key)
-		};
-
-		try
-		{
-			SecurityToken validatedToken;
-			var principal = tokenHandler.ValidateToken(jwtToken, validationParameters, out validatedToken);
-
+			var principal = jwtHandlerService.GetPrincipal(accessToken);
 			Thread.CurrentPrincipal = principal;
-		}
-		catch (Exception)
+		} 
+		else
 		{
-			// Handle token validation errors
+			var token = jwtHandlerService.GenerateInvalidToken();
+			httpContext.Response.Cookies.Append("access_token", token, new CookieOptions { SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None, Secure = true });
+			httpContext.Response.Cookies.Append("id_token", token, new CookieOptions { SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None, Secure = true });
+			Thread.CurrentPrincipal = null;
+		}
+	}
+
+	if (idToken is not null && accessToken is not null && Thread.CurrentPrincipal is not null)
+	{
+		if (!jwtHandlerService.ValidateJwt(idToken))
+		{
+			var token = jwtHandlerService.GenerateInvalidToken();
+			httpContext.Response.Cookies.Append("access_token", token, new CookieOptions { SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None, Secure = true });
+			httpContext.Response.Cookies.Append("id_token", token, new CookieOptions { SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None, Secure = true });
 			Thread.CurrentPrincipal = null;
 		}
 	}
 
 	if (Thread.CurrentPrincipal is null)
 	{
-		Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "DefaultUser") }));
+		Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim("role", "DefaultUser") }));
 	}
 
     // Go to next middleware

@@ -311,7 +311,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 new List<string>() { "COUNT(*) as AdminCount" },
                 new List<Comparator>()
                 {
-                    new Comparator("AdminUser","=", "1"),
+                    new Comparator("Role","=", "AdminUser"),
                 }
             ).ConfigureAwait(false);
             if (!selectResult.IsSuccessful || selectResult.Payload is null)

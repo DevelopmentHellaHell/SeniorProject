@@ -1,4 +1,5 @@
-﻿using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
+﻿using Development.Hubba.JWTHandler.Service.Abstractions;
+using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
 using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
@@ -70,13 +71,13 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
             string userHash = Convert.ToBase64String(userHashResult.Payload.Hash!);
             _loggerService.Log(LogLevel.INFO, Category.BUSINESS, $"Successful login attempt from: {email}.", userHash);
 
-			return await _authorizationService.GenerateToken(accountId, true).ConfigureAwait(false);
+			return await _authorizationService.GenerateAccessToken(accountId, true).ConfigureAwait(false);
         }
 
-        public async Task<Result<string>> AuthenticateOTP(string otp, string ipAddress)
+        public async Task<Result<Tuple<string, string>>> AuthenticateOTP(string otp, string ipAddress)
         {
 
-            Result<string> result = new();
+            Result<Tuple<string, string>> result = new();
 
             if (_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
             {
@@ -86,7 +87,7 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
             }
 
 			var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
-			var stringAccountId = claimsPrincipal?.FindFirstValue("accountId");
+			var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
 			if (stringAccountId is null)
 			{
 				result.IsSuccessful = false;
@@ -110,22 +111,42 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
                 // do nothing
             }
 
-            return await _authorizationService.GenerateToken(accountId).ConfigureAwait(false);
-        }
-
-        public Result Logout()
-        {
-			Result result = new Result();
-
-			var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
-            var email = principal.FindFirstValue(ClaimTypes.Email);
-            if (email is null)
+			Result<string> authorizationTokenResult = await _authorizationService.GenerateAccessToken(accountId).ConfigureAwait(false);
+            string? accessToken = authorizationTokenResult.Payload;
+            if (!authorizationTokenResult.IsSuccessful || accessToken is null)
             {
                 result.IsSuccessful = false;
-                result.ErrorMessage = "Error, unexpected error. Please context system administrator.";
-                return result;
+                result.ErrorMessage = "Error during the authentication process.";
+				return result;
             }
-           
+
+			Result<string> authenticationTokenResult = _authenticationService.GenerateIdToken(accountId, accessToken);
+			string? idToken = authenticationTokenResult.Payload;
+			if (!authenticationTokenResult.IsSuccessful || idToken is null)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Error during the authentication process.";
+				return result;
+			}
+
+			result.IsSuccessful = true;
+            result.Payload = new Tuple<string, string>(accessToken, idToken);
+            return result;
+        }
+
+        public Result<string> Logout()
+        {
+			Result<string> result = new Result<string>();
+
+			var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
+			var email = principal.FindFirstValue("azp");
+			if (email is null)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = "Error, unexpected error. Please context system administrator.";
+				return result;
+			}
+
 
 			string userHashKey = ConfigurationManager.AppSettings["UserHashKey"]!;
 			Result<HashData> userHashResult = _cryptographyService.HashString(email, userHashKey);
@@ -139,8 +160,7 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
 			string userHash = Convert.ToBase64String(userHashResult.Payload.Hash!);
 			_loggerService.Log(LogLevel.INFO, Category.BUSINESS, $"Successful logout attempt from: {email}.", userHash);
 
-            result.IsSuccessful = true;
-            return result;
+			return _authenticationService.Logout();
 		}
     }
 }
