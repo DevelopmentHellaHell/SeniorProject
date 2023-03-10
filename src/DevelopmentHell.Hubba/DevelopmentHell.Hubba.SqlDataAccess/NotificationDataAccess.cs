@@ -1,7 +1,7 @@
 ﻿using Azure.Core;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
-using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
+using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 using System.ComponentModel.DataAnnotations;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess

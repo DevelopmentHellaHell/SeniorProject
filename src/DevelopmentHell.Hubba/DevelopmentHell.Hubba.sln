@@ -15,6 +15,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DS_schemas", "DS_schemas", "{F75CB884-6301-43D0-879C-B1C11673CB60}"
 	ProjectSection(SolutionItems) = preProject
 		DevelopmentHell.Hubba.Logging.sql = DevelopmentHell.Hubba.Logging.sql
+		DevelopmentHell.Hubba.Notifications.sql = DevelopmentHell.Hubba.Notifications.sql
 		DevelopmentHell.Hubba.Users.sql = DevelopmentHell.Hubba.Users.sql
 		README.txt = README.txt
 	EndProjectSection
@@ -107,8 +108,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Notif
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.CellPhoneProvider.Service", "DevelopmentHell.Hubba.CellPhoneProvider.Service\DevelopmentHell.Hubba.CellPhoneProvider.Service.csproj", "{1E39B711-9734-4B29-85A2-40FBBB406193}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.Notification.Test", "DevelopmentHell.Hubba.Notification.Test\DevelopmentHell.Hubba.Notification.Test.csproj", "{664642A4-23BF-408E-8149-691498F84896}"
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.Testing.Service", "DevelopmentHell.Hubba.Testing.Service\DevelopmentHell.Hubba.Testing.Service.csproj", "{0A32B338-85FF-4E01-9EA0-6B8C62CC6C57}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Notification.Test", "DevelopmentHell.Hubba.Notification.Test\DevelopmentHell.Hubba.Notification.Test.csproj", "{664642A4-23BF-408E-8149-691498F84896}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Testing.Service", "DevelopmentHell.Hubba.Testing.Service\DevelopmentHell.Hubba.Testing.Service.csproj", "{0A32B338-85FF-4E01-9EA0-6B8C62CC6C57}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
