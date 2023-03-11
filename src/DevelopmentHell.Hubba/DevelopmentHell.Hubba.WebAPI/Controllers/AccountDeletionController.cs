@@ -33,12 +33,15 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 return BadRequest("Invalid request.");
             }
 
-            var result = await _accountDeletionManager.DeleteAccount(accountDeletionDTO.AccountId);
-            if (!result.IsSuccessful)
+            var result = await _accountDeletionManager.DeleteAccount(accountDeletionDTO.AccountId).ConfigureAwait(false);
+            if (!result.IsSuccessful || result.Payload is null)
             {
                 return BadRequest(result.ErrorMessage);
             }
-            return Ok();
+
+			HttpContext.Response.Cookies.Append("access_token", result.Payload, new CookieOptions { SameSite = SameSiteMode.None, Secure = true });
+			HttpContext.Response.Cookies.Append("id_token", result.Payload, new CookieOptions { SameSite = SameSiteMode.None, Secure = true });
+			return Ok();
         }
     }
 }

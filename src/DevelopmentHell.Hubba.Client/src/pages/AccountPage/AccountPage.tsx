@@ -31,7 +31,7 @@ const SubViews: {
 
 const AccountPage: React.FC<IAccountPageProps> = (props) => {
     const [view, setView] = useState(AccountViews.EDIT_PROFILE);
-    const authData = Auth.isAuthenticated();
+    const authData = Auth.getAccessData();
 
     if (!authData) {
         redirect("/login");

@@ -19,7 +19,7 @@ const OtpCard: React.FC<IOtpCardProps> = (props) => {
         setLoaded(true);
     }
 
-    const authData = Auth.isAuthenticated();
+    const authData = Auth.getAccessData();
     if (!authData) {
         redirect("/login");
         return null;
@@ -27,12 +27,12 @@ const OtpCard: React.FC<IOtpCardProps> = (props) => {
     
     return (
         <div className="otp-card">
-            <h1>Login</h1>
+            <h1>One-Time Passcode Required</h1>
             <p className="info">We sent an One-Time Passcode to your registered email. Please enter it below.</p>
             <div>
                 <div className="input-field">
                     <label>OTP</label>
-                    <input type="text" maxLength={8} placeholder="Your OTP" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    <input id='otp' type="text" maxLength={8} placeholder="Your OTP" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                         setOtp(event.target.value);
                     }}/>
                 </div>

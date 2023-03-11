@@ -7,13 +7,13 @@ namespace DevelopmentHell.Hubba.Cryptography.Service.Implementations
 {
     public class CryptographyService : ICryptographyService
     {
-        private byte[] _cryptographyKey;
+        private string _cryptographyKey;
         private readonly string _saltValidChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         private static Aes _alg = Aes.Create(); // Must be the same across all services
 
         public CryptographyService(string cryptographyKey)
         {
-            _cryptographyKey = Encoding.ASCII.GetBytes(cryptographyKey);
+            _cryptographyKey = cryptographyKey;
         }
 
         public byte[] Encrypt(string plainText)
@@ -21,7 +21,7 @@ namespace DevelopmentHell.Hubba.Cryptography.Service.Implementations
 
             byte[] encrypted;
 
-            _alg.Key = _cryptographyKey;
+            _alg.Key = Encoding.ASCII.GetBytes(_cryptographyKey);
             _alg.Padding = PaddingMode.Zeros;
             ICryptoTransform encryptor = _alg.CreateEncryptor();
 
@@ -46,7 +46,7 @@ namespace DevelopmentHell.Hubba.Cryptography.Service.Implementations
         {
             byte[] encrypted;
 
-            _alg.Key = _cryptographyKey;
+            _alg.Key = Encoding.ASCII.GetBytes(_cryptographyKey);
             _alg.Padding = PaddingMode.Zeros;
             ICryptoTransform encryptor = _alg.CreateEncryptor();
 
@@ -69,7 +69,7 @@ namespace DevelopmentHell.Hubba.Cryptography.Service.Implementations
         {
             string output;
 
-            _alg.Key = _cryptographyKey;
+            _alg.Key = Encoding.ASCII.GetBytes(_cryptographyKey);
             _alg.Padding = PaddingMode.Zeros;
             ICryptoTransform decryptor = _alg.CreateDecryptor();
 
@@ -92,7 +92,7 @@ namespace DevelopmentHell.Hubba.Cryptography.Service.Implementations
         {
             byte[] output;
 
-            _alg.Key = _cryptographyKey;
+            _alg.Key = Encoding.ASCII.GetBytes(_cryptographyKey);
             _alg.Padding = PaddingMode.Zeros;
             ICryptoTransform decryptor = _alg.CreateDecryptor();
 
@@ -133,7 +133,13 @@ namespace DevelopmentHell.Hubba.Cryptography.Service.Implementations
             return result;
         }
 
-        public string GetSaltValidChars()
+		public Result<HashData> HashString(string text)
+		{
+
+            return HashString(text, _cryptographyKey);
+		}
+
+		public string GetSaltValidChars()
         {
             return _saltValidChars;
         }

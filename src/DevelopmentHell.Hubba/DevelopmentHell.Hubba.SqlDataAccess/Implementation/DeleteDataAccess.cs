@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 {
-	internal class DeleteDataAccess
+	public class DeleteDataAccess
 	{
 		private string _connectionPath;
 		public DeleteDataAccess(string connectionString)
