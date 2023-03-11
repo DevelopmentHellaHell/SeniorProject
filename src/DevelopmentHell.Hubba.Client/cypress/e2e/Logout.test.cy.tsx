@@ -4,11 +4,15 @@ import { Ajax } from "../../src/Ajax";
 import { Database } from "./TestModels/Database";
 
 /**
- * 
+ * Test logout functionality
+ * User register, login, logout
+ * Logout operation completes under 5s
+ * Delete test data from database after testing
  */
 describe('logout successfully by User NavBar', () => {
     let testsRoute: string = '/tests/deleteDatabaseRecords';
     beforeEach(() => {
+        //using Custome Commands
         cy.registerViaApi(Cypress.env('realEmail'), Cypress.env('standardPassword'));
         cy.loginViaUI(Cypress.env('realEmail'), Cypress.env('standardPassword'));
         cy.visit('/');

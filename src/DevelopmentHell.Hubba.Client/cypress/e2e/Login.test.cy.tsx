@@ -55,6 +55,7 @@ describe('check working links', () => {
  * Login successfully with a valid email and password
  * OTP card is enabled, user enter OTP to complete login
  * After clicking Submit button, system responses under 5s
+ * Delete test data in database after testing
  */
 describe('login successful case', () => {
     let baseUrl: string = Cypress.env('baseUrl')+"/";
@@ -76,21 +77,7 @@ describe('login successful case', () => {
     })
 
     it('-with valid email, password, OTP under 5s', () => {
-        cy.get('#redirect-registration').click();
-        cy.url().should('eq', registrationUrl);
-        cy.get('#email')
-            .type(realEmail)
-            .should('have.value', realEmail);
-        cy.get('#password')
-            .type(standardPassword)
-            .should('have.value', standardPassword);
-        cy.get('#confirm-password')
-            .type(standardPassword)
-            .should('have.value', standardPassword);
-        cy.contains('Submit').click()
-            .then(()=>{
-                cy.url().should('eq', loginUrl)
-            });
+        cy.registerViaApi(Cypress.env('realEmail'), Cypress.env('standardPassword'));
 
         cy.get('#email').as('email').type(realEmail);
         cy.get('@email').should('have.value', realEmail);
@@ -112,8 +99,11 @@ describe('login successful case', () => {
                             .type(otp)
                             .should('have.value', otp);
                     });
+                const startTimer = Date.now();
                 cy.contains('Submit').click()
                     .then(()=>{
+                        const endTimer = Date.now() - startTimer;
+                        expect(endTimer).lessThan(5000);
                         cy.url().should('eq', baseUrl);
                         cy.get('.nav-user').should('exist').and('be.visible');
                         cy.contains('Sign Up').should('not.exist');

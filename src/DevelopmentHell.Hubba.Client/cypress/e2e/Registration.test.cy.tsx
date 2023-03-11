@@ -39,9 +39,6 @@ describe('check working links', () => {
   let baseUrl = Cypress.env('baseUrl') + "/";
   let loginUrl = Cypress.env('baseUrl') + "/login";
   let registrationUrl = Cypress.env("baseUrl") + "/registration";
-  // let realEmail = Cypress.env("realEmail");
-  // let standardEmail = Cypress.env("standardEmail");
-  // let standardPassword = Cypress.env("standardPassword");
 
   beforeEach(() => {
     cy.visit('/registration');
@@ -108,6 +105,7 @@ describe('registration successful case', () => {
  * Register failed
  * test: validate input syntax before sending to the API
  * test: email existed
+ * Delete test data from database after done testing
  */
 describe('registration failed cases', () => {
   let baseUrl = Cypress.env('baseUrl') + "/";
@@ -121,10 +119,8 @@ describe('registration failed cases', () => {
   beforeEach(() => {
     cy.visit(registrationUrl);
   })
-
-  /**
-   * Delete test cases from database after the test
-   */
+  
+  //Delete test cases from database after the test
   after(async () => {
     await Ajax.post(testsRoute, { database: Database.Databases.USERS });
   });
