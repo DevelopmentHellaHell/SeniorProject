@@ -1,5 +1,4 @@
 /// <reference types="cypress" />
-import { describe } from "mocha";
 import { Ajax } from "../../src/Ajax";
 import { Database } from "./TestModels/Database";
 
@@ -58,12 +57,12 @@ describe('check working links', () => {
  * After clicking Submit button, system responses under 5s
  */
 describe('login successful case', () => {
-    let baseUrl = Cypress.env('baseUrl')+"/";
-    let loginUrl = Cypress.env('baseUrl')+"/login";
-    let registrationUrl = Cypress.env("baseUrl")+"/registration";
-    let realEmail = Cypress.env("realEmail");
-    // let standardEmail = Cypress.env("standardEmail");
-    let standardPassword = Cypress.env("standardPassword");
+    let baseUrl: string = Cypress.env('baseUrl')+"/";
+    let loginUrl: string = Cypress.env('baseUrl')+"/login";
+    let registrationUrl: string = Cypress.env("baseUrl")+"/registration";
+    let realEmail: string = Cypress.env("realEmail");
+    // let standardEmail: string = Cypress.env("standardEmail");
+    let standardPassword: string = Cypress.env("standardPassword");
     let testsRoute: string = '/tests/deleteDatabaseRecords';
 
     beforeEach(() => {
@@ -104,7 +103,7 @@ describe('login successful case', () => {
 
                 cy.request('GET', Cypress.env('serverUrl')+"/tests/getotp")
                     .then((response) => {
-                        cy.wrap(response.body).as('returnedOtp')
+                        cy.wrap(response.body).as('returnedOtp');
                     });
                 
                 cy.get('@returnedOtp')
@@ -116,7 +115,9 @@ describe('login successful case', () => {
                 cy.contains('Submit').click()
                     .then(()=>{
                         cy.url().should('eq', baseUrl);
-                        cy.get('.nav-user').should('exist').and('be.visible')
+                        cy.get('.nav-user').should('exist').and('be.visible');
+                        cy.contains('Sign Up').should('not.exist');
+                        cy.contains('Login').should('not.exist');
                     });
             })
     })
@@ -127,13 +128,13 @@ describe('login successful case', () => {
  * input syntax error
  * OTP expired
  */
-describe('login failed cases', () => {
-    let baseUrl = Cypress.env('baseUrl')+"/";
-    let loginUrl = Cypress.env('baseUrl')+"/login";
-    let registrationUrl = Cypress.env("baseUrl")+"/registration";
-    // let realEmail = Cypress.env("realEmail");
+describe('login failed cases - syntax error', () => {
+    // let baseUrl: string = Cypress.env('baseUrl')+"/";
+    // let loginUrl: string = Cypress.env('baseUrl')+"/login";
+    // let registrationUrl: string = Cypress.env("baseUrl")+"/registration";
+    // let realEmail: string = Cypress.env("realEmail");
     let standardEmail = Cypress.env("standardEmail");
-    let standardPassword = Cypress.env("standardPassword");
+    let standardPassword: string = Cypress.env("standardPassword");
     
     beforeEach(() => {
         cy.visit('/login');
@@ -179,14 +180,58 @@ describe('login failed cases', () => {
             });
     })
 
-    // it.only('login pass, OTP empty', () => {
-    //     cy.registerViaApi(
-    //         Cypress.env('realEmail'),
-    //         Cypress.env('standardPassword'))
-    //     cy.loginViaApi(
-    //         Cypress.env('realEmail'),
-    //         Cypress.env('standardPassword'))
-    //     // cy.get('#otp').should('exist').and('be.visible')
+    // it('login pass, OTP empty', () => {
+    //     cy.loginViaApi(Cypress.env('realEmail'),Cypress.env('standardPassword'));
+    //     cy.reload()
+    //         .then(() => {
+    //             cy.get("#otp").should("exist").and("be.visible");
+    //             cy.contains('Submit').click()
+    //                 .then(() => {
+    //                     cy.get(".otp-card .error").should("exist").and("be.visible");
+    //                 });
+    //         });
         
     // })
 })
+
+// describe('login failed case - valid email, password, empty/invalid/expired OTP', () => {
+//     let testsRoute: string = '/tests/deleteDatabaseRecords';
+
+//     beforeEach(() => {
+//         cy.loginViaApi(Cypress.env("realEmail"), Cypress.env("standardPassword"));
+//     });
+//     // after(async () => {
+//     //     await Ajax.post(testsRoute, { database: Database.Databases.USERS });
+//     // })
+//     it('empty/invalid OTP', () => {
+//         cy.get('#otp').should('exist').and('be.visible');
+//         //empty OTP
+//         cy.contains('Submit').click()
+//             .then(()=>{
+//                 cy.get('.otp-card .error').should('exist').and('be.visible');
+//             });
+//         //invalid OTP
+//         cy.get('#otp').type('123').should('have.value', '123');
+//         cy.contains('Submit').click()
+//             .then(()=>{
+//                 cy.get('.otp-card .error').should('exist').and('be.visible');
+//             });
+//         cy.get('#otp').clear();
+
+//         //expired OTP
+//         cy.wait(180000);
+//         cy.request('GET', Cypress.env('serverUrl')+'tests/getotp')
+//             .then((response) => {
+//                 cy.wrap(response.body).as('returnedOtp');
+//                 cy.get('@returnedOtp')
+//                     .then((otp)=>{
+//                         cy.get('#otp').type(otp).should('have.value', otp);
+//                         cy.contains('Submit').click()
+//                             .then(()=>{
+//                                 cy.get('.otp-card .error').should('exist').and('be.visible');
+//                             });
+//                     })
+//             });
+        
+//     });
+// });

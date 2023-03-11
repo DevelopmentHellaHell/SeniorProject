@@ -4,10 +4,7 @@ declare global {
     namespace Cypress {
         interface Chainable {
             registerViaApi(emai: string, password: string): Chainable<void>
-            loginViaApi(email: string, password: string): Chainable<void>
-            //   drag(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
-            //   dismiss(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
-            //   visit(originalFn: CommandOriginalFn, url: string, options: Partial<VisitOptions>): Chainable<Element>
+            loginViaUI(email: string, password: string): Chainable<void>
         }
     }
 }
@@ -25,46 +22,36 @@ declare global {
 //
 // -- This is a parent command --
 
-Cypress.Commands.add('registerViaApi', (
-    _email: string,
-    _password: string) => {
-    cy.request('POST', Cypress.env('registerApiUrl'), {
-        email: _email,
-        password: _password,
-    }).its('status').should('eq', 200)
+Cypress.Commands.add('registerViaApi', (email: string, password: string) => {
+    cy.request('POST', Cypress.env('serverUrl')+"/registration/register", {email,password})
+        .its('status').should('eq', 200);
 })
 
-Cypress.Commands.add('loginViaApi', (_email, _password) => {
-    cy.session([_email, _password], () => {
-        cy.request('POST', Cypress.env('loginApiUrl'), {
-            email: _email,
-            password: _password
-        }).its('status').should('eq', 200)
+Cypress.Commands.add('loginViaUI', (email:string, password:string) => {
+    cy.session([email, password], () => {
+        cy.visit('/login');
+        cy.get('#email').type(Cypress.env('realEmail')).should('have.value', Cypress.env('realEmail'));
+        cy.get('#password').type(Cypress.env('standardPassword')).should('have.value', Cypress.env('standardPassword'));
+        cy.contains('Submit').click()
+            .then(() => {
+                cy.get('.otp-card')
+                    .should('exist').and('be.visible');
+                    cy.request('GET', Cypress.env('serverUrl')+"/tests/getotp")
+                    .then((response) => {
+                        cy.wrap(response.body).as('returnedOtp');
+                    });
+                
+                cy.get('@returnedOtp')
+                    .then((otp) => {
+                        cy.get('#otp')
+                            .type(otp)
+                            .should('have.value', otp);
+                    });
+                cy.contains('Submit').click()
+                    .then(()=>{
+                        cy.url().should('eq', Cypress.env('baseUrl')+'/');
+                        cy.get('.nav-user').should('exist').and('be.visible')
+                    });
+            });
     })
-    cy.request('GET', Cypress.env('getOtpApiUrl'))
-        .then((response) => {
-            cy.wrap(response.body).as('returnedOtp')
-        })
-
-    cy.get('@returnedOtp')
-        .then((otp) => {
-            cy.get('#otp').as('otp')
-            cy.request('POST', 'authentication/otp', '@otp')
-                .its('status').should('eq',200)
-        })
-    cy.visit(Cypress.env('baseUrl'))
 })
-//
-//
-// -- This is a child command --
-// Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })
-//
-//
-// -- This is a dual command --
-// Cypress.Commands.add('dismiss', { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
-//
-
