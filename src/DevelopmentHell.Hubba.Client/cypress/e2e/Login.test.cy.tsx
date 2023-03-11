@@ -77,6 +77,7 @@ describe('login successful case', () => {
     })
 
     it('-with valid email, password, OTP under 5s', () => {
+        //use custom commands
         cy.registerViaApi(Cypress.env('realEmail'), Cypress.env('standardPassword'));
 
         cy.get('#email').as('email').type(realEmail);
@@ -119,10 +120,6 @@ describe('login successful case', () => {
  * OTP expired
  */
 describe('login failed cases - syntax error', () => {
-    // let baseUrl: string = Cypress.env('baseUrl')+"/";
-    // let loginUrl: string = Cypress.env('baseUrl')+"/login";
-    // let registrationUrl: string = Cypress.env("baseUrl")+"/registration";
-    // let realEmail: string = Cypress.env("realEmail");
     let standardEmail = Cypress.env("standardEmail");
     let standardPassword: string = Cypress.env("standardPassword");
     

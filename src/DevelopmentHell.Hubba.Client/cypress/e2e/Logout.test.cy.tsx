@@ -33,6 +33,6 @@ describe('logout successfully by User NavBar', () => {
         expect(endTimer).lessThan(5000);
         cy.get('.nav-user').should('not.exist');
         cy.get('#account').should('not.exist');
-        cy.url().should('eq', Cypress.env('baseUrl'))
+        cy.url().should('eq', Cypress.env('baseUrl')+'/')
     });
 });
