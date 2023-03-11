@@ -12,7 +12,7 @@ import { Database } from "./TestModels/Database";
 describe('logout successfully by User NavBar', () => {
     let testsRoute: string = '/tests/deleteDatabaseRecords';
     beforeEach(() => {
-        //using Custome Commands
+        //using Custom Commands
         cy.registerViaApi(Cypress.env('realEmail'), Cypress.env('standardPassword'));
         cy.loginViaUI(Cypress.env('realEmail'), Cypress.env('standardPassword'));
         cy.visit('/');
