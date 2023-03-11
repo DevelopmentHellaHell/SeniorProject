@@ -42,11 +42,13 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations
             {
                 //TODO: GOLD PLATING notify other users affiliated with this account
                 // Result<List<Dictionary<string, object>>> listingsBookingsResult = await _accountDeletionService.GetListingsBookings(accountId).ConfigureAwait(false);
-                
-                if (_authorizationService.Authorize(new string[] { "VerifiedUser" }).IsSuccessful)
+                bool isAdmin = _authorizationService.Authorize(new string[] { "AdminUser" }).IsSuccessful;
+
+
+                if (_authorizationService.Authorize(new string[] { "VerifiedUser" }).IsSuccessful || isAdmin )
                 {
                     // this is a verified user who is deleting someone else's account
-                    if (thisAccountIDInt != accountId)
+                    if (thisAccountIDInt != accountId && !isAdmin)
                     {
                         result.IsSuccessful = false;
                         result.ErrorMessage = "Error, cannot delete selected user";

@@ -30,7 +30,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                         { Tables.RECOVERY_REQUESTS, ConfigurationManager.AppSettings["RecoveryRequestsTable"]! },
                         { Tables.USER_ACCOUNTS, ConfigurationManager.AppSettings["UserAccountsTable"]! },
                         { Tables.USER_LOGINS, ConfigurationManager.AppSettings["UserLoginsTable"]! },
-                        { Tables.USER_OTPS, ConfigurationManager.AppSettings["UserOTPsTable"]! }
+                        { Tables.USER_OTPS, ConfigurationManager.AppSettings["UserOTPsTable"]! },
                     }
                 )
             },

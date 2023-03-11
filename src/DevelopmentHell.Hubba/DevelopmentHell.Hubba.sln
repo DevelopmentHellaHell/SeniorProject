@@ -95,13 +95,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Accou
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.AccountRecovery.Test", "DevelopmentHell.Hubba.AccountRecovery.Test\DevelopmentHell.Hubba.AccountRecovery.Test.csproj", "{27DD639C-883B-441A-8967-D080EE2239AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.UserManagement.Service", "DevelopmentHell.Hubba.UserManagement.Service\DevelopmentHell.Hubba.UserManagement.Service.csproj", "{8034CE92-1DAB-4E01-86CA-880CFD9CDC74}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.UserManagement.Service", "DevelopmentHell.Hubba.UserManagement.Service\DevelopmentHell.Hubba.UserManagement.Service.csproj", "{8034CE92-1DAB-4E01-86CA-880CFD9CDC74}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.UserManagement.Manager", "DevelopmentHell.Hubba.UserManagement.Manager\DevelopmentHell.Hubba.UserManagement.Manager.csproj", "{FB0348E0-C3DD-4F21-9BA4-2155E18B1751}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.UserManagement.Manager", "DevelopmentHell.Hubba.UserManagement.Manager\DevelopmentHell.Hubba.UserManagement.Manager.csproj", "{FB0348E0-C3DD-4F21-9BA4-2155E18B1751}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Testing.Service", "DevelopmentHell.Hubba.Testing.Service\DevelopmentHell.Hubba.Testing.Service.csproj", "{0A32B338-85FF-4E01-9EA0-6B8C62CC6C57}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Development.Hubba.JWTHandler.Service", "Development.Hubba.JWTHandler.Service\Development.Hubba.JWTHandler.Service.csproj", "{5EE3F4DA-60BD-4AEC-90A8-B2F0C922B7EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Development.Hubba.JWTHandler.Service", "Development.Hubba.JWTHandler.Service\Development.Hubba.JWTHandler.Service.csproj", "{5EE3F4DA-60BD-4AEC-90A8-B2F0C922B7EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.UserManagement.Test", "DevelopmentHell.Hubba.UserManagement.Test\DevelopmentHell.Hubba.UserManagement.Test.csproj", "{6F185C02-D926-4A9F-A08B-70B56FF57FAA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -229,6 +231,10 @@ Global
 		{5EE3F4DA-60BD-4AEC-90A8-B2F0C922B7EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5EE3F4DA-60BD-4AEC-90A8-B2F0C922B7EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5EE3F4DA-60BD-4AEC-90A8-B2F0C922B7EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F185C02-D926-4A9F-A08B-70B56FF57FAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F185C02-D926-4A9F-A08B-70B56FF57FAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F185C02-D926-4A9F-A08B-70B56FF57FAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F185C02-D926-4A9F-A08B-70B56FF57FAA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -267,6 +273,7 @@ Global
 		{FB0348E0-C3DD-4F21-9BA4-2155E18B1751} = {B0CA7BBB-28E5-4E0B-8469-CB306F709D85}
 		{0A32B338-85FF-4E01-9EA0-6B8C62CC6C57} = {33222376-EAA6-4A44-A1D7-B6DB5BE1E13B}
 		{5EE3F4DA-60BD-4AEC-90A8-B2F0C922B7EE} = {33222376-EAA6-4A44-A1D7-B6DB5BE1E13B}
+		{6F185C02-D926-4A9F-A08B-70B56FF57FAA} = {5A528968-95F9-4E5A-98CB-501EE0759FDC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E49330E5-F92F-4990-A904-E75E376A2656}

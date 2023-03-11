@@ -89,7 +89,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             );
         }
 
-        [TestMethod]
+            [TestMethod]
         public async Task DeleteVerifiedUserAccount()
         {
             // Arrange

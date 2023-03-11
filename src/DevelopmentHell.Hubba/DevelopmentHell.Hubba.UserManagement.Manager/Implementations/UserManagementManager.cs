@@ -1,41 +1,53 @@
 ﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.UserManagement.Manager.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
+using DevelopmentHell.Hubba.Logging.Service.Abstractions;
+using DevelopmentHell.Hubba.Registration.Service.Abstractions;
+using DevelopmentHell.Hubba.UserManagement.Service.Abstractions;
 
 namespace DevelopmentHell.Hubba.UserManagement.Manager.Implementations
 {
     public class UserManagementManager : IUserManagementManager
     {
-        public Task<Result> ElevatedCreateAccount(string email, string passphrase, string firstName, string lastName, string accountType)
+        IAuthorizationService _authorizationService;
+        ILoggerService _loggerService;
+        IRegistrationService _registrationService;
+        IUserManagementService _userManagementService;
+
+        public UserManagementManager(IAuthorizationService authorizationService, ILoggerService loggerService, IRegistrationService registrationService, IUserManagementService userManagementService) 
+        { 
+            _authorizationService = authorizationService;
+            _loggerService = loggerService;
+            _registrationService = registrationService;
+            _userManagementService = userManagementService;
+        }
+
+        public async Task<Result> ElevatedCreateAccount(string email, string passphrase, string accountType, string? firstName, string? lastName, string? userName)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Result> ElevatedDeleteAccountNotifyListingsBookings(string email)
+        public async Task<Result> ElevatedDeleteAccount(string email)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Result> ElevatedDisableAccount(string email)
+        public async Task<Result> ElevatedDeleteAccountNotifyListingsBookings(string email)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Result> ElevatedEnableAccount(string email)
+        public async Task<Result> ElevatedDisableAccount(string email)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Result> ElevatedUpdateAccount(string email, string passphrase, string firstName, string lastName, string role)
+        public async Task<Result> ElevatedEnableAccount(string email)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Result> ElevatedUpdateAccount(string email, Dictionary<string, object> data)
+        public async Task<Result> ElevatedUpdateAccount(string email, Dictionary<string, object> data)
         {
             throw new NotImplementedException();
         }

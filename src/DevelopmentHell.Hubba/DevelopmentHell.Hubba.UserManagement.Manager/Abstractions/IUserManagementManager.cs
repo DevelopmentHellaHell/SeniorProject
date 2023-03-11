@@ -4,8 +4,8 @@ namespace DevelopmentHell.Hubba.UserManagement.Manager.Abstractions
 {
     public interface IUserManagementManager
     {
-        Task<Result> ElevatedCreateAccount(string email, string passphrase, string firstName, string lastName, string accountType);
-        Task<Result> ElevatedUpdateAccount(string email, string passphrase, string firstName, string lastName, string role);
+        Task<Result> ElevatedCreateAccount(string email, string passphrase, string accountType, string? firstName, string? lastName, string? userName);
+        Task<Result> ElevatedDeleteAccount(string email);
         Task<Result> ElevatedUpdateAccount(string email, Dictionary<string, object> data);
         Task<Result> ElevatedDeleteAccountNotifyListingsBookings(string email);
         Task<Result> ElevatedEnableAccount(string email);
