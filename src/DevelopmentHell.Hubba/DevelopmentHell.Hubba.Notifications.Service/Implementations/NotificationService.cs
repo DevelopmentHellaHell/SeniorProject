@@ -53,7 +53,7 @@ namespace DevelopmentHell.Hubba.Notification.Service.Implementations
             return await _notificationSettingsDataAccess.UpdateUserNotificationSettings(settings).ConfigureAwait(false);
         }
 
-        public async Task<Result> HideNotifications(int userId)
+        public async Task<Result> HideAllNotifications(int userId)
         {
             return await _notificationDataAccess.HideAllNotifications(userId).ConfigureAwait(false);
         }

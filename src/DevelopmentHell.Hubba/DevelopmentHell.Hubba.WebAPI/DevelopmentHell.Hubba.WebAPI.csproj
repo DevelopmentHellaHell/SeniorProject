@@ -1,10 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="DTO\Notification\GetNotifcationSettingsDTO" />
+    <None Remove="DTO\Notification\NewFile.txt" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\App.config" Link="App.config" />

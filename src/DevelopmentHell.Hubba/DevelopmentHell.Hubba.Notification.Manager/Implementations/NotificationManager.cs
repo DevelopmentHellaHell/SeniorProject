@@ -5,6 +5,7 @@ using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Notification.Manager.Abstractions;
 using DevelopmentHell.Hubba.Notification.Service.Abstractions;
+using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
 {
@@ -26,7 +27,7 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
         }
 
         //Retrieves preferences from user
-        public async Task<Result<NotificationSettings>> GetNotificationSettings(int userId)
+        public async Task<Result<NotificationSettings>> GetNotificationSettings()
         {
             Result<NotificationSettings> result = new Result<NotificationSettings>();
 
@@ -37,7 +38,27 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
                 return result;
             }
 
-            return await _notificationService.SelectUserNotificationSettings(userId).ConfigureAwait(false);
+            var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
+            if (stringAccountId is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error, invalid access token format.";
+                return result;
+            }
+            var accountId = int.Parse(stringAccountId);
+
+            Result<NotificationSettings> getNotificationSettingsResult = await _notificationService.SelectUserNotificationSettings(accountId).ConfigureAwait(false);
+            if (!getNotificationSettingsResult.IsSuccessful || getNotificationSettingsResult.Payload is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Could not fetch notification settings.";
+                return result;
+            }
+
+            result.IsSuccessful = true;
+            result.Payload = getNotificationSettingsResult.Payload;
+            return result;
         }
 
         public async Task<Result> CreateNewNotification(int userId, string message, NotificationType tag, bool supressTextNotification = false)
@@ -61,6 +82,15 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
             }
 
             NotificationSettings notificationSettings = notificationSettingsResult.Payload!;
+            if((!(bool)notificationSettings.TypeProjectShowcase! && tag == NotificationType.PROJECT_SHOWCASE)
+                || (!(bool)notificationSettings.TypeWorkspace! && tag == NotificationType.WORKSPACE)
+                || (!(bool)notificationSettings.TypeScheduling! && tag == NotificationType.SCHEDULING)
+                || (!(bool)notificationSettings.TypeOther! && tag == NotificationType.OTHER))
+            {
+                result.IsSuccessful = true;
+                return result;
+            } 
+
             UserAccount userAccount = userResult.Payload!;
             if ((bool)notificationSettings.EmailNotifications!
                 && userAccount.Email is not null)
@@ -103,21 +133,32 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
             return await _notificationService.AddNotification(userId, message, tag).ConfigureAwait(false);
         }
 
-        public async Task<Result<List<Dictionary<string, object>>>> GetNotifications(int userId)
+        public async Task<Result<List<Dictionary<string, object>>>> GetNotifications()
         {
             Result<List<Dictionary<string, object>>> result = new Result<List<Dictionary<string, object>>>();
+
             if (!_authorizationService.Authorize(new string[] { "AdminUser", "VerifiedUser" }).IsSuccessful)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Unauthorized.";
                 return result;
             }
+
+            var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
+            if (stringAccountId is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error, invalid access token format.";
+                return result;
+            }
+            var userId = int.Parse(stringAccountId);
+
             return await _notificationService.GetNotifications(userId).ConfigureAwait(false);
         }
 
         public async Task<Result> UpdateNotificationSettings(NotificationSettings settings)
         {
-           
             Result result = new Result();
             if (!_authorizationService.Authorize(new string[] { "AdminUser", "VerifiedUser" }).IsSuccessful)
             {
@@ -125,6 +166,17 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
                 result.ErrorMessage = "Unauthorized.";
                 return result;
             }
+
+            var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
+            if (stringAccountId is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error, invalid access token format.";
+                return result;
+            }
+            var accountId = int.Parse(stringAccountId);
+            settings.UserId = accountId;
 
             Result updateNotificationResult = await _notificationService.UpdateNotificationSettings(settings).ConfigureAwait(false);
             if (!updateNotificationResult.IsSuccessful)
@@ -136,10 +188,9 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
 
             string message = "Your Notification Settings have been changed.";
             Result createNotificationResult = await CreateNewNotification(
-                settings.UserId,
+                (int)settings.UserId!,
                 message,
-                NotificationType.OTHER,
-                true
+                NotificationType.OTHER
             ).ConfigureAwait(false);
 
             if (!createNotificationResult.IsSuccessful) {
@@ -152,7 +203,7 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
             return result;
         }
 
-        public async Task<Result> HideNotifications(int userId)
+        public async Task<Result> HideAllNotifications()
         {
             Result result = new Result();
             if (!_authorizationService.Authorize(new string[] { "AdminUser", "VerifiedUser" }).IsSuccessful)
@@ -162,7 +213,17 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
                 return result;
             }
 
-            return await _notificationService.HideNotifications(userId).ConfigureAwait(false);
+            var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
+            if (stringAccountId is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error, invalid access token format.";
+                return result;
+            }
+            var userId = int.Parse(stringAccountId);
+
+            return await _notificationService.HideAllNotifications(userId).ConfigureAwait(false);
         }
 
         public async Task<Result> HideIndividualNotifications(List<int> selectedNotifications)

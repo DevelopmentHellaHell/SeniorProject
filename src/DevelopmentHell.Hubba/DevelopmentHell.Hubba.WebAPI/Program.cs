@@ -34,6 +34,11 @@ using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
 using Development.Hubba.JWTHandler.Service.Abstractions;
+using DevelopmentHell.Hubba.Notification.Manager.Abstractions;
+using DevelopmentHell.Hubba.Notification.Manager.Implementations;
+using DevelopmentHell.Hubba.Notification.Service.Abstractions;
+using DevelopmentHell.Hubba.CellPhoneProvider.Service.Implementations;
+using DevelopmentHell.Hubba.Email.Service.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -82,6 +87,40 @@ builder.Services.AddTransient<IJWTHandlerService, JWTHandlerService>(s =>
 {
 	return new JWTHandlerService(HubbaConfig.ConfigurationManager.AppSettings["JwtKey"]!);
 });
+builder.Services.AddTransient<IEmailService, EmailService>(s =>
+{
+	return new EmailService(
+		HubbaConfig.ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!,
+		HubbaConfig.ConfigurationManager.AppSettings["SENDGRID_API_KEY"]!,
+		HubbaConfig.ConfigurationManager.AppSettings["COMPANY_EMAIL"]!
+	);
+});
+builder.Services.AddTransient<INotificationService, NotificationService>(s =>
+    new NotificationService(
+        new NotificationDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["UserNotificationsTable"]!
+        ),
+        new NotificationSettingsDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["NotificationSettingsTable"]!
+        ),
+        new UserAccountDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
+        ),
+        s.GetService<ILoggerService>()!
+    )
+);
+builder.Services.AddTransient<INotificationManager, NotificationManager>(s =>
+    new NotificationManager(
+        s.GetService<INotificationService>()!,
+		new CellPhoneProviderService(),
+        s.GetService<IEmailService>()!,
+		s.GetService<IAuthorizationService>()!,
+        s.GetService<ILoggerService>()!
+    )
+);
 builder.Services.AddTransient<IRegistrationManager, RegistrationManager>(s => 
 	new RegistrationManager(
 		new RegistrationService(
@@ -95,23 +134,8 @@ builder.Services.AddTransient<IRegistrationManager, RegistrationManager>(s =>
 		),
         s.GetService<IAuthorizationService>()!,
         s.GetService<ICryptographyService>()!,
-		new NotificationService(
-			new NotificationDataAccess(
-				HubbaConfig.ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
-				HubbaConfig.ConfigurationManager.AppSettings["UserNotificationsTable"]!
-			),
-			new NotificationSettingsDataAccess(
-				HubbaConfig.ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
-				HubbaConfig.ConfigurationManager.AppSettings["NotificationSettingsTable"]!
-			),
-			new UserAccountDataAccess(
-				HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-				HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
-			),
-            s.GetService<ILoggerService>()!
-        ),
+		s.GetService<INotificationService>()!,
         s.GetService<ILoggerService>()!
-
 	)
 );
 builder.Services.AddTransient<IOTPService, OTPService>(s =>
@@ -121,12 +145,8 @@ builder.Services.AddTransient<IOTPService, OTPService>(s =>
 			HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
 			HubbaConfig.ConfigurationManager.AppSettings["UserOTPsTable"]!
 		),
-		new EmailService(
-			HubbaConfig.ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!,
-			HubbaConfig.ConfigurationManager.AppSettings["SENDGRID_API_KEY"]!,
-			HubbaConfig.ConfigurationManager.AppSettings["COMPANY_EMAIL"]!
-		),
-		s.GetService<ICryptographyService>()!
+        s.GetService<IEmailService>()!,
+        s.GetService<ICryptographyService>()!
 	);
 });
 builder.Services.AddTransient<IAuthorizationService, AuthorizationService>(s =>
