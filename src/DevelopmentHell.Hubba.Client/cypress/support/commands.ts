@@ -8,28 +8,10 @@ declare global {
         }
     }
 }
-<<<<<<< Updated upstream
-// ***********************************************
-// This example commands.ts shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-//
-
-//
-
-// -- This is a parent command --
-
-=======
 /**
  * Register new account by direct AJAX HTTP POST to API
  * @param: email, password
  */
->>>>>>> Stashed changes
 Cypress.Commands.add('registerViaApi', (email: string, password: string) => {
     cy.request('POST', Cypress.env('serverUrl') + "/registration/register", { email, password })
         .its('status').should('eq', 200);
