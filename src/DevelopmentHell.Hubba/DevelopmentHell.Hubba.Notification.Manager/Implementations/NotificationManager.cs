@@ -61,7 +61,7 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
             return result;
         }
 
-        public async Task<Result> CreateNewNotification(int userId, string message, NotificationType tag, bool supressTextNotification = false)
+        public async Task<Result> CreateNewNotification(int userId, string message, NotificationType tag, bool supressTextNotification = false) //cahnge supress to force email for account changes
         {
             Result result = new Result();
 
@@ -248,7 +248,72 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
         {
             return await _notificationService.DeleteAllNotifications(userId).ConfigureAwait(false);
         }
-    }
- 
 
+        public async Task<Result<UserAccount>> GetPhoneDetails()
+        {
+            Result<UserAccount> result = new Result<UserAccount>();
+
+            if (!_authorizationService.Authorize(new string[] { "AdminUser", "VerifiedUser" }).IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Unauthorized.";
+                return result;
+            }
+
+            var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
+            if (stringAccountId is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error, invalid access token format.";
+                return result;
+            }
+            var userId = int.Parse(stringAccountId);
+
+            Result<UserAccount> getUserResult = await _notificationService.GetUser(userId).ConfigureAwait(false);
+            if (!getUserResult.IsSuccessful || getUserResult.Payload is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error fetching user.";
+                return result;
+            }
+
+            result.IsSuccessful = true;
+            result.Payload = new UserAccount()
+            {
+                CellPhoneNumber = getUserResult.Payload.CellPhoneNumber,
+                CellPhoneProvider = getUserResult.Payload.CellPhoneProvider
+            };
+            return result;
+        }
+
+        public async Task<Result> UpdatePhoneDetails(string? cellPhoneNumber, CellPhoneProviders? cellPhoneProvider)
+        {
+            Result result = new Result();
+
+            if (!_authorizationService.Authorize(new string[] { "AdminUser", "VerifiedUser" }).IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Unauthorized.";
+                return result;
+            }
+
+            var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
+            if (stringAccountId is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error, invalid access token format.";
+                return result;
+            }
+            var userId = int.Parse(stringAccountId);
+
+            return await _notificationService.UpdateUser(new UserAccount()
+            {
+                Id = userId,
+                CellPhoneNumber= cellPhoneNumber,
+                CellPhoneProvider = cellPhoneProvider
+            }).ConfigureAwait(false);
+        }
+    }
 }

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Ajax } from "../../../Ajax";
 import Button, { ButtonTheme } from "../../../components/Button/Button";
+import Dropdown from "../../../components/Dropdown/Dropdown";
 import "./NotificationSettingsView.css";
 
 interface INotificationSettingsProps {
-    
+
 }
 
 interface INotificationSettingsData {
@@ -15,9 +16,14 @@ interface INotificationSettingsDataConversion {
     [settingKey: string]: string
 }
 
+interface ICellPhoneDetails {
+    cellPhoneNumber?: string,
+    cellPhoneProvider?: number,
+}
+
 const DeliveryMethods: INotificationSettingsDataConversion = {
-    "emailNotifications": "Email",
     "siteNotifications": "Onsite",
+    "emailNotifications": "Email",
     "textNotifications": "SMS"
 };
 
@@ -28,32 +34,96 @@ const NotificationTypes: INotificationSettingsDataConversion = {
     "typeOther": "Other"
 };
 
+const CellPhoneProvider = new Map<number, string>([
+    [0, "Tmobile"],
+    [1, "Verizon"],
+    [2, "AT&T"],
+    [3, "Sprint Mobile"],
+    [4, "Virgin Mobile"]
+])
+
 const SAVE_COOLDOWN_MILLISECONDS = 5000;
 
 const NotificationSettingsView: React.FC<INotificationSettingsProps> = (props) => {
-    const [data, setData] = useState<INotificationSettingsData | null>(null);
+    const [notificationSettingData, setNotificationSettingData] = useState<INotificationSettingsData | null>(null);
+    const [phoneDetailsData, setPhoneDetailsData] = useState<ICellPhoneDetails | null>(null);
+    
     const [error, setError] = useState("");
     const [loaded, setLoaded] = useState(false);
+    
     const [lastSaved, setLastSaved] = useState(Date.now() - SAVE_COOLDOWN_MILLISECONDS);
     const [saveSuccess, setSaveSuccess] = useState(false);
     const [showSaveButton, setShowSaveButton] = useState(false);
 
     useEffect(() => {
-       Ajax.get<INotificationSettingsData>("/notification/getNotificationSettings").then(response => {
-            setData(response.data);
-            setError(response.error);
-            setLoaded(response.loaded);
+        let loadedResponses = true;
+        let errorResponses = "";
+        Ajax.get<INotificationSettingsData>("/notification/getNotificationSettings").then(response => {
+            setNotificationSettingData(response.data);
+            
+            if (response.error) {
+                loadedResponses = false;
+                errorResponses = response.error;
+            }
         });
+        Ajax.get<ICellPhoneDetails>("/notification/getPhoneDetails").then(response => {
+            setPhoneDetailsData(response.data);
+            
+            if (response.error) {
+                loadedResponses = false;
+                errorResponses = response.error;
+            }
+        });
+
+        setError(errorResponses);
+        setLoaded(loadedResponses);
     }, []);
 
     useEffect(() => {
         setSaveSuccess(false);
-    }, [data]);
+    }, [notificationSettingData, phoneDetailsData]);
 
     const getSettings = (settings: INotificationSettingsDataConversion) => {
         return <>
-            {loaded && data && Object.entries(settings).map(([key, value]) => {
-                const settingValue = data[key];
+            {loaded && notificationSettingData && phoneDetailsData && Object.entries(settings).map(([key, value]) => {
+                const settingValue = notificationSettingData[key];
+                
+                const getPhoneDetails = (key: string) => {
+                    if (key !== "textNotifications") {
+                        return (<></>);
+                    }
+
+                    const getItem = (cellPhoneProvider: number) => {
+                        return (
+                            <p key={`${cellPhoneProvider}-provider`} onClick={() => {
+                                setPhoneDetailsData((previous) => {
+                                    if (!previous) return null;
+                                    return {...previous, cellPhoneProvider: cellPhoneProvider}
+                                });
+                                setShowSaveButton(true);
+                            }}>{CellPhoneProvider.get(cellPhoneProvider)}</p>
+                        );
+                    }
+                    
+                    return (
+                        <div className="cellphone-details-fields">
+                            <input className="input-field" type="text" maxLength={11} placeholder="Phone Number" value={phoneDetailsData.cellPhoneNumber ? phoneDetailsData.cellPhoneNumber : ""} onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                setPhoneDetailsData((previous) => {
+                                    if (!previous) return null;
+                                    return {...previous, cellPhoneNumber: event.target.value}
+                                });
+                                setShowSaveButton(true);
+                            }}/>
+                            <div className="dropdown">
+                                <Dropdown title={phoneDetailsData.cellPhoneProvider !== null ? CellPhoneProvider.get(phoneDetailsData.cellPhoneProvider!)! : "Phone Provider"}>
+                                    {Array.from(CellPhoneProvider.keys()).map(k => {
+                                        return getItem(k);
+                                    })}
+                                </Dropdown>
+                            </div>
+                        </div>
+                    );
+                }
 
                 return (
                     <div className="toggle-item" key={key}>
@@ -63,7 +133,7 @@ const NotificationSettingsView: React.FC<INotificationSettingsProps> = (props) =
                                 title="Off"
                                 theme={settingValue ? ButtonTheme.LIGHT : ButtonTheme.DARK}
                                 onClick={() => {
-                                    setData((previous) => ({...previous, [key]: false}));
+                                    setNotificationSettingData((previous) => ({...previous, [key]: false}));
                                     setShowSaveButton(true);
                                 }}
                             />
@@ -71,11 +141,12 @@ const NotificationSettingsView: React.FC<INotificationSettingsProps> = (props) =
                                 title="On"
                                 theme={settingValue ? ButtonTheme.DARK : ButtonTheme.LIGHT}
                                 onClick={() => {
-                                    setData((previous) => ({...previous, [key]: true}));
+                                    setNotificationSettingData((previous) => ({...previous, [key]: true}));
                                     setShowSaveButton(true);
                                 }}
                             />
                         </div>
+                        {getPhoneDetails(key)}
                     </div>
                 );
             })}
@@ -94,24 +165,48 @@ const NotificationSettingsView: React.FC<INotificationSettingsProps> = (props) =
             </div>
             {showSaveButton && 
                 <Button title="Save" theme={ButtonTheme.HOLLOW_DARK} onClick={() => {
+                    let error = "";
+                    if (phoneDetailsData && phoneDetailsData.cellPhoneNumber
+                        && (phoneDetailsData.cellPhoneNumber.length > 11
+                        || phoneDetailsData.cellPhoneNumber.length <= 9
+                        || !/^[0-9]+$/.test(phoneDetailsData.cellPhoneNumber))) {
+                        error = "Phone number is not valid.";
+                    }
+
                     if (Date.now() - lastSaved < SAVE_COOLDOWN_MILLISECONDS) {
                         setSaveSuccess(false);
-                        setError("Must wait 5 before saving again.");
+                        error = "Must wait 5 before saving again.";
                         return;
                     }
 
                     setLastSaved(Date.now);
+                    
+                    if (error) {
+                        setError(error);
+                        return;
+                    }
 
-                    Ajax.post("/notification/updateNotificationSettings", data).then(response => {
-                        setError(response.error);
-                        setLoaded(response.loaded);
+                    Ajax.post("/notification/updateNotificationSettings", notificationSettingData).then(response => {
+                        if (response.error) {
+                            error = response.error;
+                        }
+                    });
+                    Ajax.post("/notification/updatePhoneDetails", phoneDetailsData).then(response => {
+                        if (response.error) {
+                            error = response.error;
+                        }
+                    });
+                    
+                    if (!error) {
                         setSaveSuccess(true);
                         setShowSaveButton(false);
-                    });
+                    }
+
+                    setError(error);
                 }}/>
             }
             {!saveSuccess && error && 
-                <p className="error">{error}</p>
+                <p className="notificationSettingError">{error}</p>
             }
             {saveSuccess && !error &&
                 <p className="success">Settings saved successfully!</p>

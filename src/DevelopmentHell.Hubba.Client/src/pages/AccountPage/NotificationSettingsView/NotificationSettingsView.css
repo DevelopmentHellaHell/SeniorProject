@@ -25,3 +25,19 @@
 .notification-settings-wrapper .success {
     color: rgb(var(--success-text));
 }
+
+.cellphone-details-fields {
+    display: inline;
+    margin-left: 30px;
+}
+
+.cellphone-details-fields input {
+    width: 100px;
+    padding: 8px 10px;
+    border: 1px solid rgb(var(--primary-text-dark));
+    border-radius: 3px;
+}
+
+.cellphone-details-fields .dropdown {
+    margin-left: 5px;
+}
