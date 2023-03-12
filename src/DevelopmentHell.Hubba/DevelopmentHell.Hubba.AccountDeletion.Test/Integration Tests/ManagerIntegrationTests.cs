@@ -120,7 +120,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             {
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
-            var expected = new Result { IsSuccessful = true};
+            var expected = new Result { IsSuccessful = true };
 
             // Act
             Result actual = await _accountDeletionManager.DeleteAccount(accountId).ConfigureAwait(false);

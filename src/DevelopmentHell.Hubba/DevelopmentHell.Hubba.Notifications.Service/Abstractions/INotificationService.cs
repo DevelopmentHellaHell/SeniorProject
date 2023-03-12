@@ -15,5 +15,6 @@ namespace DevelopmentHell.Hubba.Notification.Service.Abstractions
         Task<Result> DeleteAllNotifications(int userId);
         Task<Result<UserAccount>> GetUser(int userId);
         Task<Result<int>> GetId(string email);
+        Task<Result> UpdateUser(UserAccount user);
     }
 }

@@ -112,5 +112,31 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             }
             return Ok();
         }
+
+        [HttpGet]
+        [Route("getPhoneDetails")]
+        public async Task<IActionResult> GetPhoneDetails()
+        {
+            var result = await _notificationManager.GetPhoneDetails().ConfigureAwait(false);
+            if (!result.IsSuccessful || result.Payload is null)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+
+            return Ok(result.Payload);
+        }
+
+        [HttpPost]
+        [Route("updatePhoneDetails")]
+        public async Task<IActionResult> UpdatePhoneDetails(UpdatePhoneDetailsDTO updatePhoneDetailsDTO)
+        {
+            var result = await _notificationManager.UpdatePhoneDetails(updatePhoneDetailsDTO.CellPhoneNumber, updatePhoneDetailsDTO.CellPhoneProvider).ConfigureAwait(false);
+            if (!result.IsSuccessful)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+
+            return Ok();
+        }
     }
 }

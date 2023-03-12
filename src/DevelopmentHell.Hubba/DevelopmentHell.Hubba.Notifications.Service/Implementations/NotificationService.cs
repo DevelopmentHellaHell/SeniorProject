@@ -82,5 +82,10 @@ namespace DevelopmentHell.Hubba.Notification.Service.Implementations
         {
             return await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
         }
+
+        public async Task<Result> UpdateUser(UserAccount user)
+        {
+            return await _userAccountDataAccess.Update(user).ConfigureAwait(false);
+        }
     }
 }
