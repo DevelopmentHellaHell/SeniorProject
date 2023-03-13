@@ -107,14 +107,14 @@ const NotificationSettingsView: React.FC<INotificationSettingsProps> = (props) =
                     
                     return (
                         <div className="cellphone-details-fields">
-                            <input className="input-field" type="text" maxLength={11} placeholder="Phone Number" value={phoneDetailsData.cellPhoneNumber ? phoneDetailsData.cellPhoneNumber : ""} onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                            <input className="input-field" id="phone-number-input" type="text" maxLength={11} placeholder="Phone Number" value={phoneDetailsData.cellPhoneNumber ? phoneDetailsData.cellPhoneNumber : ""} onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                                 setPhoneDetailsData((previous) => {
                                     if (!previous) return null;
                                     return {...previous, cellPhoneNumber: event.target.value}
                                 });
                                 setShowSaveButton(true);
                             }}/>
-                            <div className="dropdown">
+                            <div className="dropdown" id="provider-dropdown">
                                 <Dropdown title={phoneDetailsData.cellPhoneProvider !== null ? CellPhoneProvider.get(phoneDetailsData.cellPhoneProvider!)! : "Phone Provider"}>
                                     {Array.from(CellPhoneProvider.keys()).map(k => {
                                         return getItem(k);
@@ -128,7 +128,7 @@ const NotificationSettingsView: React.FC<INotificationSettingsProps> = (props) =
                 return (
                     <div className="toggle-item" key={key}>
                         <p className="inline-text">{value}</p>
-                        <div className="buttons">
+                        <div className="buttons" id={`${key}-toggle-buttons`}>
                             <Button
                                 title="Off"
                                 theme={settingValue ? ButtonTheme.LIGHT : ButtonTheme.DARK}

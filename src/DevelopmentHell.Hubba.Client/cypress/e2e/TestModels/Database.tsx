@@ -1,7 +1,8 @@
 export namespace Database {
     export enum Databases {
         USERS = "USERS",
-        LOGS = "LOGS"
+        LOGS = "LOGS",
+        NOTIFICATIONS = "NOTIFICATIONS"
     }
 
     export enum Tables {
