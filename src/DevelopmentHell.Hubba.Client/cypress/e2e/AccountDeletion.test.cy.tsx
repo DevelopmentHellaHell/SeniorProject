@@ -23,12 +23,12 @@ describe('working-ui', () => {
     
     before(() =>{
         //using Custom Commands
-        cy.registerViaApi(Cypress.env('standardEmail'), Cypress.env('standardPassword'));
+        cy.RegisterViaApi(Cypress.env('standardEmail'), Cypress.env('standardPassword'));
     })
 
     beforeEach(() => {
         // logging into account via session
-        cy.loginViaUI(Cypress.env('standardEmail'), Cypress.env('standardPassword'));
+        cy.LoginViaUI(Cypress.env('standardEmail'), Cypress.env('standardPassword'));
         cy.visit(accountUrl);
         cy.contains('Login & Security').click();
     });
@@ -58,12 +58,12 @@ describe('working-account-deletion', () => {
     
     before(() =>{
         //using Custom Commands
-        cy.registerViaApi(Cypress.env('standardEmail'), Cypress.env('standardPassword'));
+        cy.RegisterViaApi(Cypress.env('standardEmail'), Cypress.env('standardPassword'));
     })
 
     beforeEach(() => {
         // logging into account via session
-        cy.loginViaUI(Cypress.env('standardEmail'), Cypress.env('standardPassword'));
+        cy.LoginViaUI(Cypress.env('standardEmail'), Cypress.env('standardPassword'));
         cy.visit(accountUrl);
         cy.contains('Login & Security').click();
     });

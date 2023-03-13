@@ -3,8 +3,8 @@ export { }
 declare global {
     namespace Cypress {
         interface Chainable {
-            registerViaApi(emai: string, password: string): Chainable<void>
-            loginViaUI(email: string, password: string): Chainable<void>
+            RegisterViaApi(emai: string, password: string): Chainable<void>
+            LoginViaUI(email: string, password: string): Chainable<void>
         }
     }
 }
@@ -12,7 +12,7 @@ declare global {
  * Register new account by direct AJAX HTTP POST to API
  * @param: email, password
  */
-Cypress.Commands.add('registerViaApi', (email: string, password: string) => {
+Cypress.Commands.add('RegisterViaApi', (email: string, password: string) => {
     cy.request('POST', Cypress.env('serverUrl') + "/registration/register", { email, password })
         .its('status').should('eq', 200);
 })
@@ -23,7 +23,7 @@ Cypress.Commands.add('registerViaApi', (email: string, password: string) => {
  * Get OTP by direct AJAX HTTP GET to API via tests route
  * @param: email, password
  */
-Cypress.Commands.add('loginViaUI', (email: string, password: string) => {
+Cypress.Commands.add('LoginViaUI', (email: string, password: string) => {
     cy.session([email, password], () => {
         cy.visit('/login');
         cy.get('#email').type(email).should('have.value', email);

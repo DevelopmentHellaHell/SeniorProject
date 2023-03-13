@@ -6,8 +6,7 @@ declare namespace Cypress {
          * Custom command to ... add your description here
          * @example cy.clickOnMyJourneyInCandidateCabinet()
          */
-        Register(username: string, password: string): void;
-        Login(username: string, password: string): void;
-        RegisterAndLogin(username: string, password: string): void;
+        RegisterViaApi(email: string, password: string): void;
+        LoginViaUI(email: string, password: string): void;
     }
 }
