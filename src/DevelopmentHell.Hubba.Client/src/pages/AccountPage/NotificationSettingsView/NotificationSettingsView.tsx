@@ -175,16 +175,15 @@ const NotificationSettingsView: React.FC<INotificationSettingsProps> = (props) =
 
                     if (Date.now() - lastSaved < SAVE_COOLDOWN_MILLISECONDS) {
                         setSaveSuccess(false);
-                        error = "Must wait 5 before saving again.";
-                        return;
+                        error = `Must wait ${(SAVE_COOLDOWN_MILLISECONDS/1000).toFixed(0)} seconds before saving again.`;
                     }
 
-                    setLastSaved(Date.now);
-                    
                     if (error) {
                         setError(error);
                         return;
                     }
+
+                    setLastSaved(Date.now());
 
                     Ajax.post("/notification/updateNotificationSettings", notificationSettingData).then(response => {
                         if (response.error) {
@@ -206,7 +205,7 @@ const NotificationSettingsView: React.FC<INotificationSettingsProps> = (props) =
                 }}/>
             }
             {!saveSuccess && error && 
-                <p className="notificationSettingError">{error}</p>
+                <p className="error">{error}</p>
             }
             {saveSuccess && !error &&
                 <p className="success">Settings saved successfully!</p>

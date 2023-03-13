@@ -43,7 +43,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         public async Task<IActionResult> GetNotifications()
         {
             var result = await _notificationManager.GetNotifications().ConfigureAwait(false);
-            if(!result.IsSuccessful || result.Payload is null)
+            if(!result.IsSuccessful)
             {
                 return BadRequest(result.ErrorMessage);
             }
