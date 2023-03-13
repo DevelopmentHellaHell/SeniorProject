@@ -69,7 +69,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return result;
         }
 
-        //TODO: when time allows, make custom class to do one visit only
         public async Task<Result> HideIndividualNotifications(List<int> selectedNotifications)
         {
             Result result = new Result();
@@ -100,7 +99,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 
         }
 
-        //Makes all notifications of user hidden
+        // Makes all notifications of user hidden
         public async Task<Result> HideAllNotifications(int userId) //change to HideAll
         {
             Result updateResult = await _updateDataAccess.Update(

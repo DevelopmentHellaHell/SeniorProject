@@ -40,6 +40,7 @@ namespace DevelopmentHell.Hubba.Notification.Service.Implementations
 
         public async Task<Result> CreateNewNotificationSettings(int userId)
         {
+            // default settings for new User Accounts
             NotificationSettings settings = new NotificationSettings()
             {
                 UserId = userId,

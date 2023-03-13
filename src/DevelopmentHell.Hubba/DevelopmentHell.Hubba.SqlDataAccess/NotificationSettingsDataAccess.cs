@@ -21,7 +21,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             _tableName = tableName;
         }
 
-        //used to create default Notification Setting values for a new account
+        // used to create default Notification Setting values for a new account
         public async Task<Result> CreateUserNotificationSettings(NotificationSettings settings)
         {
             Result insertResult = await _insertDataAccess.Insert(
@@ -42,21 +42,21 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return insertResult;
         }
 
-        //Updates user's changed settings for Notifications
+        // Updates user's changed settings for Notifications
         public async Task<Result> UpdateUserNotificationSettings(NotificationSettings settings)
         {
             var values = new Dictionary<string, object>();
             foreach (var column in settings.GetType().GetProperties()) 
             {
                 var value = column.GetValue(settings);
-                //ensures proper values get assigned correctly
+                // ensures proper values get assigned correctly
                 if (value is null || column.Name == "UserId") continue;
                 values[column.Name] = value;
             }
             
             Result updateResult = await _updateDataAccess.Update(
                 _tableName,
-                //comparator helps create WHERE SQL statement
+                // comparator helps create WHERE SQL statement
                 new List<Comparator>()
                 {
                     new Comparator("UserId", "=", settings.UserId),
@@ -67,7 +67,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return updateResult;
         }
 
-        //used to retrieve user's saved Notification Settings
+        // used to retrieve user's saved Notification Settings
         public async Task<Result<NotificationSettings>> SelectUserNotificationSettings(int userId) 
         {
             Result<NotificationSettings> result = new Result<NotificationSettings>();

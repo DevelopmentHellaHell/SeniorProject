@@ -35,6 +35,7 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
         {
             Result<NotificationSettings> result = new Result<NotificationSettings>();
 
+            // Check principal of user
             if (!_authorizationService.Authorize(new string[] { "AdminUser", "VerifiedUser" }).IsSuccessful)
             {
                 result.IsSuccessful = false;
@@ -50,6 +51,7 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
                 result.ErrorMessage = "Error, invalid access token format.";
                 return result;
             }
+            // extracted user Id from JWT token
             var accountId = int.Parse(stringAccountId);
 
             Result<NotificationSettings> getNotificationSettingsResult = await _notificationService.SelectUserNotificationSettings(accountId).ConfigureAwait(false);
@@ -65,7 +67,7 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
             return result;
         }
 
-        public async Task<Result> CreateNewNotification(int userId, string message, NotificationType tag, bool forceEmail = false) //cahnge supress to force email for account changes
+        public async Task<Result> CreateNewNotification(int userId, string message, NotificationType tag, bool forceEmail = false) 
         {
             Result result = new Result();
 
@@ -85,6 +87,7 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
                 return result;
             }
 
+            // checking conditions for what types of Notifications user prefers
             NotificationSettings notificationSettings = notificationSettingsResult.Payload!;
             if((!(bool)notificationSettings.TypeProjectShowcase! && tag == NotificationType.PROJECT_SHOWCASE)
                 || (!(bool)notificationSettings.TypeWorkspace! && tag == NotificationType.WORKSPACE)
@@ -95,10 +98,11 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
                 return result;
             } 
 
+            // next two checks are for email and text messages
             UserAccount userAccount = userResult.Payload!;
             if (((bool)notificationSettings.EmailNotifications!
                 && userAccount.Email is not null) || 
-                (forceEmail && userAccount.Email is not null))
+                (forceEmail && userAccount.Email is not null)) // force email parameter for Notification and Account Setting changes
             {
                 string userEmail = userAccount.Email;
 
@@ -303,8 +307,6 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
                 return result;
             }
 
-
-
             var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
             if (stringAccountId is null)
@@ -347,7 +349,7 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
             return result;
         }
 
-        public async Task<Result> DeletionEmail(string userEmail)
+        public Result DeletionEmail(string userEmail)
         {
             Result result = new Result();
 

@@ -40,7 +40,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Service.Implementations
 
             // Sending account deletion notification
             if (email is not null)
-            await _notificationManager.DeletionEmail(email).ConfigureAwait(false);
+            _notificationManager.DeletionEmail(email);
 
             return result;
         }
