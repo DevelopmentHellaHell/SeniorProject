@@ -111,12 +111,6 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
                     $"Hubba Notification - {tag}",
                     message
                 );
-                if (!emailResult.IsSuccessful)
-                {
-                    result.IsSuccessful = false;
-                    result.ErrorMessage = "Could not send email notification.";
-                    return result;
-                }
             }
             
             if ((bool)notificationSettings.TextNotifications!
@@ -130,12 +124,6 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
                     $"Hubba Notification - {tag}",
                     message
                 );
-                if (!emailResult.IsSuccessful)
-                {
-                    result.IsSuccessful = false;
-                    result.ErrorMessage = "Could not send text notification.";
-                    return result;
-                }
             }
 
             return await _notificationService.AddNotification(userId, message, tag).ConfigureAwait(false);

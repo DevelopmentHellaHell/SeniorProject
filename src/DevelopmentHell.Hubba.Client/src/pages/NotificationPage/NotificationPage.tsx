@@ -11,7 +11,7 @@ interface INotificationPageProps {
 
 }
 
-interface INotificationData {
+export interface INotificationData {
     DateCreated: Date,
     Hide: boolean,
     Message: string,
@@ -53,8 +53,8 @@ const NotificationPage: React.FC<INotificationPageProps> = (props) => {
         return null;
     }
 
-    const getData = () => {
-        Ajax.get<INotificationData[]>("/notification/getNotifications").then((response) => {
+    const getData = async () => {
+        await Ajax.get<INotificationData[]>("/notification/getNotifications").then((response) => {
             setData(response.data && response.data.length ? response.data : []);
             setError(response.error);
             setLoaded(response.loaded);
@@ -148,17 +148,24 @@ const NotificationPage: React.FC<INotificationPageProps> = (props) => {
 
                         <div className="actions-wrapper">
                             <div className="actions">
-                                <Button theme={ButtonTheme.DARK} title="Refresh" onClick={() => {
+                                <Button theme={ButtonTheme.DARK} loading={!loaded} title="Refresh" onClick={async () => {
                                     if (Date.now() - lastRefreshed < REFRESH_COOLDOWN_MILLISECONDS) {
                                         setError(`Must wait ${(REFRESH_COOLDOWN_MILLISECONDS/1000).toFixed(0)} seconds before refreshing again.`);
                                         return;
                                     }
                                     
                                     setLastRefreshed(Date.now());
-                                    getData();
+                                    setLoaded(false);
+                                    await getData();
+                                    setLoaded(true);
                                 }} />
                                 <Button theme={ButtonTheme.DARK} title="Clear All" 
                                     onClick={() => {
+                                        if (data.length == 0) {
+                                            setError("No notifications to clear.");
+                                            return;
+                                        }
+
                                         Ajax.post("/notification/hideAllNotifications", null).then(response => {
                                             setData([]);
                                             setSelectedNotifications([]);
@@ -167,6 +174,11 @@ const NotificationPage: React.FC<INotificationPageProps> = (props) => {
                                     }} />
                                 <Button theme={selectedNotifications.length > 0 ? ButtonTheme.DARK : ButtonTheme.HOLLOW_DARK} title="Delete"
                                     onClick={() => {
+                                        if (selectedNotifications.length == 0) {
+                                            setError("Select notifications to delete.");
+                                            return;
+                                        }
+
                                         Ajax.post("notification/hideIndividualNotifications", { hideNotifications: selectedNotifications }).then(response => {
                                             setData(data.filter(el => !selectedNotifications.includes(el.NotificationId)));
                                             setSelectedNotifications([...selectedNotifications.filter(el => selectedNotifications.includes(el))]);

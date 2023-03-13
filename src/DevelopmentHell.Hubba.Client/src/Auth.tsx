@@ -65,6 +65,15 @@ export namespace Auth {
         return decodedJwt;
     }
 
+    export function getAuthData(): IJWTDecoded | undefined {
+        const cookie = getCookie("id_token");
+        if (!cookie) {
+            return;
+        }
+
+        return parseJwt<IJWTDecoded>(cookie);
+    }
+
     export function clearCookies() {
         removeCookie("access_token");
         removeCookie("id_token");
