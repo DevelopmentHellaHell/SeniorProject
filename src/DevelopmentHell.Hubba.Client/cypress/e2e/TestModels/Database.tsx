@@ -5,6 +5,7 @@ export namespace Database {
     }
 
     export enum Tables {
+        USER_ACCOUNTS = "USER"
         
     }
 }
