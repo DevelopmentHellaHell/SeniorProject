@@ -567,7 +567,6 @@ namespace DevelopmentHell.Hubba.Notification.Test
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
 
             }
-            var expected = true;
             await _notificationManager.CreateNewNotification(id, "notification 1", NotificationType.OTHER).ConfigureAwait(false);
             await _notificationManager.CreateNewNotification(id, "notification 2", NotificationType.SCHEDULING).ConfigureAwait(false);
             var beforeSettings = await _notificationManager.GetNotificationSettings().ConfigureAwait(false);
