@@ -48,17 +48,7 @@ namespace DevelopmentHell.Hubba.Registration.Manager.Implementations
             Result<int> userResult = await _notificationService.GetId(email).ConfigureAwait(false);
             if (userResult.IsSuccessful)
             {
-                Result notificationSettingsResult = await _notificationService.CreateNewNotificationSettings(new NotificationSettings()
-                {
-                    UserId = userResult.Payload,
-                    SiteNotifications = true,
-                    EmailNotifications = false,
-                    TextNotifications = false,
-                    TypeScheduling = true,
-                    TypeWorkspace = true,
-                    TypeProjectShowcase = true,
-                    TypeOther = true
-                }).ConfigureAwait(false);
+                Result notificationSettingsResult = await _notificationService.CreateNewNotificationSettings(userResult.Payload).ConfigureAwait(false);
             }
 
             string userHashKey = ConfigurationManager.AppSettings["UserHashKey"]!;

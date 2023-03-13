@@ -47,7 +47,7 @@ namespace DevelopmentHell.Hubba.Notification.Test
         {
             LoggerService loggerService = new LoggerService(
                 new LoggerDataAccess(
-                    ConfigurationManager.AppSettings["LogConnectionString"]!,
+                    ConfigurationManager.AppSettings["LogsConnectionString"]!,
                     ConfigurationManager.AppSettings["UserNotificationsTable"]!
                 )
             );
@@ -116,6 +116,7 @@ namespace DevelopmentHell.Hubba.Notification.Test
                     false
                 ),
                 _authorizationService,
+                new ValidationService(),
                 loggerService
             );
 
@@ -179,7 +180,16 @@ namespace DevelopmentHell.Hubba.Notification.Test
 
             }).ConfigureAwait(false);
 
+            var updatedSettings = await _notificationManager.GetNotificationSettings().ConfigureAwait(false);
+
             // Assert
+            Assert.IsFalse(updatedSettings.Payload!.TypeOther);
+            Assert.IsFalse(updatedSettings.Payload.TypeProjectShowcase);
+            Assert.IsFalse(updatedSettings.Payload.TypeScheduling);
+            Assert.IsFalse(updatedSettings.Payload.TypeWorkspace);
+            Assert.IsFalse(updatedSettings.Payload.TextNotifications);
+            Assert.IsFalse(updatedSettings.Payload.EmailNotifications);
+            Assert.IsFalse(updatedSettings.Payload.SiteNotifications);
             Assert.IsTrue(actualUpdateSettingsResult.IsSuccessful == expected);
         }
 
@@ -203,11 +213,18 @@ namespace DevelopmentHell.Hubba.Notification.Test
             }
             var expected = true;
 
-            //Actual
+            // Actual
             var actualGetNotifications = await _notificationManager.GetNotificationSettings().ConfigureAwait(false);
 
-            //Assert 
+            // Assert 
             Assert.IsNotNull(actualGetNotifications.Payload);
+            Assert.IsTrue(actualGetNotifications.Payload!.TypeOther);
+            Assert.IsTrue(actualGetNotifications.Payload.TypeProjectShowcase);
+            Assert.IsTrue(actualGetNotifications.Payload.TypeScheduling);
+            Assert.IsTrue(actualGetNotifications.Payload.TypeWorkspace);
+            Assert.IsFalse(actualGetNotifications.Payload.TextNotifications);
+            Assert.IsFalse(actualGetNotifications.Payload.EmailNotifications);
+            Assert.IsTrue(actualGetNotifications.Payload.SiteNotifications);
             Assert.IsTrue(actualGetNotifications.IsSuccessful == expected);
         }
 
@@ -231,15 +248,15 @@ namespace DevelopmentHell.Hubba.Notification.Test
             }
             var expected = true;
 
-            //Actual
+            // Actual
             // Phone details default to NULL for new accounts
             var actualPhoneDetails = await _notificationManager.GetPhoneDetails().ConfigureAwait(false);
 
-            //Assert
+            // Assert
             Assert.IsNotNull(actualPhoneDetails.Payload);
             Assert.IsNull(actualPhoneDetails.Payload.CellPhoneNumber);
             Assert.IsNull(actualPhoneDetails.Payload.CellPhoneProvider);
-            Assert.IsTrue(actualPhoneDetails.IsSuccessful = expected);
+            Assert.IsTrue(actualPhoneDetails.IsSuccessful == expected);
         }
 
         [TestMethod]
@@ -262,12 +279,14 @@ namespace DevelopmentHell.Hubba.Notification.Test
             }
             var expected = true;
 
-            //Actual 
+            // Actual 
             // Create new Notification for user
             var actualResult = await _notificationManager.CreateNewNotification(id, "this is a new notification", NotificationType.OTHER);
-            
-            //Assert
-            Assert.IsTrue(actualResult.IsSuccessful = expected);
+            var getNotification = await _notificationManager.GetNotifications().ConfigureAwait(false);
+
+            // Assert
+            Assert.AreEqual(getNotification.Payload![0]["Message"], "this is a new notification");
+            Assert.IsTrue(actualResult.IsSuccessful == expected);
         }
 
         [TestMethod]
@@ -290,13 +309,13 @@ namespace DevelopmentHell.Hubba.Notification.Test
             }
             var expected = true;
 
-            //Actual
+            // Actual
             // new account should have no notifications
             var actualNotifications = await _notificationManager.GetNotifications().ConfigureAwait(false);
 
-            //Assert
+            // Assert
             Assert.IsNull(actualNotifications.Payload);
-            Assert.IsTrue(actualNotifications.IsSuccessful = expected);
+            Assert.IsTrue(actualNotifications.IsSuccessful == expected);
         }
 
         [TestMethod]
@@ -319,7 +338,7 @@ namespace DevelopmentHell.Hubba.Notification.Test
             }
             var expected = true;
 
-            //Actual 
+            // Actual 
             // Create three notifications of different types for user
             var n1 = await _notificationManager.CreateNewNotification(id, "This is message 1", NotificationType.SCHEDULING);
             var n2 = await _notificationManager.CreateNewNotification(id, "This is message 2", NotificationType.PROJECT_SHOWCASE);
@@ -328,13 +347,14 @@ namespace DevelopmentHell.Hubba.Notification.Test
 
             var actualNotifications = await _notificationManager.GetNotifications().ConfigureAwait(false);
 
-            //Assert
+            // Assert
             Assert.IsNotNull(actualNotifications.Payload);
-            Assert.AreEqual(actualNotifications.Payload.Count, 4); //FIX: third notification does not pop up. this is due to the duel input situation
-            Assert.IsTrue(actualNotifications.IsSuccessful = expected);
-            Assert.IsTrue(n1.IsSuccessful = expected);
-            Assert.IsTrue(n2.IsSuccessful = expected);
-            Assert.IsTrue(n3.IsSuccessful = expected);
+            Assert.AreEqual(actualNotifications.Payload.Count, 4); 
+            Assert.IsTrue(actualNotifications.IsSuccessful == expected);
+            Assert.IsTrue(n1.IsSuccessful == expected);
+            Assert.IsTrue(n2.IsSuccessful == expected);
+            Assert.IsTrue(n3.IsSuccessful == expected);
+            Assert.IsTrue(n4.IsSuccessful == expected);
         }
 
         [TestMethod]
@@ -357,12 +377,12 @@ namespace DevelopmentHell.Hubba.Notification.Test
             }
             var expected = true;
 
-            //Actual
+            // Actual
             // Change phone number and phone provider
             var actualResult = await _notificationManager.UpdatePhoneDetails("5101234567", CellPhoneProviders.T_MOBILE).ConfigureAwait(false);
 
-            //Assert
-            Assert.IsTrue(actualResult.IsSuccessful = expected);
+            // Assert
+            Assert.IsTrue(actualResult.IsSuccessful == expected);
         }
 
         [TestMethod]
@@ -385,24 +405,24 @@ namespace DevelopmentHell.Hubba.Notification.Test
             }
             var expected = true;
 
-            //Create two Notifications. One will be hidden, one will not be
-            var hiddenNotification = _notificationManager.CreateNewNotification(id, "I will be hidden", NotificationType.OTHER).ConfigureAwait(false);
-            var notHiddenNotification = _notificationManager.CreateNewNotification(id, "I will not be hidden", NotificationType.OTHER).ConfigureAwait(false);
-
-            //Get request to get Notification ids 
+            // Create two Notifications. One will be hidden, one will not be
+            var hiddenNotification = await _notificationManager.CreateNewNotification(id, "I will be hidden", NotificationType.OTHER).ConfigureAwait(false);
+            var notHiddenNotification = await _notificationManager.CreateNewNotification(id, "I will not be hidden", NotificationType.OTHER).ConfigureAwait(false);
+             
+            // Get request to get Notification ids 
             var recievedNotification = await _notificationManager.GetNotifications().ConfigureAwait(false);
             List<int> notifications = new List<int>();
-            Dictionary<string, object> firstNotification = recievedNotification.Payload[0]; //FIX: Create Notification error here too, sometimes result is null
+            Dictionary<string, object> firstNotification = recievedNotification.Payload![0]; //FIX: Create Notification error here too, sometimes result is null
             notifications.Add((int)firstNotification["NotificationId"]);
 
-            //Actual
-            //Hide first notification
+            // Actual
+            // Hide first notification
             var resultHideNotification = await _notificationManager.HideIndividualNotifications(notifications).ConfigureAwait(false);
             var actualNotifications = await _notificationManager.GetNotifications().ConfigureAwait(false);
 
-            //Assert
-            Assert.IsTrue(resultHideNotification.IsSuccessful = expected);
-            Assert.AreEqual(actualNotifications.Payload.Count, 1);
+            // Assert
+            Assert.IsTrue(resultHideNotification.IsSuccessful == expected);
+            Assert.AreEqual(actualNotifications.Payload!.Count, 1);
         }
 
         [TestMethod]
@@ -425,21 +445,21 @@ namespace DevelopmentHell.Hubba.Notification.Test
             }
             var expected = true;
 
-            //Create Two Notifications
-            await _notificationManager.CreateNewNotification(id, "notification 1", NotificationType.OTHER).ConfigureAwait(false); //FIX: Notification confliction happens here too
+            // Create Two Notifications
+            await _notificationManager.CreateNewNotification(id, "notification 1", NotificationType.OTHER).ConfigureAwait(false); 
             await _notificationManager.CreateNewNotification(id, "notification 2", NotificationType.SCHEDULING).ConfigureAwait(false);
            
-            //Checking that two notifications are available to be seen
+            // Checking that two notifications are available to be seen
             var beforeHideAll = await _notificationManager.GetNotifications().ConfigureAwait(false);
 
-            //Actual
+            // Actual
             // Hides all notifications of User
             var actualHideAll = await _notificationManager.HideAllNotifications().ConfigureAwait(false);
             var afterHideAll = await _notificationManager.GetNotifications().ConfigureAwait(false);
 
             //Assert
-            Assert.AreEqual(beforeHideAll.Payload.Count, 2);
-            Assert.IsTrue(actualHideAll.IsSuccessful = expected);
+            Assert.AreEqual(beforeHideAll.Payload!.Count, 2);
+            Assert.IsTrue(actualHideAll.IsSuccessful == expected);
             Assert.IsNull(afterHideAll.Payload);
         }
 
@@ -464,8 +484,8 @@ namespace DevelopmentHell.Hubba.Notification.Test
             }
             var expected = true;
 
-            //Actual
-            //Change settings to recieve email
+            // Actual
+            // Change settings to recieve email
             var updateSettingsResult = await _notificationManager.UpdateNotificationSettings(new NotificationSettings()
             {
                 UserId = id,
@@ -480,8 +500,8 @@ namespace DevelopmentHell.Hubba.Notification.Test
             }).ConfigureAwait(false);
 
 
-            //Assert
-            Assert.IsTrue(updateSettingsResult.IsSuccessful = expected);
+            // Assert
+            Assert.IsTrue(updateSettingsResult.IsSuccessful == expected);
         }
 
         [TestMethod]
@@ -505,8 +525,8 @@ namespace DevelopmentHell.Hubba.Notification.Test
             }
             var expected = true;
 
-            //Actual
-            //Change settings to personal number to recieve text message
+            // Actual
+            // Change settings to personal number to recieve text message
             var updatePhoneDetails = await _notificationManager.UpdatePhoneDetails("5107755205", CellPhoneProviders.VERIZON);
 
             var updateSettingsResult = await _notificationManager.UpdateNotificationSettings(new NotificationSettings()
@@ -523,8 +543,48 @@ namespace DevelopmentHell.Hubba.Notification.Test
             }).ConfigureAwait(false);
 
 
-            //Assert
-            Assert.IsTrue(updatePhoneDetails.IsSuccessful = expected);
+            // Assert
+            Assert.IsTrue(updatePhoneDetails.IsSuccessful == expected);
+        }
+
+        //TODO: DELETE EVERYTHING
+        [TestMethod]
+        public async Task DeleteNotificationDetails()
+        {
+            // Arrange
+            //  - Setup user and initial state
+            // used personal email to recieve notification
+            var credentialEmail = "kevin.leiu.dinh@gmail.com";
+            var credentialPassword = "12345678";
+            await _registrationManager.Register(credentialEmail, credentialPassword).ConfigureAwait(false);
+            var userIdResult = await _userAccountDataAccess.GetId(credentialEmail).ConfigureAwait(false);
+            var id = userIdResult.Payload;
+
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(id, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(id, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+
+            }
+            var expected = true;
+            await _notificationManager.CreateNewNotification(id, "notification 1", NotificationType.OTHER).ConfigureAwait(false);
+            await _notificationManager.CreateNewNotification(id, "notification 2", NotificationType.SCHEDULING).ConfigureAwait(false);
+            var beforeSettings = await _notificationManager.GetNotificationSettings().ConfigureAwait(false);
+            var beforeNotifications = await _notificationManager.GetNotifications().ConfigureAwait(false);
+
+            // Actual
+            var actualResult = await _notificationManager.DeleteNotificationInformation(id).ConfigureAwait(false);
+            var afterSettings = await _notificationManager.GetNotificationSettings().ConfigureAwait(false);
+            var afterNotifications = await _notificationManager.GetNotifications().ConfigureAwait(false);
+
+            // Assert
+            // after should return null
+            Assert.IsNotNull(beforeSettings.Payload); 
+            Assert.IsNotNull(beforeNotifications.Payload);
+            Assert.IsNull(afterSettings.Payload);
+            Assert.IsNull(afterNotifications.Payload);
+
         }
 
         [TestCleanup]

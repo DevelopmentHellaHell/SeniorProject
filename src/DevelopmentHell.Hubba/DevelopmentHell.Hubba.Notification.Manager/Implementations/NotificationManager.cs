@@ -1,10 +1,12 @@
-﻿using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
+﻿using Azure;
+using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.CellPhoneProvider.Service.Abstractions;
 using DevelopmentHell.Hubba.Email.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Notification.Manager.Abstractions;
 using DevelopmentHell.Hubba.Notification.Service.Abstractions;
+using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
@@ -15,14 +17,16 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
         private ICellPhoneProviderService _cellPhoneProviderService;
         private IEmailService _emailService;
         private IAuthorizationService _authorizationService;
+        private IValidationService _validationService;
         private ILoggerService _loggerService;
 
-        public NotificationManager(INotificationService notificationService, ICellPhoneProviderService cellPhoneProviderService, IEmailService emailService, IAuthorizationService authorizationService, ILoggerService loggerService) 
+        public NotificationManager(INotificationService notificationService, ICellPhoneProviderService cellPhoneProviderService, IEmailService emailService, IAuthorizationService authorizationService, IValidationService validationService, ILoggerService loggerService) 
         {
             _notificationService = notificationService;
             _cellPhoneProviderService = cellPhoneProviderService;
             _emailService = emailService;
             _authorizationService = authorizationService;
+            _validationService = validationService;
             _loggerService = loggerService;
         }
 
@@ -61,7 +65,7 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
             return result;
         }
 
-        public async Task<Result> CreateNewNotification(int userId, string message, NotificationType tag, bool supressTextNotification = false) //cahnge supress to force email for account changes
+        public async Task<Result> CreateNewNotification(int userId, string message, NotificationType tag, bool forceEmail = false) //cahnge supress to force email for account changes
         {
             Result result = new Result();
 
@@ -92,8 +96,9 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
             } 
 
             UserAccount userAccount = userResult.Payload!;
-            if ((bool)notificationSettings.EmailNotifications!
-                && userAccount.Email is not null)
+            if (((bool)notificationSettings.EmailNotifications!
+                && userAccount.Email is not null) || 
+                (forceEmail && userAccount.Email is not null))
             {
                 string userEmail = userAccount.Email;
 
@@ -112,8 +117,7 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
             
             if ((bool)notificationSettings.TextNotifications!
                 && userAccount.CellPhoneNumber is not null
-                && userAccount.CellPhoneProvider is not null
-                && !supressTextNotification)
+                && userAccount.CellPhoneProvider is not null)
             {
                 string providerEmail = userAccount.CellPhoneNumber + _cellPhoneProviderService.GetProviderEmail((CellPhoneProviders)userAccount.CellPhoneProvider);
 
@@ -190,7 +194,8 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
             Result createNotificationResult = await CreateNewNotification(
                 (int)settings.UserId!,
                 message,
-                NotificationType.OTHER
+                NotificationType.OTHER,
+                true
             ).ConfigureAwait(false);
 
             if (!createNotificationResult.IsSuccessful) {
@@ -298,6 +303,8 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
                 return result;
             }
 
+
+
             var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
             if (stringAccountId is null)
@@ -308,12 +315,57 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
             }
             var userId = int.Parse(stringAccountId);
 
-            return await _notificationService.UpdateUser(new UserAccount()
+            return await _notificationService.UpdatePhoneDetails(new UserAccount()
             {
                 Id = userId,
                 CellPhoneNumber= cellPhoneNumber,
                 CellPhoneProvider = cellPhoneProvider
             }).ConfigureAwait(false);
+        }
+
+        public async Task<Result> DeleteNotificationInformation(int userId)
+        {
+            Result result = new Result();
+
+            Result deleteNotifications = await _notificationService.DeleteAllNotifications(userId).ConfigureAwait(false);
+            if (!deleteNotifications.IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error fetching user.";
+                return result;
+            }
+
+            Result deleteNotificationSettings = await _notificationService.DeleteNotificationSettings(userId).ConfigureAwait(false);
+            if (!deleteNotificationSettings.IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error fetching user.";
+                return result;
+            }
+
+            result.IsSuccessful = true;
+            return result;
+        }
+
+        public async Task<Result> DeletionEmail(string userEmail)
+        {
+            Result result = new Result();
+
+            string message = "Your account has been deleted. If you believe this to be an error, please contact system administrators.";
+            NotificationType tag = NotificationType.OTHER;
+            Result emailResult = _emailService.SendEmail(
+            userEmail,
+                $"Hubba Notification - {tag}",
+                message
+            );
+            if (!emailResult.IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Could not send email notification.";
+                return result;
+            }
+
+            return emailResult;
         }
     }
 }

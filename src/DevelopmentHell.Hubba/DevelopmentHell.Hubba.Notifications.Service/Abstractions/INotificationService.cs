@@ -6,7 +6,7 @@ namespace DevelopmentHell.Hubba.Notification.Service.Abstractions
     {
         Task<Result> AddNotification(int userId, string message, NotificationType tag);
         Task<Result<List<Dictionary<string, object>>>> GetNotifications(int userId);
-        Task<Result> CreateNewNotificationSettings(NotificationSettings settings);
+        Task<Result> CreateNewNotificationSettings(int userId);
         Task<Result<NotificationSettings>> SelectUserNotificationSettings(int userId);
         Task<Result> UpdateNotificationSettings(NotificationSettings settings);
         Task<Result> HideAllNotifications(int userId);
@@ -15,6 +15,6 @@ namespace DevelopmentHell.Hubba.Notification.Service.Abstractions
         Task<Result> DeleteAllNotifications(int userId);
         Task<Result<UserAccount>> GetUser(int userId);
         Task<Result<int>> GetId(string email);
-        Task<Result> UpdateUser(UserAccount user);
+        Task<Result> UpdatePhoneDetails(UserAccount user);
     }
 }

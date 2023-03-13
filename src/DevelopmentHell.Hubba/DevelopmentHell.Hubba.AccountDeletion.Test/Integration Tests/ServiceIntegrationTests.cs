@@ -1,10 +1,19 @@
-﻿using DevelopmentHell.Hubba.AccountDeletion.Service.Abstractions;
+﻿using Development.Hubba.JWTHandler.Service.Abstractions;
+using Development.Hubba.JWTHandler.Service.Implementations;
+using DevelopmentHell.Hubba.AccountDeletion.Service.Abstractions;
 using DevelopmentHell.Hubba.AccountDeletion.Service.Implementations;
+using DevelopmentHell.Hubba.Authorization.Service.Implementations;
+using DevelopmentHell.Hubba.CellPhoneProvider.Service.Implementations;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
+using DevelopmentHell.Hubba.Email.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.Notification.Manager.Abstractions;
+using DevelopmentHell.Hubba.Notification.Manager.Implementations;
+using DevelopmentHell.Hubba.Notification.Service.Abstractions;
+using DevelopmentHell.Hubba.Notification.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
@@ -29,6 +38,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test.Integration_Tests
         private readonly IAccountDeletionService _accountDeletionService;
         private readonly IRegistrationService _registrationService;
         private readonly ITestingService _testingService;
+        private readonly INotificationManager _notificationManager;
 
         public ServiceIntegrationTests()
         {
@@ -36,10 +46,46 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test.Integration_Tests
                 new LoggerDataAccess(_logsConnectionString, _logsTable)
             );
             IValidationService validationService = new ValidationService();
+            IJWTHandlerService jwtHandlerService = new JWTHandlerService(
+                _jwtKey
+            );
             ICryptographyService cryptographyService = new CryptographyService(ConfigurationManager.AppSettings["CryptographyKey"]!);
+            INotificationService notificationService = new NotificationService(
+                            new NotificationDataAccess(
+                                ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
+                                ConfigurationManager.AppSettings["UserNotificationsTable"]!
+                            ),
+                            new NotificationSettingsDataAccess(
+                                ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
+                                ConfigurationManager.AppSettings["NotificationSettingsTable"]!
+                            ),
+                            new UserAccountDataAccess(
+                                ConfigurationManager.AppSettings["UsersConnectionString"]!,
+                                ConfigurationManager.AppSettings["UserAccountsTable"]!
+                            ),
+                            loggerService
+                        );
             _userAccountDataAccess = new UserAccountDataAccess(_usersConnectionString, _userAccountsTable);
+            _notificationManager = new NotificationManager(
+                        notificationService,
+                        new CellPhoneProviderService(),
+                        new EmailService(
+                            ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!,
+                            ConfigurationManager.AppSettings["SENDGRID_API_KEY"]!,
+                            ConfigurationManager.AppSettings["COMPANY_EMAIL"]!,
+                            false
+                        ),
+                        new AuthorizationService(
+                            _userAccountDataAccess,
+                            jwtHandlerService,
+                            loggerService
+                        ),
+                        new ValidationService(),
+                        loggerService
+                );
             _accountDeletionService = new AccountDeletionService(
                 _userAccountDataAccess,
+                _notificationManager,
                 loggerService
             );
             _registrationService = new RegistrationService(

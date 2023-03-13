@@ -118,6 +118,7 @@ builder.Services.AddTransient<INotificationManager, NotificationManager>(s =>
 		new CellPhoneProviderService(),
         s.GetService<IEmailService>()!,
 		s.GetService<IAuthorizationService>()!,
+		s.GetService<IValidationService>()!,
         s.GetService<ILoggerService>()!
     )
 );
@@ -215,6 +216,7 @@ builder.Services.AddTransient<IAccountDeletionManager, AccountDeletionManager>(s
                 HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
                 HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
             ),
+			s.GetService<INotificationManager>()!,
             s.GetService<ILoggerService>()!
         ),
         s.GetService<IAuthenticationService>()!,

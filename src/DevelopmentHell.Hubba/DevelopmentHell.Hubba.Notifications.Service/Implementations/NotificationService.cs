@@ -38,8 +38,20 @@ namespace DevelopmentHell.Hubba.Notification.Service.Implementations
             return await _notificationDataAccess.GetNotifications(userId).ConfigureAwait(false);
         }
 
-        public async Task<Result> CreateNewNotificationSettings(NotificationSettings settings)
+        public async Task<Result> CreateNewNotificationSettings(int userId)
         {
+            NotificationSettings settings = new NotificationSettings()
+            {
+                UserId = userId,
+                SiteNotifications = true,
+                EmailNotifications = false,
+                TextNotifications = false,
+                TypeScheduling = true,
+                TypeWorkspace = true,
+                TypeProjectShowcase = true,
+                TypeOther = true
+            };
+
             return await _notificationSettingsDataAccess.CreateUserNotificationSettings(settings).ConfigureAwait(false);
         }
 
@@ -83,7 +95,7 @@ namespace DevelopmentHell.Hubba.Notification.Service.Implementations
             return await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
         }
 
-        public async Task<Result> UpdateUser(UserAccount user)
+        public async Task<Result> UpdatePhoneDetails(UserAccount user)
         {
             return await _userAccountDataAccess.Update(user).ConfigureAwait(false);
         }

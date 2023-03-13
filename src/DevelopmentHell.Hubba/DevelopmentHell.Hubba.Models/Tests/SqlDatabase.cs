@@ -3,12 +3,14 @@
 	public enum Databases
 	{
 		USERS,
-		LOGS
+		LOGS,
+		NOTIFICATIONS
 	}
 
 	public enum Tables
 	{
 		RECOVERY_REQUESTS, USER_ACCOUNTS, USER_LOGINS, USER_OTPS,
-		LOGS
+		LOGS,
+		NOTIFICATION_SETTINGS, USER_NOTIFICATIONS
 	}
 }
