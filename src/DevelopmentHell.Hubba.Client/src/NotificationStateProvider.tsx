@@ -2,6 +2,7 @@ import { createContext, useEffect, useReducer, useRef, useState } from "react";
 import { Ajax } from "./Ajax";
 import { Auth } from "./Auth";
 import { triggerNotification } from "./Notification";
+import { INotificationSettingsData } from "./pages/AccountPage/NotificationSettingsView/NotificationSettingsView";
 import { INotificationData } from "./pages/NotificationPage/NotificationPage";
 
 interface INotificationStateContext {
@@ -16,6 +17,8 @@ interface INotificationStateProvider {
     children?: React.ReactNode;
 }
 
+
+// BRD is for 1 minute - testing purposes is 5 seconds
 const REFRESH_NOTIFICATIONS_INTERVAL_MILLISECONDS = 5000;
 
 const NotificationStateProvider: React.FC<INotificationStateProvider> = (props: React.PropsWithChildren<INotificationStateProvider>) => {
@@ -26,10 +29,14 @@ const NotificationStateProvider: React.FC<INotificationStateProvider> = (props: 
         const getData = async () => {
             const authData = Auth.getAuthData();
             if (!authData) return;
-            await Ajax.get<INotificationData[]>("/notification/getNotifications").then((response) => {
-                console.log(response.data);
-                setData(response.data && response.data.length ? response.data : []);
-            });
+
+            const response = await Ajax.get<INotificationSettingsData>("/notification/getNotificationSettings");
+
+            if (response.data && response.data["siteNotifications"]) {
+                await Ajax.get<INotificationData[]>("/notification/getNotifications").then((response) => {
+                    setData(response.data && response.data.length ? response.data : []);
+                });
+            }
         }
 
         getData();

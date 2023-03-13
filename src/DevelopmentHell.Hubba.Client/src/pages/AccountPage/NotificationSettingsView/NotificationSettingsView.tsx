@@ -8,7 +8,7 @@ interface INotificationSettingsProps {
 
 }
 
-interface INotificationSettingsData {
+export interface INotificationSettingsData {
     [setting: string]: boolean
 }
 
