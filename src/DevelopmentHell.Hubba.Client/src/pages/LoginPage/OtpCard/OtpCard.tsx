@@ -32,7 +32,7 @@ const OtpCard: React.FC<IOtpCardProps> = (props) => {
             <div>
                 <div className="input-field">
                     <label>OTP</label>
-                    <input type="text" maxLength={8} placeholder="Your OTP" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    <input id='otp' type="text" maxLength={8} placeholder="Your OTP" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                         setOtp(event.target.value);
                     }}/>
                 </div>
