@@ -30,29 +30,26 @@ const DeleteAccountView: React.FC<IDeleteAccountViewProps> = (props) => {
             <p>Are you sure you want to delete your account?
                 <br />This action can't be undone.
             </p>
-            <div className="buttons">
-                <div id="cancel-button">
-                    <Button title="Cancel" onClick={ props.onCancelClick }/>
-                </div>
-                <div id="delete-button">                
-                    <Button title="Delete" loading={!loaded} onClick={async () => {
-                        setLoaded(false);
-                        if(!accountId){
-                            onError("Unable to find selected account.");
-                            return;
-                        }
+            <div id="buttons" className="buttons">
+                <Button title="Cancel" onClick={ props.onCancelClick }/>           
+                
+                <Button title="Delete" loading={!loaded} onClick={async () => {
+                    setLoaded(false);
+                    if(!accountId){
+                        onError("Unable to find selected account.");
+                        return;
+                    }
 
-                        const response = await Ajax.post("/accountdeletion/deleteaccount", ({ accountId: accountId }));
-                        if (response.error) {
-                            onError(response.error);
-                            return;
-                        }
+                    const response = await Ajax.post("/accountdeletion/deleteaccount", ({ accountId: accountId }));
+                    if (response.error) {
+                        onError(response.error);
+                        return;
+                    }
 
-                        setLoaded(true);
-                        Auth.clearCookies();
-                        navigate("/");
-                    }}/>
-                </div>
+                    setLoaded(true);
+                    Auth.clearCookies();
+                    navigate("/");
+                }}/>
             </div>
             {error &&
                 <p className="error">{error}</p>

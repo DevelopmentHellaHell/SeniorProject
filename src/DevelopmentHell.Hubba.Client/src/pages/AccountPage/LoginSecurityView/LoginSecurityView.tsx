@@ -15,7 +15,7 @@ const LoginSecurityView: React.FC<ILoginSecurityViewProps> = (props) => {
             <h2>Login</h2>
             <div className ="login-password">
                 <p className="inline-text">Change password</p>
-                <div id = "update-button" className="buttons">
+                <div id="update-button" className="buttons">
                     <Button title="Update" onClick={ props.onUpdateClick }/>
                 </div>
             </div>

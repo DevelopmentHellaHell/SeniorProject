@@ -47,7 +47,7 @@ describe('working-ui', () => {
         cy.get('#delete-button').click();
         cy.get('#account-deletion-header')
         .contains('Account Deletion');
-        cy.get('#cancel-button').contains("Cancel").click();
+        cy.get('#buttons').contains("Cancel").click();
         cy.get('#login-security-header')
         .contains('Login & Security');
     });
@@ -78,7 +78,7 @@ describe('working-account-deletion', () => {
         .contains('Account Deletion');
         
         // deleting account
-        cy.get('#delete-button').contains("Delete").click();
+        cy.get('#buttons').contains("Delete").click();
         cy.url().should('eq', homeUrl);
         
         // trying to visit account url
