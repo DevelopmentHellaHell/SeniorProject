@@ -28,9 +28,9 @@ const NavbarUser: React.FC<INavbarUserProps> = (props) => {
                 }
             </nav>
             <Dropdown title={authData.azp ?? "User"}>
-                <p onClick={() => { navigate("/account") }}>Account</p>
-                <p onClick={() => { navigate("/notification") }}>Notification</p>
-                <p onClick={async () => {
+                <p id="account" onClick={() => { navigate("/account") }}>Account</p>
+                <p id="notification" onClick={() => { navigate("/notification") }}>Notification</p>
+                <p id="logout" onClick={async () => {
                     navigate("/logout")}}>Logout</p>
             </Dropdown>
         </header>
