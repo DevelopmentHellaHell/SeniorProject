@@ -34,6 +34,7 @@
 .login-card .info {
     color: rgb(var(--secondary-text-dark));
 }
+
 .login-card .info:hover{
     color: rgb(var(--primary-text-dark));
 }

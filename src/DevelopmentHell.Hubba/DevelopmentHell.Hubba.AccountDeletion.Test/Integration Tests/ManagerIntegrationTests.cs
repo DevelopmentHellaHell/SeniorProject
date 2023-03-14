@@ -8,11 +8,15 @@ using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Implementations;
+using DevelopmentHell.Hubba.CellPhoneProvider.Service.Implementations;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
+using DevelopmentHell.Hubba.Email.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.Notification.Manager.Implementations;
+using DevelopmentHell.Hubba.Notification.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
@@ -51,9 +55,41 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
 			ILoggerService loggerService = new LoggerService(
                 new LoggerDataAccess(_logsConnectionString, _logsTable)
             );
-            IAccountDeletionService accountDeletionService = new AccountDeletionService(
-                _userAccountDataAccess, 
+            _authorizationService = new AuthorizationService(
+                _userAccountDataAccess,
+                jwtHandlerService,
                 loggerService
+            );
+            IAccountDeletionService accountDeletionService = new AccountDeletionService(
+                _userAccountDataAccess,
+                new NotificationManager(
+                    new NotificationService(
+                        new NotificationDataAccess(
+                            ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
+                            ConfigurationManager.AppSettings["UserNotificationsTable"]!
+                        ),
+                        new NotificationSettingsDataAccess(
+                            ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
+                            ConfigurationManager.AppSettings["NotificationSettingsTable"]!
+                        ),
+                        new UserAccountDataAccess(
+                            ConfigurationManager.AppSettings["UsersConnectionString"]!,
+                            ConfigurationManager.AppSettings["UserAccountsTable"]!
+                        ),
+                        loggerService
+                    ),
+                    new CellPhoneProviderService(),
+                    new EmailService(
+                        ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!,
+                        ConfigurationManager.AppSettings["SENDGRID_API_KEY"]!,
+                        ConfigurationManager.AppSettings["COMPANY_EMAIL"]!,
+                        false
+                    ),
+                    _authorizationService,
+                    new ValidationService(),
+                    loggerService
+            ),
+            loggerService
             );
             _authenticationService = new AuthenticationService(
 				_userAccountDataAccess,
@@ -65,11 +101,6 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
                 jwtHandlerService,
                 validationService,
                 loggerService
-            );
-            _authorizationService = new AuthorizationService(
-                _userAccountDataAccess,
-				jwtHandlerService,
-				loggerService
             );
             _accountDeletionManager = new AccountDeletionManager(
                 accountDeletionService, 
@@ -120,7 +151,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             {
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
-            var expected = new Result { IsSuccessful = true};
+            var expected = new Result { IsSuccessful = true };
 
             // Act
             Result actual = await _accountDeletionManager.DeleteAccount(accountId).ConfigureAwait(false);

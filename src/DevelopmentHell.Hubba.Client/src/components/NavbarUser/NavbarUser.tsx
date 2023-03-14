@@ -1,8 +1,12 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { redirect, useNavigate } from "react-router-dom";
 import Dropdown from "../Dropdown/Dropdown";
 import { Auth } from "../../Auth";
 import './NavbarUser.css';
+import { INotificationData } from "../../pages/NotificationPage/NotificationPage";
+import { Ajax } from "../../Ajax";
+import { triggerNotification } from "../../Notification";
+import NotificationStateProvider from "../../NotificationStateProvider";
 
 interface INavbarUserProps {
 
@@ -11,7 +15,7 @@ interface INavbarUserProps {
 const NavbarUser: React.FC<INavbarUserProps> = (props) => {
     const navigate = useNavigate();
     const authData = Auth.getAccessData();
-
+    
     if (!authData) {
         redirect("/login");
         return null;

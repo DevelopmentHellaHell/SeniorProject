@@ -12,8 +12,9 @@ export default defineConfig({
     baseUrl: "http://localhost:3000",
     serverUrl: "https://localhost:7137",
 
-    realEmail: "tien.nguyen10@student.csulb.edu",
+    realEmail: "kevin.lieu.dinh@gmail.com",
     standardEmail: "hubba@gmail.com",
-    standardPassword: '12345678'
+    standardPassword: '12345678',
+    realNumber: "5107755205"
   }
 });

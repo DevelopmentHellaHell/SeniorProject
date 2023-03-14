@@ -7,6 +7,7 @@ import Sidebar from "../../components/Sidebar/Sidebar";
 import "./AccountPage.css";
 import DeleteAccountView from "./LoginSecurityView/DeleteAccountView/DeleteAccountView";
 import LoginSecurityView from "./LoginSecurityView/LoginSecurityView";
+import NotificationSettingsView from "./NotificationSettingsView/NotificationSettingsView";
 
 interface IAccountPageProps {
 
@@ -52,7 +53,7 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
             case AccountViews.LOGIN_SECURITY_ACCOUNT_DELETION:
                 return <DeleteAccountView onCancelClick={() => { setView(AccountViews.LOGIN_SECURITY) }}/>;
             case AccountViews.NOTIFICATION_SETTINGS:
-                return <></>; //TODO
+                return <NotificationSettingsView />; //TODO
             case AccountViews.SCHEDULING_HISTORY:
                 return <></>; //TODO
             case AccountViews.MANAGE_LISTINGS:
