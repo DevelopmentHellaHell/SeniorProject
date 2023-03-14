@@ -1,5 +1,4 @@
 /// <reference types="cypress" />
-import { start } from "repl";
 import { Ajax } from "../../src/Ajax";
 import { Database } from "./TestModels/Database";
 
@@ -33,56 +32,64 @@ describe.only('Navigate to Notification Settings', () => {
         cy.get('#siteNotifications-toggle-buttons').contains("Off").should('have.css', 'color', `rgb(241, 252, 250)`);
         cy.get('#siteNotifications-toggle-buttons').contains("On").click();
         cy.get('#siteNotifications-toggle-buttons').contains("On").should('have.css', 'color', `rgb(241, 252, 250)`);
-        // cy.contains("Save").click();
-        // // Save has cooldown of 5 seconds
-        // cy.wait(5000);
+        cy.contains("Save").click();
+        // Save has cooldown of 5 seconds
+        cy.clock(Date.now());
+        cy.tick(5000);
         
         cy.get('#emailNotifications-toggle-buttons').contains("On").click();
         cy.get('#emailNotifications-toggle-buttons').contains("On").should('have.css', 'color', `rgb(241, 252, 250)`);
         cy.get('#emailNotifications-toggle-buttons').contains("Off").click();
         cy.get('#emailNotifications-toggle-buttons').contains("Off").should('have.css', 'color', `rgb(241, 252, 250)`);
-        // cy.contains("Save").click();
-        // cy.wait(5000);
+        cy.contains("Save").click();
+        cy.clock(Date.now());
+        cy.tick(5000);
 
         cy.get('#textNotifications-toggle-buttons').contains("On").click();
         cy.get('#textNotifications-toggle-buttons').contains("On").should('have.css', 'color', `rgb(241, 252, 250)`);
         cy.get('#textNotifications-toggle-buttons').contains("Off").click();
         cy.get('#textNotifications-toggle-buttons').contains("Off").should('have.css', 'color', `rgb(241, 252, 250)`);
-        // cy.contains("Save").click();
-        // cy.wait(5000);
+        cy.contains("Save").click();
+        cy.clock(Date.now());
+        cy.tick(5000);
 
         cy.get('#typeScheduling-toggle-buttons').contains("Off").click();
         cy.get('#typeScheduling-toggle-buttons').contains("Off").should('have.css', 'color', `rgb(241, 252, 250)`);
         cy.get('#typeScheduling-toggle-buttons').contains("On").click();
         cy.get('#typeScheduling-toggle-buttons').contains("On").should('have.css', 'color', `rgb(241, 252, 250)`);
-        // cy.contains("Save").click();
-        // cy.wait(5000);
+        cy.contains("Save").click();
+        cy.clock(Date.now());
+        cy.tick(5000);
 
         cy.get('#typeWorkspace-toggle-buttons').contains("Off").click();
         cy.get('#typeWorkspace-toggle-buttons').contains("Off").should('have.css', 'color', `rgb(241, 252, 250)`);
         cy.get('#typeWorkspace-toggle-buttons').contains("On").click();
         cy.get('#typeWorkspace-toggle-buttons').contains("On").should('have.css', 'color', `rgb(241, 252, 250)`);
-        // cy.contains("Save").click();
+        cy.contains("Save").click();
+        cy.clock(Date.now());
+        cy.tick(5000);
 
         cy.get('#typeProjectShowcase-toggle-buttons').contains("Off").click();
         cy.get('#typeProjectShowcase-toggle-buttons').contains("Off").should('have.css', 'color', `rgb(241, 252, 250)`);
         cy.get('#typeProjectShowcase-toggle-buttons').contains("On").click();
         cy.get('#typeProjectShowcase-toggle-buttons').contains("On").should('have.css', 'color', `rgb(241, 252, 250)`);
-        // cy.contains("Save").click();
-        // cy.wait(5000);
+        cy.contains("Save").click();
+        cy.clock(Date.now());
+        cy.tick(5000);
 
         cy.get('#typeOther-toggle-buttons').contains("Off").click();
         cy.get('#typeOther-toggle-buttons').contains("Off").should('have.css', 'color', `rgb(241, 252, 250)`);
         cy.get('#typeOther-toggle-buttons').contains("On").click();
         cy.get('#typeOther-toggle-buttons').contains("On").should('have.css', 'color', `rgb(241, 252, 250)`);
-        // cy.contains("Save").click();
-        // cy.wait(5000);
+        cy.contains("Save").click();
+        cy.clock(Date.now());
+        cy.tick(5000);
 
         cy.get('#phone-number-input').clear().type(Cypress.env("realNumber")).should("have.value", "5107755205");
         cy.get(".cellphone-details-fields .dropdown-content").invoke("show");
         cy.contains("Verizon").click();
         cy.contains("Verizon").should("exist").and("be.visible");
-        // cy.contains("Save").click();
+        cy.contains("Save").click();
         
          // force show the dropdown menu
          cy.get('.dropdown-content').invoke('show');
@@ -113,7 +120,7 @@ describe.only('Navigate to Notification Settings', () => {
 
         // demonstrate clear all
          cy.contains("Clear All").click();
-         cy.contains("You have no new notifications.").should("exists");
+         cy.contains("You have no new notifications.").should("exist");
     });
 })
 
