@@ -21,6 +21,7 @@ describe.only('Navigate to Notification Settings', () => {
     after(async () => {
         await Ajax.post(testsRoute, { database: Database.Databases.USERS });
         await Ajax.post(testsRoute, { database: Database.Databases.NOTIFICATIONS });
+        await Ajax.post(testsRoute, { database: Database.Databases.LOGS });
     })
 
     it('user clicks Email Notification Settings on', () => {
