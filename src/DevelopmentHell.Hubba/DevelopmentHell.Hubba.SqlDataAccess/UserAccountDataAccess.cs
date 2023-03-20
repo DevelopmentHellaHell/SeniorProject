@@ -335,14 +335,18 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             throw new NotImplementedException();
         }
 
-        public Task<Result> SetEnabledStatus(string email, bool enabled)
+        public async Task<Result> SetEnabledStatus(int id, bool enabled)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<Result> SetEnabledStatus(int id, bool enabled)
-        {
-            throw new NotImplementedException();
+			var setResult = await _updateDataAccess.Update(_tableName, new() { new("Id", "=", id) }, new() { { "Disabled", enabled ? 0 : 1 } });
+			if (!setResult.IsSuccessful)
+			{
+				return new()
+				{
+					IsSuccessful = false,
+					ErrorMessage = "Unable to set Update Result: " + setResult.ErrorMessage
+				};
+			}
+			return setResult;
         }
     }
 }

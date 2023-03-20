@@ -16,7 +16,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 		Task<Result> Delete(string email);
 		Task<Result<int>> CountAdmin();
 		Task<Result> InsertUpdateAccount(string email, Dictionary<string, object> data);
-		Task<Result> SetEnabledStatus(string email, bool enabled);
 		Task<Result> SetEnabledStatus(int id, bool enabled);
 
     }

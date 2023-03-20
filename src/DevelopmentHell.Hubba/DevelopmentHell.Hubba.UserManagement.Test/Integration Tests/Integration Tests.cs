@@ -65,7 +65,7 @@ namespace DevelopmentHell.Hubba.UserManagement.Test
             _registrationService = new(_userAccountDataAccess, _cryptographyService, _validationService, _loggerService);
             _userNamesDataAccess = new(_usersConnectionString, "UserNames");
             _userManagementService = new(_loggerService, _userAccountDataAccess, _userNamesDataAccess);
-            _userManagementManager = new(_authorizationService, _loggerService, _registrationService, _userManagementService);
+            _userManagementManager = new(_authorizationService, _loggerService, _registrationService, _userManagementService,_validationService);
             _testsDataAccess = new();
             _testingService = new(_jwtKey, _testsDataAccess);
             _stopWatch = new();
@@ -310,8 +310,8 @@ namespace DevelopmentHell.Hubba.UserManagement.Test
         [TestMethod]
         public async Task FailureBackendAdminEnableAccountNotAdmin()
         {
-            Assert.IsNotNull(adminToken);
-            _testingService.DecodeJWT(adminToken);
+            Assert.IsNotNull(userToken);
+            _testingService.DecodeJWT(userToken);
             Assert.IsNotNull(Thread.CurrentPrincipal);
 
             var updateResult = await _userAccountDataAccess.Update(new()

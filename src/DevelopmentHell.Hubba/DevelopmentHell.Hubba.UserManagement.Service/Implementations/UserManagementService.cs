@@ -29,14 +29,50 @@ namespace DevelopmentHell.Hubba.UserManagement.Service.Implementations
             throw new NotImplementedException();
         }
 
-        public Task<Result> DisableAccount(int accountId)
+        public async Task<Result> DisableAccount(string email)
         {
-            throw new NotImplementedException();
+            var getResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            if (!getResult.IsSuccessful)
+            {
+                return new()
+                {
+                    IsSuccessful = false,
+                    ErrorMessage = "Unable to get Id to Disable account: " + getResult.ErrorMessage
+                };
+            }
+            var setResult = await _userAccountDataAccess.SetEnabledStatus(getResult.Payload!, false).ConfigureAwait(false);
+            if (!setResult.IsSuccessful)
+            {
+                return new()
+                {
+                    IsSuccessful = false,
+                    ErrorMessage = "Unable to Disable account: " + getResult.ErrorMessage
+                };
+            }
+            return setResult;
         }
 
-        public Task<Result> EnableAccount(int accountId)
+        public async Task<Result> EnableAccount(string email)
         {
-            throw new NotImplementedException();
+            var getResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            if (!getResult.IsSuccessful)
+            {
+                return new()
+                {
+                    IsSuccessful = false,
+                    ErrorMessage = "Unable to get Id to Enable account: " + getResult.ErrorMessage
+                };
+            }
+            var setResult = await _userAccountDataAccess.SetEnabledStatus(getResult.Payload!, true).ConfigureAwait(false);
+            if (!setResult.IsSuccessful)
+            {
+                return new()
+                {
+                    IsSuccessful = false,
+                    ErrorMessage = "Unable to Enable account: " + getResult.ErrorMessage
+                };
+            }
+            return setResult;
         }
 
         public async Task<Result> SetNames(string email, string? firstName, string? lastName, string? userName)

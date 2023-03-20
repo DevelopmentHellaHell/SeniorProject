@@ -12,8 +12,8 @@ namespace DevelopmentHell.Hubba.UserManagement.Service.Abstractions
         Task<Result> SetNames(string email, string? firstName, string? lastName, string? userName);
         Task<Result> CreateAccount(string email, string passphrase, string role, string? firstName, string? lastName, string?userName);
         Task<Result> UpdateAccount(string email, Dictionary<string, object> data);
-        Task<Result> DisableAccount(int accountId);
-        Task<Result> EnableAccount(int accountId);
+        Task<Result> DisableAccount(string email);
+        Task<Result> EnableAccount(string email);
 
     }
 }
