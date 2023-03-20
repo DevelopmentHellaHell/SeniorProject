@@ -39,9 +39,14 @@ namespace DevelopmentHell.Hubba.UserManagement.Service.Implementations
             throw new NotImplementedException();
         }
 
-        public Task<Result> SetNames(string email, string? firstName, string? lastName, string? userName)
+        public async Task<Result> SetNames(string email, string? firstName, string? lastName, string? userName)
         {
-            throw new NotImplementedException();
+            var getResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            if (!getResult.IsSuccessful)
+            {
+                return getResult;
+            }
+            return await _userNamesDataAccess.Insert(getResult.Payload, firstName, lastName, userName).ConfigureAwait(false);
         }
 
         public Task<Result> UpdateAccount(string email, Dictionary<string, object> data)

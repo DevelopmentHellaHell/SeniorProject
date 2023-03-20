@@ -24,18 +24,18 @@ namespace DevelopmentHell.Hubba.Registration.Manager.Implementations
             _loggerService = loggerService;
         }
 
-        public async Task<Result> Register(string email, string password, string accountType = "VerifiedUser", bool bypass = false)
+        public async Task<Result> Register(string email, string password)
         {
             Result result = new Result();
 
-			if (!bypass && _authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
+			if (_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
 			{
 				result.IsSuccessful = false;
 				result.ErrorMessage = "Error, user already logged in.";
 				return result;
 			}
 
-			Result registerResult = await _registrationService.RegisterAccount(email, password, accountType).ConfigureAwait(false);
+			Result registerResult = await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
             if (!registerResult.IsSuccessful)
             {
                 result.IsSuccessful = false;

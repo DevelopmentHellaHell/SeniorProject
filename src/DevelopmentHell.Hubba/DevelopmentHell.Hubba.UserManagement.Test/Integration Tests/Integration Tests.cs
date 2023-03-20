@@ -20,6 +20,7 @@ namespace DevelopmentHell.Hubba.UserManagement.Test
     {
         private string _usersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
         private string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
+        private string _userNamesTable = ConfigurationManager.AppSettings["UserNamesTable"]!;
         private string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
         private string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
         private string _jwtKey = ConfigurationManager.AppSettings["JwtKey"]!;
@@ -132,16 +133,19 @@ namespace DevelopmentHell.Hubba.UserManagement.Test
             _testingService.DecodeJWT(adminToken);
             Assert.IsNotNull(Thread.CurrentPrincipal);
 
-            var testResult = await _userManagementManager.ElevatedCreateAccount("test@gmail.com", password, "VerifiedUser", "firstName", "lastName", "userName");
+            var testResult = await _userManagementManager.ElevatedCreateAccount("test@gmail.com", password, "VerifiedUser", "firstName", "lastName", "userName").ConfigureAwait(false);
             _stopWatch.Stop();
-            Assert.IsTrue(testResult.IsSuccessful);
+            Assert.IsTrue(testResult.IsSuccessful,testResult.ErrorMessage);
 
             var getUser = await _userAccountDataAccess.GetUser("test@gmail.com").ConfigureAwait(false);
             Assert.IsNotNull(getUser.Payload);
             int getUserId = getUser.Payload.Id;
             var getNames = await _userNamesDataAccess.GetData(getUserId);
             Assert.IsNotNull(getNames.Payload);
-            Assert.IsTrue(new[] { "firstName", "lastName", "userName", "VerifiedUser" } == new[] { getNames.Payload["FirstName"], getNames.Payload["LastName"], getNames.Payload["UserName"], getUser.Payload.Role });
+            Assert.IsTrue((string)getNames.Payload!["FirstName"] == "firstName");
+            Assert.IsTrue((string)getNames.Payload!["LastName"]  == "lastName");
+            Assert.IsTrue((string)getNames.Payload!["UserName"]  == "userName");
+            Assert.IsTrue((string)getUser.Payload!.Role!         == "VerifiedUser");
         }
 
         [TestMethod]

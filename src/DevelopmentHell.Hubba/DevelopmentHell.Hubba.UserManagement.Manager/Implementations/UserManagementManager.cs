@@ -24,7 +24,37 @@ namespace DevelopmentHell.Hubba.UserManagement.Manager.Implementations
 
         public async Task<Result> ElevatedCreateAccount(string email, string passphrase, string accountType, string? firstName, string? lastName, string? userName)
         {
-            throw new NotImplementedException();
+            if (!_authorizationService.Authorize(new[] { "AdminUser" }).IsSuccessful)
+            {
+                return new()
+                {
+                    IsSuccessful = false,
+                    ErrorMessage = "Unauthorized Access"
+                };
+            }
+            var regResult = await _registrationService.RegisterAccount(email, passphrase, accountType).ConfigureAwait(false);
+            if (!regResult.IsSuccessful)
+            {
+                return new Result
+                {
+                    IsSuccessful = false,
+                    ErrorMessage = "Error in Creating account with Elevated permissions:"+regResult.ErrorMessage,
+                };
+            }
+
+            if (firstName != null || lastName != null || userName != null)
+            {
+                var updResult = await _userManagementService.SetNames(email, firstName, lastName, userName).ConfigureAwait(false);
+                if (!updResult.IsSuccessful)
+                {
+                    return new Result
+                    {
+                        IsSuccessful = false,
+                        ErrorMessage = "Error in Updating newly created account with Elevated Permissions:"+updResult.ErrorMessage,
+                    };
+                }
+            }
+            return new Result { IsSuccessful = true };
         }
 
         public async Task<Result> ElevatedDeleteAccount(string email)

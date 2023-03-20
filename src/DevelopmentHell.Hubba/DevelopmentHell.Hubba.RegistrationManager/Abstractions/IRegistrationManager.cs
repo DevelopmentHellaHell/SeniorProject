@@ -5,6 +5,6 @@ namespace DevelopmentHell.Hubba.Registration.Manager.Abstractions
 {
 	public interface IRegistrationManager
 	{
-		Task<Result> Register(string email, string password, string accountType, bool bypass);
+		Task<Result> Register(string email, string password);
 	}
 }

@@ -25,10 +25,34 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
         }
         public async Task<Result<Dictionary<string, object>>> GetData(int id)
         {
-            throw new NotImplementedException();
+            var selResult = await _selectDataAccess.Select(_tableName, new() { "*" }, new() { new("UserAccountId", "=", id) });
+            if (!selResult.IsSuccessful || selResult.Payload!.Count != 1)
+            {
+                return new()
+                {
+                    IsSuccessful = false,
+                    ErrorMessage = "Unable to get proper name information on users"
+                };
+            }
+            return new()
+            {
+                IsSuccessful = true,
+                Payload = selResult.Payload![0]
+            };
         }
 
-        public async Task<Result<string>> InsertUpdate(int id, Dictionary<string, object> data)
+        public async Task<Result> Insert(int id, string? firstName, string? lastName, string? userName)
+        {
+            Dictionary<string, object> insertData = new() {
+                { "UserAccountId",id },
+                { "FirstName", firstName == null ? DBNull.Value : firstName},
+                { "LastName",  lastName  == null ? DBNull.Value : lastName},
+                { "UserName",  userName  == null ? DBNull.Value : userName},
+            };
+            return await _insertDataAccess.Insert(_tableName, insertData).ConfigureAwait(false);
+        }
+
+        public Task<Result> Update(int id, Dictionary<string, object> data)
         {
             throw new NotImplementedException();
         }
