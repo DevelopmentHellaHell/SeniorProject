@@ -218,6 +218,8 @@ namespace DevelopmentHell.Hubba.UserManagement.Test
                 { "FirstName","changedFirstName" },
                 { "LastName","changedLastName" }
             };
+            var setResult = await _userManagementService.SetNames(userEmail, "firstName", "lastName", "userName");
+            Assert.IsTrue(setResult.IsSuccessful);
 
             var testResult = await _userManagementManager.ElevatedUpdateAccount(userEmail, updateDict);
             _stopWatch.Stop();
@@ -229,7 +231,9 @@ namespace DevelopmentHell.Hubba.UserManagement.Test
             int getUserId = getUser.Payload.Id;
             var getNames = await _userNamesDataAccess.GetData(getUserId);
             Assert.IsNotNull(getNames.Payload);
-            Assert.IsTrue(new[] { "changedFirstName", "changedLastName", "userName"} == new[] { getNames.Payload["FirstName"], getNames.Payload["LastName"], getNames.Payload["UserName"]});
+            Assert.IsTrue((string)getNames.Payload["FirstName"] == "changedFirstName");
+            Assert.IsTrue((string)getNames.Payload["LastName"] == "changedLastName");
+            Assert.IsTrue((string)getNames.Payload["UserName"] == "userName");
         }
 
         public async Task FailureBackendAdminUpdateAccountNotAdmin()

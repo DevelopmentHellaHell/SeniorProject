@@ -31,7 +31,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
                 return new()
                 {
                     IsSuccessful = false,
-                    ErrorMessage = "Unable to get proper name information on users"
+                    ErrorMessage = "Unable to get proper name information on users: "+selResult.ErrorMessage
                 };
             }
             return new()
@@ -52,9 +52,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
             return await _insertDataAccess.Insert(_tableName, insertData).ConfigureAwait(false);
         }
 
-        public Task<Result> Update(int id, Dictionary<string, object> data)
+        public async Task<Result> Update(int id, Dictionary<string, object> data)
         {
-            throw new NotImplementedException();
+            return await _updateDataAccess.Update(_tableName, new() { new("UserAccountId", "=", id) }, data);
         }
     }
 }

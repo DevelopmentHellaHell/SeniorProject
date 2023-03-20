@@ -167,7 +167,73 @@ namespace DevelopmentHell.Hubba.UserManagement.Manager.Implementations
 
         public async Task<Result> ElevatedUpdateAccount(string email, Dictionary<string, object> data)
         {
-            throw new NotImplementedException();
+            if (!_authorizationService.Authorize(new[] { "AdminUser" }).IsSuccessful)
+            {
+                return new()
+                {
+                    IsSuccessful = false,
+                    ErrorMessage = "Unauthorized Access"
+                };
+            }
+            HashSet<string> names = new(new string[]{ "FirstName","LastName","UserName" });
+            HashSet<string> accepted = new(new string[] { "Email", "Role", "CellPhoneNumber", "CellPhoneProvider" });
+            HashSet<string> acceptedRoles = new(new[] { "AdminUser", "VerifiedUser" });
+            Dictionary<string, object> updatedNames = new();
+            Dictionary<string, object> updatedAccount = new();
+            foreach (var pair in data)
+            {
+                if (names.Contains(pair.Key))
+                {
+                    updatedNames.Add(pair.Key, pair.Value);
+                }
+                else if (accepted.Contains(pair.Key))
+                {
+                    if (pair.Key == "Email")
+                    {
+                        var valResult = _validationService.ValidateEmail((string)pair.Value);
+                        if (!valResult.IsSuccessful)
+                        {
+                            continue;
+                        }
+                    }
+                    else if (pair.Key == "Role" && !acceptedRoles.Contains(pair.Value))
+                    {
+                        continue;
+                    }
+                    else if (pair.Key == "CellPhoneNumber")
+                    {
+                        var valResult = _validationService.ValidatePhoneNumber((string)pair.Value);
+                        if (!valResult.IsSuccessful)
+                        {
+                            continue;
+                        }
+                    }
+                    updatedAccount.Add(pair.Key,pair.Value);
+                }
+            }
+            if (updatedNames.Count > 0)
+            {
+                var nameResult = await _userManagementService.UpdateNames(email, updatedNames).ConfigureAwait(false);
+                if (!nameResult.IsSuccessful) { 
+                    return new() { 
+                        IsSuccessful = false,
+                        ErrorMessage = "Unable to update names: "+nameResult.ErrorMessage
+                    }; 
+                }
+            }
+            if (updatedAccount.Count > 0)
+            {
+                var updResult = await _userManagementService.UpdateAccount(email, updatedAccount).ConfigureAwait(false);
+                if (!updResult.IsSuccessful)
+                {
+                    return new()
+                    {
+                        IsSuccessful = false,
+                        ErrorMessage = "Unable to update account: " + updResult.ErrorMessage
+                    };
+                }
+            }
+            return new() { IsSuccessful = true };
         }
     }
 }

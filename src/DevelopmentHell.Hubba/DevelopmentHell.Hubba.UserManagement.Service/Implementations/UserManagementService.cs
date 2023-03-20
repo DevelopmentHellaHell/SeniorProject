@@ -84,6 +84,15 @@ namespace DevelopmentHell.Hubba.UserManagement.Service.Implementations
             }
             return await _userNamesDataAccess.Insert(getResult.Payload, firstName, lastName, userName).ConfigureAwait(false);
         }
+        public async Task<Result> UpdateNames(string email, Dictionary<string, object> data)
+        {
+            var getResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            if (!getResult.IsSuccessful)
+            {
+                return getResult;
+            }
+            return await _userNamesDataAccess.Update(getResult.Payload, data).ConfigureAwait(false);
+        }
 
         public Task<Result> UpdateAccount(string email, Dictionary<string, object> data)
         {
