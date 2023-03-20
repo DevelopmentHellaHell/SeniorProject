@@ -5,6 +5,8 @@ using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.UserManagement.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
+using DevelopmentHell.Hubba.AccountDeletion.Service.Abstractions;
+using DevelopmentHell.Hubba.SqlDataAccess;
 
 namespace DevelopmentHell.Hubba.UserManagement.Manager.Implementations
 {
@@ -15,14 +17,18 @@ namespace DevelopmentHell.Hubba.UserManagement.Manager.Implementations
         IRegistrationService _registrationService;
         IUserManagementService _userManagementService;
         IValidationService _validationService;
+        IAccountDeletionService _accountDeletionService;
+        IUserAccountDataAccess _userAccountDataAccess;
 
-        public UserManagementManager(IAuthorizationService authorizationService, ILoggerService loggerService, IRegistrationService registrationService, IUserManagementService userManagementService, IValidationService validationService) 
+        public UserManagementManager(IAuthorizationService authorizationService, ILoggerService loggerService, IRegistrationService registrationService, IUserManagementService userManagementService, IValidationService validationService, IAccountDeletionService accountDeletionService, IUserAccountDataAccess userAccountDataAccess) 
         { 
             _authorizationService = authorizationService;
             _loggerService = loggerService;
             _registrationService = registrationService;
             _userManagementService = userManagementService;
             _validationService = validationService;
+            _accountDeletionService = accountDeletionService;
+            _userAccountDataAccess = userAccountDataAccess;
         }
 
         public async Task<Result> ElevatedCreateAccount(string email, string passphrase, string accountType, string? firstName, string? lastName, string? userName)
@@ -62,12 +68,33 @@ namespace DevelopmentHell.Hubba.UserManagement.Manager.Implementations
 
         public async Task<Result> ElevatedDeleteAccount(string email)
         {
-            throw new NotImplementedException();
-        }
-
-        public async Task<Result> ElevatedDeleteAccountNotifyListingsBookings(string email)
-        {
-            throw new NotImplementedException();
+            if (!_authorizationService.Authorize(new[] { "AdminUser" }).IsSuccessful)
+            {
+                return new()
+                {
+                    IsSuccessful = false,
+                    ErrorMessage = "Unauthorized Access"
+                };
+            }
+            var getResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            if (!getResult.IsSuccessful)
+            {
+                return new()
+                {
+                    IsSuccessful = false,
+                    ErrorMessage = "Unable to get Id to delete Account: "+ getResult.ErrorMessage,
+                };
+            }
+            var delResult = await _accountDeletionService.DeleteAccount(getResult.Payload!).ConfigureAwait(false);
+            if (!delResult.IsSuccessful)
+            {
+                return new()
+                {
+                    IsSuccessful = false,
+                    ErrorMessage = "Unable To delete Account: " + delResult.ErrorMessage,
+                };
+            }
+            return delResult;
         }
 
         public async Task<Result> ElevatedDisableAccount(string email)

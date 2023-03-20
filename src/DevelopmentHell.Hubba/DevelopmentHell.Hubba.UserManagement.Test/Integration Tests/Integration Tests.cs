@@ -11,7 +11,11 @@ using DevelopmentHell.Hubba.Validation.Service.Implementations;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using System.Configuration;
-
+using DevelopmentHell.Hubba.AccountDeletion.Service.Implementations;
+using DevelopmentHell.Hubba.Notification.Service.Implementations;
+using DevelopmentHell.Hubba.Notification.Manager.Implementations;
+using DevelopmentHell.Hubba.CellPhoneProvider.Service.Implementations;
+using DevelopmentHell.Hubba.Email.Service.Implementations;
 
 namespace DevelopmentHell.Hubba.UserManagement.Test
 {
@@ -21,10 +25,16 @@ namespace DevelopmentHell.Hubba.UserManagement.Test
         private string _usersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
         private string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
         private string _userNamesTable = ConfigurationManager.AppSettings["UserNamesTable"]!;
+        private string _notificationsConnectionString = ConfigurationManager.AppSettings["NotificationsConnectionString"]!;
+        private string _notificationsTable = ConfigurationManager.AppSettings["UserNotificationsTable"]!;
+        private string _notificationSettingsTable = ConfigurationManager.AppSettings["NotificationSettingsTable"]!;
         private string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
         private string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
         private string _jwtKey = ConfigurationManager.AppSettings["JwtKey"]!;
         private string _cryptographyKey = ConfigurationManager.AppSettings["CryptographyKey"]!;
+        private string _sendgridApi = ConfigurationManager.AppSettings["SENDGRID_API_KEY"]!;
+        private string _sendgridUser = ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!;
+        private string _email = ConfigurationManager.AppSettings["COMPANY_EMAIL"]!;
 
         private LoggerDataAccess _loggerDataAccess;
         private LoggerService _loggerService;
@@ -35,8 +45,14 @@ namespace DevelopmentHell.Hubba.UserManagement.Test
         private ValidationService _validationService;
         private RegistrationService _registrationService;
         private UserNamesDataAccess _userNamesDataAccess;
-        
         private UserManagementService _userManagementService;
+        private NotificationDataAccess _notificationDataAccess;
+        private NotificationSettingsDataAccess _notificationSettingsDataAccess;
+        private NotificationService _notificationService;
+        private CellPhoneProviderService _cellPhoneProviderService;
+        private EmailService _emailService;
+        private NotificationManager _notificationManager;
+        private AccountDeletionService _accountDeletionService;
         private UserManagementManager _userManagementManager;
         private TestsDataAccess _testsDataAccess;
         private TestingService _testingService;
@@ -65,7 +81,14 @@ namespace DevelopmentHell.Hubba.UserManagement.Test
             _registrationService = new(_userAccountDataAccess, _cryptographyService, _validationService, _loggerService);
             _userNamesDataAccess = new(_usersConnectionString, "UserNames");
             _userManagementService = new(_loggerService, _userAccountDataAccess, _userNamesDataAccess);
-            _userManagementManager = new(_authorizationService, _loggerService, _registrationService, _userManagementService,_validationService);
+            _notificationDataAccess = new(_notificationsConnectionString, _notificationsTable);
+            _notificationSettingsDataAccess = new(_notificationsConnectionString, _notificationSettingsTable);
+            _notificationService = new(_notificationDataAccess,_notificationSettingsDataAccess, _userAccountDataAccess,_loggerService);
+            _cellPhoneProviderService = new();
+            _emailService = new(_sendgridUser,_sendgridApi,_email);
+            _notificationManager = new(_notificationService, _cellPhoneProviderService, _emailService, _authorizationService, _validationService, _loggerService);
+            _accountDeletionService = new(_userAccountDataAccess,_notificationManager,_loggerService);
+            _userManagementManager = new(_authorizationService, _loggerService, _registrationService, _userManagementService,_validationService,_accountDeletionService,_userAccountDataAccess);
             _testsDataAccess = new();
             _testingService = new(_jwtKey, _testsDataAccess);
             _stopWatch = new();
