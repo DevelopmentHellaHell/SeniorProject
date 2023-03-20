@@ -1,5 +1,4 @@
-﻿using Development.Hubba.JWTHandler.Service.Abstractions;
-using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
+﻿using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
 using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;

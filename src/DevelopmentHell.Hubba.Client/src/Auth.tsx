@@ -1,3 +1,5 @@
+import { redirect } from "react-router-dom";
+
 export namespace Auth {
     export enum Roles {
         ADMIN_USER = "AdminUser",
@@ -54,12 +56,22 @@ export namespace Auth {
     
         const decodedJwt = parseJwt<IJWTDecoded>(cookie);
         if (decodedJwt.exp * 1000 < Date.now()) {
-            removeCookie("access_token");
+            clearCookies();
             alert("Session expired. Please log in again.");
+            redirect("/login");
             return;
         }
     
         return decodedJwt;
+    }
+
+    export function getAuthData(): IJWTDecoded | undefined {
+        const cookie = getCookie("id_token");
+        if (!cookie) {
+            return;
+        }
+
+        return parseJwt<IJWTDecoded>(cookie);
     }
 
     export function clearCookies() {

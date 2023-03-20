@@ -1,0 +1,43 @@
+.notification-settings-wrapper {
+    color: rgb(var(--primary-text-dark));
+    padding-bottom: 2.5rem;
+    padding-left: 20px;
+}
+
+.notification-settings-container {
+    display: inline;
+
+}
+
+.toggle-item .inline-text {
+    display: inline-block;
+    width: 140px;
+}
+
+.toggle-item .buttons {
+    display: inline;
+}
+
+.notification-settings-wrapper .error {
+    color: rgb(var(--error-text));
+}
+
+.notification-settings-wrapper .success {
+    color: rgb(var(--success-text));
+}
+
+.cellphone-details-fields {
+    display: inline;
+    margin-left: 30px;
+}
+
+.cellphone-details-fields input {
+    width: 100px;
+    padding: 8px 10px;
+    border: 1px solid rgb(var(--primary-text-dark));
+    border-radius: 3px;
+}
+
+.cellphone-details-fields .dropdown {
+    margin-left: 5px;
+}

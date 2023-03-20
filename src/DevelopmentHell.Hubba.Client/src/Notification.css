@@ -1,0 +1,22 @@
+.notification-popup-fixed {
+    position: absolute;
+    bottom: 2.5rem;
+    right: 0;
+}
+
+#notification-fixed-container {
+    background-color: #ffffff;
+}
+
+.notification-popup-container .notification-wrapper {
+    display: flex;
+    padding: 5px 10px;
+    box-shadow: 0 2px 8px 0 rgb(var(--primary-background-dark));
+    color: rgb(var(--primary-text-dark));
+    border: solid 1px #e0e7ff;
+    align-items: center;
+}
+
+.notification-popup-container .notification-info-container {
+    padding-right: 20px;
+}

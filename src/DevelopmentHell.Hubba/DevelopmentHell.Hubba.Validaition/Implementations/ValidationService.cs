@@ -95,5 +95,27 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
             return result;
         }
 
+        //passphrase satisfies length and format
+        //length: min 8 character
+        //format: valid characters:
+        //blank space
+        //a - z
+        //A - Z
+        //0 - 9
+        //.,@!-
+        public Result ValidatePhoneNumber(string phoneNumber)
+        {
+            Result result = new Result();
+            result.IsSuccessful = false;
+            Regex regex = new(@"^[0-9]+$");
+            if (!regex.IsMatch(phoneNumber) || phoneNumber.Length < 10 || phoneNumber.Length > 11)
+            {
+                result.ErrorMessage = "Phone number provided is invalid. Retry or contact admin.";
+                return result;
+            }
+            result.IsSuccessful = true;
+            return result;
+        }
+
     }
 }

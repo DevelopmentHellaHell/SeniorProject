@@ -112,7 +112,6 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations
                     if (thisAccountIDInt == accountId)
                     {
 						Result<string> logoutResult = _authenticationService.Logout();
-						result.Payload = logoutResult.Payload!;
 					}
 
 					result.IsSuccessful = true;
