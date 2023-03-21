@@ -1,7 +1,6 @@
 ﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
-using System.Data.SqlTypes;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
@@ -39,7 +38,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			}
 
 			List<Dictionary<string, object>> payload = selectResult.Payload;
-			
+
 			result.IsSuccessful = true;
 			if (payload.Count > 0) result.Payload = payload;
 			return result;

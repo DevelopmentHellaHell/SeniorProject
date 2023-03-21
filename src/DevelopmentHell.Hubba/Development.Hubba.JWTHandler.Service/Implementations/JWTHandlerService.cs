@@ -1,15 +1,16 @@
-﻿using System.Security.Claims;
+﻿using Development.Hubba.JWTHandler.Service.Abstractions;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Development.Hubba.JWTHandler.Service.Abstractions;
 
 namespace Development.Hubba.JWTHandler.Service.Implementations
 {
-    public class JWTHandlerService : IJWTHandlerService
-    {
+	public class JWTHandlerService : IJWTHandlerService
+	{
 		private readonly string _jwtKey;
 
-		public JWTHandlerService(string jwtKey) {
+		public JWTHandlerService(string jwtKey)
+		{
 			_jwtKey = jwtKey;
 		}
 
@@ -28,7 +29,7 @@ namespace Development.Hubba.JWTHandler.Service.Implementations
 			return GenerateToken(header, payload);
 		}
 
-		public string GenerateToken(Dictionary<string, object> header, Dictionary<string, object>  payload)
+		public string GenerateToken(Dictionary<string, object> header, Dictionary<string, object> payload)
 		{
 			string headerJson = SerializeToJson(header);
 			string headerBase64 = EncodeBase64(headerJson);

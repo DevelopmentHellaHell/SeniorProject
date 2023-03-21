@@ -144,7 +144,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 				Role = (string)payload.First()["Role"],
 				CellPhoneNumber = payload.First()["CellPhoneNumber"] == DBNull.Value ? null : (string)payload.First()["CellPhoneNumber"],
 				CellPhoneProvider = payload.First()["CellPhoneProvider"] == DBNull.Value ? null : (CellPhoneProviders)payload.First()["CellPhoneProvider"]
-            };
+			};
 			return result;
 		}
 
@@ -304,30 +304,30 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
 			return deleteResult;
 		}
-        public async Task<Result<int>> CountAdmin()
-        {
-            Result<int> result = new Result<int>();
+		public async Task<Result<int>> CountAdmin()
+		{
+			Result<int> result = new Result<int>();
 
-            Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
-                _tableName,
-                new List<string>() { "COUNT(*) as AdminCount" },
-                new List<Comparator>()
-                {
-                    new Comparator("Role","=", "AdminUser"),
-                }
-            ).ConfigureAwait(false);
-            if (!selectResult.IsSuccessful || selectResult.Payload is null)
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = selectResult.ErrorMessage;
-                return result;
-            }
+			Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
+				_tableName,
+				new List<string>() { "COUNT(*) as AdminCount" },
+				new List<Comparator>()
+				{
+					new Comparator("Role","=", "AdminUser"),
+				}
+			).ConfigureAwait(false);
+			if (!selectResult.IsSuccessful || selectResult.Payload is null)
+			{
+				result.IsSuccessful = false;
+				result.ErrorMessage = selectResult.ErrorMessage;
+				return result;
+			}
 
-            List<Dictionary<string, object>> payload = selectResult.Payload;
-            result.IsSuccessful = true;
+			List<Dictionary<string, object>> payload = selectResult.Payload;
+			result.IsSuccessful = true;
 			result.Payload = (int)payload[0]["AdminCount"];
 
-            return result;
-        }
-    }
+			return result;
+		}
+	}
 }

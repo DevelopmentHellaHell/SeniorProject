@@ -1,5 +1,4 @@
-﻿using DevelopmentHell.Hubba.Cryptography.Service;
-using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
+﻿using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Email.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
@@ -8,7 +7,7 @@ using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 namespace DevelopmentHell.Hubba.OneTimePassword.Service.Implementations
 
 {
-    public class OTPService : IOTPService
+	public class OTPService : IOTPService
 	{
 		private static readonly string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 		private IOTPDataAccess _otpDataAccess;

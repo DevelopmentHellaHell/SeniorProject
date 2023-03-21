@@ -15,7 +15,7 @@ namespace DevelopmentHell.Hubba.Analytics.Service.Implementations
 			{ "bookings", "booking" },
 			{ "listings", "listing" }
 		};
-		
+
 		private IAnalyticsDataAccess _analyticsDataAccess;
 		private IAuthorizationService _authorizationService;
 		private ILoggerService _loggerService;

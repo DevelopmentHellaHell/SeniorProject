@@ -1,5 +1,4 @@
-﻿using DevelopmentHell.Hubba.Models;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 namespace Development.Hubba.JWTHandler.Service.Abstractions
 {

@@ -5,18 +5,18 @@ using DevelopmentHell.Hubba.Validation.Service.Implementations;
 
 namespace DevelopmentHell.Hubba.Validation.Test
 {
-    [TestClass]
+	[TestClass]
 	public class UnitTests
 	{
 
 		private readonly IValidationService _validationService;
 
 
-        public UnitTests()
+		public UnitTests()
 		{
 			_validationService = new ValidationService();
 
-        }
+		}
 
 		/*
         * Success Case
@@ -158,74 +158,74 @@ namespace DevelopmentHell.Hubba.Validation.Test
 			Assert.IsTrue(expected.ErrorMessage == actual.ErrorMessage);
 		}
 
-        /*
+		/*
         * Success Case
         * Goal: Validate an syntactically correct phone number with 10 characters
         * Process: Call the ValidateEmail method on a syntactically correct phone number
         */
-        [TestMethod]
-        public void Test07()
-        {
-            // Arrange
-            string phoneNumber = "0123456789";
-            Result expected = new();
-            Result actual = new();
-            expected.IsSuccessful = true;
+		[TestMethod]
+		public void Test07()
+		{
+			// Arrange
+			string phoneNumber = "0123456789";
+			Result expected = new();
+			Result actual = new();
+			expected.IsSuccessful = true;
 
-            // Act
-            actual = _validationService.ValidatePhoneNumber(phoneNumber);
+			// Act
+			actual = _validationService.ValidatePhoneNumber(phoneNumber);
 
-            // Assert
-            Assert.IsTrue(actual is not null);
-            Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
-        }
+			// Assert
+			Assert.IsTrue(actual is not null);
+			Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
+		}
 
-        /*
+		/*
         * Failure Case
         * Goal: Validate an syntactically incorrect phone number with less than 12 characters
         * Process: Call the ValidateEmail method on a syntactically incorrect phone number
         */
-        [TestMethod]
-        public void Test08()
-        {
-            // Arrange
-            string phoneNumber = "a12345678";
-            Result expected = new();
-            Result actual = new();
-            expected.IsSuccessful = false;
-            expected.ErrorMessage = "Phone number provided is invalid. Retry or contact admin.";
+		[TestMethod]
+		public void Test08()
+		{
+			// Arrange
+			string phoneNumber = "a12345678";
+			Result expected = new();
+			Result actual = new();
+			expected.IsSuccessful = false;
+			expected.ErrorMessage = "Phone number provided is invalid. Retry or contact admin.";
 
-            // Act
-            actual = _validationService.ValidatePhoneNumber(phoneNumber);
+			// Act
+			actual = _validationService.ValidatePhoneNumber(phoneNumber);
 
-            // Assert
-            Assert.IsTrue(actual is not null);
-            Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
-            Assert.IsTrue(expected.ErrorMessage == actual.ErrorMessage);
-        }
+			// Assert
+			Assert.IsTrue(actual is not null);
+			Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
+			Assert.IsTrue(expected.ErrorMessage == actual.ErrorMessage);
+		}
 
-        /*
+		/*
         * Failure Case
         * Goal: Validate an syntactically incorrect phone number with less than 12 characters
         * Process: Call the ValidateEmail method on a long correct phone number
         */
-        [TestMethod]
-        public void Test09()
-        {
-            // Arrange
-            string password = "1234567";
-            Result expected = new();
-            Result actual = new();
-            expected.IsSuccessful = false;
-            expected.ErrorMessage = "Phone number provided is invalid. Retry or contact admin.";
+		[TestMethod]
+		public void Test09()
+		{
+			// Arrange
+			string password = "1234567";
+			Result expected = new();
+			Result actual = new();
+			expected.IsSuccessful = false;
+			expected.ErrorMessage = "Phone number provided is invalid. Retry or contact admin.";
 
-            // Act
-            actual = _validationService.ValidatePhoneNumber(password);
+			// Act
+			actual = _validationService.ValidatePhoneNumber(password);
 
-            // Assert
-            Assert.IsTrue(actual is not null);
-            Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
-            Assert.IsTrue(expected.ErrorMessage == actual.ErrorMessage);
-        }
-    }
+			// Assert
+			Assert.IsTrue(actual is not null);
+			Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
+			Assert.IsTrue(expected.ErrorMessage == actual.ErrorMessage);
+		}
+	}
 }

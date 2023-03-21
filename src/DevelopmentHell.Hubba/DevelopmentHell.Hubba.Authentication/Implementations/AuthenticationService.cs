@@ -1,8 +1,4 @@
-﻿using System.Configuration;
-using System.Security.Claims;
-using System.Text;
-using Development.Hubba.JWTHandler.Service.Abstractions;
-using Development.Hubba.JWTHandler.Service.Implementations;
+﻿using Development.Hubba.JWTHandler.Service.Abstractions;
 using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
@@ -12,14 +8,14 @@ using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 
 namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 {
-    public class AuthenticationService : IAuthenticationService
+	public class AuthenticationService : IAuthenticationService
 	{
 		private IUserAccountDataAccess _userAccountDataAccess;
 		private IUserLoginDataAccess _userLoginDataAccess;
-        private ICryptographyService _cryptographyService;
+		private ICryptographyService _cryptographyService;
 		private IJWTHandlerService _jwtHandlerService;
 		private IValidationService _validationService;
-        private ILoggerService _loggerService;
+		private ILoggerService _loggerService;
 
 		public AuthenticationService(IUserAccountDataAccess userAccountDataAccess, IUserLoginDataAccess userLoginDataAccess, ICryptographyService cryptographyService, IJWTHandlerService jWTHandlerService, IValidationService validationService, ILoggerService loggerService)
 		{
@@ -28,7 +24,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 			_cryptographyService = cryptographyService;
 			_jwtHandlerService = jWTHandlerService;
 			_validationService = validationService;
-            _loggerService = loggerService;
+			_loggerService = loggerService;
 		}
 
 		public async Task<Result<int>> AuthenticateCredentials(string email, string password, string ipAddress)
@@ -167,10 +163,10 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
 			return result; ;
 		}
 
-        public Result<string> Logout()
-        {
+		public Result<string> Logout()
+		{
 			Result<string> result = new Result<string>();
-            result.IsSuccessful = true;
+			result.IsSuccessful = true;
 			result.Payload = _jwtHandlerService.GenerateInvalidToken();
 			return result;
 		}

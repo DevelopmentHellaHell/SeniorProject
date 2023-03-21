@@ -7,7 +7,7 @@ using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 
 namespace DevelopmentHell.Hubba.Registration.Service.Implementations
 {
-    public class RegistrationService : IRegistrationService
+	public class RegistrationService : IRegistrationService
 	{
 		private IUserAccountDataAccess _userAccountDataAccess;
 		private ICryptographyService _cryptographyService;
@@ -19,7 +19,7 @@ namespace DevelopmentHell.Hubba.Registration.Service.Implementations
 			_userAccountDataAccess = userAccountDataAccess;
 			_cryptographyService = cryptographyService;
 			_validationService = validationService;
-            _loggerService = loggerService;
+			_loggerService = loggerService;
 		}
 
 		public async Task<Result> RegisterAccount(string email, string password)

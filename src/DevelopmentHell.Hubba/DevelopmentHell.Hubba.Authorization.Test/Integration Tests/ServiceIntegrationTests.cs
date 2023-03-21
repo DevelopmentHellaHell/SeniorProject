@@ -1,31 +1,31 @@
-using DevelopmentHell.Hubba.Authorization.Service.Implementations;
-using System.Configuration;
-using DevelopmentHell.Hubba.SqlDataAccess;
-using DevelopmentHell.Hubba.Logging.Service.Implementations;
-using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
-using DevelopmentHell.Hubba.Registration.Service.Abstractions;
-using DevelopmentHell.Hubba.Registration.Service.Implementations;
-using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
-using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using DevelopmentHell.Hubba.Logging.Service.Abstractions;
-using System.Security.Claims;
-using DevelopmentHell.Hubba.Testing.Service.Implementations;
-using DevelopmentHell.Hubba.Testing.Service.Abstractions;
-using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
-using DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
+using DevelopmentHell.Hubba.Authentication.Service.Implementations;
+using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
+using DevelopmentHell.Hubba.Authorization.Service.Implementations;
+using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
+using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
+using DevelopmentHell.Hubba.Logging.Service.Abstractions;
+using DevelopmentHell.Hubba.Logging.Service.Implementations;
+using DevelopmentHell.Hubba.Registration.Service.Abstractions;
+using DevelopmentHell.Hubba.Registration.Service.Implementations;
+using DevelopmentHell.Hubba.SqlDataAccess;
+using DevelopmentHell.Hubba.Testing.Service.Abstractions;
+using DevelopmentHell.Hubba.Testing.Service.Implementations;
+using DevelopmentHell.Hubba.Validation.Service.Implementations;
+using System.Configuration;
+using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.Authorization.Test
 {
-    [TestClass]
+	[TestClass]
 	public class ServiceIntegrationTests
 	{
-        private string _usersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
-        private string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
-        private string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
-        private string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
+		private string _usersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
+		private string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
+		private string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
+		private string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
 		private string _jwtKey = ConfigurationManager.AppSettings["JwtKey"]!;
 
 		// Class to test
@@ -44,9 +44,9 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 			);
 			ILoggerService loggerService = new LoggerService(
 				new LoggerDataAccess(
-                    _logsConnectionString,
-                    _logsTable
-                )
+					_logsConnectionString,
+					_logsTable
+				)
 			);
 			ICryptographyService cryptographyService = new CryptographyService(
 				ConfigurationManager.AppSettings["CryptographyKey"]!
@@ -83,13 +83,13 @@ namespace DevelopmentHell.Hubba.Authorization.Test
 			);
 		}
 
-        [TestInitialize]
-        public async Task Setup()
-        {
-            await _testingService.DeleteAllRecords().ConfigureAwait(false);
-        }
+		[TestInitialize]
+		public async Task Setup()
+		{
+			await _testingService.DeleteAllRecords().ConfigureAwait(false);
+		}
 
-        [TestMethod]
+		[TestMethod]
 		public void ShouldInstansiateCtor()
 		{
 			Assert.IsNotNull(_authorizationService);
