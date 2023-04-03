@@ -32,7 +32,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         {
             try
             {
-                var result = await _userManagementManager.ElevatedCreateAccount(userData.Email, userData.Password, userData.Role, userData.FirstName, userData.LastName, userData.UserName);.ConfigureAwait(false);
+                var result = await _userManagementManager.ElevatedCreateAccount(userData.Email!, userData.Password!, userData.Role!, userData.FirstName, userData.LastName, userData.UserName).ConfigureAwait(false);
                 if (!result.IsSuccessful)
                 {
                     _logger.Log(Models.LogLevel.WARNING, Category.VIEW, result.ErrorMessage!);
@@ -48,8 +48,9 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 
         [HttpPost]
         [Route("delete")]
-        public async Task<IActionResult> DeleteAccount(string email)
+        public async Task<IActionResult> DeleteAccount(EmailDTO in_email)
         {
+            var email = in_email.Email!;
             try
             {
                 var result = await _userManagementManager.ElevatedDeleteAccount(email).ConfigureAwait(false);
@@ -61,6 +62,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             }
             catch (Exception ex)
             {
+                _logger.Log(Models.LogLevel.WARNING, Category.VIEW, ex.Message!);
                 return BadRequest($"Failed to delete account {email}");
             }
             return Ok();
@@ -68,8 +70,9 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 
         [HttpPost]
         [Route("enable")]
-        public async Task<IActionResult> EnableAccount(string email)
+        public async Task<IActionResult> EnableAccount(EmailDTO in_email)
         {
+            var email = in_email.Email!;
             try
             {
                 var result = await _userManagementManager.ElevatedEnableAccount(email);
@@ -88,8 +91,9 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 
         [HttpPost]
         [Route("disable")]
-        public async Task<IActionResult> DisableAccount(string email)
+        public async Task<IActionResult> DisableAccount(EmailDTO in_email)
         {
+            var email = in_email.Email!;
             try
             {
                 var result = await _userManagementManager.ElevatedDisableAccount(email);
@@ -101,7 +105,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest($"Failed to Disbale account {email}");
+                return BadRequest($"Failed to Disable account {email}");
             }
             return Ok();
         }
@@ -139,7 +143,8 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest($"Failed to Disbale account {user.Email}");
+                _logger.Log(Models.LogLevel.WARNING, Category.VIEW, ex.Message!);
+                return BadRequest($"Failed to Update account {user.Email}");
             }
             return Ok();
         }

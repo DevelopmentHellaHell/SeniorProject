@@ -77,7 +77,7 @@ namespace DevelopmentHell.Hubba.UserManagement.Manager.Implementations
                 };
             }
             var getResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
-            if (!getResult.IsSuccessful)
+            if (!getResult.IsSuccessful || getResult.Payload == 0)
             {
                 return new()
                 {
@@ -176,7 +176,7 @@ namespace DevelopmentHell.Hubba.UserManagement.Manager.Implementations
                 };
             }
             HashSet<string> names = new(new string[]{ "FirstName","LastName","UserName" });
-            HashSet<string> accepted = new(new string[] { "Email", "Role", "CellPhoneNumber", "CellPhoneProvider" });
+            HashSet<string> accepted = new(new string[] { "Role", "CellPhoneNumber", "CellPhoneProvider" });
             HashSet<string> acceptedRoles = new(new[] { "AdminUser", "VerifiedUser" });
             Dictionary<string, object> updatedNames = new();
             Dictionary<string, object> updatedAccount = new();

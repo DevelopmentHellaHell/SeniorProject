@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
+using Microsoft.AspNetCore.Identity;
 
 namespace DevelopmentHell.Hubba.UserManagement.Service.Implementations
 {
@@ -94,9 +95,19 @@ namespace DevelopmentHell.Hubba.UserManagement.Service.Implementations
             return await _userNamesDataAccess.Update(getResult.Payload, data).ConfigureAwait(false);
         }
 
-        public Task<Result> UpdateAccount(string email, Dictionary<string, object> data)
+        public async Task<Result> UpdateAccount(string email, Dictionary<string, object> data)
         {
-            throw new NotImplementedException();
+            var getResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            if (!getResult.IsSuccessful)
+            {
+                return getResult;
+            }
+            var user = new UserAccount
+            {
+                Id = getResult.Payload,
+                Role = (string)data["Role"]
+            };
+            return await _userAccountDataAccess.Update(user);
         }
     }
 }

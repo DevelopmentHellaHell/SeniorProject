@@ -1,0 +1,26 @@
+.create-update-wrapper {
+    color: rgb(var(--primary-text-dark));
+    text-align: center;
+}
+
+.input-field {
+    margin-bottom: 15px;
+    margin-right: 5px;
+    display: flex;
+    align-items: center;
+    text-align: left;
+}
+
+.input-field label {
+    width: 120px;
+    margin-right: 10px;
+}
+
+.buttons {
+    align-items: left;
+    text-align: left;
+}
+
+.buttons button {
+    margin: 10px;
+}

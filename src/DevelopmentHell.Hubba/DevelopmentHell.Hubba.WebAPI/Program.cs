@@ -11,6 +11,8 @@ using DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Implementations;
+using DevelopmentHell.Hubba.UserManagement.Manager.Implementations;
+using DevelopmentHell.Hubba.UserManagement.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using Microsoft.Net.Http.Headers;
 using System.Security.Claims;
@@ -39,6 +41,12 @@ using DevelopmentHell.Hubba.Notification.Manager.Implementations;
 using DevelopmentHell.Hubba.Notification.Service.Abstractions;
 using DevelopmentHell.Hubba.CellPhoneProvider.Service.Implementations;
 using DevelopmentHell.Hubba.Email.Service.Abstractions;
+using DevelopmentHell.Hubba.UserManagement.Service.Abstractions;
+using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
+using DevelopmentHell.Hubba.UserManagement.Manager.Abstractions;
+using DevelopmentHell.Hubba.Registration.Service.Abstractions;
+using DevelopmentHell.Hubba.AccountDeletion.Service.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -122,17 +130,20 @@ builder.Services.AddTransient<INotificationManager, NotificationManager>(s =>
         s.GetService<ILoggerService>()!
     )
 );
+builder.Services.AddTransient<IRegistrationService, RegistrationService>(s =>
+    new RegistrationService(
+        new UserAccountDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
+        ),
+        s.GetService<ICryptographyService>()!,
+        s.GetService<IValidationService>()!,
+        s.GetService<ILoggerService>()!
+    )
+);
 builder.Services.AddTransient<IRegistrationManager, RegistrationManager>(s => 
 	new RegistrationManager(
-		new RegistrationService(
-			new UserAccountDataAccess(
-				HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-				HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
-			),
-            s.GetService<ICryptographyService>()!,
-			s.GetService<IValidationService>()!,
-            s.GetService<ILoggerService>()!
-		),
+        s.GetService<IRegistrationService>()!,
         s.GetService<IAuthorizationService>()!,
         s.GetService<ICryptographyService>()!,
 		s.GetService<INotificationService>()!,
@@ -209,21 +220,52 @@ builder.Services.AddTransient<IAccountRecoveryManager, AccountRecoveryManager>(s
 		s.GetService<ILoggerService>()!
 	)
 );
+builder.Services.AddTransient<IAccountDeletionService, AccountDeletionService>(s =>
+    new AccountDeletionService(
+        new UserAccountDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
+        ),
+        s.GetService<INotificationManager>()!,
+        s.GetService<ILoggerService>()!
+    )
+);
 builder.Services.AddTransient<IAccountDeletionManager, AccountDeletionManager>(s =>
     new AccountDeletionManager(
-        new AccountDeletionService(
-            new UserAccountDataAccess(
-                HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
-                HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
-            ),
-			s.GetService<INotificationManager>()!,
-            s.GetService<ILoggerService>()!
-        ),
+        s.GetService<IAccountDeletionService>()!,
         s.GetService<IAuthenticationService>()!,
         s.GetService<IAuthorizationService>()!,
         s.GetService<ILoggerService>()!
     )
 );
+builder.Services.AddTransient<IUserManagementService, UserManagementService>(s =>
+	new UserManagementService(
+		s.GetService<ILoggerService>()!,
+		new UserAccountDataAccess(
+			HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+			HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
+		),
+		new UserNamesDataAccess(
+			HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+			HubbaConfig.ConfigurationManager.AppSettings["UserNamesTable"]!
+		)
+	)
+);
+builder.Services.AddTransient<IUserManagementManager, UserManagementManager>(s =>
+	new UserManagementManager(
+		s.GetService<IAuthorizationService>()!,
+		s.GetService<ILoggerService>()!,
+		s.GetService<IRegistrationService>()!,
+		s.GetService<IUserManagementService>()!,
+		s.GetService<IValidationService>()!,
+		s.GetService<IAccountDeletionService>()!,
+        new UserAccountDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
+        )
+	)
+);
+				
 
 builder.Services.AddCors();
 
