@@ -93,7 +93,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations
 							}
 						}
 					}
-					Result deletionResult = await DeleteAccountAndLog(accountId);
+					Result deletionResult = await DeleteAccountAndLog(accountId).ConfigureAwait(false);
 					if (!deletionResult.IsSuccessful)
 					{
 						result.IsSuccessful = false;

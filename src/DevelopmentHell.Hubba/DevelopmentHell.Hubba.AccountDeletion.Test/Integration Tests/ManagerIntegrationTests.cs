@@ -234,6 +234,8 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
 			Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
 			var getUser = await _userAccountDataAccess.GetUser(accountId2).ConfigureAwait(false);
 			Assert.IsNull(getUser.Payload);
+			getUser = await _userAccountDataAccess.GetUser(accountId1).ConfigureAwait(false);
+			Assert.IsNotNull(getUser.Payload);
 		}
 
 		[TestMethod]
@@ -319,6 +321,8 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
 			Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
 			var getUser = await _userAccountDataAccess.GetUser(accountId1).ConfigureAwait(false);
 			Assert.IsNull(getUser.Payload);
+			getUser = await _userAccountDataAccess.GetUser(accountId2).ConfigureAwait(false);
+			Assert.IsNotNull(getUser.Payload);
 		}
 
 		[TestCleanup]

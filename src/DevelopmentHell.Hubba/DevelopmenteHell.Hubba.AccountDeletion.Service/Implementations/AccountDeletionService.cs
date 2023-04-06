@@ -25,7 +25,6 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Service.Implementations
 			var userResult = await _dao.GetUser(accountId).ConfigureAwait(false);
 			string email = userResult.Payload!.Email!;
 
-
 			// Deleting account
 			Result result = await DeleteUser(accountId).ConfigureAwait(false);
 			if (!result.IsSuccessful)
