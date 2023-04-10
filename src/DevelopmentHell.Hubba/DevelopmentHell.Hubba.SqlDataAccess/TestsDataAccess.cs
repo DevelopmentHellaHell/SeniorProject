@@ -34,6 +34,18 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     }
                 )
             },
+            {
+                Databases.NOTIFICATIONS,
+                new (
+                    "DevelopmentHell.Hubba.Notifications",
+                    ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
+                    new ()
+                    {
+                        { Tables.USER_NOTIFICATIONS, ConfigurationManager.AppSettings["UserNotificationsTable"]! },
+                        { Tables.NOTIFICATION_SETTINGS, ConfigurationManager.AppSettings["NotificationSettingsTable"]! }
+                    }
+                )
+            },
         };
 
         public TestsDataAccess() { }

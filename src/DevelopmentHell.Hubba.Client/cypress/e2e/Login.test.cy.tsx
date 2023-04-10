@@ -59,7 +59,7 @@ context.only('Login operation', () => {
     let testsRoute: string = '/tests/deleteDatabaseRecords';
     let startTimer: number;
     before(()=>{
-        cy.registerViaApi(Cypress.env('realEmail'), Cypress.env('standardPassword'));
+        cy.RegisterViaApi(Cypress.env('realEmail'), Cypress.env('standardPassword'));
     });
     beforeEach(() => {
         cy.visit('/login');

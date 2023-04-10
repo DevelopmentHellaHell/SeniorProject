@@ -13,8 +13,8 @@ describe('logout successfully by User NavBar', () => {
     let testsRoute: string = '/tests/deleteDatabaseRecords';
     beforeEach(() => {
         //using Custom Commands
-        cy.registerViaApi(Cypress.env('realEmail'), Cypress.env('standardPassword'));
-        cy.loginViaUI(Cypress.env('realEmail'), Cypress.env('standardPassword'));
+        cy.RegisterViaApi(Cypress.env('realEmail'), Cypress.env('standardPassword'));
+        cy.LoginViaUI(Cypress.env('realEmail'), Cypress.env('standardPassword'));
         cy.visit('/');
     });
     
@@ -24,6 +24,7 @@ describe('logout successfully by User NavBar', () => {
 
     it('user clicks logout from dropdown menu, logout under 5s', () => {
         //force show the dropdown menu
+        cy.pause();
         cy.get('.dropdown-content').invoke('show');
 
         //timer

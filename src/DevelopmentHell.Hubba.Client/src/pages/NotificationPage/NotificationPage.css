@@ -15,4 +15,68 @@
     color: rgb(var(--primary-text-dark));
     text-align: center;
     width: 100%;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}
+
+.notification-container .notification-card .filters-wrapper {
+    display: flex;
+    justify-content: right;
+}
+
+.notification-container .notification-card .filters {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 550px;
+}
+
+.notification-container .notification-card table {
+    width: 100%;
+}
+
+.notification-container .notification-card table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+.notification-container .notification-card table, th {
+    text-align: center;
+}
+
+.notification-container .notification-card table, td {
+    text-align: left;
+}
+
+.notification-container table .table-button-hide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-container .actions-wrapper {
+    display: flex;
+    justify-content: right;
+}
+
+.notification-container .actions {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 280px;
+    margin-top: 5px;
+}
+
+.notification-container .notification-card {
+    background-color: rgb(var(--primary-background-light));
+    padding: 20px 70px;
+    border: none;
+    border-radius: 10px;
+    width: 75%;
+    text-align: center;
+}
+
+.notification-container .error {
+    color: rgb(var(--error-text));
 }
