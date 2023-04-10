@@ -112,9 +112,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Testi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Development.Hubba.JWTHandler.Service", "Development.Hubba.JWTHandler.Service\Development.Hubba.JWTHandler.Service.csproj", "{5EE3F4DA-60BD-4AEC-90A8-B2F0C922B7EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.Listing.Test", "DevelopmentHell.Hubba.Listing.Test\DevelopmentHell.Hubba.Listing.Test.csproj", "{F0B28268-2049-47A1-9611-9E60A0A9CBD8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.Listing.Test", "DevelopmentHell.Hubba.Listing.Test\DevelopmentHell.Hubba.Listing.Test.csproj", "{3EA6C603-5828-4BD8-A95E-A270E2D41FBF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Listing.Test", "DevelopmentHell.Hubba.Listing.Test\DevelopmentHell.Hubba.Listing.Test.csproj", "{F0B28268-2049-47A1-9611-9E60A0A9CBD8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

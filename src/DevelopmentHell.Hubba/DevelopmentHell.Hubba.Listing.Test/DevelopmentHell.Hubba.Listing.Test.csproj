@@ -24,8 +24,4 @@
     <ProjectReference Include="..\DevelopmentHell.Hubba.SqlDataAccess\DevelopmentHell.Hubba.SqlDataAccess.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Integration Tests\" />
-  </ItemGroup>
-
 </Project>
