@@ -15,19 +15,20 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 		{
 			try
 			{
+				Result result = new Result();
+				int queryResult;
 				using (SqlConnection conn = new SqlConnection(connectionPath))
 				{
 					query.Connection = conn;
 
 					await conn.OpenAsync().ConfigureAwait(false);
-					await query.ExecuteNonQueryAsync().ConfigureAwait(false);
+					queryResult = await query.ExecuteNonQueryAsync().ConfigureAwait(false);
 				}
 				// TODO: figure out what to fill these with
-				return new Result()
-				{
-					IsSuccessful = true,
-				};
-			}
+				
+				result.IsSuccessful = true;
+                return result;
+            }
 			catch (Exception e)
 			{
 				return new Result()
@@ -64,5 +65,46 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 				return await SendQuery(insertQuery).ConfigureAwait(false);
 			}
 		}
-	}
+        public async Task<Result> InsertAll(string table, List<Dictionary<string, object>> valuesList)
+        {
+            using (SqlCommand insertQuery = new SqlCommand())
+            {
+                string columnString = "";
+                string valueString = "";
+                bool first = true;
+                foreach (KeyValuePair<string, object> pair in valuesList[0])
+                {
+                    if (!first)
+                    {
+                        columnString += ", ";
+                        valueString += ", ";
+                    }
+                    first = false;
+                    columnString += pair.Key;
+                    valueString += '@' + pair.Key;
+
+                    insertQuery.Parameters.Add(new SqlParameter(pair.Key, DBNull.Value));
+                }
+				Result result = new Result();
+                insertQuery.CommandText = string.Format("INSERT INTO {0} ({1}) VALUES ", table, columnString);
+
+                for (int i = 0; i < valuesList.Count; i++)
+                {
+                    Dictionary<string, object> values = valuesList[i];
+                    if (i > 0)
+                    {
+                        insertQuery.CommandText += ", ";
+                    }
+                    insertQuery.CommandText += "(" + valueString + ")";
+                    for (int j = 0; j < insertQuery.Parameters.Count; j++)
+                    {
+                        insertQuery.Parameters[j].Value = values[insertQuery.Parameters[j].ParameterName];
+                    }
+                    result = await SendQuery(insertQuery).ConfigureAwait(false);
+
+                }
+				return result;
+            }
+        }
+    }
 }
