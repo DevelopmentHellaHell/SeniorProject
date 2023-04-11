@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DevelopmentHell.Hubba.WebAPI.Controllers
 {
-    [ApiController]
+	[ApiController]
 	[Route("[controller]")]
 	public class RegistrationController : Controller
 	{

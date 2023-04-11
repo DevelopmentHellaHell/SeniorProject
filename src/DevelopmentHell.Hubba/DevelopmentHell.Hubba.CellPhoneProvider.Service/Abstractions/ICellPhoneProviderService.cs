@@ -2,8 +2,8 @@
 
 namespace DevelopmentHell.Hubba.CellPhoneProvider.Service.Abstractions
 {
-    public interface ICellPhoneProviderService
-    {
-        string GetProviderEmail(CellPhoneProviders provider);
-    }
+	public interface ICellPhoneProviderService
+	{
+		string GetProviderEmail(CellPhoneProviders provider);
+	}
 }

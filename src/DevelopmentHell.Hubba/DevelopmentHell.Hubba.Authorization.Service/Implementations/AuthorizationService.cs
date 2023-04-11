@@ -1,9 +1,9 @@
-﻿using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
-using DevelopmentHell.Hubba.Models;
-using System.Security.Claims;
-using DevelopmentHell.Hubba.SqlDataAccess;
+﻿using Development.Hubba.JWTHandler.Service.Abstractions;
+using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
-using Development.Hubba.JWTHandler.Service.Abstractions;
+using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.SqlDataAccess;
+using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.Authorization.Service.Implementations
 {
@@ -13,14 +13,14 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementations
 		private IJWTHandlerService _jwtHandlerService;
 		private ILoggerService _loggerService;
 
-        public AuthorizationService(IUserAccountDataAccess userAccountDataAccess, IJWTHandlerService jwtHandlerService, ILoggerService loggerService)
+		public AuthorizationService(IUserAccountDataAccess userAccountDataAccess, IJWTHandlerService jwtHandlerService, ILoggerService loggerService)
 		{
 			_userAccountDataAccess = userAccountDataAccess;
 			_jwtHandlerService = jwtHandlerService;
 			_loggerService = loggerService;
 		}
 
-        public Result Authorize(string[] roles)
+		public Result Authorize(string[] roles)
 		{
 			Result result = new Result()
 			{
@@ -35,7 +35,7 @@ namespace DevelopmentHell.Hubba.Authorization.Service.Implementations
 				result.ErrorMessage = "Unauthorized.";
 				return result;
 			}
-			
+
 			if (principal is not null)
 			{
 				if (roles.Contains(principal.FindFirstValue("role")))

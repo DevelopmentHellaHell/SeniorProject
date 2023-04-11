@@ -43,7 +43,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 				return BadRequest($"Could not find database {dbRecordsToDeleteDTO.Database}");
 			}
 
-            var deleteResult = await _testingService.DeleteDatabaseRecords((Databases)db).ConfigureAwait(false);
+			var deleteResult = await _testingService.DeleteDatabaseRecords((Databases)db).ConfigureAwait(false);
 			if (!deleteResult.IsSuccessful)
 			{
 				return BadRequest(deleteResult.ErrorMessage);
@@ -56,16 +56,16 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 		[Route("deleteTableRecords")]
 		public async Task<IActionResult> DeleteTableRecords(TRecordsToDeleteDTO tRecordsToDeleteDTO)
 		{
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Invalid request.");
-            }
+			if (!ModelState.IsValid)
+			{
+				return BadRequest("Invalid request.");
+			}
 
-            var db = _testingService.GetDatabase(tRecordsToDeleteDTO.Database);
-            if (db is null)
-            {
-                return BadRequest($"Could not find database {tRecordsToDeleteDTO.Database}");
-            }
+			var db = _testingService.GetDatabase(tRecordsToDeleteDTO.Database);
+			if (db is null)
+			{
+				return BadRequest($"Could not find database {tRecordsToDeleteDTO.Database}");
+			}
 
 			var t = _testingService.GetTable((Databases)db, tRecordsToDeleteDTO.Table);
 			if (t is null)
@@ -73,7 +73,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 				return BadRequest($"Could not find table {tRecordsToDeleteDTO.Table} in {tRecordsToDeleteDTO.Database}");
 			}
 
-            var deleteResult = await _testingService.DeleteTableRecords((Databases)db, (Tables)t).ConfigureAwait(false);
+			var deleteResult = await _testingService.DeleteTableRecords((Databases)db, (Tables)t).ConfigureAwait(false);
 			if (!deleteResult.IsSuccessful)
 			{
 				return BadRequest(deleteResult.ErrorMessage);

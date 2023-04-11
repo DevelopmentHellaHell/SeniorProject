@@ -24,19 +24,19 @@ using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.Authentication.Test
 {
-    [TestClass]
+	[TestClass]
 	public class ManagerIntegrationTests
 	{
-        private string _usersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
-        private string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
-        private string _userOTPsTable = ConfigurationManager.AppSettings["UserOTPsTable"]!;
-        private string _userLoginsTable = ConfigurationManager.AppSettings["UserLoginsTable"]!;
-        private string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
-        private string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
+		private string _usersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
+		private string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
+		private string _userOTPsTable = ConfigurationManager.AppSettings["UserOTPsTable"]!;
+		private string _userLoginsTable = ConfigurationManager.AppSettings["UserLoginsTable"]!;
+		private string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
+		private string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
 		private string _jwtKey = ConfigurationManager.AppSettings["JwtKey"]!;
 
-        // Class to test
-        private readonly IAuthenticationManager _authenticationManager;
+		// Class to test
+		private readonly IAuthenticationManager _authenticationManager;
 		// Helper classes
 		private readonly IUserAccountDataAccess _userAccountDataAccess;
 		private readonly IRegistrationService _registrationService;
@@ -47,14 +47,14 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 		{
 			ILoggerService loggerService = new LoggerService(
 				new LoggerDataAccess(
-                    _logsConnectionString,
-                    _logsTable
-                )
+					_logsConnectionString,
+					_logsTable
+				)
 			);
 			_userAccountDataAccess = new UserAccountDataAccess(
-                _usersConnectionString,
-                _userAccountsTable
-            );
+				_usersConnectionString,
+				_userAccountsTable
+			);
 			ICryptographyService cryptographyService = new CryptographyService(
 				ConfigurationManager.AppSettings["CryptographyKey"]!
 			);
@@ -64,9 +64,9 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			IValidationService validationService = new ValidationService();
 			_otpService = new OTPService(
 				new OTPDataAccess(
-                    _usersConnectionString,
-                    _userOTPsTable
-                ),
+					_usersConnectionString,
+					_userOTPsTable
+				),
 				new EmailService(
 					ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!,
 					ConfigurationManager.AppSettings["SENDGRID_API_KEY"]!,
@@ -79,9 +79,9 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 				new AuthenticationService(
 					_userAccountDataAccess,
 					new UserLoginDataAccess(
-                        _usersConnectionString,
-                        _userLoginsTable
-                    ),
+						_usersConnectionString,
+						_userLoginsTable
+					),
 					cryptographyService,
 					jwtHandlerService,
 					validationService,
@@ -89,10 +89,10 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 				),
 				_otpService,
 				new AuthorizationService(
-                    new UserAccountDataAccess(
-                        _usersConnectionString,
-                        _userAccountsTable
-                    ),
+					new UserAccountDataAccess(
+						_usersConnectionString,
+						_userAccountsTable
+					),
 					jwtHandlerService,
 					loggerService
 				),
@@ -105,19 +105,19 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 				validationService,
 				loggerService
 			);
-            _testingService = new TestingService(
+			_testingService = new TestingService(
 				_jwtKey,
 				new TestsDataAccess()
-            );
-        }
+			);
+		}
 
-        [TestInitialize]
-        public async Task Setup()
-        {
-            await _testingService.DeleteAllRecords().ConfigureAwait(false);
-        }
+		[TestInitialize]
+		public async Task Setup()
+		{
+			await _testingService.DeleteAllRecords().ConfigureAwait(false);
+		}
 
-        [TestMethod]
+		[TestMethod]
 		public void ShouldInstansiateCtor()
 		{
 			Assert.IsNotNull(_authenticationManager);
@@ -138,7 +138,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			await _registrationService.RegisterAccount(credentialEmail, credentialPassword).ConfigureAwait(false);
 			var userIdResult = await _userAccountDataAccess.GetId(credentialEmail).ConfigureAwait(false);
 			var id = userIdResult.Payload;
-			
+
 			var expectedResultSuccess = credentialEmail == email && credentialPassword == password;
 			var expectedRole = "DefaultUser";
 
@@ -160,7 +160,8 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 				Assert.IsTrue(actualPrincipal.FindFirstValue("azp")! == credentialEmail);
 				Assert.IsTrue(actualPrincipal.FindFirstValue("role")! == expectedRole);
 				Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue("sub")!) == id);
-			} else
+			}
+			else
 			{
 				Assert.IsNull(actualLoginResult.Payload);
 			}
@@ -216,7 +217,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			var otpResult = await _otpService.GetOTP(id).ConfigureAwait(false);
 			var authenticateOTPResult = await _authenticationManager.AuthenticateOTP(otpResult.Payload!, ipAddress).ConfigureAwait(false);
 			_testingService.DecodeJWT(authenticateOTPResult.Payload!.Item1, authenticateOTPResult.Payload!.Item2);
-			
+
 			//  - Log in attempt #2
 			actualLoginResult = await _authenticationManager.Login(credentialEmail, credentialPassword, ipAddress);
 
@@ -260,7 +261,7 @@ namespace DevelopmentHell.Hubba.Authentication.Test
 			Assert.IsTrue(actualPrincipal.FindFirstValue("azp")! == credentialEmail);
 			Assert.IsTrue(actualPrincipal.FindFirstValue("role")! == expectedRole);
 			Assert.IsTrue(int.Parse(actualPrincipal.FindFirstValue("sub")!) == id);
-        }
+		}
 
 		[TestMethod]
 		public async Task ShouldAuthenticateCorrectOTP()

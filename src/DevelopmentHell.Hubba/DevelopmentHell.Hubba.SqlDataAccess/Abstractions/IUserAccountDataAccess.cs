@@ -8,7 +8,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 		Task<Result<int>> GetId(string email);
 		Task<Result<int>> GetId(string email, HashData password);
 		Task<Result<UserAccount>> GetUser(int id);
-        Task<Result<UserAccount>> GetAttempt(int id);
+		Task<Result<UserAccount>> GetAttempt(int id);
 		Task<Result<UserAccount>> GetHashData(string email);
 		Task<Result<bool>> GetDisabled(int id);
 		Task<Result> Update(UserAccount userAccount);
@@ -18,5 +18,5 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 		Task<Result> InsertUpdateAccount(string email, Dictionary<string, object> data);
 		Task<Result> SetEnabledStatus(int id, bool enabled);
 
-    }
+	}
 }

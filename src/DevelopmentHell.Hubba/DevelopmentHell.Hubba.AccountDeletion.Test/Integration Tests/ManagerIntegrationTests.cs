@@ -28,303 +28,307 @@ using System.Configuration;
 
 namespace DevelopmentHell.Hubba.AccountDeletion.Test
 {
-    [TestClass]
-    public class ManagerIntegrationTests
-    {
-        private string _usersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
-        private string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
-        private string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
-        private string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
-        private string _jwtKey = ConfigurationManager.AppSettings["JwtKey"]!;
+	[TestClass]
+	public class ManagerIntegrationTests
+	{
+		private string _usersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
+		private string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
+		private string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
+		private string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
+		private string _jwtKey = ConfigurationManager.AppSettings["JwtKey"]!;
 
-        private readonly IAuthorizationService _authorizationService;
-        private readonly IAuthenticationService _authenticationService;
-        private readonly IUserAccountDataAccess _userAccountDataAccess;
-        private readonly IAccountDeletionManager _accountDeletionManager;
-        private readonly IRegistrationService _registrationService;
-        private readonly ITestingService _testingService;
+		private readonly IAuthorizationService _authorizationService;
+		private readonly IAuthenticationService _authenticationService;
+		private readonly IUserAccountDataAccess _userAccountDataAccess;
+		private readonly IAccountDeletionManager _accountDeletionManager;
+		private readonly IRegistrationService _registrationService;
+		private readonly ITestingService _testingService;
 
-        public ManagerIntegrationTests()
-        {
+		public ManagerIntegrationTests()
+		{
 			_userAccountDataAccess = new UserAccountDataAccess(_usersConnectionString, _userAccountsTable);
-            IValidationService validationService = new ValidationService();
-            ICryptographyService cryptographyService = new CryptographyService(ConfigurationManager.AppSettings["CryptographyKey"]!);
-            IJWTHandlerService jwtHandlerService = new JWTHandlerService(
+			IValidationService validationService = new ValidationService();
+			ICryptographyService cryptographyService = new CryptographyService(ConfigurationManager.AppSettings["CryptographyKey"]!);
+			IJWTHandlerService jwtHandlerService = new JWTHandlerService(
 				_jwtKey
 			);
 			ILoggerService loggerService = new LoggerService(
-                new LoggerDataAccess(_logsConnectionString, _logsTable)
-            );
-            _authorizationService = new AuthorizationService(
-                _userAccountDataAccess,
-                jwtHandlerService,
-                loggerService
-            );
-            IAccountDeletionService accountDeletionService = new AccountDeletionService(
-                _userAccountDataAccess,
-                new NotificationManager(
-                    new NotificationService(
-                        new NotificationDataAccess(
-                            ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
-                            ConfigurationManager.AppSettings["UserNotificationsTable"]!
-                        ),
-                        new NotificationSettingsDataAccess(
-                            ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
-                            ConfigurationManager.AppSettings["NotificationSettingsTable"]!
-                        ),
-                        new UserAccountDataAccess(
-                            ConfigurationManager.AppSettings["UsersConnectionString"]!,
-                            ConfigurationManager.AppSettings["UserAccountsTable"]!
-                        ),
-                        loggerService
-                    ),
-                    new CellPhoneProviderService(),
-                    new EmailService(
-                        ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!,
-                        ConfigurationManager.AppSettings["SENDGRID_API_KEY"]!,
-                        ConfigurationManager.AppSettings["COMPANY_EMAIL"]!,
-                        false
-                    ),
-                    _authorizationService,
-                    new ValidationService(),
-                    loggerService
-            ),
-            loggerService
-            );
-            _authenticationService = new AuthenticationService(
+				new LoggerDataAccess(_logsConnectionString, _logsTable)
+			);
+			_authorizationService = new AuthorizationService(
 				_userAccountDataAccess,
-                new UserLoginDataAccess(
-                    _usersConnectionString,
-                    ConfigurationManager.AppSettings["UserLoginsTable"]!
-                ),
-                cryptographyService,
-                jwtHandlerService,
-                validationService,
-                loggerService
-            );
-            _accountDeletionManager = new AccountDeletionManager(
-                accountDeletionService, 
-                _authenticationService, 
-                _authorizationService, 
-                loggerService
-            );
-            _registrationService = new RegistrationService(
-                _userAccountDataAccess,
-               cryptographyService,
-               validationService,
-               loggerService
-            );
-            _testingService = new TestingService(
+				jwtHandlerService,
+				loggerService
+			);
+			IAccountDeletionService accountDeletionService = new AccountDeletionService(
+				_userAccountDataAccess,
+				new NotificationManager(
+					new NotificationService(
+						new NotificationDataAccess(
+							ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
+							ConfigurationManager.AppSettings["UserNotificationsTable"]!
+						),
+						new NotificationSettingsDataAccess(
+							ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
+							ConfigurationManager.AppSettings["NotificationSettingsTable"]!
+						),
+						new UserAccountDataAccess(
+							ConfigurationManager.AppSettings["UsersConnectionString"]!,
+							ConfigurationManager.AppSettings["UserAccountsTable"]!
+						),
+						loggerService
+					),
+					new CellPhoneProviderService(),
+					new EmailService(
+						ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!,
+						ConfigurationManager.AppSettings["SENDGRID_API_KEY"]!,
+						ConfigurationManager.AppSettings["COMPANY_EMAIL"]!,
+						false
+					),
+					_authorizationService,
+					new ValidationService(),
+					loggerService
+			),
+			loggerService
+			);
+			_authenticationService = new AuthenticationService(
+				_userAccountDataAccess,
+				new UserLoginDataAccess(
+					_usersConnectionString,
+					ConfigurationManager.AppSettings["UserLoginsTable"]!
+				),
+				cryptographyService,
+				jwtHandlerService,
+				validationService,
+				loggerService
+			);
+			_accountDeletionManager = new AccountDeletionManager(
+				accountDeletionService,
+				_authenticationService,
+				_authorizationService,
+				loggerService
+			);
+			_registrationService = new RegistrationService(
+				_userAccountDataAccess,
+			   cryptographyService,
+			   validationService,
+			   loggerService
+			);
+			_testingService = new TestingService(
 				_jwtKey,
 				new TestsDataAccess()
-            );
-        }
+			);
+		}
 
-        [TestInitialize]
-        public async Task Setup()
-        {
-            await _testingService.DeleteAllRecords().ConfigureAwait(false);
-        }
+		[TestInitialize]
+		public async Task Setup()
+		{
+			await _testingService.DeleteAllRecords().ConfigureAwait(false);
+		}
 
-        [TestMethod]
-        public void ShouldInstansiateCtor()
-        {
-            Assert.IsNotNull(_accountDeletionManager);
-        }
+		[TestMethod]
+		public void ShouldInstansiateCtor()
+		{
+			Assert.IsNotNull(_accountDeletionManager);
+		}
 
-        [TestMethod]
-        public async Task DeleteVerifiedUserAccount()
-        {
-            // Arrange
-            
-            // generate user account
-            string email = "test@gmail.com";
-            string password = "12345678";
-            await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
-            var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
-            int accountId = accountIdResult.Payload;
+		[TestMethod]
+		public async Task DeleteVerifiedUserAccount()
+		{
+			// Arrange
 
-            // log in as user
-            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
-            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
-            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
-            {
-                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
-            }
-            var expected = new Result { IsSuccessful = true };
+			// generate user account
+			string email = "test@gmail.com";
+			string password = "12345678";
+			await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+			var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+			int accountId = accountIdResult.Payload;
 
-            // Act
-            Result actual = await _accountDeletionManager.DeleteAccount(accountId).ConfigureAwait(false);
+			// log in as user
+			var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+			var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+			if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+			{
+				_testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+			}
+			var expected = new Result { IsSuccessful = true };
 
-            // Assert
-            Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
-            var getUser = await _userAccountDataAccess.GetUser(accountId).ConfigureAwait(false);
-            Assert.IsNull(getUser.Payload);
-        }
+			// Act
+			Result actual = await _accountDeletionManager.DeleteAccount(accountId).ConfigureAwait(false);
 
-        [TestMethod]
-        public async Task VerifiedUserUnauthorizedDeletion()
-        {
-            // Arrange
+			// Assert
+			Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
+			var getUser = await _userAccountDataAccess.GetUser(accountId).ConfigureAwait(false);
+			Assert.IsNull(getUser.Payload);
+		}
 
-            // generate 2 user accounts
-            string email1 = "test1@gmail.com";
-            string email2 = "test2@gmail.com";
-            string password = "12345678";
-            await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
-            await _registrationService.RegisterAccount(email2, password).ConfigureAwait(false);
-            var accountIdResult1 = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
-            var accountIdResult2 = await _userAccountDataAccess.GetId(email2).ConfigureAwait(false);
-            int accountId1 = accountIdResult1.Payload;
-            int accountId2 = accountIdResult2.Payload;
+		[TestMethod]
+		public async Task VerifiedUserUnauthorizedDeletion()
+		{
+			// Arrange
 
-            // log in as first user
-            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId1, false).ConfigureAwait(false);
-            var idTokenResult = _authenticationService.GenerateIdToken(accountId1, accessTokenResult.Payload!);
-            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
-            {
-                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
-            }
-            var expected = new Result { IsSuccessful = true };
+			// generate 2 user accounts
+			string email1 = "test1@gmail.com";
+			string email2 = "test2@gmail.com";
+			string password = "12345678";
+			await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
+			await _registrationService.RegisterAccount(email2, password).ConfigureAwait(false);
+			var accountIdResult1 = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
+			var accountIdResult2 = await _userAccountDataAccess.GetId(email2).ConfigureAwait(false);
+			int accountId1 = accountIdResult1.Payload;
+			int accountId2 = accountIdResult2.Payload;
 
-            // Act
-            Result actual = await _accountDeletionManager.DeleteAccount(accountId2).ConfigureAwait(false);
+			// log in as first user
+			var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId1, false).ConfigureAwait(false);
+			var idTokenResult = _authenticationService.GenerateIdToken(accountId1, accessTokenResult.Payload!);
+			if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+			{
+				_testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+			}
+			var expected = new Result { IsSuccessful = true };
 
-            // Assert
-            Assert.IsFalse(expected.IsSuccessful == actual.IsSuccessful);
-            var getUser = await _userAccountDataAccess.GetUser(accountId2).ConfigureAwait(false);
-            Assert.IsNotNull(getUser.Payload);
-        }
+			// Act
+			Result actual = await _accountDeletionManager.DeleteAccount(accountId2).ConfigureAwait(false);
 
-        [TestMethod]
-        public async Task AdminUserDeleteOther()
-        {
-            // Arrange
-            
-            // generate 1 user account and 1 admin account
-            string email1 = "test1@gmail.com";
-            string email2 = "test2@gmail.com";
-            string password = "12345678";
-            await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
-            await _registrationService.RegisterAccount(email2, password).ConfigureAwait(false);
-            var accountIdResult1 = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
-            var accountIdResult2 = await _userAccountDataAccess.GetId(email2).ConfigureAwait(false);
-            int accountId1 = accountIdResult1.Payload;
-            int accountId2 = accountIdResult2.Payload;
-            var userAccount = await _userAccountDataAccess.GetUser(accountId1).ConfigureAwait(false);
-            if (userAccount.Payload is not null)
-            {
-                userAccount.Payload.Role = "AdminUser";
-                await _userAccountDataAccess.Update(userAccount.Payload).ConfigureAwait(false);
-            }
+			// Assert
+			Assert.IsFalse(expected.IsSuccessful == actual.IsSuccessful);
+			var getUser = await _userAccountDataAccess.GetUser(accountId2).ConfigureAwait(false);
+			Assert.IsNotNull(getUser.Payload);
+		}
 
-            // log in as admin
-            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId1, false).ConfigureAwait(false);
-            var idTokenResult = _authenticationService.GenerateIdToken(accountId1, accessTokenResult.Payload!);
-            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
-            {
-                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
-            }
-            var expected = new Result { IsSuccessful = true };
+		[TestMethod]
+		public async Task AdminUserDeleteOther()
+		{
+			// Arrange
 
-            // Act
-            Result actual = await _accountDeletionManager.DeleteAccount(accountId2).ConfigureAwait(false);
+			// generate 1 user account and 1 admin account
+			string email1 = "test1@gmail.com";
+			string email2 = "test2@gmail.com";
+			string password = "12345678";
+			await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
+			await _registrationService.RegisterAccount(email2, password).ConfigureAwait(false);
+			var accountIdResult1 = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
+			var accountIdResult2 = await _userAccountDataAccess.GetId(email2).ConfigureAwait(false);
+			int accountId1 = accountIdResult1.Payload;
+			int accountId2 = accountIdResult2.Payload;
+			var userAccount = await _userAccountDataAccess.GetUser(accountId1).ConfigureAwait(false);
+			if (userAccount.Payload is not null)
+			{
+				userAccount.Payload.Role = "AdminUser";
+				await _userAccountDataAccess.Update(userAccount.Payload).ConfigureAwait(false);
+			}
 
-            // Assert
-            Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
-            var getUser = await _userAccountDataAccess.GetUser(accountId2).ConfigureAwait(false);
-            Assert.IsNull(getUser.Payload);
-        }
+			// log in as admin
+			var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId1, false).ConfigureAwait(false);
+			var idTokenResult = _authenticationService.GenerateIdToken(accountId1, accessTokenResult.Payload!);
+			if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+			{
+				_testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+			}
+			var expected = new Result { IsSuccessful = true };
 
-        [TestMethod]
-        public async Task AdminUserDeleteSelfAsLastAdmin()
-        {
-            // Arrange
-            
-            // generate admin
-            string email = "test@gmail.com";
-            string password = "12345678";
-            await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
-            var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
-            int accountId = accountIdResult.Payload;
-            var userAccount = await _userAccountDataAccess.GetUser(accountId).ConfigureAwait(false);
-            if (userAccount.Payload is not null)
-            {
-                userAccount.Payload.Role = "AdminUser";
-                await _userAccountDataAccess.Update(userAccount.Payload).ConfigureAwait(false);
-            }
+			// Act
+			Result actual = await _accountDeletionManager.DeleteAccount(accountId2).ConfigureAwait(false);
 
-            // log in as admin
-            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
-            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
-            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
-            {
-                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
-            }
-            var expected = new Result { IsSuccessful = false };
+			// Assert
+			Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
+			var getUser = await _userAccountDataAccess.GetUser(accountId2).ConfigureAwait(false);
+			Assert.IsNull(getUser.Payload);
+			getUser = await _userAccountDataAccess.GetUser(accountId1).ConfigureAwait(false);
+			Assert.IsNotNull(getUser.Payload);
+		}
 
-            // Act
-            Result actual = await _accountDeletionManager.DeleteAccount(accountId).ConfigureAwait(false);
+		[TestMethod]
+		public async Task AdminUserDeleteSelfAsLastAdmin()
+		{
+			// Arrange
 
-            // Assert
-            Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
-            var getUser = await _userAccountDataAccess.GetUser(accountId).ConfigureAwait(false);
-            Assert.IsNotNull(getUser.Payload);
-        }
+			// generate admin
+			string email = "test@gmail.com";
+			string password = "12345678";
+			await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+			var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+			int accountId = accountIdResult.Payload;
+			var userAccount = await _userAccountDataAccess.GetUser(accountId).ConfigureAwait(false);
+			if (userAccount.Payload is not null)
+			{
+				userAccount.Payload.Role = "AdminUser";
+				await _userAccountDataAccess.Update(userAccount.Payload).ConfigureAwait(false);
+			}
 
-        [TestMethod]
-        public async Task AdminUserDeleteSelfWithOtherAdmin()
-        {
-            // Arrange
-            
-            // generate first admin
-            string email1 = "test1@gmail.com";
-            string password = "12345678";
-            await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
-            var accountIdResult1 = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
-            int accountId1 = accountIdResult1.Payload;
-            var userAccount1 = await _userAccountDataAccess.GetUser(accountId1).ConfigureAwait(false);
-            if (userAccount1.Payload is not null)
-            {
-                userAccount1.Payload.Role = "AdminUser";
-                await _userAccountDataAccess.Update(userAccount1.Payload).ConfigureAwait(false);
-            }
+			// log in as admin
+			var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+			var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+			if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+			{
+				_testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+			}
+			var expected = new Result { IsSuccessful = false };
 
-            // generate 2nd admin
-            string email2 = "test2@gmail.com";
-            await _registrationService.RegisterAccount(email2, password).ConfigureAwait(false);
-            var accountIdResult2 = await _userAccountDataAccess.GetId(email2).ConfigureAwait(false);
-            int accountId2 = accountIdResult2.Payload;
-            var userAccount2 = await _userAccountDataAccess.GetUser(accountId2).ConfigureAwait(false);
-            if (userAccount2.Payload is not null)
-            {
-                userAccount2.Payload.Role = "AdminUser";
-                await _userAccountDataAccess.Update(userAccount2.Payload).ConfigureAwait(false);
-            }
+			// Act
+			Result actual = await _accountDeletionManager.DeleteAccount(accountId).ConfigureAwait(false);
 
-            // log in as first admin
-            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId1, false).ConfigureAwait(false);
-            var idTokenResult = _authenticationService.GenerateIdToken(accountId1, accessTokenResult.Payload!);
-            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
-            {
-                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
-            }
-            var expected = new Result { IsSuccessful = true };
+			// Assert
+			Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
+			var getUser = await _userAccountDataAccess.GetUser(accountId).ConfigureAwait(false);
+			Assert.IsNotNull(getUser.Payload);
+		}
 
-            // Act
-            // delete self
-            Result actual = await _accountDeletionManager.DeleteAccount(accountId1).ConfigureAwait(false);
+		[TestMethod]
+		public async Task AdminUserDeleteSelfWithOtherAdmin()
+		{
+			// Arrange
 
-            // Assert
-            Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
-            var getUser = await _userAccountDataAccess.GetUser(accountId1).ConfigureAwait(false);
-            Assert.IsNull(getUser.Payload);
-        }
+			// generate first admin
+			string email1 = "test1@gmail.com";
+			string password = "12345678";
+			await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
+			var accountIdResult1 = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
+			int accountId1 = accountIdResult1.Payload;
+			var userAccount1 = await _userAccountDataAccess.GetUser(accountId1).ConfigureAwait(false);
+			if (userAccount1.Payload is not null)
+			{
+				userAccount1.Payload.Role = "AdminUser";
+				await _userAccountDataAccess.Update(userAccount1.Payload).ConfigureAwait(false);
+			}
 
-        [TestCleanup]
-        public async Task Cleanup()
-        {
-            await _testingService.DeleteAllRecords().ConfigureAwait(false);
-        }
-    }
+			// generate 2nd admin
+			string email2 = "test2@gmail.com";
+			await _registrationService.RegisterAccount(email2, password).ConfigureAwait(false);
+			var accountIdResult2 = await _userAccountDataAccess.GetId(email2).ConfigureAwait(false);
+			int accountId2 = accountIdResult2.Payload;
+			var userAccount2 = await _userAccountDataAccess.GetUser(accountId2).ConfigureAwait(false);
+			if (userAccount2.Payload is not null)
+			{
+				userAccount2.Payload.Role = "AdminUser";
+				await _userAccountDataAccess.Update(userAccount2.Payload).ConfigureAwait(false);
+			}
+
+			// log in as first admin
+			var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId1, false).ConfigureAwait(false);
+			var idTokenResult = _authenticationService.GenerateIdToken(accountId1, accessTokenResult.Payload!);
+			if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+			{
+				_testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+			}
+			var expected = new Result { IsSuccessful = true };
+
+			// Act
+			// delete self
+			Result actual = await _accountDeletionManager.DeleteAccount(accountId1).ConfigureAwait(false);
+
+			// Assert
+			Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
+			var getUser = await _userAccountDataAccess.GetUser(accountId1).ConfigureAwait(false);
+			Assert.IsNull(getUser.Payload);
+			getUser = await _userAccountDataAccess.GetUser(accountId2).ConfigureAwait(false);
+			Assert.IsNotNull(getUser.Payload);
+		}
+
+		[TestCleanup]
+		public async Task Cleanup()
+		{
+			await _testingService.DeleteAllRecords().ConfigureAwait(false);
+		}
+	}
 }

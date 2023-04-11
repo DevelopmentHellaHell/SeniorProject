@@ -1,24 +1,24 @@
-﻿using DevelopmentHell.Hubba.Models;
+﻿using Development.Hubba.JWTHandler.Service.Implementations;
+using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Models.Tests;
-using System.Security.Claims;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
-using Development.Hubba.JWTHandler.Service.Implementations;
+using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.Testing.Service.Implementations
 {
-    public class TestingService : ITestingService
-    {
-        private readonly string _jwtKey;
-        private TestsDataAccess _testsDataAccess;
-        
-        public TestingService(string jwtKey, TestsDataAccess testsDataAccess)
-        {
-            _jwtKey = jwtKey;
-            _testsDataAccess = testsDataAccess;
-        }
+	public class TestingService : ITestingService
+	{
+		private readonly string _jwtKey;
+		private TestsDataAccess _testsDataAccess;
 
-        public void DecodeJWT(string accessToken, string? idToken = null)
+		public TestingService(string jwtKey, TestsDataAccess testsDataAccess)
+		{
+			_jwtKey = jwtKey;
+			_testsDataAccess = testsDataAccess;
+		}
+
+		public void DecodeJWT(string accessToken, string? idToken = null)
 		{
 			var jwtHandlerService = new JWTHandlerService(_jwtKey);
 			if (accessToken is not null)
@@ -48,29 +48,29 @@ namespace DevelopmentHell.Hubba.Testing.Service.Implementations
 			}
 		}
 
-        public async Task<Result> DeleteDatabaseRecords(Databases db)
-        {
-            return await _testsDataAccess.DeleteDatabaseRecords(db).ConfigureAwait(false);
-        }
+		public async Task<Result> DeleteDatabaseRecords(Databases db)
+		{
+			return await _testsDataAccess.DeleteDatabaseRecords(db).ConfigureAwait(false);
+		}
 
-        public async Task<Result> DeleteTableRecords(Databases db, Tables t)
-        {
-            return await _testsDataAccess.DeleteTableRecords(db, t).ConfigureAwait(false);
-        }
+		public async Task<Result> DeleteTableRecords(Databases db, Tables t)
+		{
+			return await _testsDataAccess.DeleteTableRecords(db, t).ConfigureAwait(false);
+		}
 
-        public async Task<Result> DeleteAllRecords()
-        {
-            return await _testsDataAccess.DeleteAllRecords();
-        }
+		public async Task<Result> DeleteAllRecords()
+		{
+			return await _testsDataAccess.DeleteAllRecords();
+		}
 
-        public Databases? GetDatabase(string dbStr)
-        {
-            return _testsDataAccess.GetDatabase(dbStr);
-        }
+		public Databases? GetDatabase(string dbStr)
+		{
+			return _testsDataAccess.GetDatabase(dbStr);
+		}
 
-        public Tables? GetTable(Databases db, string tStr)
-        {
-            return _testsDataAccess.GetTable(db, tStr);
-        }
-    }
+		public Tables? GetTable(Databases db, string tStr)
+		{
+			return _testsDataAccess.GetTable(db, tStr);
+		}
+	}
 }
