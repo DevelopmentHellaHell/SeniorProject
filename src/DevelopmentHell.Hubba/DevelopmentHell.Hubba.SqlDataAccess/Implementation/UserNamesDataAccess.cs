@@ -1,11 +1,6 @@
 ﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
 {
@@ -16,7 +11,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
         private UpdateDataAccess _updateDataAccess;
         private string _tableName;
 
-        public UserNamesDataAccess(string connectionString,  string tableName)
+        public UserNamesDataAccess(string connectionString, string tableName)
         {
             _tableName = tableName;
             _insertDataAccess = new(connectionString);
@@ -31,7 +26,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementation
                 return new()
                 {
                     IsSuccessful = false,
-                    ErrorMessage = "Unable to get proper name information on users: "+selResult.ErrorMessage
+                    ErrorMessage = "Unable to get proper name information on users: " + selResult.ErrorMessage
                 };
             }
             return new()

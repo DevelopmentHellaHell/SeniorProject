@@ -5,138 +5,138 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DevelopmentHell.Hubba.WebAPI.Controllers
 {
-	[ApiController]
-	[Route("[controller]")]
-	public class NotificationController : Controller
-	{
-		private readonly INotificationManager _notificationManager;
+    [ApiController]
+    [Route("[controller]")]
+    public class NotificationController : Controller
+    {
+        private readonly INotificationManager _notificationManager;
 
-		public NotificationController(INotificationManager notificationManager)
-		{
-			_notificationManager = notificationManager;
-		}
+        public NotificationController(INotificationManager notificationManager)
+        {
+            _notificationManager = notificationManager;
+        }
 
 #if DEBUG
-		[HttpGet]
-		[Route("health")]
-		public Task<IActionResult> HealthCheck()
-		{
-			return Task.FromResult<IActionResult>(Ok("Healthy"));
-		}
+        [HttpGet]
+        [Route("health")]
+        public Task<IActionResult> HealthCheck()
+        {
+            return Task.FromResult<IActionResult>(Ok("Healthy"));
+        }
 #endif
 
-		[HttpGet]
-		[Route("getNotificationSettings")]
-		public async Task<IActionResult> GetNotificationSettings()
-		{
-			var result = await _notificationManager.GetNotificationSettings().ConfigureAwait(false);
-			if (!result.IsSuccessful || result.Payload is null)
-			{
-				return BadRequest(result.ErrorMessage);
-			}
+        [HttpGet]
+        [Route("getNotificationSettings")]
+        public async Task<IActionResult> GetNotificationSettings()
+        {
+            var result = await _notificationManager.GetNotificationSettings().ConfigureAwait(false);
+            if (!result.IsSuccessful || result.Payload is null)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
 
-			return Ok(result.Payload);
-		}
+            return Ok(result.Payload);
+        }
 
-		[HttpGet]
-		[Route("getNotifications")]
-		public async Task<IActionResult> GetNotifications()
-		{
-			var result = await _notificationManager.GetNotifications().ConfigureAwait(false);
-			if (!result.IsSuccessful)
-			{
-				return BadRequest(result.ErrorMessage);
-			}
+        [HttpGet]
+        [Route("getNotifications")]
+        public async Task<IActionResult> GetNotifications()
+        {
+            var result = await _notificationManager.GetNotifications().ConfigureAwait(false);
+            if (!result.IsSuccessful)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
 
-			return Ok(result.Payload);
-		}
+            return Ok(result.Payload);
+        }
 
-		[HttpPost]
-		[Route("hideAllNotifications")]
-		public async Task<IActionResult> hideAllNotifications()
-		{
-			var result = await _notificationManager.HideAllNotifications().ConfigureAwait(false);
-			if (!result.IsSuccessful)
-			{
-				return BadRequest(result.ErrorMessage);
-			}
+        [HttpPost]
+        [Route("hideAllNotifications")]
+        public async Task<IActionResult> hideAllNotifications()
+        {
+            var result = await _notificationManager.HideAllNotifications().ConfigureAwait(false);
+            if (!result.IsSuccessful)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
 
-			return Ok();
-		}
+            return Ok();
+        }
 
-		[HttpPost]
-		[Route("updateNotificationSettings")]
-		public async Task<IActionResult> UpdateNotificationSettings(UpdateNotificationSettingsDTO updateNotificationSettingsDTO)
-		{
-			if (!ModelState.IsValid)
-			{
-				return BadRequest("Invalid request.");
-			}
+        [HttpPost]
+        [Route("updateNotificationSettings")]
+        public async Task<IActionResult> UpdateNotificationSettings(UpdateNotificationSettingsDTO updateNotificationSettingsDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid request.");
+            }
 
-			var result = await _notificationManager.UpdateNotificationSettings(new NotificationSettings()
-			{
-				UserId = 0, // Temp value to be replaced in manager layer
-				SiteNotifications = updateNotificationSettingsDTO.SiteNotifications,
-				EmailNotifications = updateNotificationSettingsDTO.EmailNotifications,
-				TextNotifications = updateNotificationSettingsDTO.TextNotifications,
-				TypeScheduling = updateNotificationSettingsDTO.TypeScheduling,
-				TypeWorkspace = updateNotificationSettingsDTO.TypeWorkspace,
-				TypeProjectShowcase = updateNotificationSettingsDTO.TypeProjectShowcase,
-				TypeOther = updateNotificationSettingsDTO?.TypeOther
-			}
-			).ConfigureAwait(false);
-			if (!result.IsSuccessful)
-			{
-				return BadRequest(result.ErrorMessage);
-			}
+            var result = await _notificationManager.UpdateNotificationSettings(new NotificationSettings()
+            {
+                UserId = 0, // Temp value to be replaced in manager layer
+                SiteNotifications = updateNotificationSettingsDTO.SiteNotifications,
+                EmailNotifications = updateNotificationSettingsDTO.EmailNotifications,
+                TextNotifications = updateNotificationSettingsDTO.TextNotifications,
+                TypeScheduling = updateNotificationSettingsDTO.TypeScheduling,
+                TypeWorkspace = updateNotificationSettingsDTO.TypeWorkspace,
+                TypeProjectShowcase = updateNotificationSettingsDTO.TypeProjectShowcase,
+                TypeOther = updateNotificationSettingsDTO?.TypeOther
+            }
+            ).ConfigureAwait(false);
+            if (!result.IsSuccessful)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
 
-			return Ok();
-		}
+            return Ok();
+        }
 
-		[HttpPost]
-		[Route("hideIndividualNotifications")]
-		public async Task<IActionResult> HideInidividualNotifications(HideNotificationsDTO hideNotificationsDTO)
-		{
-			//make dto
-			if (!ModelState.IsValid)
-			{
-				return BadRequest();
-			}
+        [HttpPost]
+        [Route("hideIndividualNotifications")]
+        public async Task<IActionResult> HideInidividualNotifications(HideNotificationsDTO hideNotificationsDTO)
+        {
+            //make dto
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
 
-			List<int> selectedNotifications = hideNotificationsDTO.hideNotifications;
+            List<int> selectedNotifications = hideNotificationsDTO.hideNotifications;
 
-			var result = await _notificationManager.HideIndividualNotifications(selectedNotifications);
-			if (!result.IsSuccessful)
-			{
-				return BadRequest(result.ErrorMessage);
-			}
-			return Ok();
-		}
+            var result = await _notificationManager.HideIndividualNotifications(selectedNotifications);
+            if (!result.IsSuccessful)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+            return Ok();
+        }
 
-		[HttpGet]
-		[Route("getPhoneDetails")]
-		public async Task<IActionResult> GetPhoneDetails()
-		{
-			var result = await _notificationManager.GetPhoneDetails().ConfigureAwait(false);
-			if (!result.IsSuccessful || result.Payload is null)
-			{
-				return BadRequest(result.ErrorMessage);
-			}
+        [HttpGet]
+        [Route("getPhoneDetails")]
+        public async Task<IActionResult> GetPhoneDetails()
+        {
+            var result = await _notificationManager.GetPhoneDetails().ConfigureAwait(false);
+            if (!result.IsSuccessful || result.Payload is null)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
 
-			return Ok(result.Payload);
-		}
+            return Ok(result.Payload);
+        }
 
-		[HttpPost]
-		[Route("updatePhoneDetails")]
-		public async Task<IActionResult> UpdatePhoneDetails(UpdatePhoneDetailsDTO updatePhoneDetailsDTO)
-		{
-			var result = await _notificationManager.UpdatePhoneDetails(updatePhoneDetailsDTO.CellPhoneNumber, updatePhoneDetailsDTO.CellPhoneProvider).ConfigureAwait(false);
-			if (!result.IsSuccessful)
-			{
-				return BadRequest(result.ErrorMessage);
-			}
+        [HttpPost]
+        [Route("updatePhoneDetails")]
+        public async Task<IActionResult> UpdatePhoneDetails(UpdatePhoneDetailsDTO updatePhoneDetailsDTO)
+        {
+            var result = await _notificationManager.UpdatePhoneDetails(updatePhoneDetailsDTO.CellPhoneNumber, updatePhoneDetailsDTO.CellPhoneProvider).ConfigureAwait(false);
+            if (!result.IsSuccessful)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
 
-			return Ok();
-		}
-	}
+            return Ok();
+        }
+    }
 }

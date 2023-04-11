@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DevelopmentHell.Hubba.Models;
+﻿using DevelopmentHell.Hubba.Models;
 
 namespace DevelopmentHell.Hubba.UserManagement.Service.Abstractions
 {
@@ -11,7 +6,7 @@ namespace DevelopmentHell.Hubba.UserManagement.Service.Abstractions
     {
         Task<Result> SetNames(string email, string? firstName, string? lastName, string? userName);
         Task<Result> UpdateNames(string email, Dictionary<string, object> data);
-        Task<Result> CreateAccount(string email, string passphrase, string role, string? firstName, string? lastName, string?userName);
+        Task<Result> CreateAccount(string email, string passphrase, string role, string? firstName, string? lastName, string? userName);
         Task<Result> UpdateAccount(string email, Dictionary<string, object> data);
         Task<Result> DisableAccount(string email);
         Task<Result> EnableAccount(string email);

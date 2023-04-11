@@ -1,15 +1,8 @@
-﻿using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.UserManagement.Service.Abstractions;
+﻿using DevelopmentHell.Hubba.Logging.Service.Abstractions;
+using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
-using DevelopmentHell.Hubba.Logging.Service.Abstractions;
-using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
-using Microsoft.AspNetCore.Identity;
+using DevelopmentHell.Hubba.UserManagement.Service.Abstractions;
 
 namespace DevelopmentHell.Hubba.UserManagement.Service.Implementations
 {

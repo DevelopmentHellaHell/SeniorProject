@@ -1,21 +1,21 @@
-using DevelopmentHell.Hubba.UserManagement.Service.Implementations;
-using DevelopmentHell.Hubba.Authorization.Service.Implementations;
-using DevelopmentHell.Hubba.Registration.Service.Implementations;
-using DevelopmentHell.Hubba.Logging.Service.Implementations;
-using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
-using DevelopmentHell.Hubba.SqlDataAccess;
-using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.UserManagement.Manager.Implementations;
 using Development.Hubba.JWTHandler.Service.Implementations;
-using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using DevelopmentHell.Hubba.Testing.Service.Implementations;
-using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
-using System.Configuration;
 using DevelopmentHell.Hubba.AccountDeletion.Service.Implementations;
-using DevelopmentHell.Hubba.Notification.Service.Implementations;
-using DevelopmentHell.Hubba.Notification.Manager.Implementations;
+using DevelopmentHell.Hubba.Authorization.Service.Implementations;
 using DevelopmentHell.Hubba.CellPhoneProvider.Service.Implementations;
+using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
 using DevelopmentHell.Hubba.Email.Service.Implementations;
+using DevelopmentHell.Hubba.Logging.Service.Implementations;
+using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.Notification.Manager.Implementations;
+using DevelopmentHell.Hubba.Notification.Service.Implementations;
+using DevelopmentHell.Hubba.Registration.Service.Implementations;
+using DevelopmentHell.Hubba.SqlDataAccess;
+using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
+using DevelopmentHell.Hubba.Testing.Service.Implementations;
+using DevelopmentHell.Hubba.UserManagement.Manager.Implementations;
+using DevelopmentHell.Hubba.UserManagement.Service.Implementations;
+using DevelopmentHell.Hubba.Validation.Service.Implementations;
+using System.Configuration;
 
 namespace DevelopmentHell.Hubba.UserManagement.Test
 {
@@ -58,8 +58,8 @@ namespace DevelopmentHell.Hubba.UserManagement.Test
         private TestingService _testingService;
 
         string adminEmail = "admin@gmail.com";
-        string userEmail  = "user@gmail.com";
-        string password   = "12345678";
+        string userEmail = "user@gmail.com";
+        string password = "12345678";
 
         int? adminId;
         int? userId;
@@ -68,9 +68,10 @@ namespace DevelopmentHell.Hubba.UserManagement.Test
 
         System.Diagnostics.Stopwatch _stopWatch;
 
-        
 
-        public UserManagementIntegrationTests() {
+
+        public UserManagementIntegrationTests()
+        {
             _loggerDataAccess = new(_logsConnectionString, _logsTable);
             _loggerService = new(_loggerDataAccess);
             _userAccountDataAccess = new(_usersConnectionString, _userAccountsTable);
@@ -83,12 +84,12 @@ namespace DevelopmentHell.Hubba.UserManagement.Test
             _userManagementService = new(_loggerService, _userAccountDataAccess, _userNamesDataAccess);
             _notificationDataAccess = new(_notificationsConnectionString, _notificationsTable);
             _notificationSettingsDataAccess = new(_notificationsConnectionString, _notificationSettingsTable);
-            _notificationService = new(_notificationDataAccess,_notificationSettingsDataAccess, _userAccountDataAccess,_loggerService);
+            _notificationService = new(_notificationDataAccess, _notificationSettingsDataAccess, _userAccountDataAccess, _loggerService);
             _cellPhoneProviderService = new();
-            _emailService = new(_sendgridUser,_sendgridApi,_email);
+            _emailService = new(_sendgridUser, _sendgridApi, _email);
             _notificationManager = new(_notificationService, _cellPhoneProviderService, _emailService, _authorizationService, _validationService, _loggerService);
-            _accountDeletionService = new(_userAccountDataAccess,_notificationManager,_loggerService);
-            _userManagementManager = new(_authorizationService, _loggerService, _registrationService, _userManagementService,_validationService,_accountDeletionService,_userAccountDataAccess);
+            _accountDeletionService = new(_userAccountDataAccess, _notificationManager, _loggerService);
+            _userManagementManager = new(_authorizationService, _loggerService, _registrationService, _userManagementService, _validationService, _accountDeletionService, _userAccountDataAccess);
             _testsDataAccess = new();
             _testingService = new(_jwtKey, _testsDataAccess);
             _stopWatch = new();
@@ -108,7 +109,7 @@ namespace DevelopmentHell.Hubba.UserManagement.Test
             await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.USERS).ConfigureAwait(false);
             result = await _registrationService.RegisterAccount(adminEmail, password, "AdminUser").ConfigureAwait(false);
             Assert.IsTrue(result.IsSuccessful, result.ErrorMessage);
-            result = await _registrationService.RegisterAccount(userEmail,  password, "VerifiedUser").ConfigureAwait(false);
+            result = await _registrationService.RegisterAccount(userEmail, password, "VerifiedUser").ConfigureAwait(false);
             Assert.IsTrue(result.IsSuccessful, result.ErrorMessage);
 
             var accountIdResult = await _userAccountDataAccess.GetId(adminEmail).ConfigureAwait(false);
@@ -158,7 +159,7 @@ namespace DevelopmentHell.Hubba.UserManagement.Test
 
             var testResult = await _userManagementManager.ElevatedCreateAccount("test@gmail.com", password, "VerifiedUser", "firstName", "lastName", "userName").ConfigureAwait(false);
             _stopWatch.Stop();
-            Assert.IsTrue(testResult.IsSuccessful,testResult.ErrorMessage);
+            Assert.IsTrue(testResult.IsSuccessful, testResult.ErrorMessage);
 
             var getUser = await _userAccountDataAccess.GetUser("test@gmail.com").ConfigureAwait(false);
             Assert.IsNotNull(getUser.Payload);
@@ -166,9 +167,9 @@ namespace DevelopmentHell.Hubba.UserManagement.Test
             var getNames = await _userNamesDataAccess.GetData(getUserId);
             Assert.IsNotNull(getNames.Payload);
             Assert.IsTrue((string)getNames.Payload!["FirstName"] == "firstName");
-            Assert.IsTrue((string)getNames.Payload!["LastName"]  == "lastName");
-            Assert.IsTrue((string)getNames.Payload!["UserName"]  == "userName");
-            Assert.IsTrue((string)getUser.Payload!.Role!         == "VerifiedUser");
+            Assert.IsTrue((string)getNames.Payload!["LastName"] == "lastName");
+            Assert.IsTrue((string)getNames.Payload!["UserName"] == "userName");
+            Assert.IsTrue((string)getUser.Payload!.Role! == "VerifiedUser");
         }
 
         [TestMethod]
@@ -278,7 +279,7 @@ namespace DevelopmentHell.Hubba.UserManagement.Test
 
             var testResult = await _userManagementManager.ElevatedDeleteAccount(userEmail);
             _stopWatch.Stop();
-                
+
             Assert.IsFalse(testResult.IsSuccessful);
         }
         [TestMethod]

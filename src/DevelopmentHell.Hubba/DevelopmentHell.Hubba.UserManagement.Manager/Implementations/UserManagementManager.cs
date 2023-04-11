@@ -1,12 +1,12 @@
-﻿using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.UserManagement.Manager.Abstractions;
+﻿using DevelopmentHell.Hubba.AccountDeletion.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
+using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
+using DevelopmentHell.Hubba.SqlDataAccess;
+using DevelopmentHell.Hubba.UserManagement.Manager.Abstractions;
 using DevelopmentHell.Hubba.UserManagement.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
-using DevelopmentHell.Hubba.AccountDeletion.Service.Abstractions;
-using DevelopmentHell.Hubba.SqlDataAccess;
 
 namespace DevelopmentHell.Hubba.UserManagement.Manager.Implementations
 {
@@ -20,8 +20,8 @@ namespace DevelopmentHell.Hubba.UserManagement.Manager.Implementations
         IAccountDeletionService _accountDeletionService;
         IUserAccountDataAccess _userAccountDataAccess;
 
-        public UserManagementManager(IAuthorizationService authorizationService, ILoggerService loggerService, IRegistrationService registrationService, IUserManagementService userManagementService, IValidationService validationService, IAccountDeletionService accountDeletionService, IUserAccountDataAccess userAccountDataAccess) 
-        { 
+        public UserManagementManager(IAuthorizationService authorizationService, ILoggerService loggerService, IRegistrationService registrationService, IUserManagementService userManagementService, IValidationService validationService, IAccountDeletionService accountDeletionService, IUserAccountDataAccess userAccountDataAccess)
+        {
             _authorizationService = authorizationService;
             _loggerService = loggerService;
             _registrationService = registrationService;
@@ -47,7 +47,7 @@ namespace DevelopmentHell.Hubba.UserManagement.Manager.Implementations
                 return new Result
                 {
                     IsSuccessful = false,
-                    ErrorMessage = "Error in Creating account with Elevated permissions:"+regResult.ErrorMessage,
+                    ErrorMessage = "Error in Creating account with Elevated permissions:" + regResult.ErrorMessage,
                 };
             }
 
@@ -59,7 +59,7 @@ namespace DevelopmentHell.Hubba.UserManagement.Manager.Implementations
                     return new Result
                     {
                         IsSuccessful = false,
-                        ErrorMessage = "Error in Updating newly created account with Elevated Permissions:"+updResult.ErrorMessage,
+                        ErrorMessage = "Error in Updating newly created account with Elevated Permissions:" + updResult.ErrorMessage,
                     };
                 }
             }
@@ -82,7 +82,7 @@ namespace DevelopmentHell.Hubba.UserManagement.Manager.Implementations
                 return new()
                 {
                     IsSuccessful = false,
-                    ErrorMessage = "Unable to get Id to delete Account: "+ getResult.ErrorMessage,
+                    ErrorMessage = "Unable to get Id to delete Account: " + getResult.ErrorMessage,
                 };
             }
             var delResult = await _accountDeletionService.DeleteAccount(getResult.Payload!).ConfigureAwait(false);
@@ -175,7 +175,7 @@ namespace DevelopmentHell.Hubba.UserManagement.Manager.Implementations
                     ErrorMessage = "Unauthorized Access"
                 };
             }
-            HashSet<string> names = new(new string[]{ "FirstName","LastName","UserName" });
+            HashSet<string> names = new(new string[] { "FirstName", "LastName", "UserName" });
             HashSet<string> accepted = new(new string[] { "Role", "CellPhoneNumber", "CellPhoneProvider" });
             HashSet<string> acceptedRoles = new(new[] { "AdminUser", "VerifiedUser" });
             Dictionary<string, object> updatedNames = new();
@@ -208,17 +208,19 @@ namespace DevelopmentHell.Hubba.UserManagement.Manager.Implementations
                             continue;
                         }
                     }
-                    updatedAccount.Add(pair.Key,pair.Value);
+                    updatedAccount.Add(pair.Key, pair.Value);
                 }
             }
             if (updatedNames.Count > 0)
             {
                 var nameResult = await _userManagementService.UpdateNames(email, updatedNames).ConfigureAwait(false);
-                if (!nameResult.IsSuccessful) { 
-                    return new() { 
+                if (!nameResult.IsSuccessful)
+                {
+                    return new()
+                    {
                         IsSuccessful = false,
-                        ErrorMessage = "Unable to update names: "+nameResult.ErrorMessage
-                    }; 
+                        ErrorMessage = "Unable to update names: " + nameResult.ErrorMessage
+                    };
                 }
             }
             if (updatedAccount.Count > 0)

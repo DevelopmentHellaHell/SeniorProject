@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using DevelopmentHell.Hubba.UserManagement.Manager.Abstractions;
-using DevelopmentHell.Hubba.Logging.Service.Abstractions;
+﻿using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.UserManagement.Manager.Abstractions;
 using DevelopmentHell.Hubba.WebAPI.DTO.UserManagement;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DevelopmentHell.Hubba.WebAPI.Controllers
 {
@@ -119,7 +119,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             {
                 data["FirstName"] = user.FirstName;
             }
-            if(user.LastName != null)
+            if (user.LastName != null)
             {
                 data["LastName"] = user.LastName;
             }
@@ -134,7 +134,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 
             try
             {
-                var result = await _userManagementManager.ElevatedUpdateAccount(user.Email!,data);
+                var result = await _userManagementManager.ElevatedUpdateAccount(user.Email!, data);
                 if (!result.IsSuccessful)
                 {
                     _logger.Log(Models.LogLevel.WARNING, Category.VIEW, result.ErrorMessage!);
