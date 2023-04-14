@@ -3,10 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions;
 
-namespace ProjectShowcaseManager.Abstractions
+namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions
 {
+
+    public struct PackagedShowcase
+    {
+        public Showcase? Showcase { get; set; }
+        public List<string>? FilePaths { get; set; }
+        public List<ShowcaseComment>? Comments { get; set; }
+    }
+
     public interface IProjectShowcaseManager
     {
         Task<Result<bool>> VerifyOwnership(string showcaseId);
@@ -14,8 +24,8 @@ namespace ProjectShowcaseManager.Abstractions
         Task<Result<PackagedShowcase>> GetShowcase(string showcaseId);
         Task<Result<List<ShowcaseComment>>> GetComments(string showcaseId, int? commentCount, int? page);
         Task<Result<float>> LikeShowcase(string showcaseId);
-        Task<Result> CreateShowcase(ShowcaseDTO uploadedShowcase);
-        Task<Result> EditShowcase(ShowcaseDTO editedShowcase);
+        Task<Result> CreateShowcase(int listingId, string title, string description, List<HttpPostedFileBase> uploadedShowcase);
+        Task<Result> EditShowcase(int listingId, string title, string description, List<HttpPostedFileBase> uploadedShowcase);
         Task<Result> DeleteShowcase(string showcaseId);
         Task<Result> Publish(string showcaseId, int? listingId);
         Task<Result> Unpublish(string showcaseId);

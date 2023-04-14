@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions;
 
 namespace DevelopmentHell.Hubba.WebAPI.Controllers
 {
@@ -6,23 +7,90 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
     [Route("[controller]")]
     public class ShowcasesController : Controller
     {
+        private readonly IProjectShowcaseManager _projectShowcaseManager;
+        ShowcasesController(IProjectShowcaseManager projectShowcaseManager)
+        {
+            _projectShowcaseManager = projectShowcaseManager;
+        }
+
         [HttpGet]
         [Route("view")]
         public async Task<IActionResult> GetShowcase([FromQuery(Name = "s")] string? showcaseId)
         {
+            try
+            {
+                if (showcaseId == null)
+                {
+                    return BadRequest("Invalid request.");
+                }
+                var showcaseResult = await _projectShowcaseManager.GetShowcase(showcaseId);
+                if (!showcaseResult.IsSuccessful)
+                {
+                    var showcaseResultAgain = await _projectShowcaseManager.GetShowcase(showcaseId);
+                    if (!showcaseResultAgain.IsSuccessful)
+                    {
+                        throw new IOException("Unable to Get showcase");
+                    }
+                }
+                return Ok(showcaseResult.Payload);
+
+            } catch (Exception ex)
+            {
+                return BadRequest("Invalid request.");
+                
+            }
             throw new NotImplementedException();
         }
+
         [HttpGet]
         [Route("comments")]
         public async Task<IActionResult> GetComments([FromQuery(Name = "s")] string? showcaseId, [FromQuery(Name = "c")] int? commentCount, [FromQuery(Name = "p")] int? page)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (showcaseId == null)
+                {
+                    return BadRequest("Invalid request");
+                }
+
+                var commentResult = await _projectShowcaseManager.GetComments(showcaseId, commentCount, page);
+                if (!commentResult.IsSuccessful)
+                {
+                    throw new IOException("Unable to get comments");
+                }
+
+                return Ok(commentResult.Payload);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Invalid request.");
+                //TODO: log failure
+            }
         }
+
         [HttpPost]
         [Route("like")]
         public async Task<IActionResult> LikeShowcase([FromQuery(Name = "s")] string? showcaseId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (showcaseId == null)
+                {
+                    return BadRequest("Invalid request");
+                }
+
+                var likeResult = await _projectShowcaseManager.LikeShowcase(showcaseId);
+                if (!likeResult.IsSuccessful)
+                {
+                    throw new IOException("Unable to like Showcase");
+                }
+
+                return Ok(likeResult.Payload);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Invalid request.");
+            }
         }
         [HttpPost]
         [Route("new")]

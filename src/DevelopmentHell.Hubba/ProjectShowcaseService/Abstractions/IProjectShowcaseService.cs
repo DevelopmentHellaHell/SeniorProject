@@ -5,6 +5,34 @@ using System.Text;
 using System.Threading.Tasks;
 using DevelopmentHell.Hubba.Models;
 
+namespace DevelopmentHell.Hubba.ProjectShowcase
+{
+    public struct ShowcaseComment
+    {
+        public int? Id { get; set; }
+        public int? CommenterEmail { get; set; }
+        public string? ShowcaseId { get; set; }
+        public string? Text { get; set; }
+        public int? Rating { get; set; }
+        public bool? Reported { get; set; }
+        public DateTime? Timestamp { get; set; }
+        public DateTime? EditTimestamp { get; set; }
+    }
+    public struct Showcase
+    {
+        public string? Id { get; set; }
+        public int? ShowcaseUserId { get; set; }
+        public int? ShowcaseUserEmail { get; set; }
+        public int? ListingId { get; set; }
+        public string? Title { get; set; }
+        public string? Description { get; set; }
+        public bool? Reported { get; set; }
+        public bool? Published { get; set; }
+        public DateTime? EditTimestamp { get; set; }
+        public DateTime? PublishTimestamp { get; set; }
+    }
+}
+
 namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions
 {
     public interface IProjectShowcaseService
@@ -14,8 +42,8 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions
         Task<Result<Showcase>> GetShowcase(string showcaseId);
         Task<Result<List<ShowcaseComment>>> GetComments(string showcaseId, int commentCount, int page);
         Task<Result<float>> LikeShowcase(string showcaseId);
-        Task<Result> CreateShowcase(ShowcaseDTO uploadedShowcase);
-        Task<Result> EditShowcase(ShowcaseDTO editedShowcase);
+        Task<Result> CreateShowcase(int listingId, string title, string description, List<HttpPostedFileBase> uploadedFiles);
+        Task<Result> EditShowcase(int listingId, string title, string description, List<HttpPostedFileBase> uploadedFiles);
         Task<Result> DeleteShowcase(string showcaseId);
         Task<Result> Publish(string showcaseId);
         Task<Result> Unpublish(string showcaseId);
