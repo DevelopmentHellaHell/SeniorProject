@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DevelopmentHell.Hubba.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace DevelopmentHell.Hubba.ProjectShowcase
 {
@@ -42,10 +43,10 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions
         Task<Result<Showcase>> GetShowcase(string showcaseId);
         Task<Result<List<ShowcaseComment>>> GetComments(string showcaseId, int commentCount, int page);
         Task<Result<float>> LikeShowcase(string showcaseId);
-        Task<Result> CreateShowcase(int listingId, string title, string description, List<HttpPostedFileBase> uploadedFiles);
-        Task<Result> EditShowcase(int listingId, string title, string description, List<HttpPostedFileBase> uploadedFiles);
+        Task<Result<string>> CreateShowcase(int listingId, string title, string description);
+        Task<Result> EditShowcase(string showcaseId, int? listingId, string? title, string? description);
         Task<Result> DeleteShowcase(string showcaseId);
-        Task<Result> Publish(string showcaseId);
+        Task<Result> Publish(string showcaseId, int? listingId);
         Task<Result> Unpublish(string showcaseId);
         Task<Result> AddComment(string showcaseId, string commentText);
         Task<Result> EditComment(int commentId, string commentText);
