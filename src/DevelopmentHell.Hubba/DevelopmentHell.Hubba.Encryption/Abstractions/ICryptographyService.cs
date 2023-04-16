@@ -9,7 +9,7 @@ namespace DevelopmentHell.Hubba.Cryptography.Service.Abstractions
         string Decrypt(byte[] encrypted);
         byte[] DecryptToBytes(byte[] encrypted);
         Result<HashData> HashString(string text, string salt);
-		Result<HashData> HashString(string text);
-		string GetSaltValidChars();
-	}
+        Result<HashData> HashString(string text);
+        string GetSaltValidChars();
+    }
 }

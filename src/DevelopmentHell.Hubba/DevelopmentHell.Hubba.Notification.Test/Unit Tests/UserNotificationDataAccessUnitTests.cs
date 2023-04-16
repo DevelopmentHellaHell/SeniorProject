@@ -1,6 +1,7 @@
 ﻿using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
+using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
@@ -9,7 +10,6 @@ using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using DevelopmentHell.Hubba.Models;
 using System.Configuration;
 
 namespace DevelopmentHell.Hubba.Notification.Test.Unit_Tests
@@ -131,9 +131,9 @@ namespace DevelopmentHell.Hubba.Notification.Test.Unit_Tests
             // Get request to get Notification ids 
             var recievedNotification = await _notificationDataAccess.GetNotifications(id).ConfigureAwait(false);
             List<int> notifications = new List<int>();
-            Dictionary<string, object> firstNotification = recievedNotification.Payload![0]; 
+            Dictionary<string, object> firstNotification = recievedNotification.Payload![0];
             notifications.Add((int)firstNotification["NotificationId"]);
-            
+
             // Actual
             var resultHideNotification = await _notificationDataAccess.HideIndividualNotifications(notifications).ConfigureAwait(false);
             var actualNotifications = await _notificationDataAccess.GetNotifications(id).ConfigureAwait(false);

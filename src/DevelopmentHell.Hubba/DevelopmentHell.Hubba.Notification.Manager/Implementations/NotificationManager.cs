@@ -1,5 +1,4 @@
-﻿using Azure;
-using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
+﻿using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.CellPhoneProvider.Service.Abstractions;
 using DevelopmentHell.Hubba.Email.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
@@ -20,7 +19,7 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
         private IValidationService _validationService;
         private ILoggerService _loggerService;
 
-        public NotificationManager(INotificationService notificationService, ICellPhoneProviderService cellPhoneProviderService, IEmailService emailService, IAuthorizationService authorizationService, IValidationService validationService, ILoggerService loggerService) 
+        public NotificationManager(INotificationService notificationService, ICellPhoneProviderService cellPhoneProviderService, IEmailService emailService, IAuthorizationService authorizationService, IValidationService validationService, ILoggerService loggerService)
         {
             _notificationService = notificationService;
             _cellPhoneProviderService = cellPhoneProviderService;
@@ -67,7 +66,7 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
             return result;
         }
 
-        public async Task<Result> CreateNewNotification(int userId, string message, NotificationType tag, bool forceEmail = false) 
+        public async Task<Result> CreateNewNotification(int userId, string message, NotificationType tag, bool forceEmail = false)
         {
             Result result = new Result();
 
@@ -78,7 +77,7 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
                 result.ErrorMessage = "Error fetching notification settings.";
                 return result;
             }
-            
+
             Result<UserAccount> userResult = await _notificationService.GetUser(userId).ConfigureAwait(false);
             if (!userResult.IsSuccessful || userResult is null)
             {
@@ -89,19 +88,19 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
 
             // checking conditions for what types of Notifications user prefers
             NotificationSettings notificationSettings = notificationSettingsResult.Payload!;
-            if((!(bool)notificationSettings.TypeProjectShowcase! && tag == NotificationType.PROJECT_SHOWCASE)
+            if ((!(bool)notificationSettings.TypeProjectShowcase! && tag == NotificationType.PROJECT_SHOWCASE)
                 || (!(bool)notificationSettings.TypeWorkspace! && tag == NotificationType.WORKSPACE)
                 || (!(bool)notificationSettings.TypeScheduling! && tag == NotificationType.SCHEDULING)
                 || (!(bool)notificationSettings.TypeOther! && tag == NotificationType.OTHER))
             {
                 result.IsSuccessful = true;
                 return result;
-            } 
+            }
 
             // next two checks are for email and text messages
             UserAccount userAccount = userResult.Payload!;
             if (((bool)notificationSettings.EmailNotifications!
-                && userAccount.Email is not null) || 
+                && userAccount.Email is not null) ||
                 (forceEmail && userAccount.Email is not null)) // force email parameter for Notification and Account Setting changes
             {
                 string userEmail = userAccount.Email;
@@ -112,7 +111,7 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
                     message
                 );
             }
-            
+
             if ((bool)notificationSettings.TextNotifications!
                 && userAccount.CellPhoneNumber is not null
                 && userAccount.CellPhoneProvider is not null)
@@ -190,7 +189,8 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
                 true
             ).ConfigureAwait(false);
 
-            if (!createNotificationResult.IsSuccessful) {
+            if (!createNotificationResult.IsSuccessful)
+            {
                 result.IsSuccessful = false;
                 result.ErrorMessage = createNotificationResult.ErrorMessage;
                 return result;
@@ -308,7 +308,7 @@ namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
             return await _notificationService.UpdatePhoneDetails(new UserAccount()
             {
                 Id = userId,
-                CellPhoneNumber= cellPhoneNumber,
+                CellPhoneNumber = cellPhoneNumber,
                 CellPhoneProvider = cellPhoneProvider
             }).ConfigureAwait(false);
         }

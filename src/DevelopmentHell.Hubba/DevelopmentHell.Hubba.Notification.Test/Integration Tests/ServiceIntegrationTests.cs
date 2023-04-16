@@ -7,10 +7,9 @@ using DevelopmentHell.Hubba.Authorization.Service.Implementations;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
+using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Notification.Service.Abstractions;
 using DevelopmentHell.Hubba.Notification.Service.Implementations;
-using DevelopmentHell.Hubba.Registration.Manager.Abstractions;
-using DevelopmentHell.Hubba.Registration.Manager.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
@@ -18,7 +17,6 @@ using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using DevelopmentHell.Hubba.Models;
 using System.Configuration;
 
 
@@ -43,7 +41,7 @@ namespace DevelopmentHell.Hubba.Notification.Test.Integration_Tests
         private readonly string _userNotificationTable = ConfigurationManager.AppSettings["UserNotificationsTable"]!;
         private readonly string _notificationSettingsTable = ConfigurationManager.AppSettings["NotificationSettingsTable"]!;
 
-        public ServiceIntegrationTests() 
+        public ServiceIntegrationTests()
         {
             LoggerService loggerService = new LoggerService(
                 new LoggerDataAccess(
@@ -74,7 +72,7 @@ namespace DevelopmentHell.Hubba.Notification.Test.Integration_Tests
                 loggerService
             );
             _userAccountDataAccess = new UserAccountDataAccess(
-                _userConnectionString, 
+                _userConnectionString,
                 _userAccountsTable
             );
             _authorizationService = new AuthorizationService(
@@ -176,7 +174,7 @@ namespace DevelopmentHell.Hubba.Notification.Test.Integration_Tests
             var notification1 = actualGetNotifications.Payload![0];
             var notification2 = actualGetNotifications.Payload![1];
             var notification3 = actualGetNotifications.Payload![2];
-            
+
             // Assert
             // check message contents
             Assert.AreEqual("message 1", notification1["Message"]);
@@ -267,7 +265,7 @@ namespace DevelopmentHell.Hubba.Notification.Test.Integration_Tests
             // Get request to get Notification ids 
             var recievedNotification = await _notificationService.GetNotifications(id).ConfigureAwait(false);
             List<int> notifications = new List<int>();
-            Dictionary<string, object> firstNotification = recievedNotification.Payload![0]; 
+            Dictionary<string, object> firstNotification = recievedNotification.Payload![0];
             notifications.Add((int)firstNotification["NotificationId"]);
 
             // Actual
@@ -330,7 +328,7 @@ namespace DevelopmentHell.Hubba.Notification.Test.Integration_Tests
             await _notificationService.AddNotification(id, "message 3", NotificationType.PROJECT_SHOWCASE).ConfigureAwait(false);
             var beforeDeleteNotifications = await _notificationService.GetNotifications(id).ConfigureAwait(false);
             Assert.IsNotNull(beforeDeleteNotifications.Payload);
-            
+
             //Actual
             var actualResult = await _notificationService.DeleteAllNotifications(id).ConfigureAwait(false);
             var afterDeleteNotifications = await _notificationService.GetNotifications(id).ConfigureAwait(false);
@@ -436,12 +434,12 @@ namespace DevelopmentHell.Hubba.Notification.Test.Integration_Tests
 
             // Actual
             // change number and provider
-            var actualResult = _notificationService.UpdatePhoneDetails(new UserAccount 
-                { 
-                    Id = id,
-                    CellPhoneNumber = "5101234567",
-                    CellPhoneProvider = CellPhoneProviders.VERIZON
-                }
+            var actualResult = _notificationService.UpdatePhoneDetails(new UserAccount
+            {
+                Id = id,
+                CellPhoneNumber = "5101234567",
+                CellPhoneProvider = CellPhoneProviders.VERIZON
+            }
             ).ConfigureAwait(false);
             // get settings again
             var userInformation = await _notificationService.GetUser(id).ConfigureAwait(false);

@@ -12,17 +12,17 @@ namespace DevelopmentHell.Hubba.Registration.Manager.Implementations
     public class RegistrationManager : IRegistrationManager
     {
         private IRegistrationService _registrationService;
-		private IAuthorizationService _authorizationService;
+        private IAuthorizationService _authorizationService;
         private ICryptographyService _cryptographyService;
-        private INotificationService _notificationService; 
+        private INotificationService _notificationService;
         private ILoggerService _loggerService;
-        
+
         public RegistrationManager(IRegistrationService registrationService, IAuthorizationService authorizationService, ICryptographyService cryptographyService, INotificationService notificationService, ILoggerService loggerService)
         {
             _registrationService = registrationService;
             _authorizationService = authorizationService;
             _cryptographyService = cryptographyService;
-            _notificationService = notificationService; 
+            _notificationService = notificationService;
             _loggerService = loggerService;
         }
 
@@ -30,14 +30,14 @@ namespace DevelopmentHell.Hubba.Registration.Manager.Implementations
         {
             Result result = new Result();
 
-			if (_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
-			{
-				result.IsSuccessful = false;
-				result.ErrorMessage = "Error, user already logged in.";
-				return result;
-			}
+            if (_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error, user already logged in.";
+                return result;
+            }
 
-			Result registerResult = await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+            Result registerResult = await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
             if (!registerResult.IsSuccessful)
             {
                 result.IsSuccessful = false;

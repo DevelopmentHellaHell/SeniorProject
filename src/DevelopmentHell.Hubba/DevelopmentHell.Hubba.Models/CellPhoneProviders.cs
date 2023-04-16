@@ -1,7 +1,7 @@
 ﻿namespace DevelopmentHell.Hubba.Models
 {
     public enum CellPhoneProviders
-    { 
+    {
         T_MOBILE = 0,
         VERIZON = 1,
         ATAT = 2,

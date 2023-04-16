@@ -46,13 +46,13 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
 
         public ManagerIntegrationTests()
         {
-			_userAccountDataAccess = new UserAccountDataAccess(_usersConnectionString, _userAccountsTable);
+            _userAccountDataAccess = new UserAccountDataAccess(_usersConnectionString, _userAccountsTable);
             IValidationService validationService = new ValidationService();
             ICryptographyService cryptographyService = new CryptographyService(ConfigurationManager.AppSettings["CryptographyKey"]!);
             IJWTHandlerService jwtHandlerService = new JWTHandlerService(
-				_jwtKey
-			);
-			ILoggerService loggerService = new LoggerService(
+                _jwtKey
+            );
+            ILoggerService loggerService = new LoggerService(
                 new LoggerDataAccess(_logsConnectionString, _logsTable)
             );
             _authorizationService = new AuthorizationService(
@@ -92,7 +92,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             loggerService
             );
             _authenticationService = new AuthenticationService(
-				_userAccountDataAccess,
+                _userAccountDataAccess,
                 new UserLoginDataAccess(
                     _usersConnectionString,
                     ConfigurationManager.AppSettings["UserLoginsTable"]!
@@ -103,9 +103,9 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
                 loggerService
             );
             _accountDeletionManager = new AccountDeletionManager(
-                accountDeletionService, 
-                _authenticationService, 
-                _authorizationService, 
+                accountDeletionService,
+                _authenticationService,
+                _authorizationService,
                 loggerService
             );
             _registrationService = new RegistrationService(
@@ -115,8 +115,8 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
                loggerService
             );
             _testingService = new TestingService(
-				_jwtKey,
-				new TestsDataAccess()
+                _jwtKey,
+                new TestsDataAccess()
             );
         }
 
@@ -136,7 +136,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
         public async Task DeleteVerifiedUserAccount()
         {
             // Arrange
-            
+
             // generate user account
             string email = "test@gmail.com";
             string password = "12345678";
@@ -200,7 +200,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
         public async Task AdminUserDeleteOther()
         {
             // Arrange
-            
+
             // generate 1 user account and 1 admin account
             string email1 = "test1@gmail.com";
             string email2 = "test2@gmail.com";
@@ -234,13 +234,15 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
             var getUser = await _userAccountDataAccess.GetUser(accountId2).ConfigureAwait(false);
             Assert.IsNull(getUser.Payload);
+            getUser = await _userAccountDataAccess.GetUser(accountId1).ConfigureAwait(false);
+            Assert.IsNotNull(getUser.Payload);
         }
 
         [TestMethod]
         public async Task AdminUserDeleteSelfAsLastAdmin()
         {
             // Arrange
-            
+
             // generate admin
             string email = "test@gmail.com";
             string password = "12345678";
@@ -276,7 +278,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
         public async Task AdminUserDeleteSelfWithOtherAdmin()
         {
             // Arrange
-            
+
             // generate first admin
             string email1 = "test1@gmail.com";
             string password = "12345678";
@@ -319,6 +321,8 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
             var getUser = await _userAccountDataAccess.GetUser(accountId1).ConfigureAwait(false);
             Assert.IsNull(getUser.Payload);
+            getUser = await _userAccountDataAccess.GetUser(accountId2).ConfigureAwait(false);
+            Assert.IsNotNull(getUser.Payload);
         }
 
         [TestCleanup]

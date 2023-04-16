@@ -1,5 +1,5 @@
-﻿using DevelopmentHell.Hubba.Models.Tests;
-using DevelopmentHell.Hubba.Models;
+﻿using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.Models.Tests;
 
 namespace DevelopmentHell.Hubba.Testing.Service.Abstractions
 {

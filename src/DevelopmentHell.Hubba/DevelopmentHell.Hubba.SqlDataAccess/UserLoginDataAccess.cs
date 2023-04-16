@@ -9,7 +9,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         private InsertDataAccess _insertDataAccess;
         private SelectDataAccess _selectDataAccess;
         private DeleteDataAccess _deleteDataAccess;
-        
+
         private string _tableName;
         public UserLoginDataAccess(string connectionString, string tableName)
         {
@@ -21,7 +21,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         public async Task<Result> AddLogin(int accoundId, string ipAddress)
         {
             Result insertResult = await _insertDataAccess.Insert(
-                _tableName, 
+                _tableName,
                 new Dictionary<string, object>() {
                     { "Id" , accoundId },
                     { "IPAddress", ipAddress}

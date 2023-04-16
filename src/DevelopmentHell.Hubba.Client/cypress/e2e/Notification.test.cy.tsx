@@ -7,15 +7,18 @@ import { Database } from "./TestModels/Database";
  * User register, login, change Notification Settings, Notification Menu
  * Delete test data from database after testing
  */
-
-describe.only('Navigate to Notification Settings', () => {
-
+describe('Navigate to Notification Settings', () => {
+    before(()=>{
+        //clear all sessions include the backend and cache
+        Cypress.session.clearAllSavedSessions();
+    })
     let testsRoute: string = '/tests/deleteDatabaseRecords';
     beforeEach(() => {
         // using Custom Commands
         cy.RegisterViaApi(Cypress.env('realEmail'), Cypress.env('standardPassword'));
         cy.LoginViaApi(Cypress.env('realEmail'), Cypress.env('standardPassword'));
         cy.visit('/account');
+        // cy.wait(1000);
     });
 
     after(async () => {
@@ -25,10 +28,10 @@ describe.only('Navigate to Notification Settings', () => {
     })
 
     it('user clicks Email Notification Settings on', () => {
-        
-        cy.contains("Notification Settings").click();
+        cy.wait(1000);
+        cy.contains("Notification Settings").click()
+
         cy.contains("Delivery Method").should("exist").and("be.visible");
-        
         cy.get('#siteNotifications-toggle-buttons').contains("Off").click();
         cy.get('#siteNotifications-toggle-buttons').contains("Off").should('have.css', 'color', `rgb(241, 252, 250)`);
         cy.get('#siteNotifications-toggle-buttons').contains("On").click();
@@ -92,36 +95,36 @@ describe.only('Navigate to Notification Settings', () => {
         cy.contains("Verizon").should("exist").and("be.visible");
         cy.contains("Save").click();
         
-         // force show the dropdown menu
-         cy.get('.dropdown-content').invoke('show');
- 
-         // timer
-         const startTimer = Date.now();
-         cy.contains('Notification').click();
-         const endTimer = Date.now() - startTimer;
-         expect(endTimer).lessThan(3000);
-         cy.url().should('eq', Cypress.env('baseUrl')+'/notification')
+        // force show the dropdown menu
+        cy.get('.dropdown-content').invoke('show');
 
-         // click to demonstrate filters
-         cy.contains("Scheduling").click();
-         cy.contains("Workspace").click();
-         cy.contains("Project Showcase").click();
-         cy.contains("Other").click();
+        // timer
+        const startTimer = Date.now();
+        cy.contains('Notification').click();
+        const endTimer = Date.now() - startTimer;
+        expect(endTimer).lessThan(3000);
+        cy.url().should('eq', Cypress.env('baseUrl')+'/notification')
 
-         // deactivating filters
-         cy.contains("Scheduling").click();
-         cy.contains("Workspace").click();
-         cy.contains("Project Showcase").click();
-         cy.contains("Other").click();
+        // click to demonstrate filters
+        cy.contains("Scheduling").click();
+        cy.contains("Workspace").click();
+        cy.contains("Project Showcase").click();
+        cy.contains("Other").click();
 
-         // demonstrate selecting notification and deleting it
-         cy.get(".table-button-hide" ).first().click();
-         cy.get(".table-button-hide" ).first().should('have.css', 'color', `rgb(77, 100, 106)`);
-         cy.contains("Delete").click();
+        // deactivating filters
+        cy.contains("Scheduling").click();
+        cy.contains("Workspace").click();
+        cy.contains("Project Showcase").click();
+        cy.contains("Other").click();
+
+        // demonstrate selecting notification and deleting it
+        cy.get(".table-button-hide" ).first().click();
+        cy.get(".table-button-hide" ).first().should('have.css', 'color', `rgb(77, 100, 106)`);
+        cy.contains("Delete").click();
 
         // demonstrate clear all
-         cy.contains("Clear All").click();
-         cy.contains("You have no new notifications.").should("exist");
+        cy.contains("Clear All").click();
+        cy.contains("You have no new notifications.").should("exist");
     });
 })
 

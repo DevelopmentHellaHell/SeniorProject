@@ -3,7 +3,6 @@ using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Notification.Manager.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess;
-using Microsoft.Identity.Client;
 
 namespace DevelopmentHell.Hubba.AccountDeletion.Service.Implementations
 {
@@ -13,7 +12,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Service.Implementations
         private INotificationManager _notificationManager;
         private ILoggerService _loggerService;
 
-        public AccountDeletionService(IUserAccountDataAccess dao, INotificationManager notificationManager,ILoggerService loggerService)
+        public AccountDeletionService(IUserAccountDataAccess dao, INotificationManager notificationManager, ILoggerService loggerService)
         {
             _dao = dao;
             _notificationManager = notificationManager;
@@ -25,7 +24,6 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Service.Implementations
             // Storing email for notification
             var userResult = await _dao.GetUser(accountId).ConfigureAwait(false);
             string email = userResult.Payload!.Email!;
-
 
             // Deleting account
             Result result = await DeleteUser(accountId).ConfigureAwait(false);
@@ -40,7 +38,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Service.Implementations
 
             // Sending account deletion notification
             if (email is not null)
-            _notificationManager.DeletionEmail(email);
+                _notificationManager.DeletionEmail(email);
 
             return result;
         }

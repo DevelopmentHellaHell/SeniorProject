@@ -1,8 +1,7 @@
 ﻿using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
-using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
-using DevelopmentHell.Hubba.Registration.Manager.Abstractions;
+using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
@@ -11,7 +10,6 @@ using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using DevelopmentHell.Hubba.Models;
 using System.Configuration;
 
 namespace DevelopmentHell.Hubba.Notification.Test.Unit_Tests
@@ -82,16 +80,16 @@ namespace DevelopmentHell.Hubba.Notification.Test.Unit_Tests
 
             // Actual
             var actualResult = await _notificationSettingsDataAccess.CreateUserNotificationSettings(new NotificationSettings()
-                {
-                    UserId = id,
-                    SiteNotifications = true,
-                    EmailNotifications = false,
-                    TextNotifications = false,
-                    TypeScheduling = true,
-                    TypeWorkspace = true,
-                    TypeProjectShowcase = true,
-                    TypeOther = true
-                }
+            {
+                UserId = id,
+                SiteNotifications = true,
+                EmailNotifications = false,
+                TextNotifications = false,
+                TypeScheduling = true,
+                TypeWorkspace = true,
+                TypeProjectShowcase = true,
+                TypeOther = true
+            }
             ).ConfigureAwait(false);
             var afterCreateNotification = await _notificationSettingsDataAccess.SelectUserNotificationSettings(id).ConfigureAwait(false);
 
@@ -113,16 +111,16 @@ namespace DevelopmentHell.Hubba.Notification.Test.Unit_Tests
             var id = userIdResult.Payload;
             var expected = true;
             var createResult = await _notificationSettingsDataAccess.CreateUserNotificationSettings(new NotificationSettings()
-                {
-                    UserId = id,
-                    SiteNotifications = true,
-                    EmailNotifications = false,
-                    TextNotifications = false,
-                    TypeScheduling = true,
-                    TypeWorkspace = true,
-                    TypeProjectShowcase = true,
-                    TypeOther = true
-                }
+            {
+                UserId = id,
+                SiteNotifications = true,
+                EmailNotifications = false,
+                TextNotifications = false,
+                TypeScheduling = true,
+                TypeWorkspace = true,
+                TypeProjectShowcase = true,
+                TypeOther = true
+            }
             ).ConfigureAwait(false);
 
             // Actual

@@ -1,7 +1,5 @@
 ﻿using Development.Hubba.JWTHandler.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
-using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
-using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
 using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
@@ -10,14 +8,12 @@ using DevelopmentHell.Hubba.CellPhoneProvider.Service.Implementations;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
 using DevelopmentHell.Hubba.Email.Service.Implementations;
-using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Notification.Manager.Abstractions;
 using DevelopmentHell.Hubba.Notification.Manager.Implementations;
 using DevelopmentHell.Hubba.Notification.Service.Abstractions;
 using DevelopmentHell.Hubba.Notification.Service.Implementations;
-using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Manager.Abstractions;
 using DevelopmentHell.Hubba.Registration.Manager.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
@@ -349,7 +345,7 @@ namespace DevelopmentHell.Hubba.Notification.Test
 
             // Assert
             Assert.IsNotNull(actualNotifications.Payload);
-            Assert.AreEqual(actualNotifications.Payload.Count, 4); 
+            Assert.AreEqual(actualNotifications.Payload.Count, 4);
             Assert.IsTrue(actualNotifications.IsSuccessful == expected);
             Assert.IsTrue(n1.IsSuccessful == expected);
             Assert.IsTrue(n2.IsSuccessful == expected);
@@ -408,7 +404,7 @@ namespace DevelopmentHell.Hubba.Notification.Test
             // Create two Notifications. One will be hidden, one will not be
             var hiddenNotification = await _notificationManager.CreateNewNotification(id, "I will be hidden", NotificationType.OTHER).ConfigureAwait(false);
             var notHiddenNotification = await _notificationManager.CreateNewNotification(id, "I will not be hidden", NotificationType.OTHER).ConfigureAwait(false);
-             
+
             // Get request to get Notification ids 
             var recievedNotification = await _notificationManager.GetNotifications().ConfigureAwait(false);
             List<int> notifications = new List<int>();
@@ -446,9 +442,9 @@ namespace DevelopmentHell.Hubba.Notification.Test
             var expected = true;
 
             // Create Two Notifications
-            await _notificationManager.CreateNewNotification(id, "notification 1", NotificationType.OTHER).ConfigureAwait(false); 
+            await _notificationManager.CreateNewNotification(id, "notification 1", NotificationType.OTHER).ConfigureAwait(false);
             await _notificationManager.CreateNewNotification(id, "notification 2", NotificationType.SCHEDULING).ConfigureAwait(false);
-           
+
             // Checking that two notifications are available to be seen
             var beforeHideAll = await _notificationManager.GetNotifications().ConfigureAwait(false);
 
@@ -579,7 +575,7 @@ namespace DevelopmentHell.Hubba.Notification.Test
 
             // Assert
             // after should return null
-            Assert.IsNotNull(beforeSettings.Payload); 
+            Assert.IsNotNull(beforeSettings.Payload);
             Assert.IsNotNull(beforeNotifications.Payload);
             Assert.IsNull(afterSettings.Payload);
             Assert.IsNull(afterNotifications.Payload);

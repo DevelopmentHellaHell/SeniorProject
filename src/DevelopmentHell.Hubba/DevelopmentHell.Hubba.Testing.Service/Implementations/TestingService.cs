@@ -1,9 +1,9 @@
-﻿using DevelopmentHell.Hubba.Models;
+﻿using Development.Hubba.JWTHandler.Service.Implementations;
+using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Models.Tests;
-using System.Security.Claims;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
-using Development.Hubba.JWTHandler.Service.Implementations;
+using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.Testing.Service.Implementations
 {
@@ -11,7 +11,7 @@ namespace DevelopmentHell.Hubba.Testing.Service.Implementations
     {
         private readonly string _jwtKey;
         private TestsDataAccess _testsDataAccess;
-        
+
         public TestingService(string jwtKey, TestsDataAccess testsDataAccess)
         {
             _jwtKey = jwtKey;
@@ -19,34 +19,34 @@ namespace DevelopmentHell.Hubba.Testing.Service.Implementations
         }
 
         public void DecodeJWT(string accessToken, string? idToken = null)
-		{
-			var jwtHandlerService = new JWTHandlerService(_jwtKey);
-			if (accessToken is not null)
-			{
-				if (jwtHandlerService.ValidateJwt(accessToken))
-				{
-					var principal = jwtHandlerService.GetPrincipal(accessToken);
-					Thread.CurrentPrincipal = principal;
-				}
-				else
-				{
-					Thread.CurrentPrincipal = null;
-				}
-			}
+        {
+            var jwtHandlerService = new JWTHandlerService(_jwtKey);
+            if (accessToken is not null)
+            {
+                if (jwtHandlerService.ValidateJwt(accessToken))
+                {
+                    var principal = jwtHandlerService.GetPrincipal(accessToken);
+                    Thread.CurrentPrincipal = principal;
+                }
+                else
+                {
+                    Thread.CurrentPrincipal = null;
+                }
+            }
 
-			if (idToken is not null && accessToken is not null && Thread.CurrentPrincipal is not null)
-			{
-				if (!jwtHandlerService.ValidateJwt(idToken))
-				{
-					Thread.CurrentPrincipal = null;
-				}
-			}
+            if (idToken is not null && accessToken is not null && Thread.CurrentPrincipal is not null)
+            {
+                if (!jwtHandlerService.ValidateJwt(idToken))
+                {
+                    Thread.CurrentPrincipal = null;
+                }
+            }
 
-			if (Thread.CurrentPrincipal is null)
-			{
-				Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim("role", "DefaultUser") }));
-			}
-		}
+            if (Thread.CurrentPrincipal is null)
+            {
+                Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim("role", "DefaultUser") }));
+            }
+        }
 
         public async Task<Result> DeleteDatabaseRecords(Databases db)
         {

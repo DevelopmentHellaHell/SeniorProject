@@ -10,7 +10,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
     public class NotificationController : Controller
     {
         private readonly INotificationManager _notificationManager;
-        
+
         public NotificationController(INotificationManager notificationManager)
         {
             _notificationManager = notificationManager;
@@ -43,7 +43,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         public async Task<IActionResult> GetNotifications()
         {
             var result = await _notificationManager.GetNotifications().ConfigureAwait(false);
-            if(!result.IsSuccessful)
+            if (!result.IsSuccessful)
             {
                 return BadRequest(result.ErrorMessage);
             }
@@ -56,7 +56,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         public async Task<IActionResult> hideAllNotifications()
         {
             var result = await _notificationManager.HideAllNotifications().ConfigureAwait(false);
-            if(!result.IsSuccessful)
+            if (!result.IsSuccessful)
             {
                 return BadRequest(result.ErrorMessage);
             }
@@ -74,16 +74,16 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             }
 
             var result = await _notificationManager.UpdateNotificationSettings(new NotificationSettings()
-                {
-                    UserId = 0, // Temp value to be replaced in manager layer
-                    SiteNotifications = updateNotificationSettingsDTO.SiteNotifications,
-                    EmailNotifications = updateNotificationSettingsDTO.EmailNotifications,
-                    TextNotifications = updateNotificationSettingsDTO.TextNotifications,
-                    TypeScheduling = updateNotificationSettingsDTO.TypeScheduling,
-                    TypeWorkspace = updateNotificationSettingsDTO.TypeWorkspace,
-                    TypeProjectShowcase = updateNotificationSettingsDTO.TypeProjectShowcase,
-                    TypeOther = updateNotificationSettingsDTO?.TypeOther
-                }
+            {
+                UserId = 0, // Temp value to be replaced in manager layer
+                SiteNotifications = updateNotificationSettingsDTO.SiteNotifications,
+                EmailNotifications = updateNotificationSettingsDTO.EmailNotifications,
+                TextNotifications = updateNotificationSettingsDTO.TextNotifications,
+                TypeScheduling = updateNotificationSettingsDTO.TypeScheduling,
+                TypeWorkspace = updateNotificationSettingsDTO.TypeWorkspace,
+                TypeProjectShowcase = updateNotificationSettingsDTO.TypeProjectShowcase,
+                TypeOther = updateNotificationSettingsDTO?.TypeOther
+            }
             ).ConfigureAwait(false);
             if (!result.IsSuccessful)
             {
@@ -106,7 +106,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             List<int> selectedNotifications = hideNotificationsDTO.hideNotifications;
 
             var result = await _notificationManager.HideIndividualNotifications(selectedNotifications);
-            if (!result.IsSuccessful) 
+            if (!result.IsSuccessful)
             {
                 return BadRequest(result.ErrorMessage);
             }

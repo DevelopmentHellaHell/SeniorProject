@@ -12,7 +12,7 @@ namespace DevelopmentHell.Hubba.Notification.Service.Implementations
         private INotificationSettingsDataAccess _notificationSettingsDataAccess;
         private IUserAccountDataAccess _userAccountDataAccess;
         private ILoggerService _loggerService;
-        
+
         public NotificationService(INotificationDataAccess notificationDataAccess, INotificationSettingsDataAccess notificationSettingsDataAccess, IUserAccountDataAccess userAccountDataAccess, ILoggerService loggerService)
         {
             _notificationDataAccess = notificationDataAccess;

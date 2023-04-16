@@ -1,8 +1,6 @@
-﻿using Azure.Core;
-using DevelopmentHell.Hubba.Models;
+﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
-using System.ComponentModel.DataAnnotations;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
@@ -17,7 +15,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         public NotificationDataAccess(string connectionString, string tableName)
         {
             _insertDataAccess = new InsertDataAccess(connectionString);
-            _updateDataAccess= new UpdateDataAccess(connectionString);
+            _updateDataAccess = new UpdateDataAccess(connectionString);
             _selectDataAccess = new SelectDataAccess(connectionString);
             _deleteDataAccess = new DeleteDataAccess(connectionString);
             _tableName = tableName;
@@ -43,7 +41,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         public async Task<Result<List<Dictionary<string, object>>>> GetNotifications(int userId)
         {
             Result<List<Dictionary<string, object>>> result = new Result<List<Dictionary<string, object>>>();
-            
+
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
                 new List<string>() { "*" },
@@ -54,7 +52,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 }
             ).ConfigureAwait(false);
 
-            if  (!selectResult.IsSuccessful || selectResult.Payload is null)
+            if (!selectResult.IsSuccessful || selectResult.Payload is null)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = selectResult.ErrorMessage;
@@ -73,7 +71,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             Result result = new Result();
 
-            foreach(int i in selectedNotifications)
+            foreach (int i in selectedNotifications)
             {
                 Result updateResult = await _updateDataAccess.Update(
                     _tableName,
@@ -89,14 +87,14 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 if (!updateResult.IsSuccessful)
                 {
                     result.IsSuccessful = false;
-                    result.ErrorMessage = updateResult.ErrorMessage;    
+                    result.ErrorMessage = updateResult.ErrorMessage;
                     return updateResult;
                 }
             }
 
             result.IsSuccessful = true;
             return result;
-                
+
         }
 
         // Makes all notifications of user hidden
@@ -108,7 +106,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 {
                     new Comparator("UserId", "=", userId),
                 },
-                new Dictionary<string, object>() 
+                new Dictionary<string, object>()
                 {
                     { "Hide", true }
                 }

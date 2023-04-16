@@ -2,6 +2,6 @@
 {
     public class HideNotificationsDTO
     {
-        public List<int>  hideNotifications { get; set; }
+        public List<int> hideNotifications { get; set; }
     }
 }

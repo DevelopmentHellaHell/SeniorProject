@@ -46,14 +46,14 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         public async Task<Result> UpdateUserNotificationSettings(NotificationSettings settings)
         {
             var values = new Dictionary<string, object>();
-            foreach (var column in settings.GetType().GetProperties()) 
+            foreach (var column in settings.GetType().GetProperties())
             {
                 var value = column.GetValue(settings);
                 // ensures proper values get assigned correctly
                 if (value is null || column.Name == "UserId") continue;
                 values[column.Name] = value;
             }
-            
+
             Result updateResult = await _updateDataAccess.Update(
                 _tableName,
                 // comparator helps create WHERE SQL statement
@@ -68,7 +68,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         }
 
         // used to retrieve user's saved Notification Settings
-        public async Task<Result<NotificationSettings>> SelectUserNotificationSettings(int userId) 
+        public async Task<Result<NotificationSettings>> SelectUserNotificationSettings(int userId)
         {
             Result<NotificationSettings> result = new Result<NotificationSettings>();
 
