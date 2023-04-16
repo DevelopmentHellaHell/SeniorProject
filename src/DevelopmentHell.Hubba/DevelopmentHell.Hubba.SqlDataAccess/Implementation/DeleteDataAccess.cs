@@ -63,7 +63,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                     where = $" WHERE {sbFilter.ToString()}";
                 }
 
-                insertQuery.CommandText = $"DELETE FROM {source} {where}";
+				insertQuery.CommandText = $"DELETE FROM {source}" + where;
 
                 return await SendQuery(insertQuery).ConfigureAwait(false);
             }
