@@ -3,6 +3,7 @@ using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -56,7 +57,21 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         public async Task<Result> AddComment(string showcaseId, int accountId, string commentText, DateTime time)
         {
-            throw new NotImplementedException();
+            if (showcaseId == null || showcaseId.Length == 0)
+            {
+                return Result.Failure("Showcase Id is not valid",400);
+            }
+            if (commentText == null || commentText.Length == 0)
+            {
+                return Result.Failure("Comment is not valid", 400);
+            }
+
+            return await _insertDataAccess.Insert(_showcaseTableName, new() {
+                { "ShowcaseId", showcaseId },
+                { "CommenterId", accountId },
+                { "Text", commentText },
+                { "Rating", 0 }
+            }).ConfigureAwait(false);
         }
 
         public async Task<Result> AddCommentReport(int commentId, int reporterId, string reason, DateTime time)
@@ -69,31 +84,35 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             throw new NotImplementedException();
         }
 
-        public async Task<Result> ChangePublishStatus(string showcaseId, bool isPublished, DateTime time)
+        public async Task<Result> ChangePublishStatus(string showcaseId, bool isPublished, DateTime? time = null)
         {
+            Dictionary<string, object> updateDict = new() { { "IsPublished", isPublished} };
+            if (time != null)
+            {
+                updateDict.Add("PublishTimestamp", time);
+            }
             var updateResult = await _updateDataAccess.Update
             (
                 _showcaseTableName, 
                 new List<Comparator>() { new("Id", "=", showcaseId) }, 
-                new Dictionary<string, object>() 
-                { 
-                    { "IsPublished", isPublished }, 
-                    { "PublishTimestamp", time } 
-                }
+                updateDict
             );
             if (!updateResult.IsSuccessful)
             {
                 return Result.Failure("Failed to change publish status"); 
             }
-            return new()
-            {
-                IsSuccessful = true
-            };
+            return Result.Success();
         }
 
         public async Task<Result> DeleteComment(int commentId)
         {
-            throw new NotImplementedException();
+            var deleteResult = await _deleteDataAccess.Delete(_commentTableName, new() { new Comparator("Id", "=", commentId) });
+            if (!deleteResult.IsSuccessful)
+            {
+                return Result.Failure("Failed to delete comment.");
+            }
+
+            return Result.Success();
         }
 
         public async Task<Result> DeleteShowcase(string showcaseId)
@@ -101,16 +120,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             var deleteResult = await _deleteDataAccess.Delete(_showcaseTableName, new() { new("Id", "=", showcaseId) });
             if (!deleteResult.IsSuccessful)
             {
-                return new() {
-                    IsSuccessful = false, 
-                    ErrorMessage = "Failed to delete showcase"
-                };
+                return Result.Failure("Failed to delete showcase");
             }
 
-            return new()
-            {
-                IsSuccessful = true
-            };
+            return Result.Success();
         }
 
         public async Task<Result> EditShowcase(string showcaseId, string? title, string? description, DateTime time)
@@ -156,9 +169,28 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return result;
         }
 
-        public async Task<Result<Dictionary<string, object>>> GetCommentUserRating(int commentId, int voterId)
+        public async Task<Result<bool?>> GetCommentUserRating(int commentId, int voterId)
         {
-            throw new NotImplementedException();
+            var result = await _selectDataAccess.Select (
+                _commentLikeTableName,
+                new() { "IsUpvote" },
+                new() {
+                    new("CommentId","=",commentId),
+                    new("VoterId","=",voterId)
+                });
+            if (!result.IsSuccessful)
+            {
+                return new(Result.Failure($"Error in getting User Rating from Db"));
+            }
+            if (result.Payload!.Count() > 1)
+            {
+                return new(Result.Failure("More than one comment with given Id"));
+            }
+            if (result.Payload!.Count()  == 0)
+            {
+                return Result<bool?>.Success(null);
+            }
+            return Result<bool?>.Success((bool)result.Payload![0]["IsUpvote"]);
         }
 
         public async Task<Result<Dictionary<string, object>>> GetDetails(string showcaseId)
@@ -249,9 +281,14 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }).ConfigureAwait(false);
         }
 
-        public async Task<Result> InsertUserCommentRating(int commentId, int voterId, int isUpvote)
+        public async Task<Result> InsertUserCommentRating(int commentId, int voterId, bool isUpvote)
         {
-            throw new NotImplementedException();
+            return await _insertDataAccess.Insert(_commentLikeTableName, new()
+            {
+                { "VoterId", voterId },
+                { "CommentId", commentId },
+                { "IsUpvote", isUpvote }
+            }).ConfigureAwait(false);
         }
 
         public async Task<Result> RecordUserLike(int raterId, string showcaseId)
@@ -271,17 +308,62 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         public async Task<Result> UpdateComment(int commentId, string commentText, DateTime time)
         {
-            throw new NotImplementedException();
+            return await _updateDataAccess.Update(_commentTableName, new() 
+            { new Comparator("Id","=",commentId) },
+            new() 
+            { 
+                { "Text", commentText }, 
+                { "EditTimestamp", time } 
+            }).ConfigureAwait(false);
         }
 
-        public async Task<Result> UpdateCommentRating(int commentId, int difference)
+        public async Task<Result<int>> UpdateCommentRating(int commentId, int difference)
         {
-            throw new NotImplementedException();
+
+            var updateResult = await _updateDataAccess.Update(_commentTableName, new()
+            { new Comparator("Id","=",commentId) },
+            new()
+            {
+                { "Rating", $"Rating + {difference}" }
+            });
+            if (!updateResult.IsSuccessful)
+            {
+                return new(Result.Failure("Unable to update Comment Rating"));
+            }
+
+            var selectResult =  await _selectDataAccess.Select(_commentTableName, new()
+            { "Rating" },
+            new()
+            {
+                new("Id","=",commentId)
+            });
+            if (!selectResult.IsSuccessful)
+            {
+                return new(selectResult);
+            }
+            if (selectResult.Payload!.Count() > 1)
+            {
+                return new(Result.Failure($"More than one comment with given Id: {selectResult.ErrorMessage}"));
+            }
+            if (selectResult.Payload!.Count() == 0)
+            {
+                return new(Result.Failure($"Comment Id Does not exist: {selectResult.ErrorMessage}"));
+            }
+
+            return Result<int>.Success((int)selectResult.Payload![0]["Rating"]);
         }
 
-        public async Task<Result> UpdateUserCommentRating(int commentId, int voterId, int isUpvote)
+        public async Task<Result> UpdateUserCommentRating(int commentId, int voterId, bool isUpvote)
         {
-            throw new NotImplementedException();
+            return await _updateDataAccess.Update(_commentLikeTableName, new()
+            {
+                new("CommentId","=",commentId),
+                new("VoterId","=",voterId)
+            },
+            new()
+            {
+                { "IsUpvote", isUpvote }
+            });
         }
     }
 }

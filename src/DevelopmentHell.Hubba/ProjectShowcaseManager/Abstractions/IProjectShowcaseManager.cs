@@ -33,7 +33,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions
         Task<Result> AddComment(string showcaseId, string commentText);
         Task<Result> EditComment(int commentId, string commentText);
         Task<Result> DeleteComment(int commentId);
-        Task<Result> RateComment(int commentId, bool isUpvote);
+        Task<Result<int>> RateComment(int commentId, bool isUpvote);
         Task<Result> ReportComment(int commentId, string reasonText);
         Task<Result> ReportShowcase(string showcaseId, string reasonText);
         Task<Result> Unlink(string showcaseId);

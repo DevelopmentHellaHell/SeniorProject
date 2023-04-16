@@ -30,7 +30,26 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
 
         public async Task<Result> AddComment(string showcaseId, string commentText)
         {
-            throw new NotImplementedException();
+            if (!_validationService.ValidateBodyText(commentText).IsSuccessful)
+            {
+                return new(Result.Failure("Invalid comment.", 400));
+            }
+
+            try
+            {
+                int accountId = int.Parse((Thread.CurrentPrincipal as ClaimsPrincipal)?.FindFirstValue("sub")!);
+                var insertResult = await _projectShowcaseDataAccess.AddComment(showcaseId, accountId, commentText, DateTime.UtcNow).ConfigureAwait(false);
+                if (!insertResult.IsSuccessful)
+                {
+                    return new(Result.Failure($"Error in adding comment: {insertResult.ErrorMessage}"));
+                }
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in adding comment: {ex.Message}", "ShowcaseService");
+                return new(Result.Failure("Error in adding comment"));
+            }
         }
 
         public async Task<Result<string>> CreateShowcase(int listingId, string title, string description)
@@ -60,14 +79,32 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             }
             catch (Exception ex)
             {
-                _logger.Warning(Category.BUSINESS, "Error in creating showcase", "ShowcaseService");
+                _logger.Warning(Category.BUSINESS, $"Error in creating showcase: {ex.Message}", "ShowcaseService");
                 return new(Result.Failure("Error in creating showcase"));
             }
         }
 
         public async Task<Result> DeleteComment(int commentId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (commentId < 0)
+                {
+                    return Result.Failure("commentId is out of range", 400);
+                }
+
+                var deleteResult = await _projectShowcaseDataAccess.DeleteComment(commentId).ConfigureAwait(false);
+                if (!deleteResult.IsSuccessful)
+                {
+                    return Result.Failure(deleteResult.ErrorMessage!);
+                }
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in deleting comment: {ex.Message}", "ShowcaseService");
+                return new(Result.Failure("Error in creating showcase"));
+            }
         }
 
         public async Task<Result> DeleteShowcase(string showcaseId)
@@ -88,14 +125,36 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             }
             catch (Exception ex)
             {
-                _logger.Warning(Category.BUSINESS, "Error in deleting showcase", "ShowcaseService");
+                _logger.Warning(Category.BUSINESS, $"Error in deleting showcase: {ex.Message}", "ShowcaseService");
                 return new(Result.Failure("Error in deleting showcase"));
             }
         }
 
         public async Task<Result> EditComment(int commentId, string commentText)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (commentId < 0)
+                {
+                    return Result.Failure("Comment Id is out of range", 400);
+                }
+                if (commentText == null || commentText.Length == 0)
+                {
+                    return Result.Failure("comment text cannot be empty", 400);
+                }
+
+                var editResult = await _projectShowcaseDataAccess.UpdateComment(commentId, commentText, DateTime.UtcNow).ConfigureAwait(false);
+                if (!editResult.IsSuccessful)
+                {
+                    return Result.Failure("Error in editing comment.");
+                }
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in editing showcase: {ex.Message}", "ShowcaseService");
+                return new(Result.Failure("Error in editing showcase"));
+            }
         }
 
         public async Task<Result> EditShowcase(string showcaseId, int? listingId = null, string? title = null, string? description = null)
@@ -121,7 +180,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             }
             catch (Exception ex)
             {
-                _logger.Warning(Category.BUSINESS, "Error in editing showcase", "ShowcaseService");
+                _logger.Warning(Category.BUSINESS, $"Error in editing showcase: {ex.Message}", "ShowcaseService");
                 return new(Result.Failure("Error in editing showcase"));
             }
         }
@@ -173,7 +232,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             }
             catch (Exception ex)
             {
-                _logger.Warning(Category.BUSINESS, "Error in getting comments", "ShowcaseService");
+                _logger.Warning(Category.BUSINESS, $"Error in getting comments: {ex.Message}", "ShowcaseService");
                 return new(Result.Failure("Error in getting comments"));
             }
         }
@@ -189,9 +248,9 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
                 }
                 return getResult;
             }
-            catch
+            catch (Exception ex)
             {
-                _logger.Warning(Category.BUSINESS, "Error in getting showcase details", "ShowcaseService");
+                _logger.Warning(Category.BUSINESS, $"Error in getting showcase details: {ex.Message}", "ShowcaseService");
                 return new(Result.Failure("Error in getting showcase details"));
             }
         }
@@ -234,7 +293,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             }
             catch (Exception ex)
             {
-                _logger.Warning(Category.BUSINESS, "Error in getting showcase", "ShowcaseService");
+                _logger.Warning(Category.BUSINESS, $"Error in getting showcase: {ex.Message}", "ShowcaseService");
                 return new(Result.Failure("Error in getting showcase"));
             }
         }
@@ -266,7 +325,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             }
             catch (Exception ex)
             {
-                _logger.Warning(Category.BUSINESS, "Error in liking showcase", "ShowcaseService");
+                _logger.Warning(Category.BUSINESS, $"Error in liking showcase: {ex.Message}", "ShowcaseService");
                 return new(Result.Failure("Error in liking showcase"));
             }
         }
@@ -297,14 +356,58 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             }
             catch (Exception ex)
             {
-                _logger.Warning(Category.BUSINESS, "Error in publishing showcase", "ShowcaseService");
+                _logger.Warning(Category.BUSINESS, $"Error in publishing showcase: {ex.Message}", "ShowcaseService");
                 return new(Result.Failure("Error in publishing showcase"));
             }
         }
 
-        public async Task<Result> RateComment(int commentId, bool isUpvote)
+        public async Task<Result<int>> RateComment(int commentId, bool isUpvote)
         {
-            throw new NotImplementedException();
+            try
+            {
+                int accountId = int.Parse((Thread.CurrentPrincipal as ClaimsPrincipal)?.FindFirstValue("sub")!);
+                var getResult = await _projectShowcaseDataAccess.GetCommentUserRating(commentId, accountId);
+                if (!getResult.IsSuccessful)
+                {
+                    return new(getResult);
+                }
+                int updateAmount = 0;
+                // if user has not rated yet
+                if (getResult.Payload == null)
+                {
+                    var insertUserResult = await _projectShowcaseDataAccess.InsertUserCommentRating(commentId, accountId, isUpvote);
+                    if (!insertUserResult.IsSuccessful)
+                    {
+                        return new(Result.Failure("Error inserting user's comment rating"));
+                    }
+                    updateAmount = 1;
+                }
+                else if (getResult.Payload != isUpvote)
+                {
+                    var updateUserResult = await _projectShowcaseDataAccess.UpdateUserCommentRating(commentId, accountId, isUpvote);
+                    if (!updateUserResult.IsSuccessful)
+                    {
+                        return new(Result.Failure("Error updating user's comment rating"));
+                    }
+                    updateAmount = 2;
+                }
+
+                if (updateAmount > 0)
+                {
+                    var updateCommentResult = await _projectShowcaseDataAccess.UpdateCommentRating(commentId, (isUpvote ? updateAmount : -updateAmount));
+                    if (!updateCommentResult.IsSuccessful)
+                    {
+                        return new(Result.Failure("Error updating comment rating"));
+                    }
+                    return Result<int>.Success(updateCommentResult.Payload);
+                }
+                return new(Result.Failure("Rating is unchanged.",400));
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in rating comment: {ex.Message}", "ShowcaseService");
+                return new(Result.Failure("Error in rating comment"));
+            }
         }
 
         public async Task<Result> ReportComment(int commentId, string reasonText)
@@ -324,7 +427,24 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
 
         public async Task<Result> Unpublish(string showcaseId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var unpubResult = await _projectShowcaseDataAccess.ChangePublishStatus(showcaseId, false).ConfigureAwait(false);
+                if (!unpubResult.IsSuccessful)
+                {
+                    return Result.Failure("Unable to upate publish status");
+                }
+
+                return new()
+                {
+                    IsSuccessful = true,
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in unpublishing showcase: {ex.Message}", "ShowcaseService");
+                return new(Result.Failure("Error in unpublishing showcase"));
+            }
         }
     }
 }

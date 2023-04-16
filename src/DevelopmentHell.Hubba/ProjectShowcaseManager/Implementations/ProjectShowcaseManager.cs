@@ -30,7 +30,31 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
         public async Task<Result> AddComment(string showcaseId, string commentText)
         {
 
-            throw new NotImplementedException();
+            try
+            {
+                var authResult = _authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" });
+                if (!authResult.IsSuccessful)
+                {
+                    return new(Result.Failure("Unauthorized attempt to create a comment", 401));
+                }
+
+                var createdResult = await _projectShowcaseService.AddComment(showcaseId, commentText).ConfigureAwait(false);
+                if (!createdResult.IsSuccessful)
+                {
+                    if (!createdResult.StatusCode.HasValue)
+                    {
+                        _logger.Warning(Category.BUSINESS, "Unable to Add Comment.", "ShowcaseService");
+                    }
+                    return Result.Failure("Unable to add comment.");
+                }
+
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Unable to Add Comment: {ex.Message}", "ShowcaseManager");
+                return new(Result.Failure("Unable to Add Comment."));
+            }
         }
 
         public async Task<Result<string>> CreateShowcase(int listingId, string title, string description, List<IFormFile> files)
@@ -62,14 +86,34 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
             catch (Exception ex)
             {
-                _logger.Warning(Category.BUSINESS, "Unable to Create Showcase.", "ShowcaseManager");
+                _logger.Warning(Category.BUSINESS, $"Unable to Create Showcase: {ex.Message}", "ShowcaseManager");
                 return new(Result.Failure("Unable to Create showcase."));
             }
         }
 
         public async Task<Result> DeleteComment(int commentId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var checkResult = await IsAdminOrOwnerOfComment(commentId).ConfigureAwait(false);
+                if (!checkResult.IsSuccessful || !checkResult.Payload)
+                {
+                    return new(checkResult);
+                }
+
+                var deleteResult = await _projectShowcaseService.DeleteComment(commentId).ConfigureAwait(false);
+                if (!deleteResult.IsSuccessful)
+                {
+                    return Result.Failure($"Unable to Delete Showcase: {deleteResult.ErrorMessage}");
+                }
+
+                return deleteResult;
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Unable to Edit Comment: {ex.Message}", "ShowcaseManager");
+                return Result.Failure($"Unable to Edit Comment.");
+            }
         }
 
         public async Task<Result> DeleteShowcase(string showcaseId)
@@ -92,15 +136,34 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
             catch (Exception ex)
             {
-                _logger.Warning(Category.BUSINESS, "Unable to Delete Showcase.", "ShowcaseManager");
+                _logger.Warning(Category.BUSINESS, $"Unable to Delete Showcase: {ex.Message}", "ShowcaseManager");
                 return Result.Failure($"Unable to Delete showcase.");
-
             }
         }
 
         public async Task<Result> EditComment(int commentId, string commentText)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var checkResult = await IsAdminOrOwnerOfComment(commentId).ConfigureAwait(false);
+                if (!checkResult.IsSuccessful || !checkResult.Payload)
+                {
+                    return new(checkResult);
+                }
+
+                var editResult = await _projectShowcaseService.EditComment(commentId, commentText).ConfigureAwait(false);
+                if (!editResult.IsSuccessful)
+                {
+                    return Result.Failure($"Unable to Delete Showcase: {editResult.ErrorMessage}");
+                }
+
+                return editResult;
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Unable to Edit Comment: {ex.Message}", "ShowcaseManager");
+                return Result.Failure($"Unable to Edit Comment.");
+            }
         }
 
         public async Task<Result> EditShowcase(string showcaseId, int? listingId, string? title, string? description, List<IFormFile>? files)
@@ -135,7 +198,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
             catch (Exception ex)
             {
-                _logger.Warning(Category.BUSINESS, "Unable to Edit Showcase.", "ShowcaseManager");
+                _logger.Warning(Category.BUSINESS, $"Unable to Edit Showcase: {ex.Message}", "ShowcaseManager");
                 return Result.Failure($"Unable to Edit showcase.");
             }
         }
@@ -171,7 +234,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
             catch (Exception ex)
             {
-                _logger.Warning(Category.BUSINESS, "Unable to Fetch Comments.", "ShowcaseManager");
+                _logger.Warning(Category.BUSINESS, $"Unable to Fetch Comments: {ex.Message}", "ShowcaseManager");
                 return new(Result.Failure("Error in fetching comments."));
             }
         }
@@ -223,7 +286,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
             catch (Exception ex)
             {
-                _logger.Warning(Category.BUSINESS, "Error in getting showcase", "ShowcaseManager");
+                _logger.Warning(Category.BUSINESS, $"Error in getting showcase: {ex.Message}", "ShowcaseManager");
                 return new(Result.Failure("Error in getting showcase"));
             }
         }
@@ -242,7 +305,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
             catch(Exception ex)
             {
-                _logger.Warning(Category.BUSINESS, "Error in liking showcase", "ShowcaseManager");
+                _logger.Warning(Category.BUSINESS, $"Error in liking showcase: {ex.Message}", "ShowcaseManager");
                 return new(Result.Failure("Error in liking showcase"));
             }
         }
@@ -261,19 +324,41 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
             catch (Exception ex)
             {
-                _logger.Warning(Category.BUSINESS, "Error in publishing showcase", "ShowcaseManager");
+                _logger.Warning(Category.BUSINESS, $"Error in publishing showcase: {ex.Message}", "ShowcaseManager");
                 return new(Result.Failure("Error in publishing showcase"));
             }
         }
 
-        public async Task<Result> RateComment(int commentId, bool isUpvote)
+        public async Task<Result<int>> RateComment(int commentId, bool isUpvote)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var authResult = _authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" });
+                if (!authResult.IsSuccessful)
+                {
+                    return new(Result.Failure("Unauthorized attempt to like showcase"));
+                }
+
+                return await _projectShowcaseService.RateComment(commentId, isUpvote).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in rating showcase: {ex.Message}", "ShowcaseManager");
+                return new(Result.Failure("Error in rating showcase"));
+            }
         }
 
         public async Task<Result> ReportComment(int commentId, string reasonText)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var authResult = 
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in reporting comment: {ex.Message}", "ShowcaseManager");
+                return new(Result.Failure("Error in reporting comment"));
+            }
         }
 
         public async Task<Result> ReportShowcase(string showcaseId, string reasonText)
@@ -288,7 +373,21 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
 
         public async Task<Result> Unpublish(string showcaseId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var checkResult = await IsAdminOrOwnerOf(showcaseId).ConfigureAwait(false);
+                if (!checkResult.IsSuccessful || !checkResult.Payload)
+                {
+                    return new(checkResult);
+                }
+
+                return await _projectShowcaseService.Unpublish(showcaseId).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in unpublishing showcase: {ex.Message}", "ShowcaseManager");
+                return new(Result.Failure("Error in unpublishing showcase"));
+            }
         }
 
         public async Task<Result<bool>> VerifyCommentOwnership(int commentId)
@@ -346,13 +445,35 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 {
                     if (!verificationResult.StatusCode.HasValue)
                     {
-                        _logger.Warning(Category.BUSINESS, "Error verifying ownership.", "ShowcaseManager");
+                        _logger.Warning(Category.BUSINESS, "Error verifying showcase ownership.", "ShowcaseManager");
                     }
-                    return Result<bool>.Failure("Unable to verify ownership");
+                    return Result<bool>.Failure("Unable to verify showcase ownership");
                 }
                 else if (!verificationResult.Payload)
                 {
-                    return Result<bool>.Failure("Unable to verify ownership", 401);
+                    return Result<bool>.Failure("Unable to verify showcase ownership", 401);
+                }
+            }
+            return Result<bool>.Success(true);
+        }
+
+        public async Task<Result<bool>> IsAdminOrOwnerOfComment(int commentId)
+        {
+            var authResult = _authorizationService.Authorize(new string[] { "AdminUser" });
+            if (!authResult.IsSuccessful)
+            {
+                var verificationResult = await VerifyCommentOwnership(commentId).ConfigureAwait(false);
+                if (!verificationResult.IsSuccessful)
+                {
+                    if (!verificationResult.StatusCode.HasValue)
+                    {
+                        _logger.Warning(Category.BUSINESS, "Error verifying comment ownership.", "ShowcaseManager");
+                    }
+                    return Result<bool>.Failure("Unable to verify comment ownership");
+                }
+                else if (!verificationResult.Payload)
+                {
+                    return Result<bool>.Failure("Unable to verify comment ownership", 401);
                 }
             }
             return Result<bool>.Success(true);

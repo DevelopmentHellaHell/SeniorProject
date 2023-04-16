@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions;
 using Microsoft.AspNetCore.Authentication;
+using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 
 namespace DevelopmentHell.Hubba.WebAPI.Controllers
 {
@@ -11,15 +12,26 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         public string? Description { get; set; }
         public List<IFormFile>? Files { get; set; }
     }
+    public struct CommentDTO
+    {
+        public string? CommentText { get; set; }
+    }
+
+    public struct ReportDTO
+    {
+        public string? ReasonText { get; set; }
+    }
 
     [ApiController]
     [Route("[controller]")]
     public class ShowcasesController : Controller
     {
         private readonly IProjectShowcaseManager _projectShowcaseManager;
-        ShowcasesController(IProjectShowcaseManager projectShowcaseManager)
+        private readonly ILoggerService _logger;
+        ShowcasesController(IProjectShowcaseManager projectShowcaseManager, ILoggerService loggerService)
         {
             _projectShowcaseManager = projectShowcaseManager;
+            _logger = loggerService;
         }
 
         private Func<object,IActionResult> GetFuncCode(int in_code)
@@ -55,20 +67,15 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 var showcaseResult = await _projectShowcaseManager.GetShowcase(showcaseId);
                 if (!showcaseResult.IsSuccessful)
                 {
-                    var showcaseResultAgain = await _projectShowcaseManager.GetShowcase(showcaseId);
-                    if (!showcaseResultAgain.IsSuccessful)
-                    {
-                        throw new IOException("Unable to Get showcase");
-                    }
+                    return GetFuncCode((int)showcaseResult.StatusCode!)(showcaseResult.ErrorMessage!);
                 }
                 return Ok(showcaseResult.Payload);
 
             } catch (Exception ex)
             {
-                return BadRequest("Invalid request.");
-                
+                _logger.Warning(Models.Category.SERVER, $"Error in GetShowcase: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
             }
-            throw new NotImplementedException();
         }
 
         [HttpGet]
@@ -79,21 +86,21 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             {
                 if (showcaseId == null)
                 {
-                    return BadRequest("Invalid request");
+                    return BadRequest("Showcase Id missing from request");
                 }
 
                 var commentResult = await _projectShowcaseManager.GetComments(showcaseId, commentCount, page);
                 if (!commentResult.IsSuccessful)
                 {
-                    throw new IOException("Unable to get comments");
+                    return GetFuncCode((int)commentResult.StatusCode!)(commentResult.ErrorMessage!);
                 }
 
                 return Ok(commentResult.Payload);
             }
             catch (Exception ex)
             {
-                return BadRequest("Invalid request.");
-                //TODO: log failure
+                _logger.Warning(Models.Category.SERVER, $"Error in GetComments: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
             }
         }
 
@@ -105,16 +112,20 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             {
                 if (showcaseId == null)
                 {
-                    return BadRequest("Invalid request");
+                    return BadRequest("Showcase Id missing from request");
                 }
 
                 var likeResult = await _projectShowcaseManager.LikeShowcase(showcaseId);
                 if (!likeResult.IsSuccessful)
                 {
-                    var likeResult2 = await _projectShowcaseManager.LikeShowcase(showcaseId);
-                    if (!likeResult2.IsSuccessful)
+                    if (likeResult.StatusCode != 500)
                     {
-                        throw new IOException("Unable to like Showcase");
+                        return GetFuncCode((int)likeResult.StatusCode!)(likeResult.ErrorMessage!);
+                    }
+                    likeResult = await _projectShowcaseManager.LikeShowcase(showcaseId);
+                    if (!likeResult.IsSuccessful)
+                    {
+                        return GetFuncCode((int)likeResult.StatusCode!)(likeResult.ErrorMessage!);
                     }
                 }
 
@@ -122,7 +133,8 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest("Invalid request.");
+                _logger.Warning(Models.Category.SERVER, $"Error in LikeShowcase: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
             }
         }
         [HttpPost]
@@ -136,16 +148,20 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                     uploadedShowcase.ListingId == null || 
                     uploadedShowcase.Files == null || uploadedShowcase.Files.Count == 0)
                 {
-                    return BadRequest("Invalid request");
+                    return BadRequest("Showcase Id missing from request");
                 }
 
                 var createResult = await _projectShowcaseManager.CreateShowcase((int)uploadedShowcase.ListingId, uploadedShowcase.Title, uploadedShowcase.Description, uploadedShowcase.Files);
                 if (!createResult.IsSuccessful)
                 {
-                    var createResult2 = await _projectShowcaseManager.CreateShowcase((int)uploadedShowcase.ListingId, uploadedShowcase.Title, uploadedShowcase.Description, uploadedShowcase.Files);
-                    if (!createResult2.IsSuccessful)
+                    if (createResult.StatusCode != 500)
                     {
-                        throw new IOException("Unable to Create Showcase");
+                        return GetFuncCode((int)createResult.StatusCode!)(createResult.ErrorMessage!);
+                    }
+                    createResult = await _projectShowcaseManager.CreateShowcase((int)uploadedShowcase.ListingId, uploadedShowcase.Title, uploadedShowcase.Description, uploadedShowcase.Files);
+                    if (!createResult.IsSuccessful)
+                    {
+                        return GetFuncCode((int)createResult.StatusCode!)(createResult.ErrorMessage!);
                     }
                 }
 
@@ -153,7 +169,8 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest("Invalid request");
+                _logger.Warning(Models.Category.SERVER, $"Error in CreateShowcase: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
             }
         }
         [HttpPost]
@@ -164,16 +181,20 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             {
                 if (showcaseId == null)
                 {
-                    return BadRequest("Invalid request");
+                    return BadRequest("Showcase Id missing from request");
                 }
 
                 var editResult = await _projectShowcaseManager.EditShowcase(showcaseId, editedShowcase.ListingId, editedShowcase.Title, editedShowcase.Description, editedShowcase.Files);
                 if (!editResult.IsSuccessful)
                 {
-                    var editResult2 = await _projectShowcaseManager.EditShowcase(showcaseId, editedShowcase.ListingId, editedShowcase.Title, editedShowcase.Description, editedShowcase.Files);
-                    if (!editResult2.IsSuccessful)
+                    if (editResult.StatusCode != 500)
                     {
-                        throw new IOException("Unable to Edit Shwocase");
+                        return GetFuncCode((int)editResult.StatusCode!)(editResult.ErrorMessage!);
+                    }
+                    editResult = await _projectShowcaseManager.EditShowcase(showcaseId, editedShowcase.ListingId, editedShowcase.Title, editedShowcase.Description, editedShowcase.Files);
+                    if (!editResult.IsSuccessful)
+                    {
+                        return GetFuncCode((int)editResult!.StatusCode!)(editResult.ErrorMessage!);
                     }
                 }
 
@@ -181,7 +202,8 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest("Invalid request");
+                _logger.Warning(Models.Category.SERVER, $"Error in EditShowcase: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
             }
         }
         [HttpPost]
@@ -192,16 +214,20 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             {
                 if (showcaseId == null)
                 {
-                    return BadRequest("Invalid request");
+                    return BadRequest("Showcase Id missing from request");
                 }
 
                 var deleteResult = await _projectShowcaseManager.DeleteShowcase(showcaseId);
                 if (!deleteResult.IsSuccessful)
                 {
-                    var deleteResult2 = await _projectShowcaseManager.DeleteShowcase(showcaseId);
-                    if (!deleteResult2.IsSuccessful)
+                    if (deleteResult.StatusCode != 500)
                     {
-                        throw new IOException("Unable to delete showcase");
+                        return GetFuncCode((int)deleteResult.StatusCode!)(deleteResult.ErrorMessage!);
+                    }
+                    deleteResult = await _projectShowcaseManager.DeleteShowcase(showcaseId);
+                    if (!deleteResult.IsSuccessful)
+                    {
+                        return GetFuncCode((int)deleteResult!.StatusCode!)(deleteResult.ErrorMessage!);
                     }
                 }
 
@@ -209,7 +235,8 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest("Invalid request");
+                _logger.Warning(Models.Category.SERVER, $"Error in DeleteShowcase: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
             }
         }
         [HttpPost]
@@ -220,16 +247,20 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             {
                 if(showcaseId == null)
                 {
-                    return BadRequest("Invalid request");
+                    return BadRequest("Showcase Id missing from request");
                 }
 
                 var publishResult = await _projectShowcaseManager.Publish(showcaseId, listingId);
                 if (!publishResult.IsSuccessful)
                 {
-                    var publishResult2 = await _projectShowcaseManager.Publish(showcaseId, listingId);
-                    if (!publishResult2.IsSuccessful)
+                    if (publishResult.StatusCode != 500)
                     {
-                        throw new IOException("Unable to Publish showcase");
+                        return GetFuncCode((int)publishResult.StatusCode!)(publishResult.ErrorMessage!);
+                    }
+                    publishResult = await _projectShowcaseManager.Publish(showcaseId, listingId);
+                    if (!publishResult.IsSuccessful)
+                    {
+                        return GetFuncCode((int)publishResult!.StatusCode!)(publishResult.ErrorMessage!);
                     }
                 }
 
@@ -237,44 +268,220 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest("Invalid request");
+                _logger.Warning(Models.Category.SERVER, $"Error in PublishShowcase: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
             }
         }
         [HttpPost]
         [Route("unpublish")]
         public async Task<IActionResult> UnpublishShowcase([FromQuery(Name = "s")] string? showcaseId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (showcaseId == null)
+                {
+                    return BadRequest("Showcase Id missing from request");
+                }
+
+                var unpublishResult = await _projectShowcaseManager.Unpublish(showcaseId);
+                if (!unpublishResult.IsSuccessful)
+                {
+                    if(unpublishResult.StatusCode != 500)
+                    {
+                        return GetFuncCode((int)unpublishResult.StatusCode!)(unpublishResult.ErrorMessage!);
+                    }
+                    unpublishResult = await _projectShowcaseManager.Unpublish(showcaseId);
+                    if (!unpublishResult.IsSuccessful)
+                    {
+                        return GetFuncCode((int)unpublishResult!.StatusCode!)(unpublishResult.ErrorMessage!);
+                    }
+                }
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Models.Category.SERVER, $"Error in UnpublishShowcase: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
+            }
         }
         [HttpPost]
         [Route("comments")]
         public async Task<IActionResult> AddComment([FromQuery(Name = "s")] string? showcaseId, CommentDTO comment)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (showcaseId == null)
+                {
+                    return BadRequest("Showcase Id missing from request");
+                }
+                if (comment.CommentText == null)
+                {
+                    return BadRequest("Comment text missing from request");
+                }
+
+                var addResult = await _projectShowcaseManager.AddComment(showcaseId, comment.CommentText!).ConfigureAwait(false);
+                if (!addResult.IsSuccessful)
+                {
+                    if(addResult.StatusCode != 500)
+                    {
+                        return GetFuncCode((int)addResult.StatusCode!)(addResult.ErrorMessage!);
+                    }
+                    addResult = await _projectShowcaseManager.AddComment(showcaseId,comment.CommentText!).ConfigureAwait(false);
+                    if (!addResult.IsSuccessful)
+                    {
+                        return GetFuncCode((int)addResult!.StatusCode!)(addResult.ErrorMessage!);
+                    }
+                }
+
+                return Ok();
+            }
+            catch(Exception ex)
+            {
+                _logger.Warning(Models.Category.SERVER, $"Error in AddComment: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
+            }
         }
         [HttpPost]
         [Route("comments/edit")]
         public async Task<IActionResult> EditComment([FromQuery(Name = "cid")] int? commentId, CommentDTO comment)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (commentId == null)
+                {
+                    return BadRequest("Comment Id missing from request");
+                }
+                if (comment.CommentText == null)
+                {
+                    return BadRequest("Comment text missing from request");
+                }
+                var editResult = await _projectShowcaseManager.EditComment((int)commentId!, comment.CommentText);
+                if (!editResult.IsSuccessful)
+                {
+                    if(editResult.StatusCode != 500)
+                    {
+                        return GetFuncCode((int)editResult.StatusCode!)(editResult.ErrorMessage!);
+                    }
+                    editResult = await _projectShowcaseManager.EditComment((int)commentId!, comment.CommentText);
+                    if (!editResult.IsSuccessful)
+                    {
+                        return GetFuncCode((int)editResult.StatusCode!)(editResult.ErrorMessage!);
+                    }
+                }
+
+                return Ok();
+            }
+            catch(Exception ex)
+            {
+                _logger.Warning(Models.Category.SERVER, $"Error in EditComment: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
+            }
         }
         [HttpPost]
         [Route("comments/delete")]
         public async Task<IActionResult> DeleteComment([FromQuery(Name = "cid")] int? commentId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (commentId == null)
+                {
+                    return BadRequest("Comment Id missing from request");
+                }
+
+                var deleteResult = await _projectShowcaseManager.DeleteComment((int)commentId!);
+                if (!deleteResult.IsSuccessful)
+                {
+                    if(deleteResult.StatusCode != 500)
+                    {
+                        return GetFuncCode((int)deleteResult.StatusCode!)(deleteResult.ErrorMessage!);
+                    }
+                    deleteResult = await _projectShowcaseManager.DeleteComment((int)commentId!);
+                    if (!deleteResult.IsSuccessful)
+                    {
+                        return GetFuncCode((int)deleteResult.StatusCode!)(deleteResult.ErrorMessage!);
+                    }
+                }
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Models.Category.SERVER, $"Error in DeleteComment: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
+            }
         }
         [HttpPost]
         [Route("comments/rate")]
         public async Task<IActionResult> RateComment([FromQuery(Name = "cid")] int? commentId, [FromQuery(Name = "r")] bool? isUpvote)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (commentId == null)
+                {
+                    return BadRequest("Comment Id missing from request");
+                }
+                if (isUpvote == null)
+                {
+                    return BadRequest("Rating type missing from request");
+                }
+
+                var rateResult = await _projectShowcaseManager.RateComment((int)commentId!, (bool)isUpvote!);
+                if (!rateResult.IsSuccessful)
+                {
+                    if (rateResult.StatusCode != 500)
+                    {
+                        return GetFuncCode((int)rateResult.StatusCode!)(rateResult.ErrorMessage!);
+                    }
+                    rateResult = await _projectShowcaseManager.RateComment((int)commentId, (bool)isUpvote!);
+                    if (!rateResult.IsSuccessful)
+                    {
+                        return GetFuncCode((int)rateResult.StatusCode!)(rateResult.ErrorMessage!);
+                    }
+                }
+
+                return Ok(rateResult.Payload!);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Models.Category.SERVER, $"Error in RateComment: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
+            }
         }
         [HttpPost]
         [Route("comments/report")]
         public async Task<IActionResult> ReportComment([FromQuery(Name = "cid")] int? commentId, ReportDTO reason)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (commentId == null)
+                {
+                    return BadRequest("Comment Id missing from request");
+                }
+                if (reason.ReasonText == null ||  reason.ReasonText.Length == 0)
+                {
+                    return BadRequest("Report reason missing from request");
+                }
+
+                var reportResult = await _projectShowcaseManager.ReportComment((int)commentId, reason.ReasonText);
+                if (!reportResult.IsSuccessful)
+                {
+                    if (reportResult.StatusCode != 500)
+                    {
+                        return GetFuncCode((int)reportResult.StatusCode!)(reportResult.ErrorMessage!);
+                    }
+                    reportResult = await _projectShowcaseManager.ReportComment((int)commentId, reason.ReasonText);
+                    if (!reportResult.IsSuccessful)
+                    {
+                        return GetFuncCode((int)reportResult?.StatusCode!)(reportResult.ErrorMessage!);
+                    }
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Models.Category.SERVER, $"Error in ReportComment: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
+            }
         }
         [HttpPost]
         [Route("report")]
