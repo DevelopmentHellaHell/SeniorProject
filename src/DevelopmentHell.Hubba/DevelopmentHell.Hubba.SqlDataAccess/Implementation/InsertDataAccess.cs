@@ -4,7 +4,6 @@ using System.Windows.Markup;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 {
-
     internal class InsertDataAccess : AlterTableDataAccessBase
     {
         public InsertDataAccess(string connectionString) : base(connectionString)
