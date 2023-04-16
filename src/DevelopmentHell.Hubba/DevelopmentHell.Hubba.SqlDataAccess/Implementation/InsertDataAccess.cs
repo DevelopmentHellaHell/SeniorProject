@@ -5,38 +5,10 @@ using System.Windows.Markup;
 namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 {
 
-    internal class InsertDataAccess
+    internal class InsertDataAccess : AlterTableDataAccessBase
     {
-        private string connectionPath;
-        public InsertDataAccess(string inPath)
+        public InsertDataAccess(string connectionString) : base(connectionString)
         {
-            connectionPath = inPath;
-        }
-        private async Task<Result> SendQuery(SqlCommand query)
-        {
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(connectionPath))
-                {
-                    query.Connection = conn;
-
-                    await conn.OpenAsync().ConfigureAwait(false);
-                    await query.ExecuteNonQueryAsync().ConfigureAwait(false);
-                }
-                // TODO: figure out what to fill these with
-                return new Result()
-                {
-                    IsSuccessful = true,
-                };
-            }
-            catch (Exception e)
-            {
-                return new Result()
-                {
-                    IsSuccessful = false,
-                    ErrorMessage = e.Message,
-                };
-            }
         }
 
         public async Task<Result> Insert(string table, Dictionary<string, object> values)

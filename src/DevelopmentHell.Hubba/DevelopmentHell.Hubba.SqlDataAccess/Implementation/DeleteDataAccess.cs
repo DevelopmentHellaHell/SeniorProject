@@ -4,38 +4,10 @@ using System.Text;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 {
-    public class DeleteDataAccess
+    public class DeleteDataAccess : AlterTableDataAccessBase
     {
-        private string _connectionPath;
-        public DeleteDataAccess(string connectionString)
+        public DeleteDataAccess(string connectionString) : base(connectionString)
         {
-            _connectionPath = connectionString;
-        }
-        private async Task<Result> SendQuery(SqlCommand query)
-        {
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(_connectionPath))
-                {
-                    query.Connection = conn;
-
-                    await conn.OpenAsync().ConfigureAwait(false);
-                    await query.ExecuteNonQueryAsync().ConfigureAwait(false);
-                }
-                // TODO: figure out what to fill these with
-                return new Result()
-                {
-                    IsSuccessful = true,
-                };
-            }
-            catch (Exception e)
-            {
-                return new Result()
-                {
-                    IsSuccessful = false,
-                    ErrorMessage = e.Message,
-                };
-            }
         }
 
         public async Task<Result> Delete(string source, List<Comparator>? filters)
