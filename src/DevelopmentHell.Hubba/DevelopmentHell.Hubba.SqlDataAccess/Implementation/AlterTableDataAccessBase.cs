@@ -8,10 +8,10 @@ using Microsoft.Data.SqlClient;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 {
-    public class SqlDataAccessBase
+    public class AlterTableDataAccessBase
     {
         private readonly string _connectionPath;
-        public SqlDataAccessBase(string connectionString)
+        public AlterTableDataAccessBase(string connectionString)
         {
             _connectionPath = connectionString;
         }
