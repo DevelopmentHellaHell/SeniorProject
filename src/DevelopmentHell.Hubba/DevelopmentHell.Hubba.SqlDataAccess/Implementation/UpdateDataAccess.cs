@@ -10,7 +10,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
         {
         }
 
-        public async Task<Result> Update(string table, List<Comparator> filters, Dictionary<string, object> values)
+        public async Task<Result> Update(string table, List<Comparator> filters, Dictionary<string, object?> values)
         {
             using (SqlCommand insertQuery = new SqlCommand())
             {

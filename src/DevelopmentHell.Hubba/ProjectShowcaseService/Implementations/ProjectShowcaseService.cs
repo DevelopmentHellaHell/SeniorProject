@@ -185,9 +185,22 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             }
         }
 
-        public async Task<Result<Dictionary<string, object>>> GetCommentDetails(string showcaseId)
+        public async Task<Result<Dictionary<string, object>>> GetCommentDetails(int commentId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var getResult = await _projectShowcaseDataAccess.GetCommentDetails(commentId).ConfigureAwait(false);
+                if (!getResult.IsSuccessful)
+                {
+                    return new(Result.Failure($"Error in retrieving details from DAC: {getResult.ErrorMessage}"));
+                }
+                return getResult;
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in getting comment details: {ex.Message}", "ShowcaseService");
+                return new(Result.Failure("Error in getting comment details"));
+            }
         }
 
         public async Task<Result<List<ShowcaseComment>>> GetComments(string showcaseId, int commentCount, int page)
@@ -412,17 +425,60 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
 
         public async Task<Result> ReportComment(int commentId, string reasonText)
         {
-            throw new NotImplementedException();
+            try
+            {
+                int accountId = int.Parse((Thread.CurrentPrincipal as ClaimsPrincipal)?.FindFirstValue("sub")!);
+                var reportResult = await _projectShowcaseDataAccess.AddCommentReport(commentId, accountId, reasonText, DateTime.Now);
+                if (!reportResult.IsSuccessful)
+                {
+                    return Result.Failure("Error in reporting comment");
+                }
+
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in reporting comment: {ex.Message}", "ShowcaseService");
+                return new(Result.Failure("Error in reporting comment"));
+            }
         }
 
         public async Task<Result> ReportShowcase(string showcaseId, string reasonText)
         {
-            throw new NotImplementedException();
+            try
+            {
+                int accountId = int.Parse((Thread.CurrentPrincipal as ClaimsPrincipal)?.FindFirstValue("sub")!);
+                var reportResult = await _projectShowcaseDataAccess.AddShowcaseReport(showcaseId, accountId, reasonText, DateTime.Now);
+                if (! reportResult.IsSuccessful)
+                {
+                    return Result.Failure("Error in reporting showcase");
+                }
+
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in reporting showcase: {ex.Message}", "ShowcaseService");
+                return new(Result.Failure("Error in reporting showcase"));
+            }
         }
 
         public async Task<Result> Unlink(string showcaseId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var unlinkResult = await _projectShowcaseDataAccess.RemoveShowcaseListing(showcaseId);
+                if (! unlinkResult.IsSuccessful)
+                {
+                    return unlinkResult;
+                }
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in unlinking showcase: {ex.Message}", "ShowcaseService");
+                return new(Result.Failure("Error in unlinking showcase"));
+            }
         }
 
         public async Task<Result> Unpublish(string showcaseId)

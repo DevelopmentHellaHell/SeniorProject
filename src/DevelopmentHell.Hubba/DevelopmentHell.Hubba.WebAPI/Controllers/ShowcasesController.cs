@@ -44,6 +44,8 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                     return NotFound;
                 case 400:
                     return BadRequest;
+                case 401:
+                    return Unauthorized;
                 case 200:
                     return Ok;
                 //internal server error
@@ -487,13 +489,60 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         [Route("report")]
         public async Task<IActionResult> ReportShowcase([FromQuery(Name = "s")] string? showcaseId, ReportDTO reason)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (showcaseId == null)
+                {
+                    return BadRequest("Showcase Id missing from request");
+                }
+                if (reason.ReasonText == null || reason.ReasonText.Length == 0)
+                {
+                    return BadRequest("Report reason missing from request");
+                }
+                var reportResult = await _projectShowcaseManager.ReportShowcase(showcaseId, reason.ReasonText);
+                if (!reportResult.IsSuccessful)
+                {
+                    if (reportResult.StatusCode != 500)
+                    {
+                        return GetFuncCode((int)reportResult.StatusCode!)(reportResult.ErrorMessage!);
+                    }
+                    reportResult = await _projectShowcaseManager.ReportShowcase(showcaseId, reason.ReasonText);
+                    if (!reportResult.IsSuccessful)
+                    {
+                        return GetFuncCode((int)reportResult.StatusCode!)(reportResult.ErrorMessage!);
+                    }
+                }
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Models.Category.SERVER, $"Error in ReportShowcase: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
+            }
         }
         [HttpPost]
         [Route("unlink")]
         public async Task<IActionResult> UnlinkShowcase([FromQuery(Name = "s")] string? showcaseId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (showcaseId == null)
+                {
+                    return BadRequest("ShowcaseId missing from request");
+                }
+                var unlinkResult = await _projectShowcaseManager.Unlink(showcaseId);
+                if (!unlinkResult.IsSuccessful)
+                {
+                    return GetFuncCode((int)unlinkResult.StatusCode!)(unlinkResult.ErrorMessage!);
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Models.Category.SERVER, $"Error in ReportShowcase: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
+            }
         }
 
     }

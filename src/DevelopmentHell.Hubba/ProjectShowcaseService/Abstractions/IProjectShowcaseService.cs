@@ -39,7 +39,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions
     public interface IProjectShowcaseService
     {
         Task<Result<Dictionary<string, object>>> GetDetails(string showcaseId);
-        Task<Result<Dictionary<string, object>>> GetCommentDetails(string showcaseId);
+        Task<Result<Dictionary<string, object>>> GetCommentDetails(int commentId);
         Task<Result<Showcase>> GetShowcase(string showcaseId);
         Task<Result<List<ShowcaseComment>>> GetComments(string showcaseId, int commentCount, int page);
         Task<Result<float>> LikeShowcase(string showcaseId);

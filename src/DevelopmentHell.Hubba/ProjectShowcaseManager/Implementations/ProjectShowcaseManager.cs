@@ -298,7 +298,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 var authResult = _authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" });
                 if (!authResult.IsSuccessful)
                 {
-                    return new(Result.Failure("Unauthorized attempt to like showcase"));
+                    return new(Result.Failure("Unauthorized attempt to like showcase", 401));
                 }
 
                 return await _projectShowcaseService.LikeShowcase(showcaseId).ConfigureAwait(false);
@@ -336,7 +336,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 var authResult = _authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" });
                 if (!authResult.IsSuccessful)
                 {
-                    return new(Result.Failure("Unauthorized attempt to like showcase"));
+                    return new(Result.Failure("Unauthorized attempt to like showcase", 401));
                 }
 
                 return await _projectShowcaseService.RateComment(commentId, isUpvote).ConfigureAwait(false);
@@ -352,7 +352,13 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
         {
             try
             {
-                var authResult = 
+                var authResult = _authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" });
+                if (!authResult.IsSuccessful)
+                {
+                    return new(Result.Failure("Unauthorized attempt to Report comment",401));
+                }
+
+                return await _projectShowcaseService.ReportComment(commentId, reasonText).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -363,12 +369,44 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
 
         public async Task<Result> ReportShowcase(string showcaseId, string reasonText)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var authResult = _authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" });
+                if (!authResult.IsSuccessful)
+                {
+                    return new(Result.Failure("Unauthorized attempt to Report showcase", 401));
+                }
+                return await _projectShowcaseService.ReportShowcase(showcaseId, reasonText).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in reporting showcase: {ex.Message}", "ShowcaseManager");
+                return new(Result.Failure("Error in reporting showcase"));
+            }
         }
 
         public async Task<Result> Unlink(string showcaseId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var checkResult = await IsAdminOrOwnerOf(showcaseId).ConfigureAwait(false);
+                if (!checkResult.IsSuccessful || !checkResult.Payload)
+                {
+                    return checkResult;
+                }
+
+                var unpubResult = await _projectShowcaseService.Unpublish(showcaseId).ConfigureAwait(false);
+                if (!unpubResult.IsSuccessful)
+                {
+                    return unpubResult;
+                }
+                return await _projectShowcaseService.Unlink(showcaseId).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in unlinking showcase: {ex.Message}", "ShowcaseManager");
+                return new(Result.Failure("Error in unlinking showcase"));
+            }
         }
 
         public async Task<Result> Unpublish(string showcaseId)
@@ -392,7 +430,32 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
 
         public async Task<Result<bool>> VerifyCommentOwnership(int commentId)
         {
-            throw new NotImplementedException();
+            var authResult = _authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" });
+            if (!authResult.IsSuccessful)
+            {
+                return Result<bool>.Success(false);
+            }
+
+            var detailResult = await _projectShowcaseService.GetCommentDetails(commentId).ConfigureAwait(false);
+            if (!detailResult.IsSuccessful)
+            {
+                return new()
+                {
+                    IsSuccessful = false,
+                    ErrorMessage = "Unable to get comment details."
+                };
+            }
+
+            if ((int)detailResult.Payload!["CommenterId"] != int.Parse((Thread.CurrentPrincipal as ClaimsPrincipal)?.FindFirstValue("sub")!))
+            {
+                return new(Result.Failure("User is not owner", 401));
+            }
+
+            return new()
+            {
+                IsSuccessful = true,
+                Payload = true
+            };
         }
 
         public async Task<Result<bool>> VerifyOwnership(string showcaseId)
@@ -411,21 +474,12 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             var detailResult = await _projectShowcaseService.GetDetails(showcaseId).ConfigureAwait(false);
             if (!detailResult.IsSuccessful)
             {
-                return new()
-                {
-                    IsSuccessful = false,
-                    ErrorMessage = "Unable to get showcase details."
-                };
+                return new(Result.Failure("Unable to get Shwocase Details"));
             }
 
             if ((int)detailResult.Payload!["ShowcaseUserId"] != int.Parse((Thread.CurrentPrincipal as ClaimsPrincipal)?.FindFirstValue("sub")!))
             {
-                return new()
-                {
-                    IsSuccessful = true,
-                    ErrorMessage = "User is not owner.",
-                    Payload = false
-                };
+                return new(Result.Failure("User is not owner", 401));
             }
 
             return new()

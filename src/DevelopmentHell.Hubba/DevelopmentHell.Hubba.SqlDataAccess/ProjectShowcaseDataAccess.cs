@@ -76,12 +76,44 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         public async Task<Result> AddCommentReport(int commentId, int reporterId, string reason, DateTime time)
         {
-            throw new NotImplementedException();
+            if (commentId < 0)
+            {
+                return Result.Failure("Comment Id is not valid", 400);
+            }
+            if (reporterId < 0)
+            {
+                return Result.Failure("Reporter Id is not valid", 400);
+            }
+
+            return await _insertDataAccess.Insert(_commentReportTableName, new()
+            {
+                { "CommentId", commentId },
+                { "ReporterId", reporterId },
+                { "Reason", reason },
+                { "Timestamp", time },
+                { "IsResolved", false },
+            }).ConfigureAwait(false);
         }
 
         public async Task<Result> AddShowcaseReport(string showcaseId, int reporterId, string reason, DateTime time)
         {
-            throw new NotImplementedException();
+            if (showcaseId == null || showcaseId.Length == 0)
+            {
+                return Result.Failure("Showcase Id is not valid", 400);
+            }
+            if (reporterId < 0)
+            {
+                return Result.Failure("Reporter Id is not valid", 400);
+            }
+
+            return await _insertDataAccess.Insert(_showcaseReportTableName, new()
+            {
+                { "ShowcaseId", showcaseId },
+                { "ReporterId", reporterId },
+                { "ReasonId", reason },
+                { "Timestamp", time },
+                { "IsResolved", false }
+            }).ConfigureAwait(false);
         }
 
         public async Task<Result> ChangePublishStatus(string showcaseId, bool isPublished, DateTime? time = null)
@@ -141,9 +173,29 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return await _updateDataAccess.Update(_showcaseTableName, new List<Comparator>() { new("Id", "=", showcaseId!) }, updateDict);
         }
 
-        public async Task<Result<Dictionary<string, object>>> GetCommentDetails(string showcaseId)
+        public async Task<Result<Dictionary<string, object>>> GetCommentDetails(int commentId)
         {
-            throw new NotImplementedException();
+            var result = await _selectDataAccess.Select
+            (
+                SQLManip.InnerJoinTables(
+                    new Joiner(_commentTableName, _userAccountsTableName, "CommenterId", "Id")
+                ),
+                new() { $"{_showcaseTableName}.Id", "Email", "CommenterId", $"{_userAccountsTableName}.Id", "ListingId", "Title", "IsPublished", "Rating" },
+                new() { new($"{_showcaseTableName}.Id", "=", commentId) }
+            ).ConfigureAwait(false);
+            if (!result.IsSuccessful)
+            {
+                return new(Result.Failure($"Error in getting showcase details from Db: {result.ErrorMessage}"));
+            }
+            if (result.Payload!.Count() > 1)
+            {
+                return new(Result.Failure($"More than one showcase with given Id: {result.ErrorMessage}"));
+            }
+            if (result.Payload!.Count() == 0)
+            {
+                return new(Result.Failure($"Id Does not exist: {result.ErrorMessage}"));
+            }
+            return new() { IsSuccessful = true, Payload = result.Payload![0] };
         }
 
         public async Task<Result<List<Dictionary<string, object>>>> GetComments(string showcaseId, int commentCount, int page)
@@ -303,7 +355,14 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         public async Task<Result> RemoveShowcaseListing(string showcaseId)
         {
-            throw new NotImplementedException();
+            var updateResult = await _updateDataAccess.Update(_showcaseTableName, new()
+            {
+                new("Id","=",showcaseId)
+            },
+            new() {
+                { "ListingId", null }
+            }).ConfigureAwait(false);
+            return updateResult;
         }
 
         public async Task<Result> UpdateComment(int commentId, string commentText, DateTime time)
