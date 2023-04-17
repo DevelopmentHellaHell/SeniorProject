@@ -3,7 +3,6 @@ using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
-using DevelopmentHell.Hubba.Validation.Service.Implementations;
 
 namespace DevelopmentHell.Hubba.AccountRecovery.Service.Implementations
 {
@@ -99,7 +98,8 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Service.Implementations
 
         public bool CheckIpAddress(string[]? successfulIpAddress, string ipAddress)
         {
-            if (successfulIpAddress is null) {
+            if (successfulIpAddress is null)
+            {
                 //Console.WriteLine("No IPs given");
                 return false;
             }

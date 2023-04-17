@@ -2,6 +2,7 @@
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.Notification.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Manager.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using System.Configuration;
@@ -11,15 +12,17 @@ namespace DevelopmentHell.Hubba.Registration.Manager.Implementations
     public class RegistrationManager : IRegistrationManager
     {
         private IRegistrationService _registrationService;
-		private IAuthorizationService _authorizationService;
+        private IAuthorizationService _authorizationService;
         private ICryptographyService _cryptographyService;
-		private ILoggerService _loggerService;
-        
-        public RegistrationManager(IRegistrationService registrationService, IAuthorizationService authorizationService, ICryptographyService cryptographyService, ILoggerService loggerService)
+        private INotificationService _notificationService;
+        private ILoggerService _loggerService;
+
+        public RegistrationManager(IRegistrationService registrationService, IAuthorizationService authorizationService, ICryptographyService cryptographyService, INotificationService notificationService, ILoggerService loggerService)
         {
             _registrationService = registrationService;
             _authorizationService = authorizationService;
             _cryptographyService = cryptographyService;
+            _notificationService = notificationService;
             _loggerService = loggerService;
         }
 
@@ -27,19 +30,25 @@ namespace DevelopmentHell.Hubba.Registration.Manager.Implementations
         {
             Result result = new Result();
 
-			if (_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
-			{
-				result.IsSuccessful = false;
-				result.ErrorMessage = "Error, user already logged in.";
-				return result;
-			}
+            if (_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error, user already logged in.";
+                return result;
+            }
 
-			Result registerResult = await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+            Result registerResult = await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
             if (!registerResult.IsSuccessful)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = registerResult.ErrorMessage;
                 return result;
+            }
+
+            Result<int> userResult = await _notificationService.GetId(email).ConfigureAwait(false);
+            if (userResult.IsSuccessful)
+            {
+                Result notificationSettingsResult = await _notificationService.CreateNewNotificationSettings(userResult.Payload).ConfigureAwait(false);
             }
 
             string userHashKey = ConfigurationManager.AppSettings["UserHashKey"]!;

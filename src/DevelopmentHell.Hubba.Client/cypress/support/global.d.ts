@@ -7,6 +7,8 @@ declare namespace Cypress {
          * @example cy.clickOnMyJourneyInCandidateCabinet()
          */
         RegisterViaApi(email: string, password: string): void;
+        LoginViaApi(email: string, password: string): void;
         LoginViaUI(email: string, password: string): void;
+        
     }
 }

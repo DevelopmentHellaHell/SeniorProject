@@ -8,11 +8,15 @@ using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Implementations;
+using DevelopmentHell.Hubba.CellPhoneProvider.Service.Implementations;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
+using DevelopmentHell.Hubba.Email.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.Notification.Manager.Implementations;
+using DevelopmentHell.Hubba.Notification.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
@@ -42,21 +46,53 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
 
         public ManagerIntegrationTests()
         {
-			_userAccountDataAccess = new UserAccountDataAccess(_usersConnectionString, _userAccountsTable);
+            _userAccountDataAccess = new UserAccountDataAccess(_usersConnectionString, _userAccountsTable);
             IValidationService validationService = new ValidationService();
             ICryptographyService cryptographyService = new CryptographyService(ConfigurationManager.AppSettings["CryptographyKey"]!);
             IJWTHandlerService jwtHandlerService = new JWTHandlerService(
-				_jwtKey
-			);
-			ILoggerService loggerService = new LoggerService(
+                _jwtKey
+            );
+            ILoggerService loggerService = new LoggerService(
                 new LoggerDataAccess(_logsConnectionString, _logsTable)
             );
-            IAccountDeletionService accountDeletionService = new AccountDeletionService(
-                _userAccountDataAccess, 
+            _authorizationService = new AuthorizationService(
+                _userAccountDataAccess,
+                jwtHandlerService,
                 loggerService
             );
+            IAccountDeletionService accountDeletionService = new AccountDeletionService(
+                _userAccountDataAccess,
+                new NotificationManager(
+                    new NotificationService(
+                        new NotificationDataAccess(
+                            ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
+                            ConfigurationManager.AppSettings["UserNotificationsTable"]!
+                        ),
+                        new NotificationSettingsDataAccess(
+                            ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
+                            ConfigurationManager.AppSettings["NotificationSettingsTable"]!
+                        ),
+                        new UserAccountDataAccess(
+                            ConfigurationManager.AppSettings["UsersConnectionString"]!,
+                            ConfigurationManager.AppSettings["UserAccountsTable"]!
+                        ),
+                        loggerService
+                    ),
+                    new CellPhoneProviderService(),
+                    new EmailService(
+                        ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!,
+                        ConfigurationManager.AppSettings["SENDGRID_API_KEY"]!,
+                        ConfigurationManager.AppSettings["COMPANY_EMAIL"]!,
+                        false
+                    ),
+                    _authorizationService,
+                    new ValidationService(),
+                    loggerService
+            ),
+            loggerService
+            );
             _authenticationService = new AuthenticationService(
-				_userAccountDataAccess,
+                _userAccountDataAccess,
                 new UserLoginDataAccess(
                     _usersConnectionString,
                     ConfigurationManager.AppSettings["UserLoginsTable"]!
@@ -66,15 +102,10 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
                 validationService,
                 loggerService
             );
-            _authorizationService = new AuthorizationService(
-                _userAccountDataAccess,
-				jwtHandlerService,
-				loggerService
-            );
             _accountDeletionManager = new AccountDeletionManager(
-                accountDeletionService, 
-                _authenticationService, 
-                _authorizationService, 
+                accountDeletionService,
+                _authenticationService,
+                _authorizationService,
                 loggerService
             );
             _registrationService = new RegistrationService(
@@ -84,8 +115,8 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
                loggerService
             );
             _testingService = new TestingService(
-				_jwtKey,
-				new TestsDataAccess()
+                _jwtKey,
+                new TestsDataAccess()
             );
         }
 
@@ -105,7 +136,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
         public async Task DeleteVerifiedUserAccount()
         {
             // Arrange
-            
+
             // generate user account
             string email = "test@gmail.com";
             string password = "12345678";
@@ -120,7 +151,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             {
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
-            var expected = new Result { IsSuccessful = true};
+            var expected = new Result { IsSuccessful = true };
 
             // Act
             Result actual = await _accountDeletionManager.DeleteAccount(accountId).ConfigureAwait(false);
@@ -169,7 +200,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
         public async Task AdminUserDeleteOther()
         {
             // Arrange
-            
+
             // generate 1 user account and 1 admin account
             string email1 = "test1@gmail.com";
             string email2 = "test2@gmail.com";
@@ -203,13 +234,15 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
             var getUser = await _userAccountDataAccess.GetUser(accountId2).ConfigureAwait(false);
             Assert.IsNull(getUser.Payload);
+            getUser = await _userAccountDataAccess.GetUser(accountId1).ConfigureAwait(false);
+            Assert.IsNotNull(getUser.Payload);
         }
 
         [TestMethod]
         public async Task AdminUserDeleteSelfAsLastAdmin()
         {
             // Arrange
-            
+
             // generate admin
             string email = "test@gmail.com";
             string password = "12345678";
@@ -245,7 +278,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
         public async Task AdminUserDeleteSelfWithOtherAdmin()
         {
             // Arrange
-            
+
             // generate first admin
             string email1 = "test1@gmail.com";
             string password = "12345678";
@@ -288,6 +321,8 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test
             Assert.IsTrue(expected.IsSuccessful == actual.IsSuccessful);
             var getUser = await _userAccountDataAccess.GetUser(accountId1).ConfigureAwait(false);
             Assert.IsNull(getUser.Payload);
+            getUser = await _userAccountDataAccess.GetUser(accountId2).ConfigureAwait(false);
+            Assert.IsNotNull(getUser.Payload);
         }
 
         [TestCleanup]

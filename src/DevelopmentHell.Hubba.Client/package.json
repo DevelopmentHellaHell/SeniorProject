@@ -18,7 +18,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "build:serve": "react-scripts build && serve -s build",
-    "test": "cypress run headless",
+    "test": "cypress run",
     "debug": "cypress open",
     "eject": "react-scripts eject"
   },

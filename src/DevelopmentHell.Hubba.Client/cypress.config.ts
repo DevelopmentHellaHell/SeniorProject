@@ -1,6 +1,7 @@
 import { defineConfig } from "cypress";
 
 export default defineConfig({
+
   e2e: {
     baseUrl: "http://localhost:3000",
     setupNodeEvents(on, config) {
@@ -11,8 +12,9 @@ export default defineConfig({
     baseUrl: "http://localhost:3000",
     serverUrl: "https://localhost:7137",
 
-    realEmail: "dkoroni@gmail.com",
+    realEmail: "kevin.lieu.dinh@gmail.com",
     standardEmail: "hubba@gmail.com",
-    standardPassword: '12345678'
+    standardPassword: '12345678',
+    realNumber: "5107755205"
   }
 });

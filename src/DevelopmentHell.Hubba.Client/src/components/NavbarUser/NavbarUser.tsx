@@ -1,8 +1,12 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { redirect, useNavigate } from "react-router-dom";
 import Dropdown from "../Dropdown/Dropdown";
 import { Auth } from "../../Auth";
 import './NavbarUser.css';
+import { INotificationData } from "../../pages/NotificationPage/NotificationPage";
+import { Ajax } from "../../Ajax";
+import { triggerNotification } from "../../Notification";
+import NotificationStateProvider from "../../NotificationStateProvider";
 
 interface INavbarUserProps {
 
@@ -11,7 +15,7 @@ interface INavbarUserProps {
 const NavbarUser: React.FC<INavbarUserProps> = (props) => {
     const navigate = useNavigate();
     const authData = Auth.getAccessData();
-
+    
     if (!authData) {
         redirect("/login");
         return null;
@@ -28,9 +32,9 @@ const NavbarUser: React.FC<INavbarUserProps> = (props) => {
                 }
             </nav>
             <Dropdown title={authData.azp ?? "User"}>
-                <p onClick={() => { navigate("/account") }}>Account</p>
-                <p onClick={() => { navigate("/notification") }}>Notification</p>
-                <p onClick={async () => {
+                <p id="account" onClick={() => { navigate("/account") }}>Account</p>
+                <p id="notification" onClick={() => { navigate("/notification") }}>Notification</p>
+                <p id="logout" onClick={async () => {
                     navigate("/logout")}}>Logout</p>
             </Dropdown>
         </header>

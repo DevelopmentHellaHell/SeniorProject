@@ -9,14 +9,15 @@ namespace DevelopmentHell.Hubba.Email.Service.Implementations
     {
         private string _sendgridUsername;
         private string _sendgridApiKey;
-		private string _companyEmail;
+        private string _companyEmail;
         private bool _disableSend;
-		public EmailService(string sendgridUsername, string sendgridApiKey, string companyEmail, bool disableSend = false) {
+        public EmailService(string sendgridUsername, string sendgridApiKey, string companyEmail, bool disableSend = false)
+        {
             _sendgridUsername = sendgridUsername;
             _sendgridApiKey = sendgridApiKey;
-			_companyEmail = companyEmail;
+            _companyEmail = companyEmail;
             _disableSend = disableSend;
-		}
+        }
 
         public Result SendEmail(string email, string subject, string body)
         {

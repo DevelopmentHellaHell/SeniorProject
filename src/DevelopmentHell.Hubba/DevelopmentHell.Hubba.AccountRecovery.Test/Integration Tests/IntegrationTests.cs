@@ -1,19 +1,19 @@
-﻿using DevelopmentHell.Hubba.Authentication.Service.Implementations;
+﻿using DevelopmentHell.Hubba.AccountRecovery.Manager.Implementations;
+using DevelopmentHell.Hubba.AccountRecovery.Service.Implementations;
+using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
+using DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
-using DevelopmentHell.Hubba.SqlDataAccess;
-using System.Configuration;
-using DevelopmentHell.Hubba.AccountRecovery.Service.Implementations;
-using DevelopmentHell.Hubba.AccountRecovery.Manager.Implementations;
 using DevelopmentHell.Hubba.Registration.Manager.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
-using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
+using DevelopmentHell.Hubba.SqlDataAccess;
 using Microsoft.IdentityModel.Tokens;
+using System.Configuration;
 using System.IdentityModel.Tokens.Jwt;
-using System.Text;
 using System.Security.Claims;
+using System.Text;
 
 namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
 {
@@ -196,7 +196,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
                 new RegistrationService(
                     new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable),
                     loggerService
-                ), 
+                ),
                 new AuthorizationService(ConfigurationManager.AppSettings,
                     new UserAccountDataAccess(_UsersConnectionString, _UserAccountsTable),
                     loggerService),

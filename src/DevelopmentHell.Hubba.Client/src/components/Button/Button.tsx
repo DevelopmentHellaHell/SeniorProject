@@ -49,7 +49,7 @@ const Button: React.FC<IButtonProps> = (props) => {
     return (
         <button 
             className="btn" 
-            onClick={props.onClick}
+            onClick={ props.onClick }
             style={
                 themes[props.theme ?? ButtonTheme.LIGHT]
             }>

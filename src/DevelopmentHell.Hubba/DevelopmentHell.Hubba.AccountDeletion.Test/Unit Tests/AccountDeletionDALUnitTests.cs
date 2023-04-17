@@ -96,7 +96,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Test.Integration_Tests
             var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
             int accountId = accountIdResult.Payload;
             var expected = new Result { IsSuccessful = true };
-            
+
             // promoting account to admin
             var getUser = await _userAccountDataAccess.GetUser(accountId).ConfigureAwait(false);
             if (getUser.Payload is not null)

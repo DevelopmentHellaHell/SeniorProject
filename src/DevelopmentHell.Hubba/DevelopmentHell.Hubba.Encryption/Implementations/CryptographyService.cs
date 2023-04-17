@@ -1,7 +1,7 @@
-﻿using System.Security.Cryptography;
-using System.Text;
-using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
+﻿using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace DevelopmentHell.Hubba.Cryptography.Service.Implementations
 {
@@ -133,13 +133,13 @@ namespace DevelopmentHell.Hubba.Cryptography.Service.Implementations
             return result;
         }
 
-		public Result<HashData> HashString(string text)
-		{
+        public Result<HashData> HashString(string text)
+        {
 
             return HashString(text, _cryptographyKey);
-		}
+        }
 
-		public string GetSaltValidChars()
+        public string GetSaltValidChars()
         {
             return _saltValidChars;
         }
