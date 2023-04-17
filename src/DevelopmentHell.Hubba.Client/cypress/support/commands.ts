@@ -49,8 +49,8 @@ Cypress.Commands.add('LoginViaApi', (email: string, password: string) => {
             cy.session([email, password], () => {
                 cy.visit("/login");
                 let startTimer: number;
-                cy.get('#email').as('email').type(Cypress.env('realEmail')).should('have.value', Cypress.env('realEmail'));
-                cy.get('#password').as('password').type(Cypress.env('standardPassword')).should('have.value', Cypress.env('standardPassword'));
+                cy.get('#email').as('email').type(email).should('have.value', email);
+                cy.get('#password').as('password').type(password).should('have.value', password);
                 cy.contains('Submit').click()
                     .then(() => {
                         //valid email, password, show OTP card
