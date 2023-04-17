@@ -27,9 +27,9 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager.Implementations
             _loggerService = loggerService;
         }
 
-        public async Task<Result<string>> EmailVerification(string email)
+        public async Task<Result<Tuple<string, string>>> EmailVerification(string email)
         {
-            Result<string> result = new();
+            Result<Tuple<string, string>> result = new();
 
 
             if (_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
@@ -58,7 +58,30 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager.Implementations
                 result.ErrorMessage = sendOTPResult.ErrorMessage;
                 return result;
             }
-            return await _authorizationService.GenerateAccessToken(accountId, true).ConfigureAwait(false); ;
+
+            Result<string> authorizationTokenResult = await _authorizationService.GenerateAccessToken(accountId, true).ConfigureAwait(false);
+            string? accessToken = authorizationTokenResult.Payload;
+            if (!authorizationTokenResult.IsSuccessful || accessToken is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error during the authentication process.";
+                return result;
+            }
+
+            Result<string> authenticationTokenResult = _authenticationService.GenerateIdToken(accountId, accessToken);
+            string? idToken = authenticationTokenResult.Payload;
+            if (!authenticationTokenResult.IsSuccessful || idToken is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error during the authentication process.";
+                return result;
+            }
+
+            result.IsSuccessful = true;
+            result.Payload = new Tuple<string, string>(accessToken, idToken);
+            return result;
+
+            //return await _authorizationService.GenerateAccessToken(accountId, true).ConfigureAwait(false); ;
         }
 
         public async Task<Result<bool>> AuthenticateOTP(string otp, string ipAddress)
@@ -97,9 +120,9 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager.Implementations
             return result;
         }
 
-        public async Task<Result<string>> AccountAccess(string ipAddress)
+        public async Task<Result<Tuple<string, string>>> AccountAccess(string ipAddress)
         {
-            Result<string> result = new Result<string>()
+            Result<Tuple<string, string>> result = new Result<Tuple<string, string>>()
             {
                 IsSuccessful = false,
             };
@@ -131,7 +154,27 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager.Implementations
 
             if (ipAddressResult.Payload == true)
             {
-                return await _authorizationService.GenerateAccessToken(accountId).ConfigureAwait(false);
+                Result<string> authorizationTokenResult = await _authorizationService.GenerateAccessToken(accountId).ConfigureAwait(false);
+                string? accessToken = authorizationTokenResult.Payload;
+                if (!authorizationTokenResult.IsSuccessful || accessToken is null)
+                {
+                    result.IsSuccessful = false;
+                    result.ErrorMessage = "Error during the authentication process.";
+                    return result;
+                }
+
+                Result<string> authenticationTokenResult = _authenticationService.GenerateIdToken(accountId, accessToken);
+                string? idToken = authenticationTokenResult.Payload;
+                if (!authenticationTokenResult.IsSuccessful || idToken is null)
+                {
+                    result.IsSuccessful = false;
+                    result.ErrorMessage = "Error during the authentication process.";
+                    return result;
+                }
+
+                result.IsSuccessful = true;
+                result.Payload = new Tuple<string, string>(accessToken, idToken);
+                return result;
             }
 
             return result;
