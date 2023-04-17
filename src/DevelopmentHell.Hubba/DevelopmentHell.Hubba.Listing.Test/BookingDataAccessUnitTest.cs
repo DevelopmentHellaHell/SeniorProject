@@ -3,26 +3,26 @@ using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using System.Configuration;
 
-namespace DevelopmentHell.Hubba.Listing.Test
+namespace DevelopmentHell.Hubba.Scheduling.Test
 {
     [TestClass]
     public class BookingDataAccessUnitTest
     {
         //Arrange
-        private readonly string _listingsConnectionString = ConfigurationManager.AppSettings["ListingsConnectionString"]!;
+        private readonly string _bookingsConnectionString = ConfigurationManager.AppSettings["BookingsConnectionString"]!;
         private readonly string _bookingsTable = "Bookings";
 
         private readonly IBookingDataAccess _bookingDAO;
-        private readonly Booking testBooking1 = new Booking()
+        private readonly Booking validBooking1 = new Booking()
         {
             UserId = 1,
-            ListingId = 2,
+            ListingId = 10,
             FullPrice = 35,
             BookingStatusId = 1,
             CreateDate = DateTime.Now,
             LastModifyUser = 1
         };
-        private readonly Booking testBooking2 = new Booking()
+        private readonly Booking invalidBooking1 = new Booking()
         {
             UserId = 1,
             ListingId = 0,
@@ -31,70 +31,144 @@ namespace DevelopmentHell.Hubba.Listing.Test
             CreateDate = DateTime.Now,
             LastModifyUser = 1
         };
-
+        private readonly Booking invalidBooking2 = new Booking()
+        {
+            UserId = 1,
+            ListingId = 10,
+            FullPrice = 35,
+            BookingStatusId = 4,
+            CreateDate = DateTime.Now,
+            LastModifyUser = 1
+        };
+        private static List<int> newBookingIds = new();
         public BookingDataAccessUnitTest()
         {
-            _bookingDAO = new BookingDataAccess(_listingsConnectionString, _bookingsTable);
+            _bookingDAO = new BookingDataAccess(_bookingsConnectionString, _bookingsTable);
         }
-        /// <summary>
-        /// Test case: CreateBooking() method insert entries to 2 tables Bookings and BookedTimeFrames
-        /// </summary>
+        
         [TestMethod]
-        public async Task CreateBooking_IsSuccessfull_True()
+        public async Task CreateBooking_Successful()
         {
             //Arrange
             var expectedBool = true;
 
             //Act
-            Result actual = await _bookingDAO.CreateBooking(testBooking1).ConfigureAwait(false);
+            Result createBooking = await _bookingDAO.CreateBooking(validBooking1).ConfigureAwait(false);
+            var actual = (Result<int>)createBooking;
+            newBookingIds.Add(actual.Payload);
 
             //Assert
-            Assert.IsNotNull(actual.IsSuccessful == expectedBool);
+            Assert.IsNotNull(actual.Payload);
+            Assert.IsTrue(actual.IsSuccessful == expectedBool);
         }
         /// <summary>
         /// Test case: BooingId is automactically assigned from database end.
         /// Identical Booking object can be added 
         /// </summary>
         [TestMethod]
-        public async Task CreateIdenticalBooking_IsSuccessfull_True()
+        public async Task CreateIdenticalBooking_Successful()
         {
             //Arrange
             var expectedBool = true;
 
             //Act
-            Result actual = await _bookingDAO.CreateBooking(testBooking1).ConfigureAwait(false);
-
+            Result createBooking = await _bookingDAO.CreateBooking(validBooking1).ConfigureAwait(false);
+            var actual = (Result<int>)createBooking;
+            
             //Assert
-            Assert.IsNotNull(actual.IsSuccessful == expectedBool);
+            Assert.IsNotNull(actual.Payload);
+            Assert.IsTrue(actual.IsSuccessful == expectedBool);
         }
 
         [TestMethod]
-        public async Task CreateBooking_ForNonExistingListing_IsSuccessfull_False()
+        public async Task CreateBooking_ForNonExistingListing_Failed()
         {
             //Arrange
             var expectedBool = false;
 
             //Act
-            Result actual = await _bookingDAO.CreateBooking(testBooking2).ConfigureAwait(false);
+            Result actual = await _bookingDAO.CreateBooking(invalidBooking1).ConfigureAwait(false);
 
             //Assert
-            Assert.IsNotNull(actual.IsSuccessful == expectedBool);
+            Assert.IsNotNull(actual);
+            Assert.IsTrue(actual.IsSuccessful == expectedBool);
         }
 
-        //[TestMethod]
-        //public async Task GetBookings_UserId_ListingId_ListOfBookings()
-        //{
-        //    //Arrange
-        //    Booking expectedBooking1 = testBooking1;
-        //    Booking expectedBooking2 = testBooking1;
-        //    var expected = new List<Booking>() { expectedBooking1 , expectedBooking2 };
+        [TestMethod]
+        public async Task DeleteBooking_Successful()
+        {
+            //Arrange
+            var createBooking = await _bookingDAO.CreateBooking(validBooking1).ConfigureAwait(false);
+            Result<int> bookingId = (Result<int>)createBooking;
 
+            //Act
+            Result actual = await _bookingDAO.DeleteBooking(bookingId.Payload).ConfigureAwait(false);
 
-        //    //Act
-        //    //Result actual = await _bookingDAO.GetBooking(testBooking2).ConfigureAwait(false);
+            //Assert
+            Assert.IsNotNull(actual);
+            Assert.IsTrue(actual.IsSuccessful);
+        }
+        [TestMethod]
+        public async Task GetBooking_byBookingId_Successful()
+        {
+            //Arrange
+            var createBooking = await _bookingDAO.CreateBooking(validBooking1).ConfigureAwait(false);
+            Result<int> bookingId = (Result<int>)createBooking;
+            newBookingIds.Add(bookingId.Payload);
 
-        //    //Assert
-        //    //Assert.IsNotNull(actual.IsSuccessful == expectedBool);
-        //}
+            var expected = validBooking1;
+            expected.BookingId = bookingId.Payload;
+
+            //Act
+            var getBooking = await _bookingDAO.GetBooking( new Dictionary<string, int>() { {"BookingId",bookingId.Payload } }).ConfigureAwait(false);
+            var actual = (Result<List<Booking>>)getBooking;
+
+            //Assert
+            Assert.IsNotNull(actual);
+            Assert.IsNotNull(actual.Payload);
+            Assert.IsTrue(actual.IsSuccessful);
+            Assert.AreEqual(expected.BookingId, actual.Payload[0].BookingId);
+        }
+
+        [TestMethod]
+        [TestCleanup]
+        public async Task DeleteTestCases()
+        {
+            foreach (var bookingId in newBookingIds)
+            {
+                await _bookingDAO.DeleteBooking(bookingId).ConfigureAwait(false);
+            }
+        }
+        [TestMethod]
+        public async Task GetBookings_ByUserId_ListingId_ListOfBookings()
+        {
+            //Arrange
+            var expected = new Result<List<Booking>>() { Payload = new List<Booking>()};
+
+            for (int i = 0; i < 2; i++)
+            {
+                var createBooking = await _bookingDAO.CreateBooking(validBooking1).ConfigureAwait(false);
+                Result<int> bookingId = (Result<int>)createBooking;
+                newBookingIds.Add(bookingId.Payload);
+                var myBooking = validBooking1;
+                myBooking.BookingId = bookingId.Payload;
+
+                expected.Payload.Add(myBooking);
+            }
+
+            //Act
+            var getBooking = await _bookingDAO.GetBooking(new Dictionary<string, int>() 
+            { 
+                { "ListingId", (int)validBooking1.ListingId },
+                {"UserId", (int)validBooking1.UserId },
+            }).ConfigureAwait(false);
+            var actual = (Result<List<Booking>>)getBooking;
+
+            //Assert
+            Assert.IsNotNull(actual);
+            Assert.IsNotNull(actual.Payload);
+            Assert.IsTrue(actual.IsSuccessful);
+            Assert.AreEqual(expected.Payload[0].ListingId, actual.Payload[0].ListingId);
+        }
     }
 }

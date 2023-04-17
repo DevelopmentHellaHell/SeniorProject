@@ -24,7 +24,12 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                 {
                     query.Connection = conn;
                     await conn.OpenAsync().ConfigureAwait(false);
-                    await query.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    var queryResult = await query.ExecuteScalarAsync().ConfigureAwait(false);
+                    return new Result<int>()
+                    {
+                        IsSuccessful = true,
+                        Payload = Convert.ToInt32(queryResult)
+                    };
                 }
             }
             catch (Exception e)
@@ -35,10 +40,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                     ErrorMessage = e.Message,
                 };
             }
-            return new Result()
-            {
-                IsSuccessful = true,
-            };
+            
         }
     }
 }

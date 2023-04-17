@@ -14,58 +14,117 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
     public class BookedTimeFrameDataAccess : IBookedTimeFrameDataAccess
     {
         private InsertDataAccess _insertDataAccess;
-        private UpdateDataAccess _updateDataAccess;
         private SelectDataAccess _selectDataAccess;
         private DeleteDataAccess _deleteDataAccess;
         private string _tableName;
         public BookedTimeFrameDataAccess (string connectionString, string tablename)
         {
             _insertDataAccess = new InsertDataAccess(connectionString);
-            _updateDataAccess = new UpdateDataAccess(connectionString);
             _selectDataAccess = new SelectDataAccess(connectionString);
             _deleteDataAccess = new DeleteDataAccess(connectionString);
             _tableName = tablename;
         }
-        public Task<Result> CreateSingleBookedTimeFrame(BookedTimeFrame timeframe)
-        {
-            throw new NotImplementedException();
-        }
-
+        /// <summary>
+        /// Insert rows into BookedTimeFrames table
+        /// </summary>
+        /// <param name="timeframes"></param>
+        /// <returns>Result</returns>
         public async Task<Result> CreateBookedTimeFrames(List<BookedTimeFrame> timeframes)
         {
-            List<Dictionary<string, object>> valuesList = new List<Dictionary<string, object>>();
-            foreach (var timeframe in timeframes)
+            Result result = new();
+            if (timeframes.Count == 0)
             {
-                valuesList.Add(new Dictionary<string, object>()
-                                {
-                                    { "BookingId", timeframe.BookingId },
-                                    { "ListingId", timeframe.ListingId },
-                                    { "AvailabilityId", timeframe.AvailabilityId},
-                                    { "StartDateTime", timeframe.StartDateTime },
-                                    { "EndDateTime", timeframe.EndDateTime }
-                                });
+                result.IsSuccessful = false;
+                result.ErrorMessage = "List of TimeFrames is empty";
+                return result;
             }
+            List<string> columns = new List<string>()
+            {
+                "BookingId",
+                "ListingId",
+                "AvailabilityId",
+                "StartDateTime",
+                "EndDateTime"
+            };
+            //pattern matching
+            List<List<object>> values =  timeframes.Select(timeframe => new List<object>()
+            {
+                timeframe.BookingId,
+                timeframe.ListingId,
+                timeframe.AvailabilityId,
+                timeframe.StartDateTime,
+                timeframe.EndDateTime
+            }).ToList();
 
-            Result insertResult = await _insertDataAccess.InsertAll(_tableName, valuesList).ConfigureAwait(false);
+            Result insertResult = await _insertDataAccess.BatchInsert(_tableName, columns, values).ConfigureAwait(false);
 
+            if (!insertResult.IsSuccessful) 
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = insertResult.ErrorMessage;
+                return result;
+            }
             return insertResult;
         }
-
-        public Task<Result> GetBookedTimeFramesByBookingId(int bookingId)
+       
+        /// <summary>
+        /// Get BookedTimeFrame by BookingId or ListingId
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="value"></param>
+        /// <returns>List of BookedTimeFrame model in result.Payload</returns>
+        public async Task<Result> GetBookedTimeFrames(string filter, int value)
         {
-            throw new NotImplementedException();
-        }
+            Result<List<BookedTimeFrame>> result = new();
+            Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
+                _tableName,
+                new List<string>() 
+                { 
+                    "BookingId",
+                    "ListingId",
+                    "AvailabilityId",
+                    "StartDateTime",
+                    "EndDateTime"
+                },
+                new List<Comparator>()
+                {
+                    new Comparator(filter, "=", value)
+                }
+            ).ConfigureAwait(false);
 
-        public Task<Result> GetBookedTimeFramesByListingId(int listingId)
-        {
-            throw new NotImplementedException();
-        }
+            if (!selectResult.IsSuccessful || selectResult.Payload is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = selectResult.ErrorMessage;
+                return result;
+            }
+            result.IsSuccessful = true;
+            result.Payload = new();
+            foreach (var row in selectResult.Payload)
+            {
+                int bookingId = (int)row["BookingId"];
+                int listingId = (int)row["ListingId"];
+                int availabilityId = (int)row["AvailabilityId"];
+                DateTime startDateTime = (DateTime) row["StartDateTime"];
+                DateTime endDateTime = (DateTime)row["EndDateTime"];
 
-        public Task<Result> UpdateBookedTimeFrame(BookedTimeFrame bookedTimeFrame)
-        {
-            throw new NotImplementedException();
+                result.Payload.Add( new BookedTimeFrame() 
+                {
+                    BookingId = bookingId,
+                    ListingId = listingId,
+                    AvailabilityId = availabilityId,
+                    StartDateTime = startDateTime,
+                    EndDateTime = endDateTime
+                });
+            }
+            return result;
         }
-
+        /// <summary>
+        /// Delete rows in BookedTimeFrames table
+        /// </summary>
+        /// <param name="bookingId"></param>
+        /// <param name="listingId"></param>
+        /// <returns>Result</returns>
         public async Task<Result> DeleteBookedTimeFrames(int bookingId, int listingId)
         {
             Result result = new Result();

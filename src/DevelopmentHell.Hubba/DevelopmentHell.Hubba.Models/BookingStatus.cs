@@ -8,7 +8,7 @@ namespace DevelopmentHell.Hubba.Models
 {
     public class BookingStatus
     {
-        public int BookingStatusId { get; }
+        public int BookingStatusId { get; set; }
         public string? Status { get; set; }
     }
 }

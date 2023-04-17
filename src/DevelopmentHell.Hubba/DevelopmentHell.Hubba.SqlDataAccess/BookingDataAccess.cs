@@ -13,7 +13,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
     public class BookingDataAccess : IBookingDataAccess
     {
         private InsertDataAccess _insertDataAccess;
-        private UpdateDataAccess _updateDataAccess;
         private SelectDataAccess _selectDataAccess;
         private DeleteDataAccess _deleteDataAccess;
         private string _tableName;
@@ -21,14 +20,13 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         public BookingDataAccess(string connectionString, string tableName)
         {
             _insertDataAccess = new InsertDataAccess(connectionString);
-            _updateDataAccess = new UpdateDataAccess(connectionString);
             _selectDataAccess = new SelectDataAccess(connectionString);
             _deleteDataAccess = new DeleteDataAccess(connectionString);
             _tableName = tableName;
         }
         public async Task<Result> CreateBooking(Booking booking)
         {
-            Result insertResult = await _insertDataAccess.Insert(
+            Result insertResult = await _insertDataAccess.InsertOutput(
                 _tableName,
                 new Dictionary<string, object>()
                 {
@@ -38,29 +36,57 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     { "BookingStatusId", booking.BookingStatusId },
                     { "CreateDate", DateTime.Now },
                     { "LastModifyUser", booking.LastModifyUser }
-                }
+                },
+                "BookingId"
             ).ConfigureAwait(false);
 
-            return insertResult;
+            if (!insertResult.IsSuccessful)
+            {
+                return insertResult;
+            }
+            
+            return (Result<int>)insertResult;
         }
 
-        public Task<Result> DeleteBooking(int bookingId)
+        public async Task<Result> DeleteBooking(int bookingId)
         {
-            throw new NotImplementedException();
+            Result deleteResult = new();
+
+            deleteResult = await _deleteDataAccess.Delete
+                (
+                    _tableName,
+                    new List<Comparator>()
+                    { 
+                        new Comparator("BookingId","=", bookingId)
+                    }
+                ).ConfigureAwait(false);
+            return deleteResult;
         }
         
-        public async Task<Result> GetBooking(int userId, int listingId)
+        public async Task<Result> GetBooking(Dictionary<string,int> filters)
         {
-            Result<List<Booking>> result = new Result<List<Booking>>();
+            Result<List<Booking>> result = new();
+            result.Payload = new List<Booking>();
 
+            List<Comparator> comparators = new();
+            foreach (var filter in filters)
+            {
+                comparators.Add(new Comparator(filter.Key,"=", filter.Value));
+            }
+            
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
-                _tableName,
-                new List<string>() { "BookingId" },
-                new List<Comparator>()
+                SQLManip.InnerJoinTables(new Joiner(_tableName, "BookingStatuses", "BookingStatusId", "BookingStatusId")),
+                new List<string>()
                 {
-                    new Comparator("UserId", "=", userId),
-                    new Comparator("ListingId", "=", listingId)
-                }
+                    "BookingId",
+                    "UserId",
+                    "ListingId",
+                    _tableName + ".BookingStatusId",
+                    "BookingStatus",
+                    "FullPrice"
+                    
+                },
+                comparators
             ).ConfigureAwait(false);
 
             if (!selectResult.IsSuccessful || selectResult.Payload is null)
@@ -81,6 +107,20 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             {
                 foreach (var row in payload)
                 {
+                    result.Payload.Add(new Booking()
+                    {
+                        BookingId = (int)row["BookingId"],
+                        UserId = (int)row["UserId"],
+                        ListingId = (int)row["ListingId"],
+                        BookingStatusId = (int)row["BookingStatusId"],
+                        BookingStatus = new BookingStatus() 
+                                        { 
+                                            BookingStatusId = (int)row["BookingStatusId"],
+                                            Status = (string)row["BookingStatus"]
+                                        },
+                        FullPrice = Convert.ToSingle(row["FullPrice"]),
+
+                    });
                 }
             }
             result.IsSuccessful = true;

@@ -9,8 +9,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
 {
     public interface IBookingDataAccess
     {
-        Task<Result> GetBooking(int userId, int listingId);
-        //Task<Result> GetBooking(int userId, int listingId, int availabilityId);
+        Task<Result> GetBooking(Dictionary<string, int> filters);
         Task<Result> GetBookingId(int userId, int listingId);
         Task<Result> GetFullPrice(int bookingId);
         Task<Result> GetBookingStatus(int bookingId);
