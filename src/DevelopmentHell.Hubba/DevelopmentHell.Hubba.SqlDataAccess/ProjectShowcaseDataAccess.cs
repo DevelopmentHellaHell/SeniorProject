@@ -12,7 +12,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 {
     public class ProjectShowcaseDataAccess : IProjectShowcaseDataAccess
     {
-        private readonly string _connectionString;
         private readonly string _showcaseTableName;
         private readonly string _commentTableName;
         private readonly string _showcaseLikeTableName;
@@ -38,7 +37,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             string commentReportTableName,
             string userAccountsTableName)
         {
-            _connectionString = connectionString;
             _showcaseTableName = showcaseTableName;
             _commentTableName = commentTableName;
             _showcaseLikeTableName = showcaseLikeTableName;
