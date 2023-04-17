@@ -40,7 +40,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Manager.Implementations
             }
 
             Result<int> userIdResult = await _accountRecoveryService.Verification(email).ConfigureAwait(false)!;
-            if (!userIdResult.IsSuccessful && string.IsNullOrEmpty(userIdResult.Payload.ToString()))
+            if (!userIdResult.IsSuccessful || string.IsNullOrEmpty(userIdResult.Payload.ToString()))
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = userIdResult.ErrorMessage;

@@ -236,13 +236,14 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             var actual = await _accountRecoveryManager.AccountAccess(dummyIp);
             
             
-            _testingService.DecodeJWT(actual.Payload!.Item1, actual.Payload!.Item2);
             ClaimsPrincipal? actualPrincipal = null;
-            if (actual.IsSuccessful)
+            if (actual.IsSuccessful && actual.Payload is not null)
             {
                 _testingService.DecodeJWT(actual.Payload!.Item1, actual.Payload!.Item2);
-                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+                
             }
+            actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+
 
             //Arrange to check recoveryrequests has new request
             var recoveryRequestResult = await _recoveryRequestDataAccess.GetId(id);
@@ -302,11 +303,12 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             var actual = await _accountRecoveryManager.AccountAccess(dummyIp);
 
             ClaimsPrincipal? actualPrincipal = null;
-            if (actual.IsSuccessful)
+            if (actual.IsSuccessful && actual.Payload is not null)
             {
                 _testingService.DecodeJWT(actual.Payload!.Item1, actual.Payload!.Item2);
-                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+
             }
+            actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 
 
             // Assert
@@ -371,11 +373,12 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             var actual = await _accountRecoveryManager.AccountAccess(dummyIp);
 
             ClaimsPrincipal? actualPrincipal = null;
-            if (actual.IsSuccessful)
+            if (actual.IsSuccessful && actual.Payload is not null)
             {
                 _testingService.DecodeJWT(actual.Payload!.Item1, actual.Payload!.Item2);
-                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+
             }
+            actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 
 
             var checkDisabledAfter = await _userAccountDataAccess.GetDisabled(newAccountId).ConfigureAwait(false);
@@ -465,8 +468,9 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             if (verificationResult.IsSuccessful)
             {
                 _testingService.DecodeJWT(verificationResult.Payload!);
-                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+                
             }
+            actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 
             var actual = await _accountRecoveryManager.AuthenticateOTP(invalidOTP, dummyIp);
 
@@ -555,8 +559,9 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             if (authenticatedResult.IsSuccessful)
             {
                 _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
-                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+                
             }
+            actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 
             // Act
             var actual = await _accountRecoveryManager.EmailVerification(email);
