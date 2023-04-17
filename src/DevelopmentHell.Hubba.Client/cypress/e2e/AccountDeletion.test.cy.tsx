@@ -22,13 +22,14 @@ let testsRoute: string = '/tests/deleteDatabaseRecords';
 describe('working-ui', () => {
     
     before(() =>{
-        //using Custom Commands
+        //clear all sessions include the backend and cache
+        Cypress.session.clearAllSavedSessions();
         cy.RegisterViaApi(Cypress.env('standardEmail'), Cypress.env('standardPassword'));
     })
-
+    let testsRoute: string = '/tests/deleteDatabaseRecords';
     beforeEach(() => {
-        // logging into account via session
-        cy.LoginViaUI(Cypress.env('standardEmail'), Cypress.env('standardPassword'));
+        // using Custom Commands
+        cy.LoginViaApi(Cypress.env('standardEmail'), Cypress.env('standardPassword'));
         cy.visit(accountUrl);
         cy.contains('Login & Security').click();
     });
@@ -57,13 +58,14 @@ describe('working-ui', () => {
 describe('working-account-deletion', () => {
     
     before(() =>{
-        //using Custom Commands
-        cy.RegisterViaApi(Cypress.env('standardEmail'), Cypress.env('standardPassword'));
+        //clear all sessions include the backend and cache
+        Cypress.session.clearAllSavedSessions();
     })
-
+    let testsRoute: string = '/tests/deleteDatabaseRecords';
     beforeEach(() => {
-        // logging into account via session
-        cy.LoginViaUI(Cypress.env('standardEmail'), Cypress.env('standardPassword'));
+        // using Custom Commands
+        cy.RegisterViaApi(Cypress.env('standardEmail'), Cypress.env('standardPassword'));
+        cy.LoginViaApi(Cypress.env('standardEmail'), Cypress.env('standardPassword'));
         cy.visit(accountUrl);
         cy.contains('Login & Security').click();
     });
