@@ -27,7 +27,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         private readonly DeleteDataAccess _deleteDataAccess;
 
 
-        ProjectShowcaseDataAccess(
+        public ProjectShowcaseDataAccess(
             string connectionString, 
             string showcaseTableName,
             string commentTableName,

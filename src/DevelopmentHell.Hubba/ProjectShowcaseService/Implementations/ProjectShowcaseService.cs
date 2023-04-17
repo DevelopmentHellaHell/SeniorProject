@@ -21,7 +21,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
         private readonly IValidationService _validationService;
         private readonly ILoggerService _logger;
 
-        ProjectShowcaseService(IProjectShowcaseDataAccess projectShowcaseDataAccess, IValidationService validationService, ILoggerService loggerService) 
+        public ProjectShowcaseService(IProjectShowcaseDataAccess projectShowcaseDataAccess, IValidationService validationService, ILoggerService loggerService) 
         { 
             _projectShowcaseDataAccess = projectShowcaseDataAccess;
             _validationService = validationService;
