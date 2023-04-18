@@ -36,5 +36,28 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                 return await SendQuery(insertQuery).ConfigureAwait(false);
             }
         }
+
+        public async Task<Result> BatchInsert(string table, List<string> keys, List<List<object>> values)
+        {
+            using (SqlCommand insertQuery = new SqlCommand())
+            {
+                string columnString = string.Join(", ", keys);
+                string valueString = string.Join(", ", values.Select(row => "(" + string.Join(", ", Enumerable.Range(0, keys.Count).Select(i => "@param" + i.ToString() + "_" + row.GetHashCode().ToString())) + ")"));
+
+                for (int i = 0; i < keys.Count; i++)
+                {
+                    for (int j = 0; j < values.Count; j++)
+                    {
+                        insertQuery.Parameters.AddWithValue("@param" + i.ToString() + "_" + values[j].GetHashCode().ToString(), values[j][i]);
+                    }
+                }
+
+                insertQuery.CommandText = string.Format("INSERT INTO {0} ({1}) VALUES {2}", table, columnString, valueString);
+
+                return await SendQuery(insertQuery).ConfigureAwait(false);
+            }
+        }
+
+
     }
 }
