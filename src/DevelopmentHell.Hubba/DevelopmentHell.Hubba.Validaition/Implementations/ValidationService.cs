@@ -1,6 +1,11 @@
-﻿using DevelopmentHell.Hubba.Models;
+﻿
+using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.Models.DTO;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
+using System.Diagnostics;
 using System.Globalization;
+using System.Net.NetworkInformation;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace DevelopmentHell.Hubba.Validation.Service.Implementations
@@ -117,5 +122,129 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
             return result;
         }
 
+        public Result ValidateModel(Object obj)
+        {
+            Result result = new Result();
+            result.IsSuccessful = false;
+            List<string> nullValueNames = new();
+
+            foreach (PropertyInfo prop in obj.GetType().GetProperties())
+            {
+                var value = prop.GetValue(obj, null);
+                if (value is null || value.ToString()!.Length < 1)
+                {
+                    nullValueNames.Add(prop.Name);
+                }
+            }
+            if (nullValueNames.Count > 0)
+            {
+                result.ErrorMessage = "Missing value(s) for " + string.Join(", ", nullValueNames);
+                result.ErrorMessage.Trim();
+                return result;
+            }
+            result.IsSuccessful = true;
+            return result;
+        }
+
+
+        public Result ValidateBodyText(string input)
+        {
+            Result result = new Result();
+            result.IsSuccessful = false;
+
+            Regex regex = new(@"[^a-zA-Z0-9\s'.,!()\-]+");
+
+            if (regex.IsMatch(input))
+            {
+                result.ErrorMessage = "Invalid characters or special characters. Note only apostrophes, commas, periods, exclamation marks, and parentheses are the only special characters allowed.";
+                return result;
+            }
+
+            result.IsSuccessful = true;
+            return result;
+
+        }
+
+        //change
+        public Result ValidateTitle(string title)
+        {
+            Result result = new Result();
+            result.IsSuccessful = false;
+
+            Regex regex = new(@"[^a-zA-Z0-9\s']+");
+
+            if (regex.IsMatch(title))
+            {
+                result.ErrorMessage = "Invalid characters or special characters. Note apostrophes are the only special characters allowed.";
+                return result;
+            }
+
+            result.IsSuccessful = true;
+            return result;
+
+        }
+
+        public Result ValidateRating(int rating)
+        {
+            Result result = new Result();
+            result.IsSuccessful = false;
+
+
+            if (rating < 0 || rating > 5)
+            {
+                result.ErrorMessage = "Invalid rating.";
+                return result;
+            }
+
+            result.IsSuccessful = true;
+            return result;
+        }
+
+        public Result ValidateAvailability(ListingAvailabilityDTO listingAvailability)
+        {
+            Result result = new Result();
+
+            if (listingAvailability.StartTime.Day != listingAvailability.EndTime.Day)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Start time and end time may not be on different days.";
+                return result;
+            }
+
+            if (listingAvailability.StartTime.Minute != 0 || listingAvailability.StartTime.Minute != 30 || listingAvailability.StartTime.Second != 0)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Start time must be on the hour or half hour.";
+                return result;
+            }
+
+            if (listingAvailability.EndTime.Minute != 0 || listingAvailability.EndTime.Minute != 30 || listingAvailability.EndTime.Second != 0)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "End time must be on the hour or half hour.";
+                return result;
+            }
+
+            if (listingAvailability.EndTime.CompareTo(listingAvailability.StartTime) <= 0)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "End time must be at least 30 mins past start time.";
+            }
+
+            if (DateTime.Now.AddMinutes(30).CompareTo(listingAvailability.StartTime) < 0)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Start time must be more than 30 minutes of right now.";
+            }
+
+            if (DateTime.Now.AddHours(1).CompareTo(listingAvailability.EndTime) < 0)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "End time must be more than 60 minutes of right now.";
+            }
+
+            result.IsSuccessful = true;
+            return result;
+        }
     }
 }
