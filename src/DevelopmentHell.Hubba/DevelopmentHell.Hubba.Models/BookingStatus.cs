@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.Models
 {
-    public class BookingStatus
+    public enum BookingStatus
     {
-        public int BookingStatusId { get; set; }
-        public string? Status { get; set; }
+        CONFIRMED = 1,
+        CANCELLED = 4
     }
 }

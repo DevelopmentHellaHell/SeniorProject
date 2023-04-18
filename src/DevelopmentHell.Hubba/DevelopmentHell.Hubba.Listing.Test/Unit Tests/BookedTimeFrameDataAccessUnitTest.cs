@@ -47,7 +47,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test
             // Arrange
             var expected = true;
             // Actual
-            var actualResult = await _bookedtimeframeDataAccess.CreateBookedTimeFrames(timeframes).ConfigureAwait(false);
+            var actualResult = await _bookedtimeframeDataAccess.CreateBookedTimeFrames((int)timeframes[0].BookingId,timeframes).ConfigureAwait(false);
 
             // Assert
             Assert.IsNotNull(actualResult);
@@ -58,7 +58,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test
         public async Task GetBookedTimeFrame_ByBookingId_ListOfBookedTimeFrame()
         {
             //Arrange
-            var createBookedTimeFrames = await _bookedtimeframeDataAccess.CreateBookedTimeFrames(timeframes).ConfigureAwait(false);
+            var createBookedTimeFrames = await _bookedtimeframeDataAccess.CreateBookedTimeFrames((int)timeframes[0].BookingId,timeframes).ConfigureAwait(false);
 
             var expected = timeframes;
 
@@ -75,7 +75,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test
         public async Task GetBookedTimeFrame_ByListingId_ListOfBookedTimeFrame()
         {
             //Arrange
-            var createBookedTimeFrames = await _bookedtimeframeDataAccess.CreateBookedTimeFrames(timeframes).ConfigureAwait(false);
+            var createBookedTimeFrames = await _bookedtimeframeDataAccess.CreateBookedTimeFrames((int)timeframes[0].BookingId,timeframes).ConfigureAwait(false);
 
             var expected = timeframes;
 

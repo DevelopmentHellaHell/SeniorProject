@@ -24,7 +24,6 @@ describe('logout successfully by User NavBar', () => {
 
     it('user clicks logout from dropdown menu, logout under 5s', () => {
         //force show the dropdown menu
-        cy.pause();
         cy.get('.dropdown-content').invoke('show');
 
         //timer

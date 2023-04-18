@@ -84,7 +84,7 @@ context.only('Login operation', () => {
      * After clicking Submit button, system responses under 5s
      * Delete test data in database after testing
      */
-    xdescribe('Successful Case - login with valid email, password, OTP', () => {
+    describe('Successful Case - login with valid email, password, OTP', () => {
         beforeEach(() => {
             cy.visit(loginUrl);
         });
@@ -147,7 +147,7 @@ context.only('Login operation', () => {
         /**
          * either email, password or OTP input syntax error
          */
-        xdescribe('syntax error', () => {
+        describe('syntax error', () => {
             it('empty email input', () => {
                 cy.get('#password')
                     .type(standardPassword);
@@ -203,7 +203,7 @@ context.only('Login operation', () => {
             /**
              * OTP syntax error
              */
-            xit('OTP empty/invalid/wrong', () => {
+            it('OTP empty/invalid/wrong', () => {
                 
                 cy.get('#email').as('email').type(Cypress.env('realEmail')).should('have.value', Cypress.env('realEmail'));
                 cy.get('#password').as('password').type(Cypress.env('standardPassword')).should('have.value', Cypress.env('standardPassword'));
@@ -243,10 +243,9 @@ context.only('Login operation', () => {
                                         let otp:string = otpString.toString();
                                         cy.get('#otp').type(otp).should('have.value', otp);
                                         //wait 3mins before submitting OTP
-                                        cy.pause();
                                         let now: number = Date.now();
                                         cy.clock(now);
-                                        cy.tick(180000)
+                                        cy.tick(120000)
                                             .then(() => {
                                                 cy.contains('Submit').click()
                                                     .then(() => {

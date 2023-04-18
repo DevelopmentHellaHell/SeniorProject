@@ -29,7 +29,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// </summary>
         /// <param name="timeframes"></param>
         /// <returns>Result</returns>
-        public async Task<Result> CreateBookedTimeFrames(List<BookedTimeFrame> timeframes)
+        public async Task<Result> CreateBookedTimeFrames(int bookingId, List<BookedTimeFrame> timeframes)
         {
             Result result = new();
             if (timeframes.Count == 0)
@@ -49,7 +49,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             //pattern matching
             List<List<object>> values =  timeframes.Select(timeframe => new List<object>()
             {
-                timeframe.BookingId,
+                bookingId,
                 timeframe.ListingId,
                 timeframe.AvailabilityId,
                 timeframe.StartDateTime,

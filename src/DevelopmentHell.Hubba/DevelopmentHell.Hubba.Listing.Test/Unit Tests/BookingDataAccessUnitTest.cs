@@ -18,7 +18,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test
             UserId = 1,
             ListingId = 10,
             FullPrice = 35,
-            BookingStatusId = 1,
+            BookingStatusId = BookingStatus.CONFIRMED,
             CreateDate = DateTime.Now,
             LastModifyUser = 1
         };
@@ -27,20 +27,19 @@ namespace DevelopmentHell.Hubba.Scheduling.Test
             UserId = 1,
             ListingId = 0,
             FullPrice = 35,
-            BookingStatusId = 1,
+            BookingStatusId = BookingStatus.CONFIRMED,
             CreateDate = DateTime.Now,
             LastModifyUser = 1
         };
-        private readonly Booking invalidBooking2 = new Booking()
+        private readonly Booking validBooking2 = new Booking()
         {
             UserId = 1,
             ListingId = 10,
             FullPrice = 35,
-            BookingStatusId = 4,
+            BookingStatusId = BookingStatus.CANCELLED,
             CreateDate = DateTime.Now,
             LastModifyUser = 1
         };
-        private static List<int> newBookingIds = new();
         public BookingDataAccessUnitTest()
         {
             _bookingDAO = new BookingDataAccess(_bookingsConnectionString, _bookingsTable);
@@ -55,7 +54,6 @@ namespace DevelopmentHell.Hubba.Scheduling.Test
             //Act
             Result createBooking = await _bookingDAO.CreateBooking(validBooking1).ConfigureAwait(false);
             var actual = (Result<int>)createBooking;
-            newBookingIds.Add(actual.Payload);
 
             //Assert
             Assert.IsNotNull(actual.Payload);
@@ -100,9 +98,10 @@ namespace DevelopmentHell.Hubba.Scheduling.Test
             //Arrange
             var createBooking = await _bookingDAO.CreateBooking(validBooking1).ConfigureAwait(false);
             Result<int> bookingId = (Result<int>)createBooking;
+            List<Tuple<string,object>> filter = new() { new Tuple<string, object>("BookingId", bookingId.Payload) };
 
             //Act
-            Result actual = await _bookingDAO.DeleteBooking(bookingId.Payload).ConfigureAwait(false);
+            Result actual = await _bookingDAO.DeleteBooking(filter).ConfigureAwait(false);
 
             //Assert
             Assert.IsNotNull(actual);
@@ -114,13 +113,15 @@ namespace DevelopmentHell.Hubba.Scheduling.Test
             //Arrange
             var createBooking = await _bookingDAO.CreateBooking(validBooking1).ConfigureAwait(false);
             Result<int> bookingId = (Result<int>)createBooking;
-            newBookingIds.Add(bookingId.Payload);
-
+            List<Tuple<string, object>> filter = new()
+            {
+                new Tuple<string,object>("BookingId",bookingId.Payload)
+            };
             var expected = validBooking1;
             expected.BookingId = bookingId.Payload;
 
             //Act
-            var getBooking = await _bookingDAO.GetBooking( new Dictionary<string, int>() { {"BookingId",bookingId.Payload } }).ConfigureAwait(false);
+            var getBooking = await _bookingDAO.GetBooking( filter).ConfigureAwait(false);
             var actual = (Result<List<Booking>>)getBooking;
 
             //Assert
@@ -134,34 +135,29 @@ namespace DevelopmentHell.Hubba.Scheduling.Test
         [TestCleanup]
         public async Task DeleteTestCases()
         {
-            foreach (var bookingId in newBookingIds)
-            {
-                await _bookingDAO.DeleteBooking(bookingId).ConfigureAwait(false);
-            }
+            List<Tuple<string, object>> filter = new() { new Tuple<string, object>("UserId", validBooking1.UserId) };
+            await _bookingDAO.DeleteBooking(filter).ConfigureAwait(false);
         }
         [TestMethod]
         public async Task GetBookings_ByUserId_ListingId_ListOfBookings()
         {
             //Arrange
             var expected = new Result<List<Booking>>() { Payload = new List<Booking>()};
-
+            var myBooking = validBooking1;
             for (int i = 0; i < 2; i++)
             {
                 var createBooking = await _bookingDAO.CreateBooking(validBooking1).ConfigureAwait(false);
                 Result<int> bookingId = (Result<int>)createBooking;
-                newBookingIds.Add(bookingId.Payload);
-                var myBooking = validBooking1;
                 myBooking.BookingId = bookingId.Payload;
-
                 expected.Payload.Add(myBooking);
             }
-
+            List<Tuple<string, object>> filters = new()
+                {
+                    new Tuple<string,object> ("BookingId", myBooking.BookingId),
+                    new Tuple<string,object> ("ListingId", myBooking.ListingId)
+                };
             //Act
-            var getBooking = await _bookingDAO.GetBooking(new Dictionary<string, int>() 
-            { 
-                { "ListingId", (int)validBooking1.ListingId },
-                {"UserId", (int)validBooking1.UserId },
-            }).ConfigureAwait(false);
+            var getBooking = await _bookingDAO.GetBooking(filters).ConfigureAwait(false);
             var actual = (Result<List<Booking>>)getBooking;
 
             //Assert
@@ -169,6 +165,30 @@ namespace DevelopmentHell.Hubba.Scheduling.Test
             Assert.IsNotNull(actual.Payload);
             Assert.IsTrue(actual.IsSuccessful);
             Assert.AreEqual(expected.Payload[0].ListingId, actual.Payload[0].ListingId);
+        }
+        [TestMethod]
+        public async Task UpdateBooking_ByBookingId_Successful()
+        {
+            //Arrange
+            var createBooking = await _bookingDAO.CreateBooking(validBooking2).ConfigureAwait (false);
+            int bookingId = ((Result<int>)createBooking).Payload;
+            
+            var expected = validBooking1;
+            expected.BookingId = bookingId;
+            expected.BookingStatusId = BookingStatus.CANCELLED;
+            List<Tuple<string, object>> filter = new()
+                {
+                    new Tuple<string,object> ("BookingId", expected.BookingId),
+                };
+            //Act
+
+            var actual = await _bookingDAO.UpdateBooking(validBooking1).ConfigureAwait(false);
+            var getBooking = await _bookingDAO.GetBooking(filter).ConfigureAwait(false);
+            var updateResult = (Result<List<Booking>>)getBooking;
+            //Assert
+            Assert.IsNotNull(actual);
+            Assert.IsTrue(actual.IsSuccessful);
+            Assert.AreEqual(expected.BookingStatusId, updateResult.Payload[0].BookingStatusId);
         }
     }
 }
