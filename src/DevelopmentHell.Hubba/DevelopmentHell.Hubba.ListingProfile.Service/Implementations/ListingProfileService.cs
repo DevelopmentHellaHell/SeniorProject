@@ -14,7 +14,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
 {
     public class ListingProfileService : IListingProfileService
     {
-        private IListingDataAccess _listingDataAccess;
+        private IListingsDataAccess _listingDataAccess;
         private IListingAvailabilitiesDataAccess _listingAvailabilitiesDataAccess;
         private IListingHistoryDataAccess _listingHistoryDataAccess;
         //private IListingRatingsDataAccess _listingRatingsDataAccess;
@@ -23,7 +23,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
 
         private ILoggerService _loggerService;
 
-        public ListingProfileService(IListingDataAccess listingDataAccess, IListingAvailabilitiesDataAccess listingAvailabilitiesDataAccess, IListingHistoryDataAccess listingHistoryDataAccess, IRatingDataAccess ratingDataAccess, IUserAccountDataAccess userAccountDataAccess, ILoggerService loggerService)
+        public ListingProfileService(IListingsDataAccess listingDataAccess, IListingAvailabilitiesDataAccess listingAvailabilitiesDataAccess, IListingHistoryDataAccess listingHistoryDataAccess, IRatingDataAccess ratingDataAccess, IUserAccountDataAccess userAccountDataAccess, ILoggerService loggerService)
         {
             _listingDataAccess = listingDataAccess;
             _listingAvailabilitiesDataAccess = listingAvailabilitiesDataAccess;

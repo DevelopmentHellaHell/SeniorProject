@@ -20,7 +20,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
     [TestClass]
     public class ListingDataAccessUnitTests
     {
-        private readonly IListingDataAccess _listingsDataAccess;
+        private readonly IListingsDataAccess _listingsDataAccess;
         private readonly ITestingService _testingService;
         private readonly IUserAccountDataAccess _userAccountDataAccess;
 
@@ -51,8 +51,6 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
 
             _listingsDataAccess = new ListingsDataAccess(_listingProfileConnectionString, _listingsTable);
 
-            //_listingAvailabilitiesDataAccess = new ListingAvailabilitiesDataAccess(_listingProfileConnectionString, _listingAvailabilitiesTable);
-
             _testingService = new TestingService(_jwtKey, new TestsDataAccess());
 
             _userAccountDataAccess = new UserAccountDataAccess(
@@ -77,8 +75,6 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
 
             // Actual
             var actual = await _listingsDataAccess.CreateListing(ownerId, title).ConfigureAwait(false);
-            Console.WriteLine(actual.ErrorMessage);
-
 
             // Assert
             Assert.IsNotNull(actual);

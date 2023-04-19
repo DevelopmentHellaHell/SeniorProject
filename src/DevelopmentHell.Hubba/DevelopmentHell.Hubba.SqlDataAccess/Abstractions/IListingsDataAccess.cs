@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
 {
-    public interface IListingDataAccess
+    public interface IListingsDataAccess
     {
         Task<Result> CreateListing(int ownerId, string title);
 

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
-    public class ListingsDataAccess : IListingDataAccess
+    public class ListingsDataAccess : IListingsDataAccess
     {
         private InsertDataAccess _insertDataAccess;
         private UpdateDataAccess _updateDataAccess;
