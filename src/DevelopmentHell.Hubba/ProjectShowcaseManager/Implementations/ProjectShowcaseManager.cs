@@ -239,6 +239,46 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
         }
 
+        public async Task<Result<ShowcaseComment>> GetComment(int commentId)
+        {
+            // if attatched showcase is published
+            // or if owner is requester
+            // or if requester is admin
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+
+        public async Task<Result<List<CommentReport>>> GetAllCommentReports()
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in getting comment reports: {ex.Message}", "ShowcaseManager");
+                return new(Result.Failure("Error in getting comment reports"));
+            }
+        }
+
+        public async public async  Task<Result<List<CommentReport>>> GetCommentReports(int commentId)
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in getting comment reports: {ex.Message}", "ShowcaseManager");
+                return new(Result.Failure("Error in getting comment reports"));
+            }
+        }
+
         public async Task<Result<PackagedShowcase>> GetShowcase(string showcaseId)
         {
             try
@@ -288,6 +328,64 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             {
                 _logger.Warning(Category.BUSINESS, $"Error in getting showcase: {ex.Message}", "ShowcaseManager");
                 return new(Result.Failure("Error in getting showcase"));
+            }
+        }
+
+        public async Task<Result<List<Showcase>>> GetUserShowcases(int userId, bool includeDescription = true)
+        {
+            try
+            {
+                var authResult = _authorizationService.Authorize(new string[] { "AdminUser" });
+                if (!authResult.IsSuccessful)
+                {
+                    int requestedId = int.Parse((Thread.CurrentPrincipal as ClaimsPrincipal)?.FindFirstValue("sub")!);
+                    if (userId != requestedId)
+                    {
+                        return new(Result.Failure("Unauthorized attempt to get user showcases", 401));
+                    }
+                }
+                return await _projectShowcaseService.GetUserShowcases(userId, includeDescription).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in getting user showcases: {ex.Message}", "ShowcaseManager");
+                return new(Result.Failure("Error in getting user showcases"));
+            }
+        }
+
+        public async Task<Result<List<ShowcaseReport>>> GetAllShowcaseReports()
+        {
+            try
+            {
+                var authResult = _authorizationService.Authorize(new string[] { "AdminUser" });
+                if (!authResult.IsSuccessful)
+                {
+                    return new(Result.Failure("Unauthorized attempt to get Showcase Reports", 401));
+                }
+                return await _projectShowcaseService.GetAllShowcaseReports();
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in getting showcase reports: {ex.Message}", "ShowcaseManager");
+                return new(Result.Failure("Error in getting showcase reports"));
+            }
+        }
+
+        public async Task<Result<List<ShowcaseReport>>> GetShowcaseReports(string showcaseId)
+        {
+            try
+            {
+                var authResult = _authorizationService.Authorize(new string[] { "AdminUser" });
+                if (!authResult.IsSuccessful)
+                {
+                    return new(Result.Failure("Unauthorized attempt to get Showcase Reports", 401));
+                }
+                return await _projectShowcaseService.GetShowcaseReports(showcaseId);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in getting showcase reports: {ex.Message}", "ShowcaseManager");
+                return new(Result.Failure("Error in getting showcase reports"));
             }
         }
 

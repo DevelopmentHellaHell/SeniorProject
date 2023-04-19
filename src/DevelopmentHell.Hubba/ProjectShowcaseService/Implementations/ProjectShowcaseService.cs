@@ -279,18 +279,18 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
                 }
                 Showcase output = new();
                 Dictionary<string, string> varSqlVarMap = new()
-            {
-                { "Id", "Showcases.Id" },
-                { "ShowcaseUserEmail", "Email" },
-                { "ShowcaseUserId", "UserAccounts.Id" },
-                { "ListingId", "ListingId" },
-                { "Title", "Title" },
-                { "Description", "Description" },
-                { "IsPublished", "IsPublished" },
-                { "Rating", "Rating" },
-                { "PublsihTimestamp","PublishTimestamp" },
-                { "EditTimestamp", "EditTimestamp" }
-            };
+                {
+                    { "Id", "Showcases.Id" },
+                    { "ShowcaseUserEmail", "Email" },
+                    { "ShowcaseUserId", "UserAccounts.Id" },
+                    { "ListingId", "ListingId" },
+                    { "Title", "Title" },
+                    { "Description", "Description" },
+                    { "IsPublished", "IsPublished" },
+                    { "Rating", "Rating" },
+                    { "PublishTimestamp","PublishTimestamp" },
+                    { "EditTimestamp", "EditTimestamp" }
+                };
                 foreach (var varSqlVar in varSqlVarMap)
                 {
                     object? test = null;
@@ -308,6 +308,54 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             {
                 _logger.Warning(Category.BUSINESS, $"Error in getting showcase: {ex.Message}", "ShowcaseService");
                 return new(Result.Failure("Error in getting showcase"));
+            }
+        }
+
+
+        public async Task<Result<List<Showcase>>> GetUserShowcases(int accountId, bool includeDetails = false)
+        {
+            try
+                {
+                var getResult = await _projectShowcaseDataAccess.GetUserShowcases(accountId).ConfigureAwait(false);
+                if (!getResult.IsSuccessful)
+                    {
+                    return new(Result.Failure($"Error in getting showcases from DAC: {getResult.ErrorMessage}"));
+                }
+                List<Showcase> output = new();
+                Dictionary<string, string> varSqlVarMap = new()
+                {
+                    { "Id", "Showcases.Id" },
+                    { "ShowcaseUserEmail", "Email" },
+                    { "ShowcaseUserId", "UserAccounts.Id" },
+                    { "ListingId", "ListingId" },
+                    { "Title", "Title" },
+                    { "Description", "Description" },
+                    { "IsPublished", "IsPublished" },
+                    { "Rating", "Rating" },
+                    { "PublishTimestamp","PublishTimestamp" },
+                    { "EditTimestamp", "EditTimestamp" }
+                };
+                foreach (var showcaseDict in getResult.Payload!)
+                    {
+                    Showcase showcase = new();
+                    foreach (var varSqlVar in varSqlVarMap)
+                        {
+                        object? test = null;
+                        if (!showcaseDict.TryGetValue(varSqlVar.Value, out test))
+                            {
+                            // Set all of the attributes in the output var to the ones in the dict from getResult.Payload
+                            var prop = typeof(Showcase).GetProperty(varSqlVar.Key);
+                            prop!.SetValue(showcase, Convert.ChangeType(showcaseDict[varSqlVar.Value], prop!.PropertyType));
+                        }
+                    }
+                    output.Add(showcase);
+                }
+                return Result<List<Showcase>>.Success(output);
+            }
+            catch (Exception ex)
+                {
+                _logger.Warning(Category.BUSINESS, $"Error in getting showcases: {ex.Message}", "ShowcaseService");
+                return new(Result.Failure("Error in getting showcases"));
             }
         }
 

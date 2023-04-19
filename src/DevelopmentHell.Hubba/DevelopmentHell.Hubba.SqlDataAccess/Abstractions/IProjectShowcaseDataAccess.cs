@@ -12,10 +12,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
         Task<Result<Dictionary<string, object>>> GetDetails(string showcaseId);
         Task<Result<Dictionary<string, object>>> GetCommentDetails(int commentId);
         Task<Result<Dictionary<string, object>>> GetShowcase(string showcaseId);
+        Task<Result<List<Dictionary<string, object>>>> GetUserShowcases(int userId, bool includeDescription = true);
         Task<Result<List<Dictionary<string, object>>>> GetComments(string showcaseId, int commentCount, int page);
         Task<Result> RecordUserLike(int raterId, string showcaseId);
         Task<Result<float>> IncrementShowcaseLikes(string showcaseId);
-        Task<Result> InsertShowcase(int accountId, string showcaseId, int listingId, string title, string description, DateTime time);
+        Task<Result> InsertShowcase(int accountId, string showcaseId, int? listingId, string title, string description, DateTime time);
         Task<Result> EditShowcase(string showcaseId, string? title, string? description, DateTime time);
         Task<Result> DeleteShowcase(string showcaseId);
         Task<Result> ChangePublishStatus(string showcaseId, bool isPublished, DateTime? time = null);

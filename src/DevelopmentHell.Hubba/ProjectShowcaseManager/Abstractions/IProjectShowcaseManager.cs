@@ -23,7 +23,13 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions
         Task<Result<bool>> VerifyOwnership(string showcaseId);
         Task<Result<bool>> VerifyCommentOwnership(int commentId);
         Task<Result<PackagedShowcase>> GetShowcase(string showcaseId);
+        Task<Result<List<Showcase>>> GetUserShowcases(int userId, bool includeDescription = true);
+        Task<Result<List<ShowcaseReport>>> GetAllShowcaseReports();
+        Task<Result<List<ShowcaseReport>>> GetShowcaseReports(string showcaseId);
         Task<Result<List<ShowcaseComment>>> GetComments(string showcaseId, int? commentCount, int? page);
+        Task<Result<ShowcaseComment>> GetComment(int commentId);
+        Task<Result<List<CommentReport>>> GetAllCommentReports();
+        Task<Result<List<CommentReport>>> GetCommentReports(int commentId);
         Task<Result<float>> LikeShowcase(string showcaseId);
         Task<Result<string>> CreateShowcase(int listingId, string title, string description, List<IFormFile> files);
         Task<Result> EditShowcase(string showcaseId, int? listingId, string? title, string? description, List<IFormFile>? files);

@@ -58,7 +58,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 
         [HttpGet]
         [Route("view")]
-        public async Task<IActionResult> GetShowcase([FromQuery(Name = "s")] string? showcaseId)
+        public async Task<IActionResult> GetShowcase([FromQuery(Name = "s")] string? showcaseId = null)
         {
             try
             {
@@ -81,8 +81,120 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         }
 
         [HttpGet]
+        [Route("user")]
+        public async Task<IActionResult> GetUserShowcases([FromQuery(Name = "u")] int? accountId = null)
+        {
+            try
+            {
+                if (accountId == null)
+                {
+                    return BadRequest("Invalid request.");
+                }
+                var showcaseResult = await _projectShowcaseManager.GetUserShowcases((int)accountId);
+                if (!showcaseResult.IsSuccessful)
+                {
+                    return GetFuncCode((int)showcaseResult.StatusCode!)(showcaseResult.ErrorMessage!);
+                }
+                return Ok(showcaseResult.Payload);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Models.Category.SERVER, $"Error in GetUserShowcases: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
+            }
+        }
+
+        [HttpGet]
+        [Route("userDetails")]
+        public async Task<IActionResult> GetUserShowcaseDetails([FromQuery(Name = "u")] int? accountId = null)
+        {
+            try
+            {
+                if (accountId == null)
+                {
+                    return BadRequest("Invalid request");
+                }
+                var detailResult = await _projectShowcaseManager.GetUserShowcases((int)accountId, false);
+                if (!detailResult.IsSuccessful)
+                {
+                    return GetFuncCode((int)detailResult.StatusCode!)(detailResult.ErrorMessage!);
+                }
+                return Ok(detailResult.Payload!);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Models.Category.SERVER, $"Error in GetUserShowcaseDetails: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
+            }
+        }
+
+        [HttpGet]
+        [Route("reports")]
+        public async Task<IActionResult> GetShowcaseReports([FromQuery(Name = "s")] string? showcaseId = null)
+        {
+            try
+            {
+                if (showcaseId == null)
+                {
+                    var getResult = await _projectShowcaseManager.GetAllShowcaseReports();
+                    if (!getResult.IsSuccessful)
+                    {
+                        return GetFuncCode(getResult.StatusCode!)(getResult.ErrorMessage!);
+                    }
+                    return Ok(getResult.Payload!);
+                }
+                else
+                {
+                    var getResult = await _projectShowcaseManager.GetShowcaseReports(showcaseId);
+                    if (!getResult.IsSuccessful)
+                    {
+                        return GetFuncCode(getResult.StatusCode!)(getResult.ErrorMessage!);
+                    }
+                    return Ok(getResult.Payload!);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Models.Category.SERVER, $"Error in GetShowcaseReports: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
+            }
+        }
+
+        [HttpGet]
+        [Route("comments/reports")]
+        public async Task<IActionResult> GetCommentReports([FromQuery(Name = "cid")] int? commentId = null)
+        {
+            try
+            {
+                if (commentId == null)
+                {
+                    var getResult = await _projectShowcaseManager.GetAllCommentReports();
+                    if (!getResult.IsSuccessful)
+                    {
+                        return GetFuncCode(getResult.StatusCode!)(getResult.ErrorMessage!);
+                    }
+                    return Ok(getResult.Payload!);
+                }
+                else
+                {
+                    var getResult = await _projectShowcaseManager.GetCommentReports(commentId);
+                    if (!getResult.IsSuccessful)
+                    {
+                        return GetFuncCode(getResult.StatusCode!)(getResult.ErrorMessage!);
+                    }
+                    return Ok(getResult.Payload!);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Models.Category.SERVER, $"Error in GetCommentReports: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
+            }
+        }
+
+        [HttpGet]
         [Route("comments")]
-        public async Task<IActionResult> GetComments([FromQuery(Name = "s")] string? showcaseId, [FromQuery(Name = "c")] int? commentCount, [FromQuery(Name = "p")] int? page)
+        public async Task<IActionResult> GetComments([FromQuery(Name = "s")] string? showcaseId, [FromQuery(Name = "c")] int? commentCount = null, [FromQuery(Name = "p")] int? page = null)
         {
             try
             {
@@ -108,7 +220,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 
         [HttpPost]
         [Route("like")]
-        public async Task<IActionResult> LikeShowcase([FromQuery(Name = "s")] string? showcaseId)
+        public async Task<IActionResult> LikeShowcase([FromQuery(Name = "s")] string? showcaseId = null)
         {
             try
             {
@@ -177,7 +289,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         }
         [HttpPost]
         [Route("edit")]
-        public async Task<IActionResult> EditShowcase([FromQuery(Name = "s")] string? showcaseId, ShowcaseDTO editedShowcase)
+        public async Task<IActionResult> EditShowcase(ShowcaseDTO editedShowcase, [FromQuery(Name = "s")] string? showcaseId = null)
         {
             try
             {
@@ -210,7 +322,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         }
         [HttpPost]
         [Route("delete")]
-        public async Task<IActionResult> DeleteShowcase([FromQuery(Name = "s")] string? showcaseId)
+        public async Task<IActionResult> DeleteShowcase([FromQuery(Name = "s")] string? showcaseId = null)
         {
             try
             {
@@ -243,7 +355,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         }
         [HttpPost]
         [Route("publish")]
-        public async Task<IActionResult> PublishShowcase([FromQuery(Name = "s")] string? showcaseId, [FromQuery(Name = "l")] int? listingId)
+        public async Task<IActionResult> PublishShowcase([FromQuery(Name = "s")] string? showcaseId = null, [FromQuery(Name = "l")] int? listingId = null)
         {
             try
             {
@@ -276,7 +388,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         }
         [HttpPost]
         [Route("unpublish")]
-        public async Task<IActionResult> UnpublishShowcase([FromQuery(Name = "s")] string? showcaseId)
+        public async Task<IActionResult> UnpublishShowcase([FromQuery(Name = "s")] string? showcaseId = null)
         {
             try
             {
@@ -308,7 +420,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         }
         [HttpPost]
         [Route("comments")]
-        public async Task<IActionResult> AddComment([FromQuery(Name = "s")] string? showcaseId, CommentDTO comment)
+        public async Task<IActionResult> AddComment(CommentDTO comment, [FromQuery(Name = "s")] string? showcaseId = null)
         {
             try
             {
@@ -345,7 +457,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         }
         [HttpPost]
         [Route("comments/edit")]
-        public async Task<IActionResult> EditComment([FromQuery(Name = "cid")] int? commentId, CommentDTO comment)
+        public async Task<IActionResult> EditComment(CommentDTO comment, [FromQuery(Name = "cid")] int? commentId = null)
         {
             try
             {
@@ -381,7 +493,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         }
         [HttpPost]
         [Route("comments/delete")]
-        public async Task<IActionResult> DeleteComment([FromQuery(Name = "cid")] int? commentId)
+        public async Task<IActionResult> DeleteComment([FromQuery(Name = "cid")] int? commentId = null)
         {
             try
             {
@@ -413,7 +525,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         }
         [HttpPost]
         [Route("comments/rate")]
-        public async Task<IActionResult> RateComment([FromQuery(Name = "cid")] int? commentId, [FromQuery(Name = "r")] bool? isUpvote)
+        public async Task<IActionResult> RateComment([FromQuery(Name = "cid")] int? commentId = null, [FromQuery(Name = "r")] bool? isUpvote = null)
         {
             try
             {
@@ -450,7 +562,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         }
         [HttpPost]
         [Route("comments/report")]
-        public async Task<IActionResult> ReportComment([FromQuery(Name = "cid")] int? commentId, ReportDTO reason)
+        public async Task<IActionResult> ReportComment(ReportDTO reason, [FromQuery(Name = "cid")] int? commentId = null)
         {
             try
             {
@@ -487,7 +599,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         }
         [HttpPost]
         [Route("report")]
-        public async Task<IActionResult> ReportShowcase([FromQuery(Name = "s")] string? showcaseId, ReportDTO reason)
+        public async Task<IActionResult> ReportShowcase(ReportDTO reason, [FromQuery(Name = "s")] string? showcaseId = null)
         {
             try
             {
@@ -522,7 +634,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         }
         [HttpPost]
         [Route("unlink")]
-        public async Task<IActionResult> UnlinkShowcase([FromQuery(Name = "s")] string? showcaseId)
+        public async Task<IActionResult> UnlinkShowcase([FromQuery(Name = "s")] string? showcaseId = null)
         {
             try
             {

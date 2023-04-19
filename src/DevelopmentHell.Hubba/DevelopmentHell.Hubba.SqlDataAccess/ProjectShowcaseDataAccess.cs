@@ -293,6 +293,28 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return Result<Dictionary<string, object>>.Success(result.Payload![0]);
         }
 
+        public async Task<Result<List<Dictionary<string, object>>>> GetUserShowcases(int userId, bool includeDescription = true)
+        {
+            List<string> selectList = new() { $"{_showcaseTableName}.Id", "Email", "ShowcaseUserId", $"{_userAccountsTableName}.Id", "ListingId", "Title", "IsPublished", "Rating" };
+            if (includeDescription)
+            {
+                selectList.Add("Description");
+            }
+            var result = await _selectDataAccess.Select
+            (
+                SQLManip.InnerJoinTables(
+                    new Joiner(_showcaseTableName, _userAccountsTableName, "ShowcaseUserId", "Id")
+                ),
+                selectList,
+                new() { new($"{_userAccountsTableName}.Id", "=", userId) }
+            ).ConfigureAwait(false);
+            if (!result.IsSuccessful)
+            {
+                return new(Result.Failure("Unknown error occured while trying to retrieve User's showcases from Db"));
+            }
+            return Result<List<Dictionary<string,object>>>.Success(result.Payload!);
+        }
+
         public async Task<Result<float>> IncrementShowcaseLikes(string showcaseId)
         {
             var updateResult = await _updateDataAccess.Update(_showcaseTableName, new() { new("Id", "=", showcaseId) }, new() { { "Rating", "Rating+1" } } );
@@ -319,7 +341,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return Result<float>.Success((float)selectResult.Payload![0]["Rating"]);
         }
 
-        public async Task<Result> InsertShowcase(int accountId, string showcaseId, int listingId, string title, string description, DateTime time)
+        public async Task<Result> InsertShowcase(int accountId, string showcaseId, int? listingId, string title, string description, DateTime time)
         {
             return await _insertDataAccess.Insert(_showcaseTableName, new() {
                 { "Id", showcaseId },

@@ -41,10 +41,14 @@ using DevelopmentHell.Hubba.UserManagement.Service.Abstractions;
 using DevelopmentHell.Hubba.UserManagement.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
+using DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations;
 using Microsoft.Net.Http.Headers;
 using System.Security.Claims;
 using HubbaAuthenticationManager = DevelopmentHell.Hubba.Authentication.Manager.Implementations;
 using HubbaConfig = System.Configuration;
+using DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions;
+using DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions;
+using DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -261,6 +265,30 @@ builder.Services.AddTransient<IUserManagementManager, UserManagementManager>(s =
             HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
             HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
         )
+    )
+);
+builder.Services.AddTransient<IProjectShowcaseService, ProjectShowcaseService>(s =>
+    new ProjectShowcaseService(
+        new ProjectShowcaseDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["ShowcasesTable"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["ShowcaseCommentsTable"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["ShowcaseVotesTable"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["ShowcaseCommentVotesTable"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["ShowcaseReportsTable"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["ShowcaseCommentReportsTable"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
+        ),
+        s.GetService<IValidationService>()!,
+        s.GetService<ILoggerService>()!
+    )
+);
+builder.Services.AddTransient<IProjectShowcaseManager, ProjectShowcaseManager>(s =>
+    new ProjectShowcaseManager(
+        s.GetService<IProjectShowcaseService>()!,
+        s.GetService<IFileService>()!,
+        s.GetService<ILoggerService>()!,
+        s.GetService<IAuthorizationService>()!
     )
 );
 

@@ -32,6 +32,22 @@ namespace DevelopmentHell.Hubba.ProjectShowcase
         public DateTime? EditTimestamp { get; set; }
         public DateTime? PublishTimestamp { get; set; }
     }
+    public struct ShowcaseReport
+    {
+        public DateTime? Timestamp { get; set; }
+        public string? Reason { get; set; }
+        public string? ShowcaseId { get; set; }
+        public int? ReporterId { get; set; }
+        public bool? IsResolved { get; set; }
+    }
+    public struct CommentReport
+    {
+        public DateTime? Timestamp { get; set; }
+        public string? Reason { get; set; }
+        public int? CommentId { get; set; }
+        public int? ReporterId { get; set; }
+        public bool? IsResolved { get; set; }
+    }
 }
 
 namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions
@@ -41,6 +57,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions
         Task<Result<Dictionary<string, object>>> GetDetails(string showcaseId);
         Task<Result<Dictionary<string, object>>> GetCommentDetails(int commentId);
         Task<Result<Showcase>> GetShowcase(string showcaseId);
+        Task<Result<List<Showcase>>> GetUserShowcases(int userId, bool includeDescription = true);
         Task<Result<List<ShowcaseComment>>> GetComments(string showcaseId, int commentCount, int page);
         Task<Result<float>> LikeShowcase(string showcaseId);
         Task<Result<string>> CreateShowcase(int listingId, string title, string description);
