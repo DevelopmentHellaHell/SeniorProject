@@ -7,6 +7,8 @@ namespace DevelopmentHell.Hubba.Validation.Service.Abstractions
         Result ValidateEmail(string email);
         Result ValidatePassword(string password);
         Result ValidatePhoneNumber(string phoneNumber);
+        Result ValidateCollaboratorAllowEmptyFiles(CollaboratorProfile collab);
+        Result ValidateCollaborator(CollaboratorProfile collab);
 
     }
 }
