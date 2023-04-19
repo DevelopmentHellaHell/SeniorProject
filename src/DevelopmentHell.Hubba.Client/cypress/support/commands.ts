@@ -6,6 +6,7 @@ declare global {
             RegisterViaApi(email: string, password: string): Chainable<void>;
             LoginViaUI(email: string, password: string): Chainable<void>;
             LoginViaApi(email: string, password: string): Chainable<void>;
+            LogInandOut(): Chainable<void>;
         }
     }
 }
@@ -80,3 +81,14 @@ Cypress.Commands.add('LoginViaApi', (email: string, password: string) => {
                     });
             });
         })
+        
+Cypress.Commands.add("LogInandOut", () => {
+    cy.session("logout", () => {
+        cy.LoginViaApi(Cypress.env('realEmail'), Cypress.env('standardPassword'))
+            .then(() => {
+                cy.visit("/");
+                cy.get('.dropdown-content').invoke('show');
+                cy.contains('Logout').click();
+            });
+    });
+});
