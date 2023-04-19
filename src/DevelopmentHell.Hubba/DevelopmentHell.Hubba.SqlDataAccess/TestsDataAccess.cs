@@ -42,7 +42,22 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     new ()
                     {
                         { Tables.USER_NOTIFICATIONS, ConfigurationManager.AppSettings["UserNotificationsTable"]! },
-                        { Tables.NOTIFICATION_SETTINGS, ConfigurationManager.AppSettings["NotificationSettingsTable"]! }
+                        { Tables.NOTIFICATION_SETTINGS, ConfigurationManager.AppSettings["NotificationSettingsTable"]! },
+                        { Tables.LISTINGS, ConfigurationManager.AppSettings["ListingsTable"] }
+                    }
+                )
+            },
+            {
+                Databases.LISTINGPROFILES,
+                new (
+                    "DevelopmentHell.Hubba.Notifications",
+                    ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
+                    new ()
+                    {
+                        { Tables.LISTING_RATINGS, ConfigurationManager.AppSettings["ListingRatingsTable"]! },
+                        { Tables.LISTING_HISTORY, ConfigurationManager.AppSettings["ListingHistoryTable"]! },
+                        { Tables.LISTINGS, ConfigurationManager.AppSettings["ListingsTable"]! },
+                        { Tables.LISTING_AVAILABILITIES, ConfigurationManager.AppSettings["ListingAvailabilitiesTable"]! },
                     }
                 )
             },
