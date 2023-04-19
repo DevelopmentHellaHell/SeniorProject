@@ -5,7 +5,7 @@
         USERS,
         LOGS,
         NOTIFICATIONS,
-        LISTINGPROFILES
+        LISTING_PROFILES
     }
 
     public enum Tables

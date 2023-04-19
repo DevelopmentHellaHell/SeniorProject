@@ -64,7 +64,7 @@ namespace DevelopmentHell.Hubba.Listings.Test
         [TestInitialize]
         public async Task Setup()
         {
-            await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.LISTINGPROFILES).ConfigureAwait(false);
+            await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.LISTING_PROFILES).ConfigureAwait(false);
         }
 
         [TestMethod]
@@ -77,6 +77,7 @@ namespace DevelopmentHell.Hubba.Listings.Test
 
             // Actual
             var actual = await _listingsDataAccess.CreateListing(ownerId, title).ConfigureAwait(false);
+            Console.WriteLine(actual.ErrorMessage);
 
 
             // Assert
