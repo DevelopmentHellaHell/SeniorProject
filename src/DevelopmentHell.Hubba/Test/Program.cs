@@ -1,39 +1,21 @@
-﻿using DevelopmentHell.Hubba.SqlDataAccess;
+﻿using DevelopmentHell.Hubba.Discovery.Service.Abstractions;
+using DevelopmentHell.Hubba.Discovery.Service.Implemenatations;
+using DevelopmentHell.Hubba.Logging.Service.Implementations;
+using DevelopmentHell.Hubba.SqlDataAccess;
+using System.Configuration;
 
 var listingsDao = new ListingsDataAccess("Server=.;Database=DevelopmentHell.Hubba.ListingProfiles;Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.ListingProfile;Password=password");
-var listingsResult = await listingsDao.Search("woods").ConfigureAwait(false);
-if (!listingsResult.IsSuccessful)
-{
-	Console.WriteLine(listingsResult.ErrorMessage);
-	return;
-}
-
-Console.WriteLine(listingsResult.Payload!.Count);
-listingsResult.Payload!.ForEach(item =>
-{
-	Console.WriteLine("");
-	foreach (var kv in item)
-	{
-		Console.WriteLine($"{kv.Key} {kv.Value}");
-	}
-});
-
-Console.WriteLine("=================");
-
 var collaboratorsDao = new CollaboratorsDataAccess("Server=.;Database=DevelopmentHell.Hubba.CollaboratorProfiles;Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.CollaboratorProfile;Password=password");
-var collaboratorsResult = await collaboratorsDao.Search("woods").ConfigureAwait(false);
-if (!collaboratorsResult.IsSuccessful)
+
+IDiscoveryService discoveryService = new DiscoveryService(listingsDao, collaboratorsDao, new LoggerService(
+	new LoggerDataAccess(
+		ConfigurationManager.AppSettings["LogsConnectionString"]!, ConfigurationManager.AppSettings["LogsTable"]!
+	)
+));
+
+var result = await discoveryService.GetCurated(0).ConfigureAwait(false);
+if (!result.IsSuccessful)
 {
-	Console.WriteLine(collaboratorsResult.ErrorMessage);
+	Console.WriteLine(result.ErrorMessage);
 	return;
 }
-
-Console.WriteLine(collaboratorsResult.Payload!.Count);
-collaboratorsResult.Payload!.ForEach(item =>
-{
-	Console.WriteLine("");
-	foreach (var kv in item)
-	{
-		Console.WriteLine($"{kv.Key} {kv.Value}");
-	}
-});
