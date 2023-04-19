@@ -13,8 +13,9 @@ export default defineConfig({
     serverUrl: "https://localhost:7137",
 
     realEmail: "kevin.lieu.dinh@gmail.com",
+    realNumber: "5107755205",
+    
     standardEmail: "hubba@gmail.com",
     standardPassword: '12345678',
-    realNumber: "5107755205"
   }
 });

@@ -25,14 +25,14 @@ const DeleteAccountView: React.FC<IDeleteAccountViewProps> = (props) => {
 
     return (
         <div className="delete-account-wrapper">
-            <h1>Account Deletion</h1>
+            <h1 id="account-deletion-header">Account Deletion</h1>
 
             <p>Are you sure you want to delete your account?
                 <br />This action can't be undone.
             </p>
-
-            <div className="buttons">
-                <Button title="Cancel" onClick={ props.onCancelClick }/>
+            <div id="buttons" className="buttons">
+                <Button title="Cancel" onClick={ props.onCancelClick }/>           
+                
                 <Button title="Delete" loading={!loaded} onClick={async () => {
                     setLoaded(false);
                     if(!accountId){
