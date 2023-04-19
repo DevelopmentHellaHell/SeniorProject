@@ -39,7 +39,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 
         public async Task<Result> BatchInsert(string table, List<string> keys, List<List<object>> values)
         {
-            Console.WriteLine("BI!");
             using (SqlCommand insertQuery = new SqlCommand())
             {
                 //string columnString = string.Join(", ", keys);
