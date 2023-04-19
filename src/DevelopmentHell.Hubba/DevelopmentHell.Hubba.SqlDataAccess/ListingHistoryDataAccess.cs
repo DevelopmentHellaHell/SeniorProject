@@ -50,5 +50,33 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             result.Payload = (int)payload[0]["Users"];
             return result;
         }
+
+        public async Task<Result> AddUser(int listingId, int userId)
+        {
+            Result result = new Result();
+            Result insertResult = await _insertDataAccess.Insert(
+                _tableName,
+                new Dictionary<string, object>()
+                {
+                    { "ListingId", listingId },
+                    { "UserId", userId }
+                }
+            ).ConfigureAwait(false);
+
+            if (!insertResult.IsSuccessful)
+            {
+                if (insertResult.ErrorMessage!.ToLower().Contains("foreign key constraint"))
+                {
+                    result.IsSuccessful = false;
+                    result.ErrorMessage = "Listing doesn't exist.";
+                    return result;
+                }
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Unable to add user.";
+                return result;
+            }
+
+            return insertResult;
+        }
     }
 }
