@@ -12,17 +12,18 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Unit_Tests
     [TestClass]
     public class BookedTimeFrameDataAccessUnitTest
     {
-        private readonly IBookedTimeFrameDataAccess _bookedtimeframeDataAccess;
+        private readonly IBookingDataAccess _bookingDAO;
+        private readonly IBookedTimeFrameDataAccess _bookedtimeframeDAO;
 
         private readonly string _bookingsConnectionString = ConfigurationManager.AppSettings["BookingsConnectionString"]!;
+        private readonly string _bookingsTable = ConfigurationManager.AppSettings["BookingsTable"]!;
         private readonly string _bookedtimeframesTable = ConfigurationManager.AppSettings["BookedTimeFramesTable"]!;
 
-        private List<BookedTimeFrame> timeframes =
+        private List<BookedTimeFrame> testtimeframes =
                 new List<BookedTimeFrame>()
                 {
                     new BookedTimeFrame()
                     {
-                        BookingId = 5,
                         ListingId = 3,
                         AvailabilityId = 9,
                         StartDateTime = new DateTime(2023, 5,9,12,0,0,0),
@@ -30,25 +31,44 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Unit_Tests
                     }
                     ,new BookedTimeFrame()
                     {
-                        BookingId = 5,
                         ListingId = 3,
                         AvailabilityId = 9,
                         StartDateTime = new DateTime(2023, 5,9,13,0,0,0),
                         EndDateTime = new DateTime(2023,5,9,14,0,0,0)
                     }
                 };
+        private List<BookedTimeFrame> othertimeframes =
+                new List<BookedTimeFrame>()
+                {
+                    new BookedTimeFrame()
+                    {
+                        ListingId = 3,
+                        AvailabilityId = 9,
+                        StartDateTime = new DateTime(2023, 5,9,14,0,0,0),
+                        EndDateTime = new DateTime(2023,5,9,15,0,0,0)
+                    }
+                    ,new BookedTimeFrame()
+                    {
+                        ListingId = 3,
+                        AvailabilityId = 9,
+                        StartDateTime = new DateTime(2023, 5,9,16,0,0,0),
+                        EndDateTime = new DateTime(2023,5,9,17,0,0,0)
+                    }
+                };
         public BookedTimeFrameDataAccessUnitTest()
         {
-            _bookedtimeframeDataAccess = new BookedTimeFrameDataAccess(_bookingsConnectionString, _bookedtimeframesTable);
+            _bookingDAO = new BookingDataAccess(_bookingsConnectionString, _bookingsTable);
+            _bookedtimeframeDAO = new BookedTimeFrameDataAccess(_bookingsConnectionString, _bookedtimeframesTable);
         }
 
         [TestMethod]
-        public async Task CreateBookedTimeFrames_MultiTimeFrames_Successful()
+        public async Task CreateBookedTimeFrames_NonExistedBooking_Failed()
         {
             // Arrange
-            var expected = true;
+            var expected = false;
+            var nonexistedBookingId = 5;
             // Actual
-            var actualResult = await _bookedtimeframeDataAccess.CreateBookedTimeFrames((int)timeframes[0].BookingId,timeframes).ConfigureAwait(false);
+            var actualResult = await _bookedtimeframeDAO.CreateBookedTimeFrames(nonexistedBookingId,testtimeframes).ConfigureAwait(false);
 
             // Assert
             Assert.IsNotNull(actualResult);
@@ -59,16 +79,30 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Unit_Tests
         public async Task GetBookedTimeFrame_ByBookingId_ListOfBookedTimeFrame()
         {
             //Arrange
-            var createBookedTimeFrames = await _bookedtimeframeDataAccess.CreateBookedTimeFrames((int)timeframes[0].BookingId,timeframes).ConfigureAwait(false);
-            List<Tuple<string, object>> filter = new() { new Tuple<string, object>("BookingId", timeframes[0].BookingId) };
-            var expected = timeframes;
+            var createBooking = await _bookingDAO.CreateBooking
+                (
+                    new Booking()
+                    {
+                        UserId = 1,
+                        ListingId =3,
+                        FullPrice = 35,
+                        BookingStatusId = BookingStatus.CONFIRMED,
+                        CreateDate = DateTime.Now,
+                        LastModifyUser = 1
+                    }
+                ).ConfigureAwait(false);
+            var bookingId = ((Result<int>)createBooking).Payload;
+
+            var createBookedTimeFrames = await _bookedtimeframeDAO.CreateBookedTimeFrames(bookingId,testtimeframes).ConfigureAwait(false);
+            List<Tuple<string, object>> filter = new() { new Tuple<string, object>(nameof(BookedTimeFrame.BookingId), bookingId) };
+            var expected = testtimeframes;
 
             //Act
-            var result = await _bookedtimeframeDataAccess.GetBookedTimeFrames(filter).ConfigureAwait(false);
-            var actual = (Result<List<BookedTimeFrame>>) result;
+            var actual = await _bookedtimeframeDAO.GetBookedTimeFrames(filter).ConfigureAwait(false);
+            
             //Assert
             Assert.IsNotNull (actual);
-            Assert.IsTrue(result.IsSuccessful);
+            Assert.IsTrue(actual.IsSuccessful);
             Assert.AreEqual(expected.Count, actual.Payload.Count);
         }
 
@@ -76,16 +110,32 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Unit_Tests
         public async Task GetBookedTimeFrame_ByListingId_ListOfBookedTimeFrame()
         {
             //Arrange
-            var createBookedTimeFrames = await _bookedtimeframeDataAccess.CreateBookedTimeFrames((int)timeframes[0].BookingId,timeframes).ConfigureAwait(false);
-            List<Tuple<string, object>> filter = new() { new Tuple<string, object>("ListingId", timeframes[0].ListingId) };
-            var expected = timeframes;
+            var listingId = othertimeframes[0].ListingId;
+            var createBooking = await _bookingDAO.CreateBooking
+                (
+                    new Booking()
+                    {
+                        UserId = 1,
+                        ListingId = listingId,
+                        FullPrice = 35,
+                        BookingStatusId = BookingStatus.CONFIRMED,
+                        CreateDate = DateTime.Now,
+                        LastModifyUser = 1
+                    }
+                ).ConfigureAwait(false);
+            var bookingId = ((Result<int>)createBooking).Payload;
+
+            var createBookedTimeFrames = await _bookedtimeframeDAO.CreateBookedTimeFrames(bookingId, othertimeframes).ConfigureAwait(false);
+            
+            List<Tuple<string, object>> filter = new() { new Tuple<string, object>(nameof(BookedTimeFrame.ListingId), listingId) };
+            var expected = othertimeframes;
 
             //Act
-            var result = await _bookedtimeframeDataAccess.GetBookedTimeFrames(filter).ConfigureAwait(false);
-            var actual = (Result<List<BookedTimeFrame>>)result;
+            var actual = await _bookedtimeframeDAO.GetBookedTimeFrames(filter).ConfigureAwait(false);
+
             //Assert
             Assert.IsNotNull(actual);
-            Assert.IsTrue(result.IsSuccessful);
+            Assert.IsTrue(actual.IsSuccessful);
             Assert.AreEqual(expected.Count, actual.Payload.Count);
         }
 
@@ -93,17 +143,20 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Unit_Tests
         /// Delete 2 test rows just inserted to the table
         /// </summary>
         [TestMethod]
-        [TestInitialize]
         [TestCleanup]
         public async Task DeleteBookedTimeFrame_ByBookingIdAndListingId_Successful()
         {
             //Arrange
             var expected = true;
-            int bookingId = (int)timeframes[0].BookingId;
-            int listingId = (int)timeframes[0].ListingId;
-            
+            List<Tuple<string, object>> filters = new() 
+            { 
+                new Tuple<string,object>(nameof(BookedTimeFrame.ListingId),testtimeframes[0].ListingId),
+                //new Tuple<string, object>(nameof(BookedTimeFrame.ListingId),othertimeframes[0].ListingId),
+                
+            };
+
             //Act
-            var actual = await _bookedtimeframeDataAccess.DeleteBookedTimeFrames(bookingId, listingId).ConfigureAwait(false);
+            var actual = await _bookedtimeframeDAO.DeleteBookedTimeFrames(filters).ConfigureAwait(false);
 
             //Assert
             Assert.IsNotNull(actual);

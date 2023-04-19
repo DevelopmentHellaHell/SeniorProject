@@ -49,15 +49,16 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Unit_Tests
         public async Task CreateBooking_Successful()
         {
             //Arrange
-            var expectedBool = true;
+            var expected = new Result<int>() { IsSuccessful = true};
 
             //Act
-            Result createBooking = await _bookingDAO.CreateBooking(validBooking1).ConfigureAwait(false);
-            var actual = (Result<int>)createBooking;
+            var actual = await _bookingDAO.CreateBooking(validBooking1).ConfigureAwait(false);
 
             //Assert
             Assert.IsNotNull(actual.Payload);
-            Assert.IsTrue(actual.IsSuccessful == expectedBool);
+            Assert.IsTrue(actual.GetType() == expected.GetType());
+            Assert.IsTrue(actual.IsSuccessful);
+            Assert.AreEqual(expected.Payload.GetType(), actual.Payload.GetType());
         }
         /// <summary>
         /// Test case: BooingId is automactically assigned from database end.
@@ -67,15 +68,16 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Unit_Tests
         public async Task CreateIdenticalBooking_Successful()
         {
             //Arrange
-            var expectedBool = true;
+            var expeted = new Result<int> { IsSuccessful = true };
 
             //Act
-            Result createBooking = await _bookingDAO.CreateBooking(validBooking1).ConfigureAwait(false);
-            var actual = (Result<int>)createBooking;
+            var actual = await _bookingDAO.CreateBooking(validBooking1).ConfigureAwait(false);
+            
             
             //Assert
             Assert.IsNotNull(actual.Payload);
-            Assert.IsTrue(actual.IsSuccessful == expectedBool);
+            Assert.IsTrue(actual.IsSuccessful);
+            Assert.AreEqual(expeted.Payload.GetType(), actual.Payload.GetType());
         }
 
         [TestMethod]
@@ -97,8 +99,8 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Unit_Tests
         {
             //Arrange
             var createBooking = await _bookingDAO.CreateBooking(validBooking1).ConfigureAwait(false);
-            Result<int> bookingId = (Result<int>)createBooking;
-            List<Tuple<string,object>> filter = new() { new Tuple<string, object>("BookingId", bookingId.Payload) };
+            int bookingId = createBooking.Payload;
+            List<Tuple<string,object>> filter = new() { new Tuple<string, object>("BookingId", bookingId) };
 
             //Act
             Result actual = await _bookingDAO.DeleteBooking(filter).ConfigureAwait(false);
@@ -112,17 +114,16 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Unit_Tests
         {
             //Arrange
             var createBooking = await _bookingDAO.CreateBooking(validBooking1).ConfigureAwait(false);
-            Result<int> bookingId = (Result<int>)createBooking;
+            int bookingId = createBooking.Payload;
             List<Tuple<string, object>> filter = new()
             {
-                new Tuple<string,object>("BookingId",bookingId.Payload)
+                new Tuple<string,object>("BookingId",bookingId)
             };
             var expected = validBooking1;
-            expected.BookingId = bookingId.Payload;
+            expected.BookingId = bookingId;
 
             //Act
-            var getBooking = await _bookingDAO.GetBooking( filter).ConfigureAwait(false);
-            var actual = (Result<List<Booking>>)getBooking;
+            var actual = await _bookingDAO.GetBooking( filter).ConfigureAwait(false);
 
             //Assert
             Assert.IsNotNull(actual);
@@ -138,12 +139,14 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Unit_Tests
             List<Tuple<string, object>> filter = new() { new Tuple<string, object>("UserId", validBooking1.UserId) };
             await _bookingDAO.DeleteBooking(filter).ConfigureAwait(false);
         }
+
         [TestMethod]
         public async Task GetBookings_ByUserId_ListingId_ListOfBookings()
         {
             //Arrange
             var expected = new Result<List<Booking>>() { Payload = new List<Booking>()};
             var myBooking = validBooking1;
+            // add 2 new bookings
             for (int i = 0; i < 2; i++)
             {
                 var createBooking = await _bookingDAO.CreateBooking(validBooking1).ConfigureAwait(false);
@@ -157,8 +160,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Unit_Tests
                     new Tuple<string,object> ("ListingId", myBooking.ListingId)
                 };
             //Act
-            var getBooking = await _bookingDAO.GetBooking(filters).ConfigureAwait(false);
-            var actual = (Result<List<Booking>>)getBooking;
+            var actual = await _bookingDAO.GetBooking(filters).ConfigureAwait(false);
 
             //Assert
             Assert.IsNotNull(actual);
@@ -166,12 +168,13 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Unit_Tests
             Assert.IsTrue(actual.IsSuccessful);
             Assert.AreEqual(expected.Payload[0].ListingId, actual.Payload[0].ListingId);
         }
+
         [TestMethod]
         public async Task UpdateBooking_ByBookingId_Successful()
         {
             //Arrange
             var createBooking = await _bookingDAO.CreateBooking(validBooking2).ConfigureAwait (false);
-            int bookingId = ((Result<int>)createBooking).Payload;
+            int bookingId = createBooking.Payload;
             
             var expected = validBooking1;
             expected.BookingId = bookingId;

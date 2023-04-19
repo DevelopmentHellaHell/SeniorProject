@@ -29,22 +29,21 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// </summary>
         /// <param name="timeframes"></param>
         /// <returns>Result</returns>
-        public async Task<Result> CreateBookedTimeFrames(int bookingId, List<BookedTimeFrame> timeframes)
+        public async Task<Result<bool>> CreateBookedTimeFrames(int bookingId, List<BookedTimeFrame> timeframes)
         {
-            Result result = new();
+            Result<bool> result = new() { IsSuccessful = false};
             if (timeframes.Count == 0)
             {
-                result.IsSuccessful = false;
                 result.ErrorMessage = "List of TimeFrames is empty";
                 return result;
             }
             List<string> columns = new List<string>()
             {
-                "BookingId",
-                "ListingId",
-                "AvailabilityId",
-                "StartDateTime",
-                "EndDateTime"
+                nameof(BookedTimeFrame.BookingId),
+                nameof(BookedTimeFrame.ListingId),
+                nameof(BookedTimeFrame.AvailabilityId),
+                nameof(BookedTimeFrame.StartDateTime),
+                nameof(BookedTimeFrame.EndDateTime)
             };
             //pattern matching
             List<List<object>> values =  timeframes.Select(timeframe => new List<object>()
@@ -56,15 +55,16 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 timeframe.EndDateTime
             }).ToList();
 
-            Result insertResult = await _insertDataAccess.BatchInsert(_tableName, columns, values).ConfigureAwait(false);
+            var insertResult = await _insertDataAccess.BatchInsert(_tableName, columns, values).ConfigureAwait(false);
 
             if (!insertResult.IsSuccessful) 
             {
-                result.IsSuccessful = false;
                 result.ErrorMessage = insertResult.ErrorMessage;
                 return result;
             }
-            return insertResult;
+            result.IsSuccessful = true;
+            result.Payload = true;
+            return result;
         }
        
         /// <summary>
@@ -73,25 +73,24 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// <param name="filter"></param>
         /// <param name="value"></param>
         /// <returns>List of BookedTimeFrame model in result.Payload</returns>
-        public async Task<Result> GetBookedTimeFrames(List<Tuple<string, object>> filters)
+        public async Task<Result<List<BookedTimeFrame>>> GetBookedTimeFrames(List<Tuple<string, object>> filters)
         {
-
+            Result<List<BookedTimeFrame>> result = new();
             var comparators = new List<Comparator>();
             foreach (var filter in filters)
             {
                 comparators.Add(new Comparator(filter.Item1, "=", filter.Item2));
             }
-            
-            Result<List<BookedTimeFrame>> result = new();
+
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
                 new List<string>() 
                 { 
-                    "BookingId",
-                    "ListingId",
-                    "AvailabilityId",
-                    "StartDateTime",
-                    "EndDateTime"
+                    nameof(BookedTimeFrame.BookingId),
+                    nameof(BookedTimeFrame.ListingId),
+                    nameof(BookedTimeFrame.AvailabilityId),
+                    nameof(BookedTimeFrame.StartDateTime),
+                    nameof(BookedTimeFrame.EndDateTime)
                 },
                 comparators
             ).ConfigureAwait(false);
@@ -106,11 +105,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             result.Payload = new();
             foreach (var row in selectResult.Payload)
             {
-                int bookingId = (int)row["BookingId"];
-                int listingId = (int)row["ListingId"];
-                int availabilityId = (int)row["AvailabilityId"];
-                DateTime startDateTime = (DateTime) row["StartDateTime"];
-                DateTime endDateTime = (DateTime)row["EndDateTime"];
+                int bookingId = (int)row[nameof(BookedTimeFrame.BookingId)];
+                int listingId = (int)row[nameof(BookedTimeFrame.ListingId)];
+                int availabilityId = (int)row[nameof(BookedTimeFrame.AvailabilityId)];
+                DateTime startDateTime = (DateTime) row[nameof(BookedTimeFrame.StartDateTime)];
+                DateTime endDateTime = (DateTime)row[nameof(BookedTimeFrame.EndDateTime)];
 
                 result.Payload.Add( new BookedTimeFrame() 
                 {
@@ -129,17 +128,22 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// <param name="bookingId"></param>
         /// <param name="listingId"></param>
         /// <returns>Result</returns>
-        public async Task<Result> DeleteBookedTimeFrames(int bookingId, int listingId)
+        public async Task<Result<bool>> DeleteBookedTimeFrames(List<Tuple<string, object>> filters)
         {
-            Result result = new Result();
-            result = await _deleteDataAccess.Delete(
-                _tableName
-                ,new List<Comparator>() 
-                    { 
-                        new Comparator("BookingId","=",bookingId)
-                        ,new Comparator("ListingId", "=", listingId)
-                    }
-                ).ConfigureAwait(false);
+            Result<bool> result = new() { IsSuccessful = false };
+            List<Comparator> comparators = new();
+            foreach (var filter in filters)
+            {
+                comparators.Add(new Comparator( filter.Item1, "=", filter.Item2 ));
+            }
+            
+            var deleteResult = await _deleteDataAccess.Delete(_tableName, comparators).ConfigureAwait(false);
+            if(!deleteResult.IsSuccessful)
+            {
+                result.ErrorMessage = deleteResult.ErrorMessage;
+                return result;
+            }
+            result.IsSuccessful = true;
             return result;
         }
     }

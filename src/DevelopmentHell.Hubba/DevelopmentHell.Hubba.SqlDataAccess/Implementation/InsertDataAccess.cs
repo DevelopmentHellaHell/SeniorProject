@@ -78,7 +78,16 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 
                     insertQuery.Parameters.Add(new SqlParameter(pair.Key, pair.Value));
                 }
-                insertQuery.CommandText = string.Format("INSERT into {0} ({1}) OUTPUT INSERTED.{3} VALUES ({2})", table, columnString, valueString, ouputColumn);
+                
+                var tableVar = "@INSERTEDBOOKING";
+                insertQuery.CommandText = string.Format(
+                    "DECLARE {4} TABLE ({3} INT); \n" +
+                    "INSERT INTO {0} " +
+                    "({1}) " +
+                    "OUTPUT INSERTED.{3} INTO {4} " +
+                    "VALUES ({2}); \n" +
+                    "SELECT BookingId FROM {4}", 
+                    table, columnString, valueString, ouputColumn, tableVar);
 
                 return await SendQuery(insertQuery).ConfigureAwait(false);
             }

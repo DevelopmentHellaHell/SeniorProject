@@ -9,8 +9,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
 {
     public interface IBookedTimeFrameDataAccess
     {
-        Task<Result> GetBookedTimeFrames(List<Tuple<string,object>> filters);
-        Task<Result> CreateBookedTimeFrames(int bookingId, List<BookedTimeFrame> timeframes);
-        Task<Result> DeleteBookedTimeFrames(int bookingId, int listingId);
+        Task<Result<List<BookedTimeFrame>>> GetBookedTimeFrames(List<Tuple<string,object>> filters);
+        Task<Result<bool>> CreateBookedTimeFrames(int bookingId, List<BookedTimeFrame> timeframes);
+        Task<Result<bool>> DeleteBookedTimeFrames(List<Tuple<string, object>> filters);
     }
 }

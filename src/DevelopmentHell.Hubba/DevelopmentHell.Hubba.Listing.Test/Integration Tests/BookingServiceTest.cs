@@ -252,15 +252,15 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Integration_Tests
         {
             //Arrange
             var addBooking = await _bookingService.AddNewBooking(validBooking1).ConfigureAwait(false);
-            var bookingId = ((Result<int>)addBooking).Payload;
+            int bookingId = addBooking.Payload;
             validBooking1.BookingId = bookingId;
             validBooking1.BookingStatusId = BookingStatus.CANCELLED;
 
             //Act
             var actual = await _bookingService.CancelBooking(validBooking1).ConfigureAwait(false);
             
-            var getBooking = await _bookingService.GetBookingStatusByBookingId(bookingId).ConfigureAwait(false);
-            var doubleCheck = (Result<BookingStatus>)getBooking;
+            var doubleCheck = await _bookingService.GetBookingStatusByBookingId(bookingId).ConfigureAwait(false);
+            
 
             //Assert
             Assert.IsNotNull(actual);

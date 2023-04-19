@@ -9,9 +9,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
 {
     public interface IBookingDataAccess
     {
-        Task<Result> GetBooking(List<Tuple<string, object>> filter);
-        Task<Result> CreateBooking(Booking booking);
-        Task<Result> UpdateBooking(Booking booking);
-        Task<Result> DeleteBooking(List<Tuple<string, object>> filter);
+        Task<Result<List<Booking>>> GetBooking(List<Tuple<string, object>> filter);
+        Task<Result<int>> CreateBooking(Booking booking);
+        Task<Result<bool>> UpdateBooking(Booking booking);
+        Task<Result<bool>> DeleteBooking(List<Tuple<string, object>> filter);
     }
 }
