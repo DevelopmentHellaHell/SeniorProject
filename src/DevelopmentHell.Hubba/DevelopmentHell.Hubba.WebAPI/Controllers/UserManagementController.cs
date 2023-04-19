@@ -131,6 +131,10 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             {
                 data["Email"] = user.Email;
             }
+            if (user.Password != null)
+            {
+                data["Password"] = user.Password;
+            }
 
             try
             {
