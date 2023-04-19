@@ -15,7 +15,7 @@ using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
 using System.Security.Policy;
 
-namespace DevelopmentHell.Hubba.Listings.Test
+namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
 {
     [TestClass]
     public class ListingDataAccessUnitTests
@@ -104,6 +104,7 @@ namespace DevelopmentHell.Hubba.Listings.Test
             Assert.IsTrue(actual.IsSuccessful == expected);
             Assert.IsTrue(actual.ErrorMessage == expectedErrorMessage);
         }
+
 
         [TestMethod]
         public async Task CreateListingFailure()

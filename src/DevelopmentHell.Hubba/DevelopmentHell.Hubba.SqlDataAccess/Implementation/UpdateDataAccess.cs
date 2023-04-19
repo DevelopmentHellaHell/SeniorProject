@@ -21,8 +21,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                     query.Connection = conn;
 
                     conn.Open();
-                    await query.ExecuteNonQueryAsync().ConfigureAwait(false);
-                    int rowsAffected = query.ExecuteNonQuery();
+                    int rowsAffected = await query.ExecuteNonQueryAsync().ConfigureAwait(false);
                     if (rowsAffected == 0)
                     {
                         return new Result()

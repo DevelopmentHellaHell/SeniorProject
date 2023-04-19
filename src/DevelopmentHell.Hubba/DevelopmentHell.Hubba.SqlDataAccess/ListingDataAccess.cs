@@ -268,5 +268,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             result.Payload = (int)selectResult.Payload[0]["ListingId"];
             return result;
         }
+
     }
 }

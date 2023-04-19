@@ -47,6 +47,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     avail.StartTime,
                     avail.EndTime
                 }).ToList();
+            Console.WriteLine(listingAvailabilities.Count.ToString());
+            Console.WriteLine("Values count: " + values.Count);
             Result insertResult = await _insertDataAccess.BatchInsert(
                 _tableName, keys, values).ConfigureAwait(false);
 
@@ -63,23 +65,37 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         public async Task<Result> DeleteListingAvailabilities(List<ListingAvailabilityDTO> listingAvailabilities)
         {
             int listingId = (int)listingAvailabilities[0].ListingId!;
+            int aID = (int)listingAvailabilities[0].AvailabilityId!;
 
             StringBuilder sb = new StringBuilder();
             sb.Append("(");
+            bool first = true;
             foreach (ListingAvailabilityDTO listingAvailability in listingAvailabilities)
             {
+                if (!first)
+                {
+                    sb.Append(", ");
+                }
                 sb.Append(listingAvailability.AvailabilityId!.ToString());
+                //aID = (int)listingAvailability.AvailabilityId!;
+                first = false;
+                
             }
             sb.Append(")");
+            Console.WriteLine(listingId.ToString());
+            Console.WriteLine(aID.ToString());
+            //Console.WriteLine(sb.ToString());
 
             Result deleteResult = await _deleteDataAccess.Delete(
                 _tableName,
                 new List<Comparator>()
                 {
                     new Comparator("ListingId", "=", listingId),
-                    new Comparator("AvailabilityId", "in", sb.ToString()),
+                    new Comparator("AvailabilityId", "=", aID),
+                    //new Comparator("AvailabilityId", "in", sb.ToString()),
                 }
             ).ConfigureAwait(false);
+            Console.WriteLine(deleteResult.ErrorMessage);
 
             return deleteResult;
         }

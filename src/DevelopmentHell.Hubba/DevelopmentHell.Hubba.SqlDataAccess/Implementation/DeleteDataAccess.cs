@@ -32,10 +32,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 
                         insertQuery.Parameters.Add(new SqlParameter(filter.Key.ToString(), filter.Value.ToString()));
                     }
-                    where = $" WHERE {sbFilter.ToString()}";
+                    where = $"WHERE {sbFilter.ToString()}";
                 }
-
+                
                 insertQuery.CommandText = $"DELETE FROM {source} {where}";
+                Console.WriteLine(insertQuery.CommandText.ToString());
 
                 return await SendQuery(insertQuery).ConfigureAwait(false);
             }
