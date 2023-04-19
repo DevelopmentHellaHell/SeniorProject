@@ -23,7 +23,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
     {
 
         private readonly ITestingService _testingService;
-        private readonly IListingDataAccess _listingsDataAccess;
+        private readonly IListingsDataAccess _listingsDataAccess;
         private readonly IListingAvailabilitiesDataAccess _listingAvailabilitiesDataAccess;
 
         private readonly string _listingProfileConnectionString = ConfigurationManager.AppSettings["ListingProfileConnectionString"]!;
@@ -97,13 +97,16 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
             addList.Add(temp3);
 
             var expected = true;
+            var expectedCount = 3;
 
             //Act
             var actual = await _listingAvailabilitiesDataAccess.AddListingAvailabilities(addList);
-            Console.WriteLine(actual.ErrorMessage);
+            var listingAvailability = await _listingAvailabilitiesDataAccess.GetListingAvailabilities(listingId).ConfigureAwait(false);
+
             //Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsSuccessful == expected);
+            Assert.IsTrue(listingAvailability.Payload.Count == expectedCount);
         }
 
         [TestMethod]
@@ -139,6 +142,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
             //Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsSuccessful == expected);
+            Assert.IsTrue(listingAvailability.Payload.Count == 0);
         }
 
         [TestMethod]
@@ -179,19 +183,12 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
             Assert.IsTrue(actual.IsSuccessful == expected);
             Assert.IsTrue(actual.Payload is not null);
             Assert.IsTrue(actual.Payload.GetType() == expectedType);
-            foreach (ListingAvailability availability in actual.Payload)
-            {
-                foreach (var property in availability.GetType().GetProperties())
-                {
-                    Console.WriteLine(property.Name + ": " + property.GetValue(availability));
-                }
-                Console.WriteLine();
-            }
+            Assert.IsTrue(actual.Payload.Count == 2);
         }
 
 
         [TestMethod]
-        public async Task DeleteListingAvailabilities()
+        public async Task DeleteListingAvailabilities1()
         {
             //Arrange
             int ownerId = 1;
@@ -206,15 +203,66 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
                 StartTime = DateTime.Now,
                 EndTime = DateTime.Now.AddHours(1),
             };
+            ListingAvailabilityDTO temp2 = new ListingAvailabilityDTO()
+            {
+                ListingId = listingId,
+                StartTime = DateTime.Now,
+                EndTime = DateTime.Now.AddHours(4),
+            };
 
             addList.Add(temp1);
+            addList.Add(temp2);
+
             var listingAvailability = await _listingAvailabilitiesDataAccess.GetListingAvailabilities(listingId).ConfigureAwait(false);
-            Console.WriteLine("Count: "+listingAvailability.Payload.Count.ToString());
             await _listingAvailabilitiesDataAccess.AddListingAvailabilities(addList).ConfigureAwait(false);
             listingAvailability = await _listingAvailabilitiesDataAccess.GetListingAvailabilities(listingId).ConfigureAwait(false);
-            Console.WriteLine(listingAvailability.Payload[0].AvailabilityId.ToString());
-            Console.WriteLine("Count: " + listingAvailability.Payload.Count.ToString());
-            //int availabilityId = (int)listingAvailability.Payload[0].AvailabilityId;
+            List<ListingAvailabilityDTO> deleteList = new();
+            deleteList.Add(new ListingAvailabilityDTO
+            {
+                ListingId = listingId,
+                AvailabilityId = listingAvailability.Payload[0].AvailabilityId
+            });
+
+            var expected = true;
+            //Act
+            var actual = await _listingAvailabilitiesDataAccess.DeleteListingAvailabilities(deleteList).ConfigureAwait(false);
+            listingAvailability = await _listingAvailabilitiesDataAccess.GetListingAvailabilities(listingId).ConfigureAwait(false);
+            //Assert
+            Assert.IsNotNull(actual);
+            Assert.IsTrue(actual.IsSuccessful = expected);
+            Assert.IsTrue(listingAvailability.IsSuccessful == true);
+            Assert.IsTrue(listingAvailability.Payload!.Count == 1);
+        }
+
+        [TestMethod]
+        public async Task DeleteListingAvailabilities2()
+        {
+            //Arrange
+            int ownerId = 1;
+            string title = "Test Title";
+            await _listingsDataAccess.CreateListing(ownerId, title).ConfigureAwait(false);
+            var listingIdResult = await _listingsDataAccess.GetListingId(ownerId, title).ConfigureAwait(false);
+            int listingId = (int)listingIdResult.Payload;
+            List<ListingAvailabilityDTO> addList = new();
+            ListingAvailabilityDTO temp1 = new ListingAvailabilityDTO()
+            {
+                ListingId = listingId,
+                StartTime = DateTime.Now,
+                EndTime = DateTime.Now.AddHours(1),
+            };
+            ListingAvailabilityDTO temp2 = new ListingAvailabilityDTO()
+            {
+                ListingId = listingId,
+                StartTime = DateTime.Now,
+                EndTime = DateTime.Now.AddHours(1),
+            };
+
+            addList.Add(temp1);
+            addList.Add(temp2);
+
+            var listingAvailability = await _listingAvailabilitiesDataAccess.GetListingAvailabilities(listingId).ConfigureAwait(false);
+            await _listingAvailabilitiesDataAccess.AddListingAvailabilities(addList).ConfigureAwait(false);
+            listingAvailability = await _listingAvailabilitiesDataAccess.GetListingAvailabilities(listingId).ConfigureAwait(false);
             List<ListingAvailabilityDTO> deleteList = new();
             foreach (ListingAvailability availability in listingAvailability.Payload)
             {
@@ -236,6 +284,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
             Assert.IsTrue(listingAvailability.IsSuccessful == true);
             Assert.IsTrue(listingAvailability.Payload!.Count == 0);
         }
+
 
         [TestMethod]
         public async Task UpdateListingAvailabilities()
