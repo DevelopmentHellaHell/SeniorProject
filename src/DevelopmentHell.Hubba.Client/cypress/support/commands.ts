@@ -3,7 +3,7 @@ export { }
 declare global {
     namespace Cypress {
         interface Chainable {
-            RegisterViaApi(emai: string, password: string): Chainable<void>;
+            RegisterViaApi(email: string, password: string): Chainable<void>;
             LoginViaUI(email: string, password: string): Chainable<void>;
             LoginViaApi(email: string, password: string): Chainable<void>;
         }
