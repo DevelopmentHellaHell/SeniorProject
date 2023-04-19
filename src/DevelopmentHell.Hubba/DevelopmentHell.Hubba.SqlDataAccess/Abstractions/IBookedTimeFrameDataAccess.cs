@@ -9,7 +9,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
 {
     public interface IBookedTimeFrameDataAccess
     {
-        Task<Result> GetBookedTimeFrames(string filter, int value);
+        Task<Result> GetBookedTimeFrames(List<Tuple<string,object>> filters);
         Task<Result> CreateBookedTimeFrames(int bookingId, List<BookedTimeFrame> timeframes);
         Task<Result> DeleteBookedTimeFrames(int bookingId, int listingId);
     }

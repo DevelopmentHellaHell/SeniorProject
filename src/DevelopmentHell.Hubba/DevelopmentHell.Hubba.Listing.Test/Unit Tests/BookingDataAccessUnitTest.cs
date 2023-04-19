@@ -3,14 +3,14 @@ using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using System.Configuration;
 
-namespace DevelopmentHell.Hubba.Scheduling.Test
+namespace DevelopmentHell.Hubba.Scheduling.Test.Unit_Tests
 {
     [TestClass]
     public class BookingDataAccessUnitTest
     {
         //Arrange
         private readonly string _bookingsConnectionString = ConfigurationManager.AppSettings["BookingsConnectionString"]!;
-        private readonly string _bookingsTable = "Bookings";
+        private readonly string _bookingsTable = ConfigurationManager.AppSettings["BookingsTable"]!;
 
         private readonly IBookingDataAccess _bookingDAO;
         private readonly Booking validBooking1 = new Booking()

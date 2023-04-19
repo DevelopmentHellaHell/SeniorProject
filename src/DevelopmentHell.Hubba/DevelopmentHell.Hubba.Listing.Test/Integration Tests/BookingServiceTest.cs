@@ -154,13 +154,13 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Integration_Tests
         /// <summary>
         /// Successful result: 1 row added to Bookings table, 
         /// rows added to BookedTimeFrames table with the same BookingId
+        /// expect an int in Payload
         /// </summary>
-        /// <returns></returns>
         [TestMethod]
         public async Task AddBooking_Successful()
         {
             //Arrange
-            var expected = true;
+            var expected = new Result<int>();
 
             //Act
             var actual = await _bookingService.AddNewBooking(validBooking1).ConfigureAwait(false);
@@ -168,9 +168,41 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Integration_Tests
             //Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsSuccessful);
+            Assert.AreEqual(expected.GetType(), actual.GetType());
         }
-        //TODO add another use case of same user, same listing, diff timeframes
 
+        [TestMethod]
+        public async Task AddBooking_SameUserListingDifferentTime_Successful()
+        {
+            //Arrange
+            var expected = new Result<int>();
+            var addBooking1 = await _bookingService.AddNewBooking(validBooking1).ConfigureAwait(false);
+
+            //Act
+            var actual = await _bookingService.AddNewBooking(validBooking2).ConfigureAwait(false);
+
+            //Assert
+            Assert.IsNotNull(actual);
+            Assert.IsTrue(actual.IsSuccessful);
+            Assert.AreEqual(expected.GetType(), actual.GetType());
+        }
+        [TestMethod]
+        public async Task AddBooking_DupTimeFrames_Failed()
+        {
+            //Arrange
+            var addBooking1 = await _bookingService.AddNewBooking(validBooking1).ConfigureAwait (false);
+            var expected = new Result()
+            {
+                IsSuccessful = false
+            };
+            //Act
+            var actuall = await _bookingService.AddNewBooking (invalidBooking1).ConfigureAwait(false);
+
+            //Assert
+            Assert.IsNotNull(actuall);
+            Assert.IsTrue(!actuall.IsSuccessful);
+            Assert.AreEqual(expected.IsSuccessful, actuall.IsSuccessful);
+        }
         /// <summary>
         /// Return a List of 1 Booking
         /// </summary>

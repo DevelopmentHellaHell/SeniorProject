@@ -4,6 +4,7 @@ using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Notification.Service.Abstractions;
 using DevelopmentHell.Hubba.Scheduling.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
+using System.Diagnostics.Tracing;
 using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.Scheduling.Manager
@@ -34,10 +35,18 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
             //TODO implement
             throw new NotImplementedException();
         }
-
-        public async Task<Result> ReserveBooking(int userId, int listingId, float fullPrice, BookingStatus bookingStatus, int availabilityId, List<Tuple<DateTime,DateTime>> timeframes)
+        /// <summary>
+        /// Verified User request to reserve a booking
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="listingId"></param>
+        /// <param name="fullPrice"></param>
+        /// <param name="bookingStatus"></param>
+        /// <param name="chosenTimeframes"></param>
+        /// <returns>a Booking obj in result.Payload</returns>
+        public async Task<Result> ReserveBooking(int userId, int listingId, float fullPrice, BookingStatus bookingStatus = BookingStatus.CONFIRMED, List<BookedTimeFrame> chosenTimeframes)
         {
-            Result result = new() { IsSuccessful = false };
+            Result<Booking> result = new() { IsSuccessful = false };
             //TODO implement
             /* Validate input */
 
@@ -52,7 +61,6 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
             var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
             if (stringAccountId is null)
             {
-                result.IsSuccessful = false;
                 result.ErrorMessage = "Error, invalid access token format.";
                 return result;
             }
@@ -61,7 +69,65 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
 
             /* Owner can't book their own listing */
             // get OwnerID by ListingId
-            var getOwnerId = _availabilityService.GetOwnerId(listingId).ConfigureAwait(false);
+            var getOwnerId = await _availabilityService.GetOwnerId(listingId).ConfigureAwait(false);
+            int ownerId = ((Result<int>)getOwnerId).Payload;
+            if(userId == ownerId)
+            {
+                result.ErrorMessage = "Owner can't book their own listing";
+                return result;
+            }
+
+            /* Check timeframes have not already booked */
+            // check each chosen time frame against the BookedTimeFrames table
+            foreach (var timeframe in chosenTimeframes)
+            {
+                var isBooked = await _availabilityService.AreTimeFramesBooked(
+                    listingId, 
+                    (int)timeframe.AvailabilityId,
+                    new List<BookedTimeFrame>() { timeframe }
+                    ).ConfigureAwait(false);
+                if (!isBooked.IsSuccessful) //timeframe already booked
+                {
+                    result.ErrorMessage = isBooked.ErrorMessage;
+                    return result;
+                }
+            }
+
+            /* Add a new booking */
+            Booking booking = new()
+            {
+                UserId = userId,
+                ListingId = listingId,
+                FullPrice = fullPrice,
+                BookingStatusId = BookingStatus.CONFIRMED,
+                TimeFrames = chosenTimeframes
+            };
+
+            var createBooking = await _bookingService.AddNewBooking(booking).ConfigureAwait(false);
+
+            if(!createBooking.IsSuccessful)
+            {
+                result.ErrorMessage = "Scheduling Error. Booking failed to complete. Refresh page or try again later";
+                // log system error
+                _loggerService.Log(LogLevel.ERROR, Category.BUSINESS, createBooking.ErrorMessage);
+                return result;
+            }
+            // Process payload
+            booking.BookingId = ((Result<int>)createBooking).Payload;
+
+            /* Notify user and listing owner */
+            var userNotificationMessage = string.Format("Booking #{0} confirmed", booking.BookingId);
+            var notifyUser = await _notificationService.AddNotification(userId, "", NotificationType.SCHEDULING).ConfigureAwait(false);
+            
+            var ownerNotificationMessage = string.Format("Booking #{0} confirmed for your listing {0}", booking.BookingId, booking.ListingId);            
+            var notifyOwner = await _notificationService.AddNotification(userId, "", NotificationType.SCHEDULING).ConfigureAwait(false);
+
+            /* Log reservation */
+            string logString = string.Format("Booking #{0} confirmed", booking.BookingId);
+            _loggerService.Log(LogLevel.INFO, Category.BUSINESS, logString);
+
+            result.IsSuccessful = true;
+            result.Payload = booking;
             return result;
         }
         

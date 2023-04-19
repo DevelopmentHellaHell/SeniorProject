@@ -73,8 +73,15 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// <param name="filter"></param>
         /// <param name="value"></param>
         /// <returns>List of BookedTimeFrame model in result.Payload</returns>
-        public async Task<Result> GetBookedTimeFrames(string filter, int value)
+        public async Task<Result> GetBookedTimeFrames(List<Tuple<string, object>> filters)
         {
+
+            var comparators = new List<Comparator>();
+            foreach (var filter in filters)
+            {
+                comparators.Add(new Comparator(filter.Item1, "=", filter.Item2));
+            }
+            
             Result<List<BookedTimeFrame>> result = new();
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
@@ -86,10 +93,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     "StartDateTime",
                     "EndDateTime"
                 },
-                new List<Comparator>()
-                {
-                    new Comparator(filter, "=", value)
-                }
+                comparators
             ).ConfigureAwait(false);
 
             if (!selectResult.IsSuccessful || selectResult.Payload is null)

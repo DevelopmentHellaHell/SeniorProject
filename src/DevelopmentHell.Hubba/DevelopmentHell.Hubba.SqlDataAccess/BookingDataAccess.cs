@@ -30,9 +30,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// Insert rows
         /// </summary>
         /// <param name="booking"></param>
-        /// <returns>
-        /// BookingId:int from the inserted row
-        /// </returns>
+        /// <returns>BookingId:int </returns>
         public async Task<Result> CreateBooking(Booking booking)
         {
             //TODO: double check if ListingId existed in Listings table
@@ -61,9 +59,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// Delete rows
         /// </summary>
         /// <param name="bookingId"></param>
-        /// <returns>
-        /// Bool
-        /// </returns>
+        /// <returns>Bool in Payload</returns>
         public async Task<Result> DeleteBooking(List<Tuple<string, object>> filters)
         {
             Result deleteResult = new();
@@ -82,9 +78,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// Map Bookings Entity with Booking Model
         /// </summary>
         /// <param name="filters"></param>
-        /// <returns>
-        /// List<Booking>
-        /// </returns>
+        /// <returns>List<Booking> in Payload</returns>
         public async Task<Result> GetBooking(List<Tuple<string,object>> filters)
         {
             Result<List<Booking>> result = new();
@@ -138,11 +132,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 {
                     result.Payload.Add(new Booking()
                     {
-                        BookingId = (int)row["BookingId"],
-                        UserId = (int)row["UserId"],
-                        ListingId = (int)row["ListingId"],
-                        BookingStatusId = (BookingStatus)row["BookingStatusId"],
-                        FullPrice = Convert.ToSingle(row["FullPrice"]),
+                        BookingId = (int)row[nameof(Booking.BookingId)],
+                        UserId = (int)row[nameof(Booking.UserId)],
+                        ListingId = (int)row[nameof(Booking.ListingId)],
+                        BookingStatusId = (BookingStatus)row[nameof(Booking.BookingStatusId)],
+                        FullPrice = Convert.ToSingle(row[nameof(Booking.FullPrice)]),
                     }); ;
                 }
             }
@@ -153,23 +147,20 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// Update row
         /// </summary>
         /// <param name="booking"></param>
-        /// <returns>
-        /// Bool
-        /// </returns>
-        /// <exception cref="NotImplementedException"></exception>
+        /// <returns>Bool in Payload</returns>
         public async Task<Result> UpdateBooking(Booking booking)
         {
             Dictionary<string, object> values = new()
             {
-                {"BookingStatusId", (int)booking.BookingStatusId },
-                {"LastModifyUser", booking.UserId },
+                {nameof(Booking.BookingStatusId), (int)booking.BookingStatusId },
+                {nameof(Booking.LastModifyUser), booking.UserId },
             };
             Result updateResult = await _updateDataAccess.Update
                 (
                 _tableName,
                 new List<Comparator>() 
                 { 
-                    new Comparator("BookingId","=", booking.BookingId)
+                    new Comparator(nameof(Booking.BookingId),"=", booking.BookingId)
                 },
                 values
                 ).ConfigureAwait(false);

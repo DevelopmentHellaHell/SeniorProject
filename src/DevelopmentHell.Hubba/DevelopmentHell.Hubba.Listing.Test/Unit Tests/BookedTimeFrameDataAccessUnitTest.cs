@@ -5,8 +5,9 @@ using System.Configuration;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Security;
 
-namespace DevelopmentHell.Hubba.Scheduling.Test
+namespace DevelopmentHell.Hubba.Scheduling.Test.Unit_Tests
 {
     [TestClass]
     public class BookedTimeFrameDataAccessUnitTest
@@ -59,11 +60,11 @@ namespace DevelopmentHell.Hubba.Scheduling.Test
         {
             //Arrange
             var createBookedTimeFrames = await _bookedtimeframeDataAccess.CreateBookedTimeFrames((int)timeframes[0].BookingId,timeframes).ConfigureAwait(false);
-
+            List<Tuple<string, object>> filter = new() { new Tuple<string, object>("BookingId", timeframes[0].BookingId) };
             var expected = timeframes;
 
             //Act
-            var result = await _bookedtimeframeDataAccess.GetBookedTimeFrames("BookingId", (int) timeframes[0].BookingId).ConfigureAwait(false);
+            var result = await _bookedtimeframeDataAccess.GetBookedTimeFrames(filter).ConfigureAwait(false);
             var actual = (Result<List<BookedTimeFrame>>) result;
             //Assert
             Assert.IsNotNull (actual);
@@ -76,11 +77,11 @@ namespace DevelopmentHell.Hubba.Scheduling.Test
         {
             //Arrange
             var createBookedTimeFrames = await _bookedtimeframeDataAccess.CreateBookedTimeFrames((int)timeframes[0].BookingId,timeframes).ConfigureAwait(false);
-
+            List<Tuple<string, object>> filter = new() { new Tuple<string, object>("ListingId", timeframes[0].ListingId) };
             var expected = timeframes;
 
             //Act
-            var result = await _bookedtimeframeDataAccess.GetBookedTimeFrames("ListingId", (int)timeframes[0].ListingId).ConfigureAwait(false);
+            var result = await _bookedtimeframeDataAccess.GetBookedTimeFrames(filter).ConfigureAwait(false);
             var actual = (Result<List<BookedTimeFrame>>)result;
             //Assert
             Assert.IsNotNull(actual);
