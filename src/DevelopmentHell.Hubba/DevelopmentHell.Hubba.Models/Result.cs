@@ -8,6 +8,7 @@
         static public Result Success() => new Result { IsSuccessful = true, StatusCode = 200 };
         static public Result Failure(string errorMessage, int statusCode = 500) => new Result { IsSuccessful = false, ErrorMessage = errorMessage, StatusCode = statusCode };
         public Result(Result result) { IsSuccessful = result.IsSuccessful; ErrorMessage = result.ErrorMessage; StatusCode = result.StatusCode; }
+        public Result(Result result, string newMessage) { IsSuccessful = result.IsSuccessful; ErrorMessage = newMessage; StatusCode = result.StatusCode; }
         public Result() { }
     }
 
