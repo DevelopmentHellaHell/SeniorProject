@@ -1,4 +1,4 @@
-h1 {
+.delete-wrapper h1 {
     text-align: left;
 }
 
@@ -7,7 +7,7 @@ h1 {
     text-align: center;
 }
 
-.input-field {
+.delete-wrapper .input-field {
     margin-bottom: 15px;
     margin-right: 5px;
     display: flex;
@@ -15,16 +15,16 @@ h1 {
     text-align: left;
 }
 
-.input-field label {
+.delete-wrapper .input-field label {
     width: 120px;
     margin-right: 10px;
 }
 
-.buttons {
+.delete-wrapper .buttons {
     align-items: left;
     text-align: left;
 }
 
-.buttons button {
+.delete-wrapper .buttons button {
     margin: 10px;
 }
