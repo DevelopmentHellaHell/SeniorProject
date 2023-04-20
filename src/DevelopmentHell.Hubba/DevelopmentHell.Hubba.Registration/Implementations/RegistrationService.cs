@@ -57,11 +57,16 @@ namespace DevelopmentHell.Hubba.Registration.Service.Implementations
                 return result;
             }
 
-            Random random = new((int)(DateTime.Now.Ticks << 4 >> 4));
-            string salt = new(Enumerable.Repeat(_cryptographyService.GetSaltValidChars(), 64).Select(s => s[random.Next(s.Length)]).ToArray());
-            HashData hashData = _cryptographyService.HashString(password, salt).Payload!;
+            HashData hashData = GetPasswordHash(password);
             Result createResult = await _userAccountDataAccess.CreateUserAccount(email, hashData, accountType);
             return createResult;
+        }
+
+        public HashData GetPasswordHash(string password)
+        {
+            Random random = new((int)(DateTime.Now.Ticks << 4 >> 4));
+            string salt = new(Enumerable.Repeat(_cryptographyService.GetSaltValidChars(), 64).Select(s => s[random.Next(s.Length)]).ToArray());
+            return _cryptographyService.HashString(password, salt).Payload!;
         }
     }
 }
