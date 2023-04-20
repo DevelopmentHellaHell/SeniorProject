@@ -1,23 +1,32 @@
 ﻿using DevelopmentHell.Hubba.Models.Tests;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
+using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.WebAPI.DTO.Tests;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.WebAPI.Controllers
 {
+    public struct CreateAdminDTO
+    {
+        public string? Email { get; set; }
+        public string? Password { get; set; }
+    }
+
     [ApiController]
     [Route("[controller]")]
     public class TestsController : Controller
     {
         private readonly ITestingService _testingService;
         private readonly IOTPService _otpService;
+        private readonly IRegistrationService _registrationService;
 
-        public TestsController(ITestingService testingService, IOTPService otpService)
+        public TestsController(ITestingService testingService, IOTPService otpService, IRegistrationService registrationService)
         {
             _testingService = testingService;
             _otpService = otpService;
+            _registrationService = registrationService;
         }
 
 #if DEBUG
@@ -26,6 +35,15 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         public Task<IActionResult> HeathCheck()
         {
             return Task.FromResult<IActionResult>(Ok("Healthy"));
+        }
+
+        [HttpPost]
+        [Route("createAdmin")]
+        public async Task<IActionResult> CreateAdmin(CreateAdminDTO createAdminDTO)
+        {
+
+            await _registrationService.RegisterAccount(createAdminDTO.Email!, createAdminDTO.Password!, "AdminUser").ConfigureAwait(false);
+            return Ok();
         }
 
         [HttpPost]

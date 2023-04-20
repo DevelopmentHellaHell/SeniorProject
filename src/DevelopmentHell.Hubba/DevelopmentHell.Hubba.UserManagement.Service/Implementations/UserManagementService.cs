@@ -95,10 +95,14 @@ namespace DevelopmentHell.Hubba.UserManagement.Service.Implementations
             {
                 return getResult;
             }
+
             var user = new UserAccount
             {
                 Id = getResult.Payload,
-                Role = (string)data["Role"]
+                Role = data.ContainsKey("Role") ? (string)data["Role"] : null,
+                PasswordHash = data.ContainsKey("PasswordHash") ? (string)data["PasswordHash"] : null,
+                PasswordSalt = data.ContainsKey("PasswordSalt") ? (string)data["PasswordSalt"] : null,
+
             };
             return await _userAccountDataAccess.Update(user);
         }

@@ -116,6 +116,15 @@ namespace DevelopmentHell.Hubba.UserManagement.Manager.Implementations
                     IsSuccessful = false
                 };
             }
+            var getResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            if (!getResult.IsSuccessful || getResult.Payload == 0)
+            {
+                return new()
+                {
+                    IsSuccessful = false,
+                    ErrorMessage = "Unable to get Id to enable Account: " + getResult.ErrorMessage,
+                };
+            }
             var disableResult = await _userManagementService.DisableAccount(email).ConfigureAwait(false);
             if (!disableResult.IsSuccessful)
             {
@@ -150,6 +159,15 @@ namespace DevelopmentHell.Hubba.UserManagement.Manager.Implementations
                     IsSuccessful = false
                 };
             }
+            var getResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            if (!getResult.IsSuccessful || getResult.Payload == 0)
+            {
+                return new()
+                {
+                    IsSuccessful = false,
+                    ErrorMessage = "Unable to get Id to enable Account: " + getResult.ErrorMessage,
+                };
+            }
             var enableResult = await _userManagementService.EnableAccount(email).ConfigureAwait(false);
             if (!enableResult.IsSuccessful)
             {
@@ -175,6 +193,32 @@ namespace DevelopmentHell.Hubba.UserManagement.Manager.Implementations
                     ErrorMessage = "Unauthorized Access"
                 };
             }
+
+            var emailResult = _validationService.ValidateEmail(email);
+            if (!emailResult.IsSuccessful)
+            {
+                return Result.Failure(emailResult.ErrorMessage!);
+            }
+            var getResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            if (!getResult.IsSuccessful || getResult.Payload == 0)
+            {
+                return new()
+                {
+                    IsSuccessful = false,
+                    ErrorMessage = "Unable to get Id to update Account: " + getResult.ErrorMessage,
+                };
+            }
+
+
+            if (data.ContainsKey("Password"))
+            {
+                var passResult = _validationService.ValidatePassword((string)data["Password"]);
+                if (!passResult.IsSuccessful)
+                {
+                    return Result.Failure(passResult.ErrorMessage!);
+                }
+            }
+
             HashSet<string> names = new(new string[] { "FirstName", "LastName", "UserName" });
             HashSet<string> accepted = new(new string[] { "Role", "CellPhoneNumber", "CellPhoneProvider" });
             HashSet<string> acceptedRoles = new(new[] { "AdminUser", "VerifiedUser" });
@@ -209,6 +253,12 @@ namespace DevelopmentHell.Hubba.UserManagement.Manager.Implementations
                         }
                     }
                     updatedAccount.Add(pair.Key, pair.Value);
+                }
+                else if (pair.Key == "Password")
+                {
+                    HashData hashdata = _registrationService.GetPasswordHash((string)pair.Value);
+                    updatedAccount.Add("PasswordHash", Convert.ToBase64String(hashdata.Hash!));
+                    updatedAccount.Add("PasswordSalt", hashdata.Salt!);
                 }
             }
             if (updatedNames.Count > 0)
