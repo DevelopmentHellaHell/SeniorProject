@@ -67,38 +67,32 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 {
                     new Comparator(feature.ToString() + "Id", "=", id),
                 },
-                feature + "Id ASC"
+                feature + "Id"
             ).ConfigureAwait(false);
 
             if (!selectResult.IsSuccessful)
             {
                 result.IsSuccessful = false;
-                //result.ErrorMessage = "Cannot retrieve average rating.";
-                result.ErrorMessage = selectResult.ErrorMessage;
+                result.ErrorMessage = "Cannot retrieve average rating.";
                 return result;
             }
             Dictionary<int, double> ratings = new Dictionary<int, double>();
-
-            // Iterate through each dictionary in the selectResult payload and extract the values.
-            foreach (Dictionary<string, object> ratingDict in selectResult.Payload)
+            if (selectResult.Payload is not null)
             {
-                int ratingId = Convert.ToInt32(ratingDict[feature.ToString() + "Id"]);
+                foreach (Dictionary<string, object> ratingDict in selectResult.Payload)
+                {
+                    int ratingId = Convert.ToInt32(ratingDict[feature.ToString() + "Id"]);
 
-                // Use the null-coalescing operator to provide a default value of 0 if AvgRating is null.
-                double avgRating = Math.Round(Convert.ToDouble(selectResult.Payload[0]["AvgRating"] ?? 0), 2);// Convert.ToDouble(ratingDict["AvgRating"] ?? 0);
+                    double avgRating = Math.Round(Convert.ToDouble(selectResult.Payload[0]["AvgRating"]), 1, MidpointRounding.ToZero);
 
-
-                // Add the values to the ratings dictionary.
-                ratings.Add(ratingId, avgRating);
+                    ratings.Add(ratingId, avgRating);
+                }
             }
+            
 
             result.IsSuccessful = true;
             result.Payload = ratings;
             return result;
-            //result.IsSuccessful = true;
-            //result.Payload = selectResult.Payload
-            //result.Payload = Math.Round(Convert.ToDouble(selectResult.Payload[0]["AvgRating"]), 2);
-            //return result;
         }
 
         public async Task<Result<List<ListingRating>>> GetListingRatings(int listingId)
@@ -126,12 +120,16 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             List<Dictionary<string, object>> payload = selectResult.Payload;
             foreach (var listItem in payload)
             {
-                var listingRating = new ListingRating();
-                var listingRatingType = listingRating.GetType();
-                foreach (var item in listItem)
+                var listingRating = new ListingRating()
                 {
-                    listingRatingType.GetProperty(item.Key)!.SetValue(listingRating, item.Value, null);
-                }
+                    ListingId = (int)listItem["ListingId"],
+                    UserId = (int)listItem["UserId"],
+                    Comment = listItem["Comment"] == DBNull.Value ? null : (string)listItem["Comment"],
+                    Rating = (int)listItem["Rating"],
+                    CreationDate = (DateTime)listItem["CreationDate"],
+                    LastEdited = (DateTime)listItem["LastEdited"],
+                    Anonymous = (bool)listItem["Anonymous"]
+                };
                 listingRatings.Add(listingRating);
             }
             result.Payload = listingRatings;
@@ -185,6 +183,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             foreach (var column in listingRating.GetType().GetProperties())
             {
                 var value = column.GetValue(listingRating);
+                if (column.Name == "Comment" && value is null)
+                {
+                    values[column.Name] = DBNull.Value;
+                }
                 if (value is null || column.Name == "ListingId" || column.Name == "UserId") continue;
                 values[column.Name] = value;
             }
@@ -202,6 +204,31 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             ).ConfigureAwait(false);
 
             return updateResult;
+        }
+
+        public async Task<Result<List<Dictionary<string, object>>>> GetRating(Feature feature, int id, int userId)
+        {
+            Result<List<Dictionary<string, object>>> result = new Result<List<Dictionary<string, object>>>();
+
+            Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
+                _tableName,
+                new List<string>() { "ListingId", "UserId", "Rating", "Comment", "Anonymous", "LastEdited", "CreationDate" },
+                new List<Comparator>()
+                {
+                    new Comparator(feature.ToString() + "Id", "=", id),
+                    new Comparator("UserId", "=", userId),
+                }
+            ).ConfigureAwait(false);
+            if (!selectResult.IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage= selectResult.ErrorMessage;
+                return result;
+            }
+
+            result.IsSuccessful= true;
+            result.Payload = selectResult.Payload;
+            return selectResult;
         }
     }
 }

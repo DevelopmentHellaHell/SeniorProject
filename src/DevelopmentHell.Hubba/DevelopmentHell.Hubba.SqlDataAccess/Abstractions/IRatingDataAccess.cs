@@ -16,5 +16,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
         Task<Result> DeleteRating(Feature feature, int id, int userId);
 
         Task<Result> UpdateListingRating(ListingRatingEditorDTO listingRating);
+        Task<Result<List<Dictionary<string, object>>>> GetRating(Feature feature, int id, int userId);
     }
 }

@@ -82,7 +82,11 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
                     Published = (bool)listing.Published!,
                 };
 
+
+
                 //assign avg rating to dictionary value where key = listingId
+                //use dict.TryGetValue(key, out value)
+
 
                 //Result<string> getUsername = await GetUsername(temp.OwnerId).ConfigureAwait(false);
                 //if (!getUsername.IsSuccessful)
@@ -93,14 +97,14 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
                 //}
                 //temp.OwnerUsername = getUsername.Payload!;
 
-                Result<double> getAverageRating = await _ratingDataAccess.GetAverageRating(Feature.Listing, temp.ListingId).ConfigureAwait(false);
-                if (!getAverageRating.IsSuccessful)
-                {
-                    result.IsSuccessful = false;
-                    result.ErrorMessage = "Unable to retrieve average rating.";
-                    return result;
-                }
-                temp.AverageRating = getAverageRating.Payload;
+                //Result<double> getAverageRating = await _ratingDataAccess.GetAverageRating(Feature.Listing, temp.ListingId).ConfigureAwait(false);
+                //if (!getAverageRating.IsSuccessful)
+                //{
+                //    result.IsSuccessful = false;
+                //    result.ErrorMessage = "Unable to retrieve average rating.";
+                //    return result;
+                //}
+                //temp.AverageRating = getAverageRating.Payload;
 
                 listingDTOList.Add(temp);
             }
@@ -142,14 +146,14 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
             }
             temp.OwnerUsername = getUsername.Payload!;
 
-            Result<double> getAverageRating = await _ratingDataAccess.GetAverageRating(Feature.Listing, temp.ListingId).ConfigureAwait(false);
+            Result<Dictionary<int, double>> getAverageRating = await _ratingDataAccess.GetAverageRating(Feature.Listing, temp.ListingId).ConfigureAwait(false);
             if (!getAverageRating.IsSuccessful)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Unable to retrieve average rating.";
                 return result;
             }
-            temp.AverageRating = getAverageRating.Payload;
+            temp.AverageRating = getAverageRating.Payload[listingId];
 
             result.IsSuccessful = true;
             result.Payload = temp;

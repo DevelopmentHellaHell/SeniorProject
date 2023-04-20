@@ -93,7 +93,6 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
 
             // Actual
             var actual = await _listingsDataAccess.CreateListing(ownerId, title).ConfigureAwait(false);
-            Console.WriteLine(actual.ErrorMessage);
 
             // Assert
             Assert.IsNotNull(actual);
@@ -141,10 +140,8 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
             Assert.IsTrue(actual.IsSuccessful == expected);
             Assert.IsNotNull(actual.Payload);
             Assert.IsTrue(actual.Payload.GetType() == expectedType);
-            foreach (var property in actual.Payload.GetType().GetProperties())
-            {
-                Console.WriteLine(property.Name + ": " + property.GetValue(actual.Payload));
-            }
+            Assert.IsTrue(actual.Payload.Title.Equals(title));
+            Assert.IsTrue(actual.Payload.OwnerId.Equals(ownerId));
         }
 
         [TestMethod]
@@ -247,14 +244,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
             Assert.IsTrue(actual.IsSuccessful = expected);
             Assert.IsTrue(actual.Payload is not null);
             Assert.IsTrue(actual.Payload.GetType() == expectedType);
-            foreach (Listing listing in actual.Payload)
-            {
-                foreach (var property in listing.GetType().GetProperties())
-                {
-                    Console.WriteLine(property.Name + ": " + property.GetValue(listing));
-                }
-                Console.WriteLine();
-            }
+            Assert.IsTrue(actual.Payload.Count == 3);
         }
 
         [TestMethod]

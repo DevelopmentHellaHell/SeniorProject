@@ -49,8 +49,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     avail.StartTime,
                     avail.EndTime
                 }).ToList();
-            Console.WriteLine(listingAvailabilities.Count.ToString());
-            Console.WriteLine("Values count: " + values.Count);
             Result insertResult = await _insertDataAccess.BatchInsert(
                 _tableName, keys, values).ConfigureAwait(false);
 
@@ -86,8 +84,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     new Comparator("AvailabilityId", "IN", sb.ToString()),
                 }
             ).ConfigureAwait(false);
-
-            Console.WriteLine(deleteResult.ErrorMessage);
 
             return deleteResult;
         }
