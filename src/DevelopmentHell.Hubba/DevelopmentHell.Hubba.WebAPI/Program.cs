@@ -17,6 +17,9 @@ using DevelopmentHell.Hubba.Authorization.Service.Implementations;
 using DevelopmentHell.Hubba.CellPhoneProvider.Service.Implementations;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
+using DevelopmentHell.Hubba.Discovery.Manager.Abstractions;
+using DevelopmentHell.Hubba.Discovery.Manager.Implementations;
+using DevelopmentHell.Hubba.Discovery.Service.Implemenatations;
 using DevelopmentHell.Hubba.Email.Service.Abstractions;
 using DevelopmentHell.Hubba.Email.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
@@ -32,6 +35,7 @@ using DevelopmentHell.Hubba.Registration.Manager.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
+using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
@@ -127,6 +131,25 @@ builder.Services.AddTransient<INotificationManager, NotificationManager>(s =>
         s.GetService<IValidationService>()!,
         s.GetService<ILoggerService>()!
     )
+);
+builder.Services.AddTransient<IListingsDataAccess, ListingsDataAccess>(s =>
+    new ListingsDataAccess("Server=.;Database=DevelopmentHell.Hubba.ListingProfiles;Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.ListingProfile;Password=password")
+);
+builder.Services.AddTransient<ICollaboratorsDataAccess, CollaboratorsDataAccess>(s =>
+	new CollaboratorsDataAccess("Server=.;Database=DevelopmentHell.Hubba.CollaboratorProfiles;Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.CollaboratorProfile;Password=password")
+);
+builder.Services.AddTransient<IProjectShowcasesDataAccess, ProjectShowcasesDataAccess>(s =>
+    new ProjectShowcasesDataAccess("Server=.;Database=DevelopmentHell.Hubba.CollaboratorProfiles;Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.CollaboratorProfile;Password=password")
+);
+builder.Services.AddTransient<IDiscoveryManager, DiscoveryManager>(s =>
+    new DiscoveryManager(
+        new DiscoveryService(
+            s.GetService<IListingsDataAccess>()!,
+            s.GetService<ICollaboratorsDataAccess>()!,
+            s.GetService<ILoggerService>()!
+        ),
+		s.GetService<ILoggerService>()!
+	)
 );
 builder.Services.AddTransient<IRegistrationService, RegistrationService>(s =>
     new RegistrationService(

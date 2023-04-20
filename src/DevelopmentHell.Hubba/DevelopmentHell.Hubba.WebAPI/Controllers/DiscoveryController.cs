@@ -1,9 +1,12 @@
 ﻿using DevelopmentHell.Hubba.Discovery.Manager.Abstractions;
+using DevelopmentHell.Hubba.WebAPI.DTO.Discovery;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DevelopmentHell.Hubba.WebAPI.Controllers
 {
-	public class DiscoveryController : ControllerBase
+	[ApiController]
+	[Route("[controller]")]
+	public class DiscoveryController : HubbaController
 	{
 		private readonly IDiscoveryManager _discoveryManager;
 
@@ -12,15 +15,20 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 			_discoveryManager = discoveryManager;
 		}
 
-#if DEBUG
 		[HttpGet]
-		[Route("health")]
-		public Task<IActionResult> HeathCheck()
+		[Route("getCurated")]
+		public async Task<IActionResult> GetCurated(CuratedDTO curatedDTO)
 		{
-			return Task.FromResult<IActionResult>(Ok("Healthy"));
+			return await GuardedWorkload(async () =>
+			{
+				var result = await _discoveryManager.GetCurated(curatedDTO.Offset).ConfigureAwait(false);
+				if (!result.IsSuccessful)
+				{
+					return StatusCode((int)result.StatusCode!, result.ErrorMessage);
+				}
+
+				return StatusCode((int)result.StatusCode!, result.Payload);
+			}).ConfigureAwait(false);
 		}
-#endif
-
-
 	}
 }

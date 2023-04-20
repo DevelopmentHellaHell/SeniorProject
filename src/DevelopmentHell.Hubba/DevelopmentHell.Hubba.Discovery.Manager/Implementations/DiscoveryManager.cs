@@ -17,7 +17,15 @@ namespace DevelopmentHell.Hubba.Discovery.Manager.Implementations
 
         public async Task<Result<Dictionary<string, List<Dictionary<string, object>>?>>> GetCurated(int offset)
         {
-            return await _discoveryService.GetCurated(offset).ConfigureAwait(false);
-        }
+			var result = await _discoveryService.GetCurated(offset).ConfigureAwait(false);
+            if (!result.IsSuccessful)
+            {
+                return new (Result.Failure(result.ErrorMessage!, result.StatusCode));
+            }
+
+            var payload = result.Payload!;
+
+            return Result<Dictionary<string, List<Dictionary<string, object>>?>>.Success(payload);
+		}
 	}
 }

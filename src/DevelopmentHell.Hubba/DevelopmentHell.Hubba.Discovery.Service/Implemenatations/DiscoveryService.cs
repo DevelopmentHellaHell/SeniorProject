@@ -9,40 +9,43 @@ namespace DevelopmentHell.Hubba.Discovery.Service.Implemenatations
     {
         private readonly IListingsDataAccess _listingsDataAccess;
         private readonly ICollaboratorsDataAccess _collaboratorsDataAccess;
+        private readonly IProjectShowcasesDataAccess _projectShowcaseDataAccess;
         private readonly ILoggerService _loggerService;
 
-        public DiscoveryService(IListingsDataAccess listingsDataAccess, ICollaboratorsDataAccess collaboratorsDataAccess, ILoggerService loggerService)
+        public DiscoveryService(IListingsDataAccess listingsDataAccess, ICollaboratorsDataAccess collaboratorsDataAccess, IProjectShowcasesDataAccess projectShowcasesDataAccess, ILoggerService loggerService)
         {
             _listingsDataAccess = listingsDataAccess;
             _collaboratorsDataAccess = collaboratorsDataAccess;
+            _projectShowcaseDataAccess = projectShowcasesDataAccess;
             _loggerService = loggerService;
         }
 
         public async Task<Result<Dictionary<string, List<Dictionary<string, object>>?>>> GetCurated(int offset)
         {
-            var result = new Result<Dictionary<string, List<Dictionary<string, object>>?>>();
-            result.Payload = new ();
-
             var listingsResult = await _listingsDataAccess.Curate().ConfigureAwait(false);
             if (!listingsResult.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = listingsResult.ErrorMessage;
-                return result;
+                return new (Result.Failure(listingsResult.ErrorMessage!, listingsResult.StatusCode));
             }
 
 			var collaboratorsResult = await _collaboratorsDataAccess.Curate().ConfigureAwait(false);
 			if (!collaboratorsResult.IsSuccessful)
 			{
-				result.IsSuccessful = false;
-				result.ErrorMessage = collaboratorsResult.ErrorMessage;
-				return result;
+				return new(Result.Failure(collaboratorsResult.ErrorMessage!, collaboratorsResult.StatusCode));
 			}
 
-            result.Payload.Add("listings", listingsResult.Payload);
-			result.Payload.Add("collaborators", collaboratorsResult.Payload);
+            var showcasesResult = await _projectShowcaseDataAccess.Curate().ConfigureAwait(false);
+			if (!showcasesResult.IsSuccessful)
+			{
+				return new(Result.Failure(showcasesResult.ErrorMessage!, showcasesResult.StatusCode));
+			}
 
-			return result;
+			var payload = new Dictionary<string, List<Dictionary<string, object>>?>();
+			payload.Add("listings", listingsResult.Payload);
+			payload.Add("collaborators", collaboratorsResult.Payload);
+            payload.Add("showcases", showcasesResult.Payload);
+
+			return Result<Dictionary<string, List<Dictionary<string, object>>?>>.Success(payload);
 		}
     }
 }
