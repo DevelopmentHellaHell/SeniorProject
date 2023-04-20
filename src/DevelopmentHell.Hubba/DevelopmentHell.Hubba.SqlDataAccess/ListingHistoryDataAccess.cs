@@ -78,5 +78,18 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             return insertResult;
         }
+        public async Task<Result> DeleteUser(int listingId, int userId)
+        {
+            Result deleteResult = await _deleteDataAccess.Delete(
+                _tableName,
+                new List<Comparator>()
+                {
+                    new Comparator("ListingId", "=", listingId),
+                    new Comparator("UserId", "=", userId),
+                }
+            ).ConfigureAwait(false);
+
+            return deleteResult;
+        }
     }
 }

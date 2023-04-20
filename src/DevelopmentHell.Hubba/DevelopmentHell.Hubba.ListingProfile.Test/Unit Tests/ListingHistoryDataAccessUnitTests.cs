@@ -75,6 +75,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
             var ownerId = 1;
             var title = "Listing Test Title 1";
             var expected = true;
+            var expectedCount = 1;
 
             await _listingsDataAccess.CreateListing(ownerId, title).ConfigureAwait(false);
             var listingIdResult = await _listingsDataAccess.GetListingId(ownerId, title).ConfigureAwait(false);
@@ -84,11 +85,12 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
 
             // Actual
             var actual = await _listingHistoryDataAccess.AddUser(listingId, userId).ConfigureAwait(false);
-            Console.WriteLine(actual.ErrorMessage);
+            var getCount = await _listingHistoryDataAccess.CountListingHistory(listingId, userId).ConfigureAwait(false);
 
 
             // Assert
             Assert.IsTrue(actual.IsSuccessful == expected);
+            Assert.IsTrue(getCount.Payload == expectedCount);
         }
 
         [TestMethod]
@@ -99,14 +101,17 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
             var userId = 2;
             var expected = false;
             var expectedErrorMessage = "Listing doesn't exist.";
+            var expectedCount = 0;
 
             // Actual
             var actual = await _listingHistoryDataAccess.AddUser(listingId, userId).ConfigureAwait(false);
+            var getCount = await _listingHistoryDataAccess.CountListingHistory(listingId, userId).ConfigureAwait(false);
 
 
             // Assert
             Assert.IsTrue(actual.IsSuccessful == expected);
             Assert.IsTrue(actual.ErrorMessage == expectedErrorMessage);
+            Assert.IsTrue(getCount.Payload == expectedCount);
         }
 
         [TestMethod]
@@ -132,6 +137,41 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
             // Assert
             Assert.IsTrue(actual.IsSuccessful == expected);
             Assert.IsTrue(actual.Payload == expectedCount);
+        }
+
+        [TestMethod]
+        public async Task DeleteUser()
+        {
+            // Arrange
+            var ownerId = 1;
+            var title = "Listing Test Title 1";
+            var expected = true;
+            var expectedCountBeforeInsert = 0;
+            var expectedCountAfterInsert = 1;
+            var expectedCountAfterDelete = 0;
+
+            await _listingsDataAccess.CreateListing(ownerId, title).ConfigureAwait(false);
+            var listingIdResult = await _listingsDataAccess.GetListingId(ownerId, title).ConfigureAwait(false);
+            int listingId = (int)listingIdResult.Payload;
+
+            var userId = 2;
+            
+
+            // Actual
+            var getCountBeforeInsert = await _listingHistoryDataAccess.CountListingHistory(listingId, userId).ConfigureAwait(false);
+            await _listingHistoryDataAccess.AddUser(listingId, userId).ConfigureAwait(false);
+            var getCountAfterInsert = await _listingHistoryDataAccess.CountListingHistory(listingId, userId).ConfigureAwait(false);
+            var actual = await _listingHistoryDataAccess.DeleteUser(listingId, userId).ConfigureAwait(false);
+            var getCountAfterDelete = await _listingHistoryDataAccess.CountListingHistory(listingId, userId).ConfigureAwait(false);
+
+
+
+
+            // Assert
+            Assert.IsTrue(actual.IsSuccessful == expected);
+            Assert.IsTrue(getCountBeforeInsert.Payload == expectedCountBeforeInsert);
+            Assert.IsTrue(getCountAfterInsert.Payload == expectedCountAfterInsert);
+            Assert.IsTrue(getCountAfterDelete.Payload == expectedCountAfterDelete);
         }
     }
 }
