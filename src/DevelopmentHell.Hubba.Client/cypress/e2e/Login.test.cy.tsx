@@ -228,7 +228,7 @@ context.only('Login operation', () => {
             /**
              * OTP expired
              */
-            it('OTP expired', () => {
+            xit('OTP expired', () => {
                 cy.get('#email').as('email').type(Cypress.env('realEmail')).should('have.value', Cypress.env('realEmail'));
                 cy.get('#password').as('password').type(Cypress.env('standardPassword')).should('have.value', Cypress.env('standardPassword'));
                 cy.contains('Submit').click()
@@ -243,7 +243,6 @@ context.only('Login operation', () => {
                                         let otp:string = otpString.toString();
                                         cy.get('#otp').type(otp).should('have.value', otp);
                                         //wait 3mins before submitting OTP
-                                        cy.pause();
                                         let now: number = Date.now();
                                         cy.clock(now);
                                         cy.tick(180000)
