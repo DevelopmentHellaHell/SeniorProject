@@ -19,7 +19,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 			{
 				return await workload();
 			}
-			catch
+			catch (Exception ex) 
 			{
 				// Handle the exception here
 				return StatusCode(StatusCodes.Status500InternalServerError);

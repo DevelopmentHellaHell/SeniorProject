@@ -21,10 +21,15 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 		{
 			return await GuardedWorkload(async () =>
 			{
+				if (!ModelState.IsValid)
+				{
+					return StatusCode(StatusCodes.Status400BadRequest);
+				}
+
 				var result = await _discoveryManager.GetCurated(curatedDTO.Offset).ConfigureAwait(false);
 				if (!result.IsSuccessful)
 				{
-					return StatusCode((int)result.StatusCode!, result.ErrorMessage);
+					return StatusCode(result.StatusCode, result.ErrorMessage);
 				}
 
 				return StatusCode((int)result.StatusCode!, result.Payload);

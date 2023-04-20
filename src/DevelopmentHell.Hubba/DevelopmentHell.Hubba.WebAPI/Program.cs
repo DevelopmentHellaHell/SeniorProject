@@ -133,19 +133,26 @@ builder.Services.AddTransient<INotificationManager, NotificationManager>(s =>
     )
 );
 builder.Services.AddTransient<IListingsDataAccess, ListingsDataAccess>(s =>
-    new ListingsDataAccess("Server=.;Database=DevelopmentHell.Hubba.ListingProfiles;Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.ListingProfile;Password=password")
+    new ListingsDataAccess(
+        HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!
+    )
 );
 builder.Services.AddTransient<ICollaboratorsDataAccess, CollaboratorsDataAccess>(s =>
-	new CollaboratorsDataAccess("Server=.;Database=DevelopmentHell.Hubba.CollaboratorProfiles;Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.CollaboratorProfile;Password=password")
+	new CollaboratorsDataAccess(
+		HubbaConfig.ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!
+    )
 );
 builder.Services.AddTransient<IProjectShowcasesDataAccess, ProjectShowcasesDataAccess>(s =>
-    new ProjectShowcasesDataAccess("Server=.;Database=DevelopmentHell.Hubba.CollaboratorProfiles;Encrypt=false;User Id=DevelopmentHell.Hubba.SqlUser.CollaboratorProfile;Password=password")
+    new ProjectShowcasesDataAccess(
+		HubbaConfig.ConfigurationManager.AppSettings["ProjectShowcasesConnectionString"]!
+    )
 );
 builder.Services.AddTransient<IDiscoveryManager, DiscoveryManager>(s =>
     new DiscoveryManager(
         new DiscoveryService(
             s.GetService<IListingsDataAccess>()!,
             s.GetService<ICollaboratorsDataAccess>()!,
+            s.GetService<IProjectShowcasesDataAccess>()!,
             s.GetService<ILoggerService>()!
         ),
 		s.GetService<ILoggerService>()!
