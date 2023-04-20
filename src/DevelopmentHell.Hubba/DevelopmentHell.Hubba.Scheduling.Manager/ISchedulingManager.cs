@@ -10,8 +10,8 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
 {
     public interface ISchedulingManager
     {
-        Task<Result> FindListingAvailabiityByMonth(int listingId, int month, int year);
-        Task<Result> ReserveBooking(int userId, int listingId, float fullPrice, BookingStatus bookingStatus, List<BookedTimeFrame> chosenTimeframes);
-        Task<Result> CancelBooking(int userId, int bookingId);
+        Task<Result<List<Tuple<DateTime,DateTime>>>> FindListingAvailabiityByMonth(int listingId, int month, int year);
+        Task<Result<int>> ReserveBooking(int userId, int listingId, float fullPrice, List<BookedTimeFrame> chosenTimeframes, BookingStatus? bookingStatus);
+        Task<Result<bool>> CancelBooking(int userId, int bookingId);
     }
 }

@@ -3,7 +3,7 @@ using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using System.Configuration;
 
-namespace DevelopmentHell.Hubba.Scheduling.Test.Unit_Tests
+namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
 {
     [TestClass]
     public class ListingDataAccessUnitTest
@@ -31,8 +31,8 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Unit_Tests
             };
             
             //Act
-            var getListing = await _listingsDAO.GetListing(listingId).ConfigureAwait(false);
-            var actual = ((Result<List<ListingModel>>)getListing).Payload[0];
+            var getListing = await _listingsDAO.GetListingByListingId(listingId).ConfigureAwait(false);
+            var actual = getListing.Payload;
 
             //Assert
             Assert.IsNotNull(actual);

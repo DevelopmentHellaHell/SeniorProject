@@ -3,7 +3,7 @@ using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using System.Configuration;
 
-namespace DevelopmentHell.Hubba.Scheduling.Test.Unit_Tests
+namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
 {
     [TestClass]
     public class BookingDataAccessUnitTest

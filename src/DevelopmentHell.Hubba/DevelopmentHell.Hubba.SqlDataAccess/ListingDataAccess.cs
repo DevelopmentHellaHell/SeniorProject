@@ -27,11 +27,36 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             _deleteDataAccess = new DeleteDataAccess(connectionString);
             _updateDataAccess = new UpdateDataAccess(connectionString);
         }
-
-        public async Task<Result> GetListing(int listingId)
+        public async Task<Result<int>> CreateListing (ListingModel listing)
         {
-            Result<List<ListingModel>> result = new();
-            result.Payload = new List<ListingModel>();
+            Result<int> result = new() { IsSuccessful = false };
+            try
+            {
+                Dictionary<string,object> values = new()
+                {
+                    {nameof(ListingModel.OwnerId), listing.OwnerId },
+                    {nameof(ListingModel.Title), listing.Title } ,
+                    { nameof(ListingModel.Published), (bool)listing.Published } 
+                };
+                var addListing = await _insertDataAccess.InsertOutput(_tableName, values, nameof(ListingModel.ListingId)) as Result<int>;
+                if(!addListing.IsSuccessful)
+                {
+                    result.ErrorMessage = addListing.ErrorMessage;
+                    return result;
+                }
+                result.IsSuccessful = true;
+                result.Payload = addListing.Payload;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.ErrorMessage = ex.Message;
+                return result;
+            }
+        }
+        public async Task<Result<ListingModel>> GetListingByListingId(int listingId)
+        {
+            Result<ListingModel> result = new() { IsSuccessful = false };
 
             List<Comparator> comparators = new()
             {
@@ -71,7 +96,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             {
                 foreach (var row in payload)
                 {
-                    result.Payload.Add(new ListingModel()
+                    result.Payload = new ListingModel()
                     {
                         ListingId = (int)row["ListingId"],
                         OwnerId = (int)row["OwnerId"],
@@ -80,7 +105,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                         Price = Convert.ToSingle(row["Price"]),
                         Address = (string)row["Address"],
                         Published = (bool)row["Published"]
-                    }); ;
+                    }; 
                 }
             }
             result.IsSuccessful = true;
@@ -88,7 +113,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         }
 
 
-        public Task<Result> GetListingAvailabilityByMonth(int listingId)
+        public Task<Result<List<ListingAvailability>>> GetListingAvailabilityByMonth(int listingId)
         {
             throw new NotImplementedException();
         }

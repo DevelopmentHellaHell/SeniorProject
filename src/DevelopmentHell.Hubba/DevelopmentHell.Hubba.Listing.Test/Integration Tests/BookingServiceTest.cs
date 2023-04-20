@@ -15,33 +15,19 @@ using DevelopmentHell.Hubba.Validation.Service.Implementations;
 using System.Configuration;
 using System.Runtime.InteropServices;
 
-namespace DevelopmentHell.Hubba.Scheduling.Test.Integration_Tests
+namespace DevelopmentHell.Hubba.Scheduling.Test.Service
 {
     [TestClass]
     public class BookingServiceTest
     {
         //Arrange
-        private readonly IRegistrationService _registrationService;
         private readonly IBookingService _bookingService;
-
-        private readonly IUserAccountDataAccess _userAccountDAO;
         private readonly IBookingDataAccess _bookingDAO;
         private readonly IBookedTimeFrameDataAccess _bookedTimeFrameDAO;
-
-        private readonly string _userConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
-        private readonly string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
-        private readonly string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
-        private readonly string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
-        private readonly string _jwtKey = ConfigurationManager.AppSettings["JwtKey"]!;
 
         private readonly string _bookingsConnectionString = ConfigurationManager.AppSettings["BookingsConnectionString"]!;
         private readonly string _bookingsTable = "Bookings";
         private readonly string _bookedTimeFramesTable = "BookedTimeFrames";
-
-
-        private static List<int> newBookingIds = new(); //to cleanup after test
-        private static int _userId;
-        private static int _listingId = 10;
 
         private static Booking validBooking1 = new Booking()
         {
@@ -111,43 +97,21 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Integration_Tests
         };
         public BookingServiceTest()
         {
-            LoggerService loggerService = new LoggerService(
-                new LoggerDataAccess(
-                    _logsConnectionString,
-                    _logsTable
-                )
-            );
-            ICryptographyService cryptographyService = new CryptographyService(
-                ConfigurationManager.AppSettings["CryptographyKey"]!
-            );
-            IValidationService validationService = new ValidationService();
-            IJWTHandlerService jwtHandlerService = new JWTHandlerService(
-                _jwtKey
-            );
-
-            _userAccountDAO = new UserAccountDataAccess(_userConnectionString, _userAccountsTable);
             _bookingDAO = new BookingDataAccess(_bookingsConnectionString, _bookingsTable);
             _bookedTimeFrameDAO = new BookedTimeFrameDataAccess(_bookingsConnectionString, _bookedTimeFramesTable);
-
-            _registrationService = new RegistrationService(
-                _userAccountDAO,
-                cryptographyService,
-                validationService,
-                loggerService
-            );
-            _bookingService = new BookingService
-            (
-                _bookingDAO,
-                _bookedTimeFrameDAO
-            );
+            _bookingService = new BookingService( _bookingDAO, _bookedTimeFrameDAO);
         }
+
         [TestInitialize]
         [TestCleanup]
         public async Task CleanUp()
         {
             await _bookingDAO.DeleteBooking
             (
-                new List<Tuple<string,object>>() { new Tuple<string,object>("UserId", validBooking1.UserId)}
+                new List<Tuple<string, object>>() 
+                { 
+                    new Tuple<string, object>(nameof(Booking.ListingId), validBooking1.ListingId)
+                }
             ).ConfigureAwait(false);
         }
 
@@ -253,11 +217,9 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Integration_Tests
             //Arrange
             var addBooking = await _bookingService.AddNewBooking(validBooking1).ConfigureAwait(false);
             int bookingId = addBooking.Payload;
-            validBooking1.BookingId = bookingId;
-            validBooking1.BookingStatusId = BookingStatus.CANCELLED;
 
             //Act
-            var actual = await _bookingService.CancelBooking(validBooking1).ConfigureAwait(false);
+            var actual = await _bookingService.CancelBooking(bookingId).ConfigureAwait(false);
             
             var doubleCheck = await _bookingService.GetBookingStatusByBookingId(bookingId).ConfigureAwait(false);
             
@@ -267,5 +229,6 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Integration_Tests
             Assert.IsTrue(actual.IsSuccessful);
             Assert.IsTrue(doubleCheck.Payload == BookingStatus.CANCELLED);
         }
+
     }
 }

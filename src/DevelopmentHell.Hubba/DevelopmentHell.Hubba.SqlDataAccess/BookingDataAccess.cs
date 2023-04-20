@@ -36,18 +36,21 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             //TODO: double check if ListingId existed in Listings table
             Result<int> result = new() { IsSuccessful = false };
 
+            // Bookings table has a trigger,
+            // once inserted new entry, check Listings table for an existing ListingId
+            // if there's no such ListingId, rollback and delete the inserted Booking
             var insertResult = await _insertDataAccess.InsertOutput(
                 _tableName,
                 new Dictionary<string, object>()
                 {
-                    { "UserId", booking.UserId },
-                    { "ListingId", booking.ListingId },
-                    { "FullPrice", booking.FullPrice },
-                    { "BookingStatusId", booking.BookingStatusId },
-                    { "CreateDate", DateTime.Now },
-                    { "LastModifyUser", booking.LastModifyUser }
+                    { nameof(Booking.UserId), booking.UserId },
+                    { nameof(Booking.ListingId), booking.ListingId },
+                    { nameof(Booking.FullPrice), booking.FullPrice },
+                    { nameof(Booking.BookingStatusId), booking.BookingStatusId },
+                    { nameof(Booking.CreateDate), DateTime.Now },
+                    { nameof(Booking.LastModifyUser), booking.LastModifyUser }
                 },
-                "BookingId"
+                nameof(Booking.BookingId)
             ).ConfigureAwait(false);
 
             if (!insertResult.IsSuccessful)
@@ -99,6 +102,17 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 result.ErrorMessage = "Filter is empty";
                 return result;
             }
+            // prepare for string query
+            List<string> columns = new()
+            {
+                nameof(Booking.BookingId),
+                nameof(Booking.UserId),
+                nameof(Booking.ListingId),
+                _tableName + "." + nameof(Booking.BookingStatusId),
+                nameof(BookingStatus),
+                nameof(Booking.FullPrice),
+                nameof(Booking.LastModifyUser)
+            };
             List<Comparator> comparators = new();
             foreach (var filter in filters)
             {
@@ -106,16 +120,13 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
             
             var selectResult = await _selectDataAccess.Select(
-                SQLManip.InnerJoinTables(new Joiner(_tableName, "BookingStatuses", "BookingStatusId", "BookingStatusId")),
-                new List<string>()
-                {
-                    "BookingId",
-                    "UserId",
-                    "ListingId",
-                    _tableName + ".BookingStatusId",
-                    "BookingStatus",
-                    "FullPrice"
-                },
+                SQLManip.InnerJoinTables(
+                    new Joiner(
+                        _tableName, 
+                        "BookingStatuses", 
+                        nameof(Booking.BookingStatusId), 
+                        nameof(Booking.BookingStatusId))),
+                columns,
                 comparators
             ).ConfigureAwait(false);
 
@@ -144,6 +155,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                         ListingId = (int)row[nameof(Booking.ListingId)],
                         BookingStatusId = (BookingStatus)row[nameof(Booking.BookingStatusId)],
                         FullPrice = Convert.ToSingle(row[nameof(Booking.FullPrice)]),
+                        LastModifyUser = (int)row[nameof(Booking.LastModifyUser)]
                     }); ;
                 }
             }
@@ -162,7 +174,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             Dictionary<string, object> values = new()
             {
                 {nameof(Booking.BookingStatusId), (int)booking.BookingStatusId },
-                {nameof(Booking.LastModifyUser), booking.UserId },
+                {nameof(Booking.LastModifyUser), booking.LastModifyUser },
             };
 
             var updateResult = await _updateDataAccess.Update
@@ -180,6 +192,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 return result;
             }
             result.IsSuccessful = true;
+            result.Payload = true;
             return result;
         }
     }

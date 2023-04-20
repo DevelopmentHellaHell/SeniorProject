@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Security;
 
-namespace DevelopmentHell.Hubba.Scheduling.Test.Unit_Tests
+namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
 {
     [TestClass]
     public class BookedTimeFrameDataAccessUnitTest

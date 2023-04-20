@@ -11,7 +11,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
 {
     public class SchedulingManager : ISchedulingManager
     {
-        private readonly IValidationService _validationService;
+        //private readonly IValidationService _validationService;
         private readonly IAuthorizationService _authorizationService;
         private readonly ILoggerService _loggerService;
         private readonly INotificationService _notificationService;
@@ -19,18 +19,21 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
         private readonly IBookingService _bookingService;
         private readonly IAvailabilityService _availabilityService;
 
-        public SchedulingManager(IBookingService bookingService, IAvailabilityService availabilityService)
+        public SchedulingManager(IBookingService bookingService, IAvailabilityService availabilityService, IAuthorizationService authorizationService, INotificationService notificationService, ILoggerService loggerService)
         {
             _bookingService = bookingService;
             _availabilityService = availabilityService;
+            _authorizationService = authorizationService;
+            _notificationService = notificationService;
+            _loggerService = loggerService;
         }
-        public Task<Result> CancelBooking(int userId, int bookingId)
+        public Task<Result<bool>> CancelBooking(int userId, int bookingId)
         {
             //TODO implement
             throw new NotImplementedException();
         }
 
-        public Task<Result> FindListingAvailabiityByMonth(int listingId, int month, int year)
+        public Task<Result<List<Tuple<DateTime,DateTime>>>> FindListingAvailabiityByMonth(int listingId, int month, int year)
         {
             //TODO implement
             throw new NotImplementedException();
@@ -43,18 +46,19 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
         /// <param name="fullPrice"></param>
         /// <param name="bookingStatus"></param>
         /// <param name="chosenTimeframes"></param>
-        /// <returns>a Booking obj in result.Payload</returns>
-        public async Task<Result> ReserveBooking(int userId, int listingId, float fullPrice, BookingStatus bookingStatus = BookingStatus.CONFIRMED, List<BookedTimeFrame> chosenTimeframes)
+        /// <returns>a BookingId:int in result.Payload</returns>
+        public async Task<Result<int>> ReserveBooking(int userId, int listingId, float fullPrice, List<BookedTimeFrame> chosenTimeframes, BookingStatus? bookingStatus = BookingStatus.CONFIRMED)
         {
-            Result<Booking> result = new() { IsSuccessful = false };
-            //TODO implement
+            Result<int> result = new() { IsSuccessful = false };
+            
             /* Validate input */
 
             /* Authorize user */
             var authzResult = _authorizationService.Authorize(new string[] { "AdminUser", "VerifiedUser" });
             if (!authzResult.IsSuccessful)
             {
-                return authzResult;
+                result.ErrorMessage = authzResult.ErrorMessage;
+                return result;
             }
             
             var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
@@ -70,7 +74,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
             /* Owner can't book their own listing */
             // get OwnerID by ListingId
             var getOwnerId = await _availabilityService.GetOwnerId(listingId).ConfigureAwait(false);
-            int ownerId = ((Result<int>)getOwnerId).Payload;
+            int ownerId = getOwnerId.Payload;
             if(userId == ownerId)
             {
                 result.ErrorMessage = "Owner can't book their own listing";
@@ -113,7 +117,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
                 return result;
             }
             // Process payload
-            booking.BookingId = ((Result<int>)createBooking).Payload;
+            booking.BookingId = createBooking.Payload;
 
             /* Notify user and listing owner */
             var userNotificationMessage = string.Format("Booking #{0} confirmed", booking.BookingId);
@@ -127,7 +131,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
             _loggerService.Log(LogLevel.INFO, Category.BUSINESS, logString);
 
             result.IsSuccessful = true;
-            result.Payload = booking;
+            result.Payload = booking.BookingId;
             return result;
         }
         
