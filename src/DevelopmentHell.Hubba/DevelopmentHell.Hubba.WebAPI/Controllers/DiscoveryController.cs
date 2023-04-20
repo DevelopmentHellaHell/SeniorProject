@@ -32,7 +32,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 					return StatusCode(result.StatusCode, result.ErrorMessage);
 				}
 
-				return StatusCode((int)result.StatusCode!, result.Payload);
+				return StatusCode(result.StatusCode, result.Payload);
 			}).ConfigureAwait(false);
 		}
 	}
