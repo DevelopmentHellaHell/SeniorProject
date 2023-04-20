@@ -26,7 +26,7 @@ const LoginCard: React.FC<ILoginCardProps> = (props) => {
     }
     
     return (
-        <div className="login-card">
+        <div id="login-card" className="login-card">
             <h1>Login</h1>
             <p className="info">Don't have an account? Register <u id="redirect-registration" onClick={() => { navigate("/registration") }}>HERE ←</u></p>
             <div>

@@ -39,7 +39,7 @@ const AccountRecoveryPage: React.FC<IAccountRecoveryPageProps> = (props) => {
                         <div>
                             <div className="input-field">
                                 <label>Email</label>
-                                <input type="text" placeholder="Your Email" {...{readOnly: showOtp}} onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                <input id="email" type="text" placeholder="Your Email" {...{readOnly: showOtp}} onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                                     setEmail(event.target.value);
                                 }}/>
                                 
@@ -47,7 +47,7 @@ const AccountRecoveryPage: React.FC<IAccountRecoveryPageProps> = (props) => {
                             {showOtp && 
                                 <div className="input-field">
                                     <label>Recovery OTP</label>
-                                    <input type="text" maxLength={8} placeholder="Your OTP" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                    <input id="otp-input" type="text" maxLength={8} placeholder="Your OTP" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                                         setOtp(event.target.value);
                                     }}/>
                                 </div>

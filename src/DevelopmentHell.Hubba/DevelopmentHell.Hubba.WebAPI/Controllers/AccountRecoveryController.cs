@@ -1,4 +1,5 @@
 ﻿using DevelopmentHell.Hubba.AccountRecovery.Manager.Abstractions;
+using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.WebAPI.DTO.AccountRecovery;
 using Microsoft.AspNetCore.Mvc;
 
@@ -73,7 +74,8 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 
             //automated recovery
             //https://stackoverflow.com/questions/61427818/store-validate-jwt-token-stored-in-httponly-cookie-in-net-core-api
-            HttpContext.Response.Cookies.Append("access_token", accessResult.Payload, new CookieOptions { SameSite = SameSiteMode.None, Secure = true });//, new CookieOptions { HttpOnly = true });
+            HttpContext.Response.Cookies.Append("access_token", accessResult.Payload.Item1, new CookieOptions { SameSite = SameSiteMode.None, Secure = true });//, new CookieOptions { HttpOnly = true });
+            HttpContext.Response.Cookies.Append("id_token", accessResult.Payload.Item2, new CookieOptions { SameSite = SameSiteMode.None, Secure = true });
             return Ok();
         }
     }
