@@ -17,7 +17,8 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
         private ICollaboratorService _collaboratorService;
 
 
-        public CollaboratorManager(ICollaboratorService collaboratorService, IAuthorizationService authorizationService, ILoggerService loggerService, IValidationService validationService)
+        public CollaboratorManager(ICollaboratorService collaboratorService, IAuthorizationService authorizationService, 
+            ILoggerService loggerService, IValidationService validationService)
         {
             _authorizationService = authorizationService;
             _loggerService = loggerService;
@@ -30,7 +31,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             throw new NotImplementedException();
         }
 
-        public async Task<Result> CreateCollaborator(CollaboratorProfile collab, IFormFile[] collabFiles, IFormFile pfpFile)
+        public async Task<Result> CreateCollaborator(CollaboratorProfile collab, IFormFile[] collabFiles, IFormFile? pfpFile = null)
         {
             Result result = new Result();
             if (Thread.CurrentPrincipal is null)
@@ -46,6 +47,11 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             {
                 return authorizationResult;
             }
+
+            // Get the ID of current thread
+            var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            string accountIDStr = principal.FindFirstValue("sub");
+            int.TryParse(accountIDStr, out int accountIdInt);
 
             Result collabValidation = _validationService.ValidateCollaboratorAllowEmptyFiles(collab);
 
@@ -72,10 +78,13 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
                 //    return result;
                 //}
                 //collab.PfpUrl = uploadPfp.Payload;
+
+                collab.PfpUrl = string.Format("www.server.com/collaborator/{0}/profilepicture", accountIdInt);
             }
 
             foreach (var file in collabFiles)
             {
+                int count = 0;
                 // TODO: Complete upload file manager
                 //var uploadFile = await CollaboratorFileUploadManager.Upload(file).ConfigureAwait(false);
                 //if(uploadFile == null || !uploadFile.IsSuccessful)
@@ -85,37 +94,42 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
                 //    return result;
                 //}
                 //collab.CollabUrls.append(uploadFile.Payload);
+                collab.CollabUrls!.Add(string.Format("www.server.com/collaborator/{0}/file/{1}", accountIdInt, count++));
             }
-
-            var createCollabResult = await _collaboratorService.CreateCollaborator(collab).ConfigureAwait(false);
+            Result createCollabResult;
+            if (pfpFile != null)
+                createCollabResult = await _collaboratorService.CreateCollaborator(collab, collabFiles, pfpFile).ConfigureAwait(false);
+            else
+                createCollabResult = await _collaboratorService.CreateCollaborator(collab, collabFiles).ConfigureAwait(false);
 
             if (!createCollabResult.IsSuccessful)
             {
-                result.ErrorMessage = "Unable to create collaborator";
+                result.ErrorMessage = "Unable to create collaborator. " + createCollabResult.ErrorMessage;
+
                 // remove uploaded files 
                 //if (pfpFile != null)
                 //{
-                //Result deletePfp = await CollaboratorFileUploadManager.Delete(pfpString).ConfigureAwait(false);
-                //if(!deletePfp.IsSuccessful)
-                //{
-                //    result.IsSuccessful = false;
-                //    result.ErrorMessage = "Profile picture upload failed.";
-                //    return result;
-                //}
-                //collab.PfpUrl = deletePfp.Payload;
+                    //Result deletePfp = await CollaboratorFileUploadManager.Delete(pfpString).ConfigureAwait(false);
+                    //if(!deletePfp.IsSuccessful)
+                    //{
+                        //Result logRes = _loggerService.Log(Models.LogLevel.ERROR, Category.SERVER, $"Unable to remove uploaded collab" +
+                        //    $" profile picture files. Account id: {accountIdInt}", null);
+                    //}
                 //}
                 //foreach (var file in collabString)
                 //{
-                //var deleteFile = await CollaboratorFileUploadManager.Delete(file).ConfigureAwait(false);
-                //if(deleteFile == null || !deleteFile.IsSuccessful)
-                //{
-                //    Result logRes = _loggerService.Log(Models.LogLevel.ERROR, Category.SERVER, $"Unable to remove uploaded files. Collab Id: {collab.}", null);
-                //}
-                //collab.CollabUrls.append(deleteFile.Payload);
+                    //var deleteFile = await CollaboratorFileUploadManager.Delete(file).ConfigureAwait(false);
+                    //if(deleteFile == null || !deleteFile.IsSuccessful)
+                    //{
+                        //Result logRes = _loggerService.Log(Models.LogLevel.ERROR, Category.SERVER, $"Unable to remove uploaded collab" +
+                        //    $" files. Account id: {accountIdInt}", null);
+                    //}
                 //}
                 return result;
             }
-            throw new NotImplementedException();
+
+            result.IsSuccessful = true;
+            return result;
 
         }
 
@@ -129,7 +143,8 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             throw new NotImplementedException();
         }
 
-        public async Task<Result> EditCollaborator(CollaboratorProfile collab, IFormFile[] collabFiles, IFormFile pfpFile, string[] removedFiles)
+        public async Task<Result> EditCollaborator(CollaboratorProfile collab, IFormFile[]? collabFiles = null, 
+            string[]? removedFiles = null, IFormFile? pfpFile = null)
         {
             throw new NotImplementedException();
         }

@@ -5,7 +5,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Abstractions
 {
     public interface ICollaboratorService
     {
-        Task<Result> CreateCollaborator(CollaboratorProfile collab);
+        Task<Result> CreateCollaborator(CollaboratorProfile collab, IFormFile[] collabFiles, IFormFile? pfpFile = null);
         Task<Result> DeleteCollaborator(int collabId);
         Task<Result> DeleteCollaboratorWithAccountId(int accountId);
         Task<Result> EditCollaborator(int collabId);
