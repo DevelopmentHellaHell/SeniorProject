@@ -9,12 +9,12 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
 {
     public class CollaboratorService : ICollaboratorService
     {
-        private ICollaboratorDataAccess _collaboratorDataAccess;
+        private ICollaboratorsDataAccess _collaboratorDataAccess;
         private ICollaboratorFileDataAccess _collaboratorFileDataAccess;
         private ICollaboratorFileJunctionDataAccess _collaboratorFileJunctionDataAccess;
         private IValidationService _validationService;
 
-        public CollaboratorService(ICollaboratorDataAccess collaboratorDataAccess, CollaboratorFileDataAccess collaboratorFileDataAccess,
+        public CollaboratorService(ICollaboratorsDataAccess collaboratorDataAccess, CollaboratorFileDataAccess collaboratorFileDataAccess,
             CollaboratorFileJunctionDataAccess collaboratorFileJunctionDataAccess, IValidationService validationService)
         {
             _collaboratorDataAccess = collaboratorDataAccess;

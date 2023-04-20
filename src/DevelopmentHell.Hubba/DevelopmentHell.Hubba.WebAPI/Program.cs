@@ -139,7 +139,8 @@ builder.Services.AddTransient<IListingsDataAccess, ListingsDataAccess>(s =>
 );
 builder.Services.AddTransient<ICollaboratorsDataAccess, CollaboratorsDataAccess>(s =>
 	new CollaboratorsDataAccess(
-		HubbaConfig.ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!
+		HubbaConfig.ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!,
+        HubbaConfig.ConfigurationManager.AppSettings["CollaboratorsTable"]!
     )
 );
 builder.Services.AddTransient<IProjectShowcasesDataAccess, ProjectShowcasesDataAccess>(s =>

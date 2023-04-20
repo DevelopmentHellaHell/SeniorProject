@@ -66,7 +66,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
                 new TestsDataAccess()
             );
             _collaboratorService = new CollaboratorService(
-                new CollaboratorDataAccess(
+                new CollaboratorsDataAccess(
                     ConfigurationManager.AppSettings["CollaboratorsConnectionString"]!,
                     ConfigurationManager.AppSettings["CollaboratorsTable"]!),
                 new CollaboratorFileDataAccess(
