@@ -32,9 +32,13 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             _tableName = tableName;
         }
 
-        public async Task<Result> AddRating(Feature feature, int id, int userId, int rating, string? comment, bool? anonymous)
+        public async Task<Result> AddRating(Feature feature, int id, int userId, int? rating, string? comment, bool? anonymous)
         {
             Result result = new Result();
+            if (feature == Feature.Listing)
+            {
+                anonymous = anonymous ?? true;
+            }
             Result insertResult = await _insertDataAccess.Insert(
                 _tableName,
                 new Dictionary<string, object>()
@@ -52,29 +56,49 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return insertResult;
         }
 
-        public async Task<Result<double>> GetAverageRating(Feature feature, int id)
+        public async Task<Result<Dictionary<int, double>>> GetAverageRating(Feature feature, int id)
         {
-            Result<double> result = new Result<double>();
+            Result<Dictionary<int, double>> result = new Result<Dictionary<int, double>>();
 
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
-                new List<string>() { "AVG(CAST(Rating AS FLOAT)) as AvgRating" },
+                new List<string>() { feature.ToString() + "Id", "AVG(CAST(Rating AS FLOAT)) as AvgRating" },
                 new List<Comparator>()
                 {
                     new Comparator(feature.ToString() + "Id", "=", id),
-                }
+                },
+                feature + "Id ASC"
             ).ConfigureAwait(false);
 
             if (!selectResult.IsSuccessful)
             {
                 result.IsSuccessful = false;
-                result.ErrorMessage = "Cannot retrieve average rating.";
+                //result.ErrorMessage = "Cannot retrieve average rating.";
+                result.ErrorMessage = selectResult.ErrorMessage;
                 return result;
+            }
+            Dictionary<int, double> ratings = new Dictionary<int, double>();
+
+            // Iterate through each dictionary in the selectResult payload and extract the values.
+            foreach (Dictionary<string, object> ratingDict in selectResult.Payload)
+            {
+                int ratingId = Convert.ToInt32(ratingDict[feature.ToString() + "Id"]);
+
+                // Use the null-coalescing operator to provide a default value of 0 if AvgRating is null.
+                double avgRating = Math.Round(Convert.ToDouble(selectResult.Payload[0]["AvgRating"] ?? 0), 2);// Convert.ToDouble(ratingDict["AvgRating"] ?? 0);
+
+
+                // Add the values to the ratings dictionary.
+                ratings.Add(ratingId, avgRating);
             }
 
             result.IsSuccessful = true;
-            result.Payload = Math.Round(Convert.ToDouble(selectResult.Payload[0]["AvgRating"]), 2);
+            result.Payload = ratings;
             return result;
+            //result.IsSuccessful = true;
+            //result.Payload = selectResult.Payload
+            //result.Payload = Math.Round(Convert.ToDouble(selectResult.Payload[0]["AvgRating"]), 2);
+            //return result;
         }
 
         public async Task<Result<List<ListingRating>>> GetListingRatings(int listingId)
