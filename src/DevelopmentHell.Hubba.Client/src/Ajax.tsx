@@ -10,13 +10,15 @@ const app = axios.create({
 });
 
 export namespace Ajax {
-    export async function get<T>(url: string): Promise<{ data: T | null, error: string, loaded: boolean }> {
+    export async function get<T>(url: string): Promise<{ data: T | null, error: string, loaded: boolean, status: number }> {
         let data = null;
         let error = "";
         let loaded = false;
+        let status = 500;
         await app.get(url)
             .then(response => {
                 data = response.data as T;
+                status = response.status;
             })
             .catch((err: Error | AxiosError) => {
                 if (axios.isAxiosError(err))  {
@@ -32,16 +34,18 @@ export namespace Ajax {
             .finally(() => {
                 loaded = true;
             });
-        return { data, error, loaded };
+        return { data, error, loaded, status };
     }
 
-    export async function post<T>(url: string, payload: any): Promise<{ data: T | null, error: string, loaded: boolean }> {
+    export async function post<T>(url: string, payload: any): Promise<{ data: T | null, error: string, loaded: boolean, status: number }> {
         let data = null;
         let error = "";
         let loaded = false;
+        let status = 500;
         await app.post(url, payload)
             .then(response => {
                 data = response.data as T;
+                status = response.status;
             })
             .catch((err: Error | AxiosError) => {
                 if (axios.isAxiosError(err))  {
@@ -58,6 +62,6 @@ export namespace Ajax {
                 loaded = true;
             });
         
-        return { data, error, loaded };
+        return { data, error, loaded, status };
     }
 }

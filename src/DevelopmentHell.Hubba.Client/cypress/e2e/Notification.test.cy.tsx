@@ -25,7 +25,7 @@ describe('Navigate to Notification Settings', () => {
         await Ajax.post(testsRoute, { database: Database.Databases.USERS });
         await Ajax.post(testsRoute, { database: Database.Databases.NOTIFICATIONS });
         await Ajax.post(testsRoute, { database: Database.Databases.LOGS });
-    })
+    });
 
     it('user clicks Email Notification Settings on', () => {
         cy.wait(1000);
