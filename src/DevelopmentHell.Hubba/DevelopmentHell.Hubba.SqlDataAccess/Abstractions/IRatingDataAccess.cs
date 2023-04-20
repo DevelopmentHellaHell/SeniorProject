@@ -5,7 +5,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
 {
     public interface IRatingDataAccess
     {
-        Task<Result<Dictionary<int, double>>> GetAverageRating(Feature feature, int id);
+        Task<Result<double?>> GetAverageRating(Feature feature, int id);
+
+        Task<Result<Dictionary<int, double>>> GetOwnerAverageRatings(Feature feature, int ownerId);
 
         Task<Result<List<ListingRating>>> GetListingRatings(int listingId);
 

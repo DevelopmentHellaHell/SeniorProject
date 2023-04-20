@@ -3,6 +3,7 @@
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Models.DTO;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
+using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
@@ -19,6 +20,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         private UpdateDataAccess _updateDataAccess;
         private SelectDataAccess _selectDataAccess;
         private DeleteDataAccess _deleteDataAccess;
+        private ExecuteDataAccess _executeDataAccess;
         private string _tableName;
 
 
@@ -29,6 +31,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             _updateDataAccess = new UpdateDataAccess(connectionString);
             _selectDataAccess = new SelectDataAccess(connectionString);
             _deleteDataAccess = new DeleteDataAccess(connectionString);
+            _executeDataAccess = new ExecuteDataAccess(connectionString);
             _tableName = tableName;
         }
 
@@ -56,18 +59,19 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return insertResult;
         }
 
-        public async Task<Result<Dictionary<int, double>>> GetAverageRating(Feature feature, int id)
+        //fix
+        public async Task<Result<double?>> GetAverageRating(Feature feature, int id)
         {
-            Result<Dictionary<int, double>> result = new Result<Dictionary<int, double>>();
+            Result<double?> result = new Result<double?>();
 
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
-                new List<string>() { feature.ToString() + "Id", "AVG(CAST(Rating AS FLOAT)) as AvgRating" },
+                new List<string>() { "AVG(CAST(Rating AS FLOAT)) as AvgRating" },
                 new List<Comparator>()
                 {
-                    new Comparator(feature.ToString() + "Id", "=", id),
-                },
-                feature + "Id"
+                    new Comparator(feature.ToString() + "Id", "=", id)
+                }
+
             ).ConfigureAwait(false);
 
             if (!selectResult.IsSuccessful)
@@ -76,19 +80,44 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 result.ErrorMessage = "Cannot retrieve average rating.";
                 return result;
             }
+            
+            result.IsSuccessful = true;
+            if (selectResult.Payload[0]["AvgRating"] != DBNull.Value)
+            {
+                result.Payload = Math.Round(Convert.ToDouble(selectResult.Payload[0]["AvgRating"]), 1, MidpointRounding.ToZero);
+            }
+            
+            return result;
+        }
+
+        public async Task<Result<Dictionary<int, double>>> GetOwnerAverageRatings(Feature feature, int ownerId)
+        {
+            Result<Dictionary<int, double>> result = new Result<Dictionary<int, double>>();
+
+            var selectResult = await _executeDataAccess.Execute("GetOwnerAverageRatings", new Dictionary<string, object>() {
+                { "OwnerId", ownerId },
+            }).ConfigureAwait(false);
+            if (!selectResult.IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Unable to get average ratings.";
+                return result;
+            }
+
             Dictionary<int, double> ratings = new Dictionary<int, double>();
             if (selectResult.Payload is not null)
             {
                 foreach (Dictionary<string, object> ratingDict in selectResult.Payload)
                 {
-                    int ratingId = Convert.ToInt32(ratingDict[feature.ToString() + "Id"]);
+                    if (ratingDict["AvgRating"] == DBNull.Value) continue;
 
-                    double avgRating = Math.Round(Convert.ToDouble(selectResult.Payload[0]["AvgRating"]), 1, MidpointRounding.ToZero);
+                    int ratingId = Convert.ToInt32(ratingDict[feature.ToString() + "Id"]);
+                    
+                    double avgRating = Math.Round(Convert.ToDouble(ratingDict["AvgRating"]), 1, MidpointRounding.ToZero);
 
                     ratings.Add(ratingId, avgRating);
                 }
             }
-            
 
             result.IsSuccessful = true;
             result.Payload = ratings;
@@ -230,5 +259,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             result.Payload = selectResult.Payload;
             return selectResult;
         }
+
+        
     }
 }

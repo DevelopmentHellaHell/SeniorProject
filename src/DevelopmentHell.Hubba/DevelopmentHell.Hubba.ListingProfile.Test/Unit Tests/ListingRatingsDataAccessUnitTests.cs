@@ -178,13 +178,13 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
 
 
             // Actual
-            var actual = await _ratingDataAccess.GetAverageRating(Feature.Listing, listingId).ConfigureAwait(false);            
+            var actual = await _ratingDataAccess.GetAverageRating(Feature.Listing, listingId).ConfigureAwait(false);
+            Console.WriteLine(actual.ErrorMessage);
 
             //Assert
             Assert.IsTrue(actual.IsSuccessful == expected);
-            Assert.IsTrue(actual.Payload is not null);
-            Assert.IsTrue(actual.Payload.ContainsKey(listingId) == expectedValue);
-            Assert.IsTrue(actual.Payload[listingId] == expectedRating);
+            Assert.IsTrue(actual.Payload.HasValue == expectedValue);
+            Assert.IsTrue(actual.Payload == expectedRating);
         }
 
         [TestMethod]
@@ -206,8 +206,138 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
 
             //Assert
             Assert.IsTrue(actual.IsSuccessful == expected);
+            Assert.IsTrue(actual.Payload.HasValue == false);
+        }
+
+        [TestMethod]
+        public async Task GetOwnerAverageRatings()
+        {
+            // Arrange
+            var ownerId = 1;
+            var title1 = "Listing Test Title 1";
+            var expected = true;
+            var expectedRating1 = 3.6;
+            var expectedValue = true;
+
+            await _listingsDataAccess.CreateListing(ownerId, title1).ConfigureAwait(false);
+            var listingIdResult1 = await _listingsDataAccess.GetListingId(ownerId, title1).ConfigureAwait(false);
+            int listingId1 = (int)listingIdResult1.Payload;
+
+            var userId1 = 2;
+            var userId2 = 3;
+            var userId3 = 4;
+
+            await _listingHistoryDataAccess.AddUser(listingId1, userId1).ConfigureAwait(false);
+            await _listingHistoryDataAccess.AddUser(listingId1, userId2).ConfigureAwait(false);
+            await _listingHistoryDataAccess.AddUser(listingId1, userId3).ConfigureAwait(false);
+
+
+            var title2 = "Listing Test Title 2";
+            var expectedRating2 = 4.3;
+
+            await _listingsDataAccess.CreateListing(ownerId, title2).ConfigureAwait(false);
+            var listingIdResult2 = await _listingsDataAccess.GetListingId(ownerId, title2).ConfigureAwait(false);
+            int listingId2 = (int)listingIdResult2.Payload;
+
+
+            await _listingHistoryDataAccess.AddUser(listingId2, userId1).ConfigureAwait(false);
+            await _listingHistoryDataAccess.AddUser(listingId2, userId2).ConfigureAwait(false);
+            await _listingHistoryDataAccess.AddUser(listingId2, userId3).ConfigureAwait(false);
+
+            var rating1_1 = 2;
+            var rating1_2 = 4;
+            var rating1_3 = 5;
+            await _ratingDataAccess.AddRating(Feature.Listing, listingId1, userId1, rating1_1, null, null).ConfigureAwait(false);
+            await _ratingDataAccess.AddRating(Feature.Listing, listingId1, userId2, rating1_2, null, null).ConfigureAwait(false);
+            await _ratingDataAccess.AddRating(Feature.Listing, listingId1, userId3, rating1_3, null, null).ConfigureAwait(false);
+
+            var rating2_1 = 4;
+            var rating2_2 = 4;
+            var rating2_3 = 5;
+            await _ratingDataAccess.AddRating(Feature.Listing, listingId2, userId1, rating2_1, null, null).ConfigureAwait(false);
+            await _ratingDataAccess.AddRating(Feature.Listing, listingId2, userId2, rating2_2, null, null).ConfigureAwait(false);
+            await _ratingDataAccess.AddRating(Feature.Listing, listingId2, userId3, rating2_3, null, null).ConfigureAwait(false);
+
+            // Actual
+            var actual = await _ratingDataAccess.GetOwnerAverageRatings(Feature.Listing, ownerId).ConfigureAwait(false);
+
+            ////Assert
+            Assert.IsTrue(actual.IsSuccessful == expected);
             Assert.IsTrue(actual.Payload is not null);
-            Assert.IsTrue(actual.Payload.ContainsKey(listingId) == expectedValue);
+            Assert.IsTrue(actual.Payload.ContainsKey(listingId1) == expectedValue);
+            Assert.IsTrue(actual.Payload.ContainsKey(listingId2) == expectedValue);
+            Assert.IsTrue(actual.Payload[listingId1] == expectedRating1);
+            Assert.IsTrue(actual.Payload[listingId2] == expectedRating2);
+        }
+
+        [TestMethod]
+        public async Task GetOwnerAverageRatingsWithEmptyRating()
+        {
+            // Arrange
+            var ownerId = 1;
+            var title1 = "Listing Test Title 1";
+            var expected = true;
+            var expectedRating1 = 3.6;
+            var expectedValue1 = true;
+
+            await _listingsDataAccess.CreateListing(ownerId, title1).ConfigureAwait(false);
+            var listingIdResult1 = await _listingsDataAccess.GetListingId(ownerId, title1).ConfigureAwait(false);
+            int listingId1 = (int)listingIdResult1.Payload;
+
+            var userId1 = 2;
+            var userId2 = 3;
+            var userId3 = 4;
+
+            await _listingHistoryDataAccess.AddUser(listingId1, userId1).ConfigureAwait(false);
+            await _listingHistoryDataAccess.AddUser(listingId1, userId2).ConfigureAwait(false);
+            await _listingHistoryDataAccess.AddUser(listingId1, userId3).ConfigureAwait(false);
+
+
+            var title2 = "Listing Test Title 2";
+            var expectedRating2 = 4.3;
+
+            await _listingsDataAccess.CreateListing(ownerId, title2).ConfigureAwait(false);
+            var listingIdResult2 = await _listingsDataAccess.GetListingId(ownerId, title2).ConfigureAwait(false);
+            int listingId2 = (int)listingIdResult2.Payload;
+
+
+            await _listingHistoryDataAccess.AddUser(listingId2, userId1).ConfigureAwait(false);
+            await _listingHistoryDataAccess.AddUser(listingId2, userId2).ConfigureAwait(false);
+            await _listingHistoryDataAccess.AddUser(listingId2, userId3).ConfigureAwait(false);
+
+            var title3 = "Listing Test Title 3";
+            var expectedValue2 = false;
+
+            await _listingsDataAccess.CreateListing(ownerId, title3).ConfigureAwait(false);
+            var listingIdResult3 = await _listingsDataAccess.GetListingId(ownerId, title3).ConfigureAwait(false);
+            int listingId3 = (int)listingIdResult3.Payload;
+
+
+            var rating1_1 = 2;
+            var rating1_2 = 4;
+            var rating1_3 = 5;
+            await _ratingDataAccess.AddRating(Feature.Listing, listingId1, userId1, rating1_1, null, null).ConfigureAwait(false);
+            await _ratingDataAccess.AddRating(Feature.Listing, listingId1, userId2, rating1_2, null, null).ConfigureAwait(false);
+            await _ratingDataAccess.AddRating(Feature.Listing, listingId1, userId3, rating1_3, null, null).ConfigureAwait(false);
+
+            var rating2_1 = 4;
+            var rating2_2 = 4;
+            var rating2_3 = 5;
+            await _ratingDataAccess.AddRating(Feature.Listing, listingId2, userId1, rating2_1, null, null).ConfigureAwait(false);
+            await _ratingDataAccess.AddRating(Feature.Listing, listingId2, userId2, rating2_2, null, null).ConfigureAwait(false);
+            await _ratingDataAccess.AddRating(Feature.Listing, listingId2, userId3, rating2_3, null, null).ConfigureAwait(false);
+
+            // Actual
+            var actual = await _ratingDataAccess.GetOwnerAverageRatings(Feature.Listing, ownerId).ConfigureAwait(false);
+
+            ////Assert
+            Assert.IsTrue(actual.IsSuccessful == expected);
+            Assert.IsTrue(actual.Payload is not null);
+            Assert.IsTrue(actual.Payload.ContainsKey(listingId1) == expectedValue1);
+            Assert.IsTrue(actual.Payload.ContainsKey(listingId2) == expectedValue1);
+            Assert.IsTrue(actual.Payload.ContainsKey(listingId3) == expectedValue2);
+            Assert.IsTrue(actual.Payload[listingId1] == expectedRating1);
+            Assert.IsTrue(actual.Payload[listingId2] == expectedRating2);
         }
 
 
