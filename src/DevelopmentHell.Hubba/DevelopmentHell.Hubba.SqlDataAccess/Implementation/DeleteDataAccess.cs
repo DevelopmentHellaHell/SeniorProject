@@ -49,13 +49,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                 }
 
                 deleteCommand.CommandText = $"DELETE FROM {source} {sbFilter.ToString()}";
-                string logMessage = "Delete: " + deleteCommand.CommandText.ToString() + "\n";
-                foreach (SqlParameter param in deleteCommand.Parameters)
-                {
-                    logMessage += string.Format("{0} = {1}\n", param.ParameterName, param.Value);
-                }
-                Console.WriteLine(logMessage);
-
                 return await SendQuery(deleteCommand).ConfigureAwait(false);
             }
         }

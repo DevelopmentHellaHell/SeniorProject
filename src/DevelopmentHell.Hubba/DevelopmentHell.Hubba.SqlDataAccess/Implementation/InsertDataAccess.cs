@@ -1,5 +1,6 @@
 using DevelopmentHell.Hubba.Models;
 using Microsoft.Data.SqlClient;
+using System.Runtime.CompilerServices;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 {
@@ -19,6 +20,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                 bool first = true;
                 foreach (KeyValuePair<string, object> pair in values)
                 {
+                    if (pair.Value == null)
+                    {
+                        continue;
+                    }
                     if (!first)
                     {
                         columnString += ", ";
@@ -32,7 +37,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                     insertQuery.Parameters.Add(new SqlParameter(pair.Key, pair.Value));
                 }
                 insertQuery.CommandText = string.Format("INSERT into {0} ({1}) VALUES ({2})", table, columnString, valueString);
-
                 return await SendQuery(insertQuery).ConfigureAwait(false);
             }
         }
@@ -41,16 +45,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
         {
             using (SqlCommand insertQuery = new SqlCommand())
             {
-                //string columnString = string.Join(", ", keys);
-                //string valueString = string.Join(", ", values.Select(row => "(" + string.Join(", ", Enumerable.Range(0, keys.Count).Select(i => "@param" + i.ToString() + "_" + row.GetHashCode().ToString())) + ")"));
-
-                //for (int i = 0; i < keys.Count; i++)
-                //{
-                //    for (int j = 0; j < values.Count; j++)
-                //    {
-                //        insertQuery.Parameters.AddWithValue("@param" + i.ToString() + "_" + values[j].GetHashCode().ToString(), values[j][i]);
-                //    }
-                //}
                 int paramIndex = 0;
                 string columnString = string.Join(", ", keys);
                 string valueString = "";
@@ -80,15 +74,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                     paramIndex++;
                 }
 
-
-
                 insertQuery.CommandText = string.Format("INSERT INTO {0} ({1}) VALUES {2}", table, columnString, valueString);
-                string logMessage = "Batch insert: " + insertQuery.CommandText.ToString() + "\n";
-                foreach (SqlParameter param in insertQuery.Parameters)
-                {
-                    logMessage += string.Format("{0} = {1}\n", param.ParameterName, param.Value);
-                }
-                Console.WriteLine(logMessage);
                 return await SendQuery(insertQuery).ConfigureAwait(false);
             }
         }

@@ -57,6 +57,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                 StringBuilder filterSb = new();
                 foreach (var pair in values)
                 {
+                    if (pair.Value == null)
+                    {
+                        continue;
+                    }
                     if (!first)
                     {
                         valueSb.Append(", ");
