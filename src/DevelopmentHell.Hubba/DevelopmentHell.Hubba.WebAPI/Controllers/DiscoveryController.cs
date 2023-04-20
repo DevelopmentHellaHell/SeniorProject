@@ -32,7 +32,28 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 					return StatusCode(result.StatusCode, result.ErrorMessage);
 				}
 
-				return StatusCode((int)result.StatusCode!, result.Payload);
+				return StatusCode(result.StatusCode, result.Payload);
+			}).ConfigureAwait(false);
+		}
+
+		[HttpGet]
+		[Route("getSearch")]
+		public async Task<IActionResult> GetSearch(SearchDTO searchDTO)
+		{
+			return await GuardedWorkload(async () =>
+			{
+				if (!ModelState.IsValid)
+				{
+					return StatusCode(StatusCodes.Status400BadRequest);
+				}
+
+				var result = await _discoveryManager.GetSearch(searchDTO.Query, searchDTO.Category, searchDTO.Filter, searchDTO.Offset).ConfigureAwait(false);
+				if (!result.IsSuccessful)
+				{
+					return StatusCode(result.StatusCode, result.ErrorMessage);
+				}
+
+				return StatusCode(result.StatusCode, result.Payload);
 			}).ConfigureAwait(false);
 		}
 	}
