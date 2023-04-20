@@ -46,6 +46,20 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     }
                 )
             },
+            {
+                Databases.LISTING_PROFILES,
+                new (
+                    "DevelopmentHell.Hubba.ListingProfiles",
+                    ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+                    new ()
+                    {
+                        { Tables.LISTINGS, ConfigurationManager.AppSettings["ListingsTable"]! },
+                        { Tables.LISTING_AVAILABILITIES, ConfigurationManager.AppSettings["ListingAvailabilitiesTable"]! },
+                        { Tables.BOOKINGS, ConfigurationManager.AppSettings["BookingsTable"]! },
+                        { Tables.BOOKEDTIMEFRAMES, ConfigurationManager.AppSettings["BookedTimeFramesTable"]! },
+                    }
+                )
+            },
         };
 
         public TestsDataAccess() { }

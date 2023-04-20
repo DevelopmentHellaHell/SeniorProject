@@ -1,4 +1,4 @@
-using Development.Hubba.JWTHandler.Service.Abstractions;
+﻿using Development.Hubba.JWTHandler.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
@@ -10,6 +10,8 @@ using DevelopmentHell.Hubba.Scheduling.Service.Abstractions;
 using DevelopmentHell.Hubba.Scheduling.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
+using DevelopmentHell.Hubba.Testing.Service.Abstractions;
+using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
 using System.Configuration;
@@ -22,12 +24,15 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
     {
         //Arrange
         private readonly IBookingService _bookingService;
-        private readonly IBookingDataAccess _bookingDAO;
-        private readonly IBookedTimeFrameDataAccess _bookedTimeFrameDAO;
+        private readonly IBookingsDataAccess _bookingDAO;
+        private readonly IBookedTimeFramesDataAccess _bookedTimeFrameDAO;
+        private readonly ITestingService _testingService;
 
-        private readonly string _bookingsConnectionString = ConfigurationManager.AppSettings["BookingsConnectionString"]!;
-        private readonly string _bookingsTable = "Bookings";
-        private readonly string _bookedTimeFramesTable = "BookedTimeFrames";
+        private readonly string _bookingsConnectionString = ConfigurationManager.AppSettings["SchedulingsConnectionString"]!;
+        private readonly string _bookingsTable = ConfigurationManager.AppSettings["BookingsTable"]!;
+        private readonly string _bookedTimeFramesTable = ConfigurationManager.AppSettings["BookedTimeFrameTable"]!;
+
+        private readonly string _jwtKey = ConfigurationManager.AppSettings["JwtKey"]!;
 
         private static Booking validBooking1 = new Booking()
         {
@@ -35,8 +40,8 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
             ListingId = 10,
             FullPrice = 35,
             BookingStatusId = BookingStatus.CONFIRMED,
-            CreateDate = DateTime.Now,
-            LastModifyUser = 1,
+            CreationDate = DateTime.Now,
+            LastEditUser = 1,
             TimeFrames = new List<BookedTimeFrame>()
             {
                 new BookedTimeFrame()
@@ -48,78 +53,22 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
                 }
             }
         };
-        //different user, same Listing, same timeframes
-        private static Booking invalidBooking1 = new Booking()
-        {
-            UserId = 2,
-            ListingId = 10,
-            FullPrice = 35,
-            BookingStatusId = BookingStatus.CONFIRMED,
-            CreateDate = DateTime.Now,
-            LastModifyUser = 2,
-            TimeFrames = new List<BookedTimeFrame>()
-            {
-                new BookedTimeFrame()
-                {
-                    ListingId = 10,
-                    AvailabilityId = 9,
-                    StartDateTime = new DateTime(2023, 5,5,8,0,0),
-                    EndDateTime = new DateTime(2023, 5,5,9,0,0)
-                }
-            }
-        };
-        //same user, same listing, different timeframes
-        private static Booking validBooking2 = new Booking()
-        {
-            UserId = 1,
-            ListingId = 10,
-            FullPrice = 35,
-            BookingStatusId = BookingStatus.CONFIRMED,
-            CreateDate = DateTime.Now,
-            LastModifyUser = 1,
-            TimeFrames = new List<BookedTimeFrame>()
-            {
-                new BookedTimeFrame()
-                {
-                    ListingId = 10,
-                    AvailabilityId = 9,
-                    StartDateTime = new DateTime(2023, 5,5,9,0,0),
-                    EndDateTime = new DateTime(2023, 5,5,10,0,0)
-                },
-                new BookedTimeFrame()
-                {
-                    ListingId = 10,
-                    AvailabilityId = 9,
-                    StartDateTime = new DateTime(2023, 5,5,10,0,0),
-                    EndDateTime = new DateTime(2023, 5,5,11,0,0)
-                }
-            }
-        };
+        
         public BookingServiceTest()
         {
-            _bookingDAO = new BookingDataAccess(_bookingsConnectionString, _bookingsTable);
-            _bookedTimeFrameDAO = new BookedTimeFrameDataAccess(_bookingsConnectionString, _bookedTimeFramesTable);
-            _bookingService = new BookingService( _bookingDAO, _bookedTimeFrameDAO);
+            _bookingDAO = new BookingsDataAccess(_bookingsConnectionString, _bookingsTable);
+            _bookedTimeFrameDAO = new BookedTimeFramesDataAccess(_bookingsConnectionString, _bookedTimeFramesTable);
+            _bookingService = new BookingService(_bookingDAO, _bookedTimeFrameDAO);
+            _testingService = new TestingService(_jwtKey, new TestsDataAccess());
         }
 
         [TestInitialize]
         [TestCleanup]
         public async Task CleanUp()
         {
-            await _bookingDAO.DeleteBooking
-            (
-                new List<Tuple<string, object>>() 
-                { 
-                    new Tuple<string, object>(nameof(Booking.ListingId), validBooking1.ListingId)
-                }
-            ).ConfigureAwait(false);
+            await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.LISTING_PROFILES).ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// Successful result: 1 row added to Bookings table, 
-        /// rows added to BookedTimeFrames table with the same BookingId
-        /// expect an int in Payload
-        /// </summary>
         [TestMethod]
         public async Task AddBooking_Successful()
         {
@@ -154,13 +103,13 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
         public async Task AddBooking_DupTimeFrames_Failed()
         {
             //Arrange
-            var addBooking1 = await _bookingService.AddNewBooking(validBooking1).ConfigureAwait (false);
+            var addBooking1 = await _bookingService.AddNewBooking(validBooking1).ConfigureAwait(false);
             var expected = new Result()
             {
                 IsSuccessful = false
             };
             //Act
-            var actuall = await _bookingService.AddNewBooking (invalidBooking1).ConfigureAwait(false);
+            var actuall = await _bookingService.AddNewBooking(invalidBooking1).ConfigureAwait(false);
 
             //Assert
             Assert.IsNotNull(actuall);
@@ -184,7 +133,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
             //Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsSuccessful);
-            Assert.AreEqual(validBooking2.BookingId,payload.BookingId);
+            Assert.AreEqual(validBooking2.BookingId, payload.BookingId);
         }
         /// <summary>
         /// Should return BookingStatus in payload
@@ -211,7 +160,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
         /// BookingStatusId change from CONFIRMED to CANCELLED
         /// </summary>
         /// <returns></returns>
-            [TestMethod]
+        [TestMethod]
         public async Task CancelBooking_Successful()
         {
             //Arrange
@@ -220,9 +169,9 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
 
             //Act
             var actual = await _bookingService.CancelBooking(bookingId).ConfigureAwait(false);
-            
+
             var doubleCheck = await _bookingService.GetBookingStatusByBookingId(bookingId).ConfigureAwait(false);
-            
+
 
             //Assert
             Assert.IsNotNull(actual);

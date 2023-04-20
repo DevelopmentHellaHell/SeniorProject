@@ -1,23 +1,19 @@
-﻿using Azure;
+﻿
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
-    public class BookedTimeFrameDataAccess : IBookedTimeFrameDataAccess
+    public class BookedTimeFramesDataAccess : IBookedTimeFramesDataAccess
     {
         private InsertDataAccess _insertDataAccess;
         private SelectDataAccess _selectDataAccess;
         private DeleteDataAccess _deleteDataAccess;
         private string _tableName;
-        public BookedTimeFrameDataAccess (string connectionString, string tablename)
+        public BookedTimeFramesDataAccess (string connectionString, string tablename)
         {
             _insertDataAccess = new InsertDataAccess(connectionString);
             _selectDataAccess = new SelectDataAccess(connectionString);
@@ -30,12 +26,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// <param name="timeframes"></param>
         /// <returns>Result</returns>
         public async Task<Result<bool>> CreateBookedTimeFrames(int bookingId, List<BookedTimeFrame> timeframes)
-        {
-            Result<bool> result = new() { IsSuccessful = false};
+        { 
             if (timeframes.Count == 0)
             {
-                result.ErrorMessage = "List of TimeFrames is empty";
-                return result;
+                return new ( Result.Failure("Chosen timeframes empty"));
             }
             List<string> columns = new List<string>()
             {
@@ -59,12 +53,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             if (!insertResult.IsSuccessful) 
             {
-                result.ErrorMessage = insertResult.ErrorMessage;
-                return result;
+                return new(Result.Failure(insertResult.ErrorMessage));
             }
-            result.IsSuccessful = true;
-            result.Payload = true;
-            return result;
+            return new (Result<bool>.Success());
         }
        
         /// <summary>
@@ -75,7 +66,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// <returns>List of BookedTimeFrame model in result.Payload</returns>
         public async Task<Result<List<BookedTimeFrame>>> GetBookedTimeFrames(List<Tuple<string, object>> filters)
         {
-            Result<List<BookedTimeFrame>> result = new();
             var comparators = new List<Comparator>();
             foreach (var filter in filters)
             {
@@ -97,12 +87,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             if (!selectResult.IsSuccessful || selectResult.Payload is null)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = selectResult.ErrorMessage;
-                return result;
+                return new (Result.Failure(selectResult.ErrorMessage));
             }
-            result.IsSuccessful = true;
-            result.Payload = new();
+            List<BookedTimeFrame> resultList = new();
             foreach (var row in selectResult.Payload)
             {
                 int bookingId = (int)row[nameof(BookedTimeFrame.BookingId)];
@@ -111,7 +98,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 DateTime startDateTime = (DateTime) row[nameof(BookedTimeFrame.StartDateTime)];
                 DateTime endDateTime = (DateTime)row[nameof(BookedTimeFrame.EndDateTime)];
 
-                result.Payload.Add( new BookedTimeFrame() 
+                resultList.Add( new BookedTimeFrame() 
                 {
                     BookingId = bookingId,
                     ListingId = listingId,
@@ -120,7 +107,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     EndDateTime = endDateTime
                 });
             }
-            return result;
+            return Result<List<BookedTimeFrame>>.Success(resultList);
         }
         /// <summary>
         /// Delete rows in BookedTimeFrames table
@@ -130,7 +117,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// <returns>Result</returns>
         public async Task<Result<bool>> DeleteBookedTimeFrames(List<Tuple<string, object>> filters)
         {
-            Result<bool> result = new() { IsSuccessful = false };
             List<Comparator> comparators = new();
             foreach (var filter in filters)
             {
@@ -140,11 +126,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             var deleteResult = await _deleteDataAccess.Delete(_tableName, comparators).ConfigureAwait(false);
             if(!deleteResult.IsSuccessful)
             {
-                result.ErrorMessage = deleteResult.ErrorMessage;
-                return result;
+                return new(Result.Failure(deleteResult.ErrorMessage));
             }
-            result.IsSuccessful = true;
-            return result;
+            return new (Result<bool>.Success());
         }
     }
 }

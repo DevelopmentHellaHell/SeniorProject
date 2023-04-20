@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
-    public class BookingDataAccess : IBookingDataAccess
+    public class BookingsDataAccess : IBookingsDataAccess
     {
         private InsertDataAccess _insertDataAccess;
         private SelectDataAccess _selectDataAccess;
@@ -18,7 +18,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         private DeleteDataAccess _deleteDataAccess;
         private string _tableName;
 
-        public BookingDataAccess(string connectionString, string tableName)
+        public BookingsDataAccess(string connectionString, string tableName)
         {
             _insertDataAccess = new InsertDataAccess(connectionString);
             _selectDataAccess = new SelectDataAccess(connectionString);
@@ -36,9 +36,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             //TODO: double check if ListingId existed in Listings table
             Result<int> result = new() { IsSuccessful = false };
 
-            // Bookings table has a trigger,
-            // once inserted new entry, check Listings table for an existing ListingId
-            // if there's no such ListingId, rollback and delete the inserted Booking
             var insertResult = await _insertDataAccess.InsertOutput(
                 _tableName,
                 new Dictionary<string, object>()
@@ -46,9 +43,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     { nameof(Booking.UserId), booking.UserId },
                     { nameof(Booking.ListingId), booking.ListingId },
                     { nameof(Booking.FullPrice), booking.FullPrice },
-                    { nameof(Booking.BookingStatusId), booking.BookingStatusId },
-                    { nameof(Booking.CreateDate), DateTime.Now },
-                    { nameof(Booking.LastModifyUser), booking.LastModifyUser }
+                    { nameof(Booking.BookingStatusId), (int)booking.BookingStatusId },
+                    { nameof(Booking.CreationDate), DateTime.Now },
+                    { nameof(Booking.LastEditUser), booking.LastEditUser }
                 },
                 nameof(Booking.BookingId)
             ).ConfigureAwait(false);
@@ -111,7 +108,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 _tableName + "." + nameof(Booking.BookingStatusId),
                 nameof(BookingStatus),
                 nameof(Booking.FullPrice),
-                nameof(Booking.LastModifyUser)
+                nameof(Booking.LastEditUser)
             };
             List<Comparator> comparators = new();
             foreach (var filter in filters)
@@ -155,7 +152,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                         ListingId = (int)row[nameof(Booking.ListingId)],
                         BookingStatusId = (BookingStatus)row[nameof(Booking.BookingStatusId)],
                         FullPrice = Convert.ToSingle(row[nameof(Booking.FullPrice)]),
-                        LastModifyUser = (int)row[nameof(Booking.LastModifyUser)]
+                        LastEditUser = (int)row[nameof(Booking.LastEditUser)]
                     }); ;
                 }
             }
@@ -167,33 +164,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// </summary>
         /// <param name="booking"></param>
         /// <returns>Bool in Payload</returns>
-        public async Task<Result<bool>> UpdateBooking(Booking booking)
+        public async Task<Result<bool>> UpdateBooking(Dictionary<string,object> values, List<Comparator> filters)
         {
-            Result<bool> result = new() { IsSuccessful = false };
-
-            Dictionary<string, object> values = new()
-            {
-                {nameof(Booking.BookingStatusId), (int)booking.BookingStatusId },
-                {nameof(Booking.LastModifyUser), booking.LastModifyUser },
-            };
-
-            var updateResult = await _updateDataAccess.Update
-                (
-                _tableName,
-                new List<Comparator>() 
-                { 
-                    new Comparator(nameof(Booking.BookingId),"=", booking.BookingId)
-                },
-                values
-                ).ConfigureAwait(false);
-            if(!updateResult.IsSuccessful)
-            {
-                result.ErrorMessage = updateResult.ErrorMessage;
-                return result;
-            }
-            result.IsSuccessful = true;
-            result.Payload = true;
-            return result;
+            var updateResult = await _updateDataAccess.Update (_tableName, filters, values).ConfigureAwait(false) as Result<bool>;
+            return updateResult;
         }
     }
 }

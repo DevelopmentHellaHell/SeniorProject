@@ -3,6 +3,7 @@ using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Scheduling.Service.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
+using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -14,11 +15,10 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
 {
     public class BookingService : IBookingService
     {
-        private readonly IBookingDataAccess _bookingDAO;
-        private readonly IBookedTimeFrameDataAccess _bookedTimeFrameDAO;
-        private readonly ILoggerService? _loggerService;
+        private readonly IBookingsDataAccess _bookingDAO;
+        private readonly IBookedTimeFramesDataAccess _bookedTimeFrameDAO;
 
-        public BookingService(IBookingDataAccess bookingDAO, IBookedTimeFrameDataAccess bookedTimeFrameDAO)
+        public BookingService(IBookingsDataAccess bookingDAO, IBookedTimeFramesDataAccess bookedTimeFrameDAO)
         {
             _bookingDAO = bookingDAO;
             _bookedTimeFrameDAO = bookedTimeFrameDAO;
@@ -26,37 +26,30 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
 
         private async Task<Result<T>> ExecuteBookingService<T>(Func<Task<Result<T>>> operation)
         {
-            var result = new Result<T> { IsSuccessful = false };
             try
             {
-                result = await operation().ConfigureAwait(false);
+                var result = await operation().ConfigureAwait(false);
+                return Result<T>.Success(result.Payload!);
             }
             catch (Exception ex)
             {
-                result.ErrorMessage = ex.Message;
+                return new(Result.Failure(ex.Message));
             }
-            return result;
         }
 
         private async Task<Result<List<Booking>>> GetBookingsByFilters(List<Tuple<string, object>> filters)
         {
-            var result = new Result<List<Booking>> { IsSuccessful = false };
-            var getBooking = await ExecuteBookingService(() => 
-                _bookingDAO.GetBooking(filters));
+            var getBooking = await ExecuteBookingService(() => _bookingDAO.GetBooking(filters));
 
             if (!getBooking.IsSuccessful)
             {
-                result.ErrorMessage = getBooking.ErrorMessage;
-                return result;
+                return getBooking;
             }
-            if (getBooking.Payload.Count < 1)
+            if (getBooking.Payload!.Count < 1)
             {
-                result.ErrorMessage = "No booking found";
-                return result;
+                return new(Result.Failure( "No booking found"));
             }
-            result.IsSuccessful = true;
-            result.Payload = getBooking.Payload;
-            return result;
+            return Result<List<Booking>>.Success(getBooking.Payload);
         }
         private async Task<Result<List<BookedTimeFrame>>> GetBookedTimeFramesByFilters(List<Tuple<string, object>> filters)
         {
@@ -68,13 +61,12 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
             var result = new Result<int> { IsSuccessful = false };
             if (booking == null)
             {
-                result.ErrorMessage = "Empty booking object";
-                return result;
+                return new (Result.Failure("Empty booking"));
             }
             var createBooking = await ExecuteBookingService(() => _bookingDAO.CreateBooking(booking));
             if (!createBooking.IsSuccessful)
             {
-                result.ErrorMessage = createBooking.ErrorMessage;
+                return createBooking;
             }
             else
             {
@@ -83,23 +75,21 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
 
                 // insert to BookedTimeFrames table
                 var createBookedTimeFrames = await ExecuteBookingService(() =>
-                    _bookedTimeFrameDAO.CreateBookedTimeFrames(booking.BookingId, booking.TimeFrames.ToList())); 
+                    _bookedTimeFrameDAO.CreateBookedTimeFrames(booking.BookingId, booking.TimeFrames!.ToList())) as Result<bool>; 
                 if (!createBookedTimeFrames.IsSuccessful)
                 {
-                    result.ErrorMessage = createBookedTimeFrames.ErrorMessage;
                     await ExecuteBookingService (() =>
                         _bookingDAO.DeleteBooking(new List<Tuple<string, object>> 
                         { 
                             new Tuple<string, object>( nameof(Booking.BookingId), booking.BookingId) 
                         }));
+                    return new (Result.Failure(createBookedTimeFrames.ErrorMessage!));
                 }
                 else
                 {
-                    result.IsSuccessful = true;
-                    result.Payload = booking.BookingId;
+                    return Result<int>.Success(booking.BookingId);
                 }
             }
-            return result;
         }
 
         public async Task<Result<List<BookedTimeFrame>>> GetBookedTimeFramesByBookingId(int bookingId)
@@ -108,11 +98,11 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
             { 
                 new Tuple<string, object>(nameof(BookedTimeFrame.BookingId), bookingId) 
             });
-            return new Result<List<BookedTimeFrame>>()
+            if (!getBookedTimeFrames.IsSuccessful)
             {
-                IsSuccessful = true,
-                Payload = getBookedTimeFrames.Payload
-            };
+                return getBookedTimeFrames;
+            }
+            return Result<List<BookedTimeFrame>>.Success(getBookedTimeFrames.Payload);
         }
 
         public async Task<Result<Booking>> GetBookingByBookingId(int bookingId)
@@ -124,38 +114,39 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
 
             if (!getBooking.IsSuccessful || getBooking.Payload == null)
             {
-                return new Result<Booking> { IsSuccessful = false, ErrorMessage = getBooking.ErrorMessage };
+                return new (Result.Failure(getBooking.ErrorMessage!));
             }
             if (getBooking.Payload.Count > 1)
             {
-                return new Result<Booking> { IsSuccessful = false, ErrorMessage = "More than 1 Bookings returned" };
+                return new (Result.Failure("More than 1 Bookings returned" ));
             }
-            return new Result<Booking>
-            {
-                IsSuccessful = true,
-                Payload = getBooking.Payload[0]
-            };
+            return Result<Booking>.Success(getBooking.Payload[0]);
         }
         
         public async Task<Result<BookingStatus>> GetBookingStatusByBookingId(int bookingId)
         {
             var getBookingByBookingId = await GetBookingByBookingId(bookingId);
-
-            return new Result<BookingStatus>
+            if(!getBookingByBookingId.IsSuccessful)
             {
-                IsSuccessful = true,
-                Payload = (BookingStatus)getBookingByBookingId.Payload.BookingStatusId
-            };
+                return new (Result.Failure(getBookingByBookingId.ErrorMessage));
+            }
+
+            return Result<BookingStatus>.Success((BookingStatus)getBookingByBookingId.Payload.BookingStatusId);
         }
 
         public async Task<Result<bool>> CancelBooking(int bookingId)
         {
-            var getBookingByBookingId = await GetBookingByBookingId(bookingId);
-            var returnedBooking = getBookingByBookingId.Payload;
-            returnedBooking.BookingStatusId = BookingStatus.CANCELLED;
-
-            var updateBookingStatus = await ExecuteBookingService(() => _bookingDAO.UpdateBooking(returnedBooking));
-            return new Result<bool> { IsSuccessful = true, Payload = updateBookingStatus.Payload};
+            Dictionary<string, object> values = new()
+            {
+                { nameof(Booking.BookingStatusId), BookingStatus.CANCELLED}
+            };
+            List<Comparator> comparators = new ()
+            {
+                new Comparator(nameof(Booking.BookingId),"=", bookingId) 
+            };
+            var updateBookingStatus = await ExecuteBookingService(() => _bookingDAO.UpdateBooking(values, comparators));
+            
+            return updateBookingStatus;
         }
     }
 }

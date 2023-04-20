@@ -19,6 +19,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                 bool first = true;
                 foreach (KeyValuePair<string, object> pair in values)
                 {
+                    if(pair.Value == null) continue;
                     if (!first)
                     {
                         columnString += ", ";

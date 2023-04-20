@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
 {
-    public interface IBookedTimeFrameDataAccess
+    public interface IBookedTimeFramesDataAccess
     {
         Task<Result<List<BookedTimeFrame>>> GetBookedTimeFrames(List<Tuple<string,object>> filters);
         Task<Result<bool>> CreateBookedTimeFrames(int bookingId, List<BookedTimeFrame> timeframes);

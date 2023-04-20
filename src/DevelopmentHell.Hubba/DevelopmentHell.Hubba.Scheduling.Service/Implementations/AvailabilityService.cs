@@ -11,10 +11,10 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
 {
     public class AvailabilityService : IAvailabilityService
     {
-        private readonly IListingDataAccess _listingDAO;
-        private readonly IBookedTimeFrameDataAccess _bookedTimeFrameDAO;
+        private readonly IListingsDataAccess _listingDAO;
+        private readonly IBookedTimeFramesDataAccess _bookedTimeFrameDAO;
 
-        public AvailabilityService(IListingDataAccess listingDAO, IBookedTimeFrameDataAccess bookedTimeFrameDAO)
+        public AvailabilityService(IListingsDataAccess listingDAO, IBookedTimeFramesDataAccess bookedTimeFrameDAO)
         {
             _listingDAO = listingDAO;
             _bookedTimeFrameDAO = bookedTimeFrameDAO;
@@ -90,7 +90,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
         {
             Result<int> result = new() { IsSuccessful = false };
             // Get Listing by ListingId
-            var getOwnerId = await ExecuteAvailabilityService(() => _listingDAO.GetListingByListingId(listingId));
+            var getOwnerId = await ExecuteAvailabilityService( () => _listingDAO.GetListing(listingId));
                 
             if (!getOwnerId.IsSuccessful) 
             {

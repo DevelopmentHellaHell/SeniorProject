@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
 {
-    public interface IBookingStatusDataAccess
+    public interface IBookingStatusesDataAccess
     {
         Task<Result> GetBookingStatus(int bookingStatusId);
         Task<Result> CreateBookingStatus(int bookingStatusId, string status);
