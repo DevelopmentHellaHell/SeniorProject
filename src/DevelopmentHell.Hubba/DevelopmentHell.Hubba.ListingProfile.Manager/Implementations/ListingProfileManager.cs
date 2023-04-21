@@ -6,6 +6,7 @@ using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Models.DTO;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.ListingProfile.Manager.Abstractions;
+using Microsoft.AspNetCore.Http;
 using System.Configuration;
 
 using System.Security.Claims;
@@ -23,12 +24,10 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
 
 
         public ListingProfileManager(IListingProfileService listingsService,
-            //IFileService fileService, IRatingService ratingService,
+            //IFileService fileService,
             IAuthorizationService authorizationService, ILoggerService loggerService, IValidationService validationService, ICryptographyService cryptographyService)
         {
             _listingsService = listingsService;
-            //_fileService = fileService;
-            //_ratingService = ratingService;
             _authorizationService = authorizationService;
             _loggerService = loggerService;
             _validationService = validationService;
@@ -103,7 +102,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             return result;
         }
 
-        public async Task<Result> ViewUserListings()
+        public async Task<Result<List<ListingViewDTO>>> ViewUserListings()
         {
             Result<List<ListingViewDTO>> result = new Result<List<ListingViewDTO>>();
 
@@ -139,14 +138,11 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             return result;
         }
 
-        public async Task<Result> ViewListing(int listingId)
+        public async Task<Result<List<object>>> ViewListing(int listingId)
         {
-            Result<List<Object>> result = new Result<List<Object>>();
-
-            //assign Id from token
-            var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
-            var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
-            int userId = int.Parse(stringAccountId);
+            Result<List<object>> result = new Result<List<object>>();
+            List<object> payload = new List<object>();
+            
 
             //get listing
             Result<ListingViewDTO> getListingResult = await _listingsService.GetListing(listingId).ConfigureAwait(false);
@@ -161,6 +157,16 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             //check if published
             if (getListingResult.Payload!.Published == false)
             {
+                //assign Id from token
+                var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+                var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
+                if (stringAccountId is null)
+                {
+                    result.IsSuccessful = false;
+                    result.ErrorMessage = "Unauthorized user.";
+                    return result;
+                }
+                int userId = int.Parse(stringAccountId);
                 //check userid to ownerId
                 if (ownerId != userId)
                 {
@@ -169,7 +175,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                     return result;
                 }
             }
-            result.Payload![0] = getListingResult.Payload;
+            payload.Add(getListingResult.Payload);
 
             //get availabilities
             Result<List<ListingAvailabilityDTO>> getListingAvailabilityResult = await _listingsService.GetListingAvailabilities(listingId).ConfigureAwait(false);
@@ -179,7 +185,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 result.ErrorMessage = getListingResult.ErrorMessage;
                 return result;
             }
-            result.Payload[1] = getListingAvailabilityResult.Payload!;
+            payload.Add(getListingAvailabilityResult.Payload);
 
 
             //get files
@@ -190,7 +196,8 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             //    result.ErrorMessage = getListingResult.ErrorMessage;
             //    return result;
             //}
-            //result.Payload[2] = getListingFilesResult.Payload;
+            //payload.Add(getListingFilesResult.Payload);
+            payload.Add(new string("temp"));
 
             //get rating comments
             Result<List<ListingRatingViewDTO>> getListingRatingsResult = await _listingsService.GetListingRatings(listingId).ConfigureAwait(false);
@@ -200,8 +207,8 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 result.ErrorMessage = getListingRatingsResult.ErrorMessage;
                 return result;
             }
-            result.Payload[3] = getListingRatingsResult.Payload!;
-
+            payload.Add(getListingRatingsResult.Payload);
+            result.Payload = payload;
 
             result.IsSuccessful = true;
             return result;
@@ -246,8 +253,8 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 var value = column.GetValue(listing);
                 if (value is null || column.Name == "ListingId" || column.Name == "OwnerId") continue;
 
-                //validate description
-                if (column.Name == "Description")
+                
+                if (column.Name == "Description" || column.Name == "Location")
                 {
                     Result validationResult = _validationService.ValidateBodyText((string)value);
                     if (!validationResult.IsSuccessful)
@@ -256,6 +263,10 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                         result.ErrorMessage = validationResult.ErrorMessage;
                         return result;
                     }
+                }
+                if (column.Name == "Price")
+                {
+                    listing.Price = Math.Round(Convert.ToDouble(listing.Price), 2, MidpointRounding.ToZero);
                 }
 
                 //possible location or price checks
@@ -273,7 +284,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             return result;
         }
 
-        public async Task<Result> EditListingAvailabilities(ListingAvailabilityDTO[] listingAvailabilities)
+        public async Task<Result> EditListingAvailabilities(List<ListingAvailabilityDTO> listingAvailabilities)
         {
             Result result = new Result();
 
@@ -304,7 +315,6 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 return result;
             }
 
-            //validate starttime and endtime
             //split listingavailabilities into 3 groups
             List<ListingAvailabilityDTO> addListingAvailabilities = new();
             List<ListingAvailabilityDTO> updateListingAvailabilities = new();
@@ -336,43 +346,52 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 }
             }
 
-
-            //TO DO
-            //check for bookings in update and delete lists
-            //check db to ensure there is no availability in between existing
-
+            bool errorFound = false;
 
             //add listingavailabilities
-            Result addListingAvailabilitiesResult = await _listingsService.AddListingAvailabilities(addListingAvailabilities).ConfigureAwait(false);
-            if (!addListingAvailabilitiesResult.IsSuccessful)
+            if (addListingAvailabilities.Count > 0)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unable to add new listing availabilities.";
+                Result addListingAvailabilitiesResult = await _listingsService.AddListingAvailabilities(addListingAvailabilities).ConfigureAwait(false);
+                if (!addListingAvailabilitiesResult.IsSuccessful)
+                {
+                    errorFound = true;
+                    result.ErrorMessage += "Unable to add new listing availabilities.\n";
+                }
             }
-
+            
             //update listingavailabilties
-            Result updateListingAvailabilitiesResult = await _listingsService.UpdateListingAvailabilities(updateListingAvailabilities).ConfigureAwait(false);
-            if (!updateListingAvailabilitiesResult.IsSuccessful)
+            if (updateListingAvailabilities.Count > 0)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unable to update preexisting listing availabilities.";
+                Result updateListingAvailabilitiesResult = await _listingsService.UpdateListingAvailabilities(updateListingAvailabilities).ConfigureAwait(false);
+                if (!updateListingAvailabilitiesResult.IsSuccessful)
+                {
+                    errorFound = true;
+                    result.ErrorMessage += "Unable to update preexisting listing availabilities.\n";
+                }
             }
-
-
 
             //delete listingavailabilities
-            Result deleteListingAvailabilitiesResult = await _listingsService.DeleteListingAvailabilities(deleteListingAvailabilities).ConfigureAwait(false);
-            if (!deleteListingAvailabilitiesResult.IsSuccessful)
+            if (deleteListingAvailabilities.Count > 0)
+            {
+                Result deleteListingAvailabilitiesResult = await _listingsService.DeleteListingAvailabilities(deleteListingAvailabilities).ConfigureAwait(false);
+                if (!deleteListingAvailabilitiesResult.IsSuccessful)
+                {
+                    errorFound = true;
+                    result.ErrorMessage += "Unable to remove preexisting listing availabilities.\n";
+                }
+            }
+            
+            if (errorFound)
             {
                 result.IsSuccessful = false;
-                result.ErrorMessage = "Unable to remove preexisting listing availabilities.";
+                return result;
             }
 
             result.IsSuccessful = true;
             return result;
         }
 
-        public async Task<Result> EditListingFiles(HubbaFile[] listingFiles)
+        public async Task<Result> EditListingFiles(List<IFormFile> listingFiles)
         {
             //authorize
 

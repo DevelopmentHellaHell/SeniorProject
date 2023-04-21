@@ -136,7 +136,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             {
                 var value = column.GetValue(listingAvailability);
 
-                if (value is null || column.Name == "ListingId" || column.Name == "AvailabilityId") continue;
+                if (value is null || column.Name == "ListingId" || column.Name == "AvailabilityId" || column.Name == "OwnerId" || column.Name == "Action") continue;
                 values[column.Name] = value;
             }
             Result updateResult = await _updateDataAccess.Update(

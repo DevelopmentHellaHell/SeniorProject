@@ -152,7 +152,7 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
             Result result = new Result();
             result.IsSuccessful = false;
 
-            Regex regex = new(@"[^a-zA-Z0-9\s'.,!()\-]+");
+            Regex regex = new(@"[^a-zA-Z0-9\s'.,!()\]+]");
 
             if (regex.IsMatch(input))
             {
@@ -211,14 +211,14 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
                 return result;
             }
 
-            if (listingAvailability.StartTime.Minute != 0 || listingAvailability.StartTime.Minute != 30 || listingAvailability.StartTime.Second != 0)
+            if (listingAvailability.StartTime.Minute % 30 != 0)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Start time must be on the hour or half hour.";
                 return result;
             }
 
-            if (listingAvailability.EndTime.Minute != 0 || listingAvailability.EndTime.Minute != 30 || listingAvailability.EndTime.Second != 0)
+            if (listingAvailability.EndTime.Minute % 30 != 0)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "End time must be on the hour or half hour.";
@@ -229,18 +229,21 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "End time must be at least 30 mins past start time.";
+                return result;
             }
 
-            if (DateTime.Now.AddMinutes(30).CompareTo(listingAvailability.StartTime) < 0)
+            if (DateTime.Now.AddMinutes(30).CompareTo(listingAvailability.StartTime) > 0)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Start time must be more than 30 minutes of right now.";
+                return result;
             }
 
-            if (DateTime.Now.AddHours(1).CompareTo(listingAvailability.EndTime) < 0)
+            if (DateTime.Now.AddHours(1).CompareTo(listingAvailability.EndTime) > 0)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "End time must be more than 60 minutes of right now.";
+                return result;
             }
 
             result.IsSuccessful = true;
