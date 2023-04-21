@@ -56,6 +56,23 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             }
         }
 
+        private async static Task<IActionResult> testFunc()
+        {
+
+        }
+
+        private async IActionResult TryCatch(SafeAction)
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                
+            }
+        }
+
         [HttpGet]
         [Route("view")]
         public async Task<IActionResult> GetShowcase([FromQuery(Name = "s")] string? showcaseId = null)

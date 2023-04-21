@@ -8,6 +8,7 @@ import "./AccountPage.css";
 import DeleteAccountView from "./LoginSecurityView/DeleteAccountView/DeleteAccountView";
 import LoginSecurityView from "./LoginSecurityView/LoginSecurityView";
 import NotificationSettingsView from "./NotificationSettingsView/NotificationSettingsView";
+import ProjectShowcaseView from "./ProjectShowcasesView/ProjectShowcaseView";
 
 interface IAccountPageProps {
 
@@ -59,7 +60,7 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
             case AccountViews.MANAGE_LISTINGS:
                 return <></>; //TODO
             case AccountViews.PROJECT_SHOWCASES:
-                return <></>; //TODO
+                return <ProjectShowcaseView/>; //TODO
         }
     }
 
