@@ -1,5 +1,6 @@
 ﻿using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
+using DevelopmentHell.Hubba.ListingProfile.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Models.DTO;
@@ -15,7 +16,6 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
     {
         private IListingProfileService _listingsService;
         //private IFileService _fileService;
-        private IRatingService _ratingService;
         private IAuthorizationService _authorizationService;
         private ILoggerService _loggerService;
         private IValidationService _validationService;

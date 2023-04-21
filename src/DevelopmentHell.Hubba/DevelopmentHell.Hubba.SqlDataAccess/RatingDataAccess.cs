@@ -259,7 +259,5 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             result.Payload = selectResult.Payload;
             return selectResult;
         }
-
-        
     }
 }

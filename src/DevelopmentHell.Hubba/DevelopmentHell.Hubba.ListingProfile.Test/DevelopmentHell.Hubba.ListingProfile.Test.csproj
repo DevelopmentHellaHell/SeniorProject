@@ -26,7 +26,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DevelopmentHell.Hubba.Encryption\DevelopmentHell.Hubba.Cryptography.Service.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.ListingProfile.Service\DevelopmentHell.Hubba.ListingProfile.Service.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.Logging\DevelopmentHell.Hubba.Logging.Service.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.RegistrationManager\DevelopmentHell.Hubba.Registration.Manager.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.SqlDataAccess\DevelopmentHell.Hubba.SqlDataAccess.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.Testing.Service\DevelopmentHell.Hubba.Testing.Service.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.Validaition\DevelopmentHell.Hubba.Validation.Service.csproj" />

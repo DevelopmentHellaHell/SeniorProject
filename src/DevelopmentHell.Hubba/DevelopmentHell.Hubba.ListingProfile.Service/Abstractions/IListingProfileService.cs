@@ -25,16 +25,20 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Abstractions
 
         Task<Result<bool>> CheckListingHistory(int listingId, int userId);
 
-        //Task<Result<double>> GetListingAverageRating(int listingId);
-
         Task<Result<List<ListingRatingViewDTO>>> GetListingRatings(int listingId);
 
         Task<Result<bool>> CheckListingRating(int listingId, int userId);
 
-
         Task<Result> AddListingAvailabilities(List<ListingAvailabilityDTO> listingAvailabilities);
+
         Task<Result> DeleteListingAvailabilities(List<ListingAvailabilityDTO> listingAvailabilities);
 
-        //Task<Result<string>> GetUsername(int userId);
+        Task<Result> DeleteRating(int listingId, int userId);
+
+        Task<Result> UpdateRating(ListingRatingEditorDTO listingRating);
+
+        Task<Result> AddRating(int listingId, int userId, int rating, string? comment, bool anonymous);
+
+
     }
 }

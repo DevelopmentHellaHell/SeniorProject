@@ -17,7 +17,6 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
         private IListingsDataAccess _listingDataAccess;
         private IListingAvailabilitiesDataAccess _listingAvailabilitiesDataAccess;
         private IListingHistoryDataAccess _listingHistoryDataAccess;
-        //private IListingRatingsDataAccess _listingRatingsDataAccess;
         private IRatingDataAccess _ratingDataAccess;
         private IUserAccountDataAccess _userAccountDataAccess;
 
@@ -28,7 +27,6 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
             _listingDataAccess = listingDataAccess;
             _listingAvailabilitiesDataAccess = listingAvailabilitiesDataAccess;
             _listingHistoryDataAccess = listingHistoryDataAccess;
-            //_listingRatingsDataAccess = listingRatingsDataAccess;
             _ratingDataAccess = ratingDataAccess;
             _userAccountDataAccess = userAccountDataAccess;
             _loggerService = loggerService;
@@ -62,8 +60,13 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
                 return result;
             }
 
-            // pull all avg ratings
-
+            var getOwnerAverageRatings = await _ratingDataAccess.GetOwnerAverageRatings(Feature.Listing, ownerId).ConfigureAwait(false);
+            if (!getOwnerAverageRatings.IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = getOwnerAverageRatings.ErrorMessage;
+                return result;
+            }
 
             result.IsSuccessful = true;
             List<ListingViewDTO> listingDTOList = new();
@@ -81,30 +84,6 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
                     LastEdited = (DateTime)listing.LastEdited!,
                     Published = (bool)listing.Published!,
                 };
-
-
-
-                //assign avg rating to dictionary value where key = listingId
-                //use dict.TryGetValue(key, out value)
-
-
-                //Result<string> getUsername = await GetUsername(temp.OwnerId).ConfigureAwait(false);
-                //if (!getUsername.IsSuccessful)
-                //{
-                //    result.IsSuccessful = false;
-                //    result.ErrorMessage = "Unable to retrieve username.";
-                //    return result;
-                //}
-                //temp.OwnerUsername = getUsername.Payload!;
-
-                //Result<double> getAverageRating = await _ratingDataAccess.GetAverageRating(Feature.Listing, temp.ListingId).ConfigureAwait(false);
-                //if (!getAverageRating.IsSuccessful)
-                //{
-                //    result.IsSuccessful = false;
-                //    result.ErrorMessage = "Unable to retrieve average rating.";
-                //    return result;
-                //}
-                //temp.AverageRating = getAverageRating.Payload;
 
                 listingDTOList.Add(temp);
             }
@@ -146,14 +125,14 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
             }
             temp.OwnerUsername = getUsername.Payload!;
 
-            Result<Dictionary<int, double>> getAverageRating = await _ratingDataAccess.GetAverageRating(Feature.Listing, temp.ListingId).ConfigureAwait(false);
+            Result<double?> getAverageRating = await _ratingDataAccess.GetAverageRating(Feature.Listing, temp.ListingId).ConfigureAwait(false);
             if (!getAverageRating.IsSuccessful)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Unable to retrieve average rating.";
                 return result;
             }
-            temp.AverageRating = getAverageRating.Payload[listingId];
+            temp.AverageRating = getAverageRating.Payload;
 
             result.IsSuccessful = true;
             result.Payload = temp;
