@@ -17,6 +17,7 @@ using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
+using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
@@ -43,12 +44,15 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
         private readonly IAuthenticationService _authenticationService;
         private readonly ICollaboratorManager _collaboratorManager;
         private readonly ICollaboratorService _collaboratorService;
+        private readonly ICollaboratorsDataAccess _collaboratorsDataAccess;
+        private readonly ICollaboratorFileDataAccess _collaboratorFileDataAccess;
         private readonly ITestingService _testingService;
+        private readonly IValidationService _validationService;
 
         public CollaboratorManagerIntegrationTests()
         {
             _userAccountDataAccess = new UserAccountDataAccess(_usersConnectionString, _userAccountsTable);
-            IValidationService validationService = new ValidationService();
+            _validationService = new ValidationService();
             ICryptographyService cryptographyService = new CryptographyService(ConfigurationManager.AppSettings["CryptographyKey"]!);
             IJWTHandlerService jwtHandlerService = new JWTHandlerService(
                 _jwtKey
@@ -65,19 +69,21 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
                 _jwtKey,
                 new TestsDataAccess()
             );
+            _collaboratorsDataAccess = new CollaboratorsDataAccess(
+                    ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!,
+                    ConfigurationManager.AppSettings["CollaboratorsTable"]!);
+            _collaboratorFileDataAccess = new CollaboratorFileDataAccess(
+                    ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!,
+                    ConfigurationManager.AppSettings["CollaboratorFilesTable"]!);
             _collaboratorService = new CollaboratorService(
-                new CollaboratorsDataAccess(
-                    ConfigurationManager.AppSettings["CollaboratorsConnectionString"]!,
-                    ConfigurationManager.AppSettings["CollaboratorsTable"]!),
-                new CollaboratorFileDataAccess(
-                    ConfigurationManager.AppSettings["CollaboratorsConnectionString"]!,
-                    ConfigurationManager.AppSettings["CollaboratorFilesTable"]!),
+                _collaboratorsDataAccess,
+                _collaboratorFileDataAccess,
                 new CollaboratorFileJunctionDataAccess(
-                    ConfigurationManager.AppSettings["CollaboratorsConnectionString"]!,
+                    ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!,
                     ConfigurationManager.AppSettings["CollaboratorFileJunctionTable"]!),
-                validationService
+                _validationService
                 );
-            _collaboratorManager = new CollaboratorManager(_collaboratorService,_authorizationService,loggerService, validationService);
+            _collaboratorManager = new CollaboratorManager(_collaboratorService,_authorizationService,loggerService, _validationService);
             _authenticationService = new AuthenticationService(
                 _userAccountDataAccess,
                 new UserLoginDataAccess(
@@ -86,13 +92,13 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
                 ),
                 cryptographyService,
                 jwtHandlerService,
-                validationService,
+                _validationService,
                 loggerService
             );
             _registrationService = new RegistrationService(
                 _userAccountDataAccess,
                cryptographyService,
-               validationService,
+               _validationService,
                loggerService
             );
 
@@ -127,7 +133,8 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
 
-            IFormFile[] uploadedFile = new IFormFile[]{CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza.png") };
+            IFormFile file = CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza0.png");
+            IFormFile[] uploadedFile = new IFormFile[] { file };
 
             CollaboratorProfile collab = new CollaboratorProfile()
             {
@@ -144,11 +151,276 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
 
 
             //Act
-            Result expected = await _collaboratorManager.CreateCollaborator(collab, uploadedFile).ConfigureAwait(false);
+            Result actual = await _collaboratorManager.CreateCollaborator(collab, uploadedFile).ConfigureAwait(false);
 
             //Assert
-            Console.WriteLine(expected.ErrorMessage);
-            Assert.IsTrue(expected.IsSuccessful);
+            Console.WriteLine(actual.ErrorMessage);
+            Assert.IsTrue(actual.IsSuccessful);
+        }
+
+        [TestMethod]
+        public async Task CreateCollaboratorProfileWithPfp()
+        {
+            //Arrange
+            string email = "test@gmail.com";
+            string password = "12345678";
+            await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+
+            IFormFile file = CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza1.png");
+            IFormFile[] uploadedFile = new IFormFile[] { file };
+
+            CollaboratorProfile collab = new CollaboratorProfile()
+            {
+                Name = "Bestest  woodworker",
+                PfpUrl = null,
+                ContactInfo = "123 Avenue Wood Village, CA",
+                Tags = "woodie, super strong, carpenter",
+                Description = "I can build big old tables and chairs",
+                Availability = "I'm free whenever",
+                Votes = 0,
+                CollabUrls = new List<string>(),
+                Published = true
+            };
+
+
+            //Act
+            Result actual = await _collaboratorManager.CreateCollaborator(collab, uploadedFile, uploadedFile[0]).ConfigureAwait(false);
+
+            //Assert
+            Console.WriteLine(actual.ErrorMessage);
+            Assert.IsTrue(actual.IsSuccessful);
+            
+        }
+
+        [TestMethod]
+        public async Task CreateCollaboratorProfileWithPfpAndMultipleFiles()
+        {
+            //Arrange
+            string email = "test@gmail.com";
+            string password = "12345678";
+            await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+
+            IFormFile file = CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza2.png");
+            IFormFile[] uploadedFile = new IFormFile[] { file, file };
+
+            CollaboratorProfile collab = new CollaboratorProfile()
+            {
+                Name = "Bestest  woodworker",
+                PfpUrl = null,
+                ContactInfo = "123 Avenue Wood Village, CA",
+                Tags = "woodie, super strong, carpenter",
+                Description = "I can build big old tables and chairs",
+                Availability = "I'm free whenever",
+                Votes = 0,
+                CollabUrls = new List<string>(),
+                Published = true
+            };
+
+
+            //Act
+            Result actual = await _collaboratorManager.CreateCollaborator(collab, uploadedFile, uploadedFile[0]).ConfigureAwait(false);
+
+            //Assert
+            Console.WriteLine(actual.ErrorMessage);
+            Assert.IsTrue(actual.IsSuccessful);
+        }
+
+        [TestMethod]
+        public async Task GetCollaboratorWithAuthorization()
+        {
+            //Arrange
+            string email = "test@gmail.com";
+            string password = "12345678";
+            await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+
+            IFormFile file = CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza3.png");
+            IFormFile[] uploadedFile = new IFormFile[] { file, file };
+
+            CollaboratorProfile collab = new CollaboratorProfile()
+            {
+                Name = "Bestest  woodworker",
+                PfpUrl = null,
+                ContactInfo = "123 Avenue Wood Village, CA",
+                Tags = "woodie, super strong, carpenter",
+                Description = "I can build big old tables and chairs",
+                Availability = "I'm free whenever",
+                Votes = 0,
+                CollabUrls = new List<string>(),
+                Published = true
+            };
+
+            await _collaboratorManager.CreateCollaborator(collab, uploadedFile, uploadedFile[0]).ConfigureAwait(false);
+            var collabId = await _collaboratorsDataAccess.GetCollaboratorId(accountId).ConfigureAwait(false);
+
+            //Act
+            var actual = await _collaboratorManager.GetCollaborator(collabId.Payload).ConfigureAwait(false);
+
+            //Assert
+            Console.WriteLine(actual.ErrorMessage);
+            Assert.IsTrue(actual.IsSuccessful);
+            Assert.IsTrue(_validationService.ValidateCollaborator(actual.Payload!).IsSuccessful);
+        }
+
+        [TestMethod]
+        public async Task UpdateCollaboratorRemovePfp()
+        {
+            //Arrange
+            string email = "test@gmail.com";
+            string password = "12345678";
+            await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+
+            IFormFile file = CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza4.png");
+            IFormFile[] uploadedFile = new IFormFile[] { file, file };
+            IFormFile[] changedFile = new IFormFile[] { file };
+
+            CollaboratorProfile collab = new CollaboratorProfile()
+            {
+                Name = "Bestest  woodworker",
+                PfpUrl = null,
+                ContactInfo = "123 Avenue Wood Village, CA",
+                Tags = "woodie, super strong, carpenter",
+                Description = "I can build big old tables and chairs",
+                Availability = "I'm free whenever",
+                Votes = 0,
+                CollabUrls = new List<string>(),
+                Published = true
+            };
+
+            CollaboratorProfile collabChanges = new CollaboratorProfile()
+            {
+                Name = "Meh  woodworker",
+                PfpUrl = null,
+                ContactInfo = "2020 Avenue Wood Village, CA",
+                Tags = "alright, super okay",
+                Description = "I can't build big old tables and chairs",
+                Availability = "I'm free never",
+                Votes = 0,
+                CollabUrls = new List<string>(),
+                Published = true
+            };
+
+            await _collaboratorManager.CreateCollaborator(collab, uploadedFile, uploadedFile[0]).ConfigureAwait(false);
+            var removedFileIdsResult = await _collaboratorFileDataAccess.SelectFileIdsFromOwner(accountId).ConfigureAwait(false);
+            var removedFileUrlsResult = await _collaboratorFileDataAccess.SelectFileUrls(removedFileIdsResult.Payload!).ConfigureAwait(false);
+            string[] removedFileUrls = new string[removedFileIdsResult.Payload!.Count];
+            for(int i = 0; i < removedFileUrls.Length; i++)
+            {
+                removedFileUrls[i] = removedFileUrlsResult.Payload![i];
+            }
+
+            //Act
+            var actual = await _collaboratorManager.EditCollaborator(collabChanges, changedFile,
+                removedFileUrls).ConfigureAwait(false);
+
+            //Assert
+            Console.WriteLine(actual.ErrorMessage);
+            Assert.IsTrue(actual.IsSuccessful);
+        }
+
+        [TestMethod]
+        public async Task UpdateCollaboratorAddNewPfp()
+        {
+            //Arrange
+            string email = "test@gmail.com";
+            string password = "12345678";
+            await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+
+            IFormFile file = CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza5.png");
+            IFormFile[] uploadedFile = new IFormFile[] { file, file };
+            IFormFile[] changedFile = new IFormFile[] { file };
+
+            CollaboratorProfile collab = new CollaboratorProfile()
+            {
+                Name = "Bestest  woodworker",
+                PfpUrl = null,
+                ContactInfo = "123 Avenue Wood Village, CA",
+                Tags = "woodie, super strong, carpenter",
+                Description = "I can build big old tables and chairs",
+                Availability = "I'm free whenever",
+                Votes = 0,
+                CollabUrls = new List<string>(),
+                Published = true
+            };
+
+            CollaboratorProfile collabChanges = new CollaboratorProfile()
+            {
+                Name = "Meh  woodworker",
+                PfpUrl = null,
+                ContactInfo = "2020 Avenue Wood Village, CA",
+                Tags = "alright, super okay",
+                Description = "I can't build big old tables and chairs",
+                Availability = "I'm free never",
+                Votes = 0,
+                CollabUrls = new List<string>(),
+                Published = true
+            };
+
+            await _collaboratorManager.CreateCollaborator(collab, uploadedFile, uploadedFile[0]).ConfigureAwait(false);
+            var removedFileIdsResult = await _collaboratorFileDataAccess.SelectFileIdsFromOwner(accountId).ConfigureAwait(false);
+            var removedFileUrlsResult = await _collaboratorFileDataAccess.SelectFileUrls(removedFileIdsResult.Payload!).ConfigureAwait(false);
+            string[] removedFileUrls = new string[removedFileIdsResult.Payload!.Count];
+            for (int i = 0; i < removedFileUrls.Length; i++)
+            {
+                removedFileUrls[i] = removedFileUrlsResult.Payload![i];
+            }
+
+            //Act
+            var actual = await _collaboratorManager.EditCollaborator(collabChanges, changedFile,
+                removedFileUrls, changedFile[0]).ConfigureAwait(false);
+
+            //Assert
+            Console.WriteLine(actual.ErrorMessage);
+            Assert.IsTrue(actual.IsSuccessful);
         }
 
         [TestCleanup]
@@ -157,6 +429,8 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             await _testingService.DeleteAllRecords().ConfigureAwait(false);
         }
 
+
+        // Making an IFormFile for testing, it streams the location of the file into a file object
         public IFormFile CreateFormFileFromFilePath(string filePath)
         {
             var fileName = Path.GetFileName(filePath);

@@ -9,10 +9,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
         Task<Result<int>> CreateCollaborator(CollaboratorProfile collab);
         Task<Result<int>> GetOwnerId(int collabId);
         Task<Result<int>> GetCollaboratorId(int ownerId);
-        Task<Result<CollaboratorProfile>> GetCollaborator(int collabId);
+        Task<Result<CollaboratorProfile>> GetCollaboratorWithPfpId(int collabId);
         Task<Result<bool>> GetPublished(int collabId);
-        Task<Result> Update(CollaboratorProfile collab);
-        Task<Result> UpdatePfpFileId(int collabId, int pfpFileId);
+        Task<Result> Update(int collabId, CollaboratorProfile collab);
+        Task<Result> UpdatePfpFileId(int collabId, int? pfpFileId = null);
         Task<Result> Delete(int collabId);
         Task<Result> Remove(CollaboratorProfile collab);
         Task<Result> SetPublished(int collabId, bool published);

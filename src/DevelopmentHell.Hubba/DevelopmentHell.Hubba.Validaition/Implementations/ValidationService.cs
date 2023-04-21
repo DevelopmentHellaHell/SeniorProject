@@ -235,6 +235,13 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
                 result.ErrorMessage = "Uploaded file urls do not meet system requirements.";
                 return result;
             }
+
+            if (collab.CollabUrls.Count > 10 || collab.CollabUrls.Count == 0)
+            {
+                result.ErrorMessage = "Collaborator must contain within 1-10 uploaded files.";
+                return result;
+            }
+
             foreach (string collabUrl in collab.CollabUrls)
             {
                 if (string.IsNullOrEmpty(collabUrl))

@@ -8,7 +8,8 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Abstractions
         Task<Result> CreateCollaborator(CollaboratorProfile collab, IFormFile[] collabFiles, IFormFile? pfpFile = null);
         Task<Result> DeleteCollaborator(int collabId);
         Task<Result> DeleteCollaboratorWithAccountId(int accountId);
-        Task<Result> EditCollaborator(int collabId);
+        Task<Result> EditCollaborator(CollaboratorProfile collab, IFormFile[]? collabFiles = null,
+            string[]? removedFiles = null, IFormFile? pfpFile = null);
         Task<Result<CollaboratorProfile>> GetCollaborator(int collabId);
         Task<Result> ChangeVisibility(int collabId, bool isPublic);
     }

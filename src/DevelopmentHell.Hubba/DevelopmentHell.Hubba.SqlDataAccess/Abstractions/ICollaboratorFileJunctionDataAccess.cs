@@ -7,5 +7,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
     public interface ICollaboratorFileJunctionDataAccess
     {
         Task<Result> InsertCollaboratorFile(int collabId, int fileId);
+        Task<Result<List<int>>> SelectFiles(int collabId);
     }
 }

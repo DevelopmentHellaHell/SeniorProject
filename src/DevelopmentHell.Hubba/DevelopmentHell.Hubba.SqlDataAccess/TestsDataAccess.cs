@@ -46,6 +46,20 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     }
                 )
             },
+            {
+                Databases.COLLABORATOR_PROFILES,
+                new (
+                    "DevelopmentHell.Hubba.CollaboratorProfiles",
+                    ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!,
+                    new ()
+                    {
+                        { Tables.COLLABORATOR_FILE_JUNCTION, ConfigurationManager.AppSettings["CollaboratorFileJunctionTable"]! },
+                        { Tables.COLLABORATORS, ConfigurationManager.AppSettings["CollaboratorsTable"]! },
+                        { Tables.COLLABORATOR_FILES, ConfigurationManager.AppSettings["CollaboratorFilesTable"]! },
+                        { Tables.USER_VOTES, ConfigurationManager.AppSettings["CollaboratorUserVotesTable"]! }
+                    }
+                )
+            },
         };
 
         public TestsDataAccess() { }

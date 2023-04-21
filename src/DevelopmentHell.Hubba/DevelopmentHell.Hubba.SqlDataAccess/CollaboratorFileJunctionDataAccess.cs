@@ -40,5 +40,39 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             return insertResult;
         }
+
+        public async Task<Result<List<int>>> SelectFiles(int collabId)
+        {
+            Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
+                _tableName,
+                new List<String>() { "FileId" },
+                new List<Comparator>() { 
+                    new Comparator("CollaboratorId","=", collabId) 
+                }
+            ).ConfigureAwait(false);
+            
+            if (!selectResult.IsSuccessful || selectResult.Payload is null)
+            {
+                return new (Result.Failure("" + selectResult.ErrorMessage));
+            }
+
+            List<Dictionary<string, object>> payload = selectResult.Payload;
+            if (payload.Count > 10)
+            {
+                return new(Result.Failure($"Selected more than the valid number of files: {payload.Count}" + selectResult.ErrorMessage));
+            }
+
+            List<int> fileIds = new List<int>();
+
+            foreach (var row in payload)
+            {
+                fileIds.Add((int)row["FileId"]);
+            }
+            return new Result<List<int>>()
+            {
+                IsSuccessful = true,
+                Payload = fileIds
+            };
+        }
     }
 }
