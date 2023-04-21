@@ -10,12 +10,12 @@ interface ILoginSecurityViewProps {
 const LoginSecurityView: React.FC<ILoginSecurityViewProps> = (props) => {
     return (
         <div className="login-security-wrapper">
-            <h1>Login & Security</h1>
+            <h1 id="login-security-header">Login & Security</h1>
 
             <h2>Login</h2>
             <div className ="login-password">
                 <p className="inline-text">Change password</p>
-                <div className="buttons">
+                <div id="update-button" className="buttons">
                     <Button title="Update" onClick={ props.onUpdateClick }/>
                 </div>
             </div>
@@ -23,7 +23,7 @@ const LoginSecurityView: React.FC<ILoginSecurityViewProps> = (props) => {
             <h2>Account</h2>
             <div className="delete-account">
                 <p className="inline-text">Delete your account</p>
-                <div className="buttons">
+                <div id = "delete-button" className="buttons">
                     <Button title="Delete" onClick={ props.onDeleteClick }/>
                 </div>
             </div>

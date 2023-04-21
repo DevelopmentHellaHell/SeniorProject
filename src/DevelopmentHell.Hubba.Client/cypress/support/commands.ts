@@ -3,9 +3,10 @@ export { }
 declare global {
     namespace Cypress {
         interface Chainable {
-            RegisterViaApi(emai: string, password: string): Chainable<void>;
+            RegisterViaApi(email: string, password: string): Chainable<void>;
             LoginViaUI(email: string, password: string): Chainable<void>;
             LoginViaApi(email: string, password: string): Chainable<void>;
+            LogInandOut(): Chainable<void>;
         }
     }
 }
@@ -49,8 +50,8 @@ Cypress.Commands.add('LoginViaApi', (email: string, password: string) => {
             cy.session([email, password], () => {
                 cy.visit("/login");
                 let startTimer: number;
-                cy.get('#email').as('email').type(Cypress.env('realEmail')).should('have.value', Cypress.env('realEmail'));
-                cy.get('#password').as('password').type(Cypress.env('standardPassword')).should('have.value', Cypress.env('standardPassword'));
+                cy.get('#email').as('email').type(email).should('have.value', email);
+                cy.get('#password').as('password').type(password).should('have.value', password);
                 cy.contains('Submit').click()
                     .then(() => {
                         //valid email, password, show OTP card
@@ -80,3 +81,14 @@ Cypress.Commands.add('LoginViaApi', (email: string, password: string) => {
                     });
             });
         })
+        
+Cypress.Commands.add("LogInandOut", () => {
+    cy.session("logout", () => {
+        cy.LoginViaApi(Cypress.env('realEmail'), Cypress.env('standardPassword'))
+            .then(() => {
+                cy.visit("/");
+                cy.get('.dropdown-content').invoke('show');
+                cy.contains('Logout').click();
+            });
+    });
+});

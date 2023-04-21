@@ -23,7 +23,7 @@ interface IAppProps {
 const App: React.FC<IAppProps> = (props) => {
 	return (
 		<NotificationStateProvider>
-			<div className="App">
+			<div id="App" className="App">
 				<BrowserRouter>
 					<Routes>
 						{/* Anyone can access */}
