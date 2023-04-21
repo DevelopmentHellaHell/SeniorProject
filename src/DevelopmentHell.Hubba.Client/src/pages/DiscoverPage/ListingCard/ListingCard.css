@@ -1,0 +1,65 @@
+.listing-card {
+    display: flex;
+    flex-flow: column;
+    line-height: 0;
+    width: 300px;
+    height: auto;
+    text-align: left;
+}
+
+.listing-card .thumbnail {
+    object-fit: scale-down;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+}
+
+.listing-card .title {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    
+    padding: 20px;
+    margin: 0 -20px;
+    resize: horizontal;
+}
+
+.listing-card .rating-block {
+    display: flex;
+    margin-top: -15px;
+    align-items: center;
+}
+
+.listing-card .rating {
+    line-height: 100%;
+    unicode-bidi: bidi-override;
+    color: #c5c5c5;
+    font-size: 20px;
+    margin-top: -2px;
+    margin-right: 15px;
+    position: relative;
+    padding: 0;
+    text-shadow: 0px 1px 0 #a2a2a2;
+}
+
+.listing-card .rating .upper {
+    color: #e7711b;
+    padding: 0;
+    position: absolute;
+    z-index: 1;
+    display: flex;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+}
+
+.listing-card .rating .lower {
+    padding: 0;
+    display: flex;
+    z-index: 0;
+}
+
+.listing-card .description {
+    margin-top: -10px;
+}

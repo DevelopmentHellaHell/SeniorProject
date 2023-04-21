@@ -15,7 +15,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 			_discoveryManager = discoveryManager;
 		}
 
-		[HttpGet]
+		[HttpPost]
 		[Route("getCurated")]
 		public async Task<IActionResult> GetCurated(CuratedDTO curatedDTO)
 		{
@@ -36,7 +36,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 			}).ConfigureAwait(false);
 		}
 
-		[HttpGet]
+		[HttpPost]
 		[Route("getSearch")]
 		public async Task<IActionResult> GetSearch(SearchDTO searchDTO)
 		{

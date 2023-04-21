@@ -15,6 +15,7 @@ import AdminDashboardPage from "./pages/AdminDashboardPage/AdminDashboardPage";
 import AccountRecoveryPage from "./pages/AccountRecoveryPage/AccountRecoveryPage";
 import "./App.css";
 import NotificationStateProvider from "./NotificationStateProvider";
+import DiscoverPage from "./pages/DiscoverPage/DiscoverPage";
 
 interface IAppProps {
 
@@ -28,7 +29,8 @@ const App: React.FC<IAppProps> = (props) => {
 					<Routes>
 						{/* Anyone can access */}
 						<Route index element={<HomePage />} />
-						<Route path="*" element={<Navigate to='/' replace />} />
+						<Route path="*" element={<Navigate to="/" replace />} />
+						<Route path="/discover" element={<DiscoverPage />} />
 						<Route path="/unauthorized" element={<Unauthorized />} />
 						
 						{/* Public routes - no auth */}

@@ -26,7 +26,7 @@ const NavbarUser: React.FC<INavbarUserProps> = (props) => {
             <p className="logo" onClick={() => {navigate("/")}}>HUBBA</p>
             <nav className="nav-links">
                 <li><p onClick={() => { alert("1") }}>Profile</p></li>
-                <li><p onClick={() => { alert("2") }}>Discover</p></li>
+                <li><p onClick={() => {navigate("/discover")}}>Discover</p></li>
                 {authData.role === Auth.Roles.ADMIN_USER &&
                     <li><p onClick={() => { navigate("/admin-dashboard") }}>Admin Dashboard</p></li>
                 }
