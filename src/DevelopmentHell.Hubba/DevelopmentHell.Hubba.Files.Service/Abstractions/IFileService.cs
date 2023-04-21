@@ -9,9 +9,11 @@ namespace DevelopmentHell.Hubba.Files.Service.Abstractions
 {
     public interface IFileService
     {
-        public Task<Result> UploadFile(string fileName, byte[] fileData);
-        public Task<Result> DeleteFile(string fileName);
-        public Task<Result<string>> GetFileReference(string fileName, string fileExtension);
-        public Task<Result<List<string>>> GetFilesInDir(string dir);
+        public Task<Result> UploadFile(string filePath, string fileName, byte[] fileData);
+        public Task<Result> UploadDir(string dirPath, List<Tuple<string,byte[]>> fileNameData);
+        public Task<Result> DeleteFile(string filePath);
+        public Task<Result> DeleteDir(string dirPath);
+        public Task<Result<string>> GetFileReference(string filePath);
+        public Task<Result<List<string>>> GetFilesInDir(string dirPath);
     }
 }
