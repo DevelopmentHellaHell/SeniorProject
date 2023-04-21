@@ -85,7 +85,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
             // check each chosen time frame against the BookedTimeFrames table
             foreach (var timeframe in chosenTimeframes)
             {
-                var isBooked = await _availabilityService.CheckIfOverlapBookedTimeFrames(
+                var isBooked = await _availabilityService.ValidateChosenTimeFrames(
                     listingId, 
                     (int)timeframe.AvailabilityId,
                     new List<BookedTimeFrame>() { timeframe }

@@ -1,6 +1,7 @@
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
+using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using System.Configuration;
@@ -245,18 +246,22 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
             };
             var createBooking = await _bookingDAO.CreateBooking(booking).ConfigureAwait (false);
             int bookingId = createBooking.Payload;
-            
-            booking.BookingId = bookingId;
-            booking.BookingStatusId = BookingStatus.CANCELLED;
-            List<Tuple<string, object>> filter = new()
-                {
-                    new Tuple<string,object> (nameof(Booking.BookingId), booking.BookingId),
-                };
+            Dictionary<string, object> values = new() 
+            {
+                {nameof(Booking.BookingStatusId), BookingStatus.CANCELLED}
+            };
+
+            List<Comparator> comparators = new()
+            {
+                new Comparator(nameof(Booking.BookingStatusId),"=", bookingId)
+            };
+            List<Tuple<string, object>> filter = new() { new Tuple<string, object>(nameof(Booking.BookingId), bookingId) };
 
             //Act
-            var actual = await _bookingDAO.UpdateBooking(booking).ConfigureAwait(false);
+            var actual = await _bookingDAO.UpdateBooking(values, comparators).ConfigureAwait(false);
             var getBooking = await _bookingDAO.GetBooking(filter).ConfigureAwait(false);
             var updateResult = (Result<List<Booking>>)getBooking;
+
             //Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsSuccessful);

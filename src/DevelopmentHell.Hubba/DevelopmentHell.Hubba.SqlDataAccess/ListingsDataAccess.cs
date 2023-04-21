@@ -1,6 +1,7 @@
 ﻿
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
+using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
@@ -11,6 +12,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         private UpdateDataAccess _updateDataAccess;
         private SelectDataAccess _selectDataAccess;
         private DeleteDataAccess _deleteDataAccess;
+        private ExecuteDataAccess _executeDataAccess;
         private string _tableName;
 
         public ListingsDataAccess(string connectionString, string tableName)
@@ -19,6 +21,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             _updateDataAccess = new UpdateDataAccess(connectionString);
             _selectDataAccess = new SelectDataAccess(connectionString);
             _deleteDataAccess = new DeleteDataAccess(connectionString);
+            _executeDataAccess = new ExecuteDataAccess(connectionString);
             _tableName = tableName;
         }
         public async Task<Result> CreateListing(int ownerId, string title)

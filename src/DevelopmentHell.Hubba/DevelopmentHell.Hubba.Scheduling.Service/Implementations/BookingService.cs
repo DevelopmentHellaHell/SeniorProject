@@ -29,6 +29,10 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
             try
             {
                 var result = await operation().ConfigureAwait(false);
+                if (!result.IsSuccessful)
+                {
+                    return new(Result.Failure(result.ErrorMessage));
+                }
                 return Result<T>.Success(result.Payload!);
             }
             catch (Exception ex)
@@ -58,7 +62,6 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
 
         public async Task<Result<int>> AddNewBooking(Booking booking)
         {
-            var result = new Result<int> { IsSuccessful = false };
             if (booking == null)
             {
                 return new (Result.Failure("Empty booking"));

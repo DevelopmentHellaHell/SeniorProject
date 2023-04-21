@@ -181,6 +181,46 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.DAL
             Assert.IsTrue(actual.Payload.Count == 2);
         }
 
+        [TestMethod]
+        public async Task GetListingAvailabilities_ByMonth()
+        {
+            //Arrange
+            int ownerId = 1;
+            string title = "Test Title";
+            await _listingsDataAccess.CreateListing(ownerId, title).ConfigureAwait(false);
+            var listingIdResult = await _listingsDataAccess.GetListingId(ownerId, title).ConfigureAwait(false);
+            int listingId = (int)listingIdResult.Payload;
+            List<ListingAvailabilityDTO> addList = new();
+            ListingAvailabilityDTO temp1 = new ListingAvailabilityDTO()
+            {
+                ListingId = listingId,
+                StartTime = DateTime.Now,
+                EndTime = DateTime.Now.AddHours(1),
+            };
+            ListingAvailabilityDTO temp2 = new ListingAvailabilityDTO()
+            {
+                ListingId = listingId,
+                StartTime = DateTime.Now,
+                EndTime = DateTime.Now.AddHours(3),
+            };
+            addList.Add(temp1);
+            addList.Add(temp2);
+            await _listingAvailabilitiesDataAccess.AddListingAvailabilities(addList);
+
+            var expected = true;
+            var expectedType = typeof(List<ListingAvailability>);
+
+
+            //Act
+            var actual = await _listingAvailabilitiesDataAccess.GetListingAvailabilitiesByMonth(listingId, temp1.StartTime.Month, temp1.StartTime.Year).ConfigureAwait(false);
+
+            //Assert
+            Assert.IsNotNull(actual);
+            Assert.IsTrue(actual.IsSuccessful == expected);
+            Assert.IsTrue(actual.Payload is not null);
+            Assert.IsTrue(actual.Payload.GetType() == expectedType);
+            Assert.IsTrue(actual.Payload.Count == 2);
+        }
 
         [TestMethod]
         public async Task DeleteListingAvailabilities1()

@@ -132,6 +132,61 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return result;
         }
 
+        public async Task<Result<List<ListingAvailability>>> GetListingAvailabilitiesByMonth(int listingId, int month, int year)
+        {
+            //Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
+            //    _tableName,
+            //    new List<string>() { "ListingId", "AvailabilityId", "StartTime", "EndTime" },
+            //    new List<Comparator>()
+            //    {
+            //        new Comparator(nameof(ListingAvailability.ListingId), "=", listingId),
+            //        new Comparator("MONTH(StartTime)", "=", month),
+            //        new Comparator("YEAR(StartTime)", "=", year)
+            //    },
+            //    "",
+            //    "StartTime"
+            //).ConfigureAwait(false);
+
+            //if (!selectResult.IsSuccessful)
+            //{
+            //    return new(Result.Failure(selectResult.ErrorMessage));
+            //}
+            //List<ListingAvailability> listingAvailabilities = new();
+            //List<Dictionary<string, object>> payload = selectResult.Payload;
+            //foreach (var listItem in payload)
+            //{
+            //    var listingAvailability = new ListingAvailability();
+            //    var listingAvailabilityType = listingAvailability.GetType();
+            //    foreach (var item in listItem)
+            //    {
+            //        listingAvailabilityType.GetProperty(item.Key)!.SetValue(listingAvailability, item.Value, null);
+            //    }
+            //    listingAvailabilities.Add(listingAvailability);
+            //}
+            //return Result<List<ListingAvailability>>.Success(listingAvailabilities);
+
+
+            var selectResult = await GetListingAvailabilities(listingId).ConfigureAwait(false);
+            if (!selectResult.IsSuccessful || selectResult.Payload == null)
+            {
+                return new(Result.Failure(selectResult.ErrorMessage));
+            }
+            if(selectResult.Payload.Count == 0)
+            {
+                return new(Result.Failure("No availability found for this listing"));
+            }
+            List<ListingAvailability> availabilitiesbyMotnh = new();
+            foreach (var listItem in selectResult.Payload)
+            {
+                if (listItem.StartTime.Month == month && listItem.StartTime.Year == year)
+                {
+                    availabilitiesbyMotnh.Add(listItem);
+                }
+            }
+
+            return Result<List<ListingAvailability>>.Success(availabilitiesbyMotnh);
+        }
+
         public async Task<Result> UpdateListingAvailability(ListingAvailabilityDTO listingAvailability)
         {
             Result result = new Result();

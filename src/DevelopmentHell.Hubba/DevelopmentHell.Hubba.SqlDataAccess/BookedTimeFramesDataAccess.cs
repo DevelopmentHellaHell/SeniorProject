@@ -59,7 +59,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         }
        
         /// <summary>
-        /// Get BookedTimeFrame by BookingId or ListingId
+        /// Get BookedTimeFrame by BookingId or ListingId,
+        /// sorted by StartDateTime
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="value"></param>
@@ -82,12 +83,18 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     nameof(BookedTimeFrame.StartDateTime),
                     nameof(BookedTimeFrame.EndDateTime)
                 },
-                comparators
+                comparators,
+                "",
+                "StartDateTime"
             ).ConfigureAwait(false);
 
             if (!selectResult.IsSuccessful || selectResult.Payload is null)
             {
                 return new (Result.Failure(selectResult.ErrorMessage));
+            }
+            if (selectResult.Payload.Count == 0)
+            {
+                return new(Result.Failure("No booked time frame found"));
             }
             List<BookedTimeFrame> resultList = new();
             foreach (var row in selectResult.Payload)
