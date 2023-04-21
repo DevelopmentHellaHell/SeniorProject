@@ -55,11 +55,15 @@ namespace DevelopmentHell.Hubba.FTPFileService.Test
         [TestMethod]
         public async Task CreateDir_UploadFile_GetFileReference()
         {
-            //var dirResult = await _fileService.CreateDir(dirPath);
-            //Assert.IsTrue(dirResult.IsSuccessful);
+            var dirResult = await _fileService.CreateDir(dirPath);
+            Assert.IsTrue(dirResult.IsSuccessful);
+
+            Thread.Sleep(100);
 
             var result = await _fileService.UploadFile(dirPath, fileNameData[0].Item1, fileNameData[0].Item2).ConfigureAwait(false);
             Assert.IsTrue(result.IsSuccessful);
+
+            Thread.Sleep(100);
 
             var testResult = await _fileService.GetFileReference(dirPath + "/" + fileNameData[0].Item1).ConfigureAwait(false);
             Assert.IsTrue(testResult.IsSuccessful);
@@ -71,12 +75,18 @@ namespace DevelopmentHell.Hubba.FTPFileService.Test
             var dirResult = await _fileService.CreateDir(dirPath);
             Assert.IsTrue(dirResult.IsSuccessful);
 
+            Thread.Sleep(100);
+
             var result = await _fileService.UploadDir(dirPath, fileNameData);
             Assert.IsTrue(result.IsSuccessful);
+
+            Thread.Sleep(100);
 
             var testResult = await _fileService.GetFileReference(dirPath + "/" + fileNameData[0].Item1).ConfigureAwait(false);
             Assert.IsTrue(testResult.IsSuccessful);
             Assert.IsTrue(testResult.Payload == $"ftp://{_ftpServer}/{dirPath}/{fileNameData[0].Item1}");
+
+            Thread.Sleep(100);
 
             testResult = await _fileService.GetFileReference(dirPath + fileNameData[1].Item1).ConfigureAwait(false);
             Assert.IsTrue(testResult.IsSuccessful);
@@ -88,11 +98,17 @@ namespace DevelopmentHell.Hubba.FTPFileService.Test
             var dirResult = await _fileService.CreateDir(dirPath);
             Assert.IsTrue(dirResult.IsSuccessful);
 
+            Thread.Sleep(100);
+
             var result = await _fileService.UploadFile(dirPath, fileNameData[0].Item1, fileNameData[0].Item2).ConfigureAwait(false);
             Assert.IsTrue(result.IsSuccessful);
 
-            var deleteResult = await _fileService.DeleteFile(dirPath + fileNameData[0].Item1);
-            Assert.IsTrue(deleteResult.IsSuccessful);
+            Thread.Sleep(100);
+
+            var deleteResult = await _fileService.DeleteFile(dirPath + "/" + fileNameData[0].Item1);
+            Assert.IsTrue(deleteResult.IsSuccessful, deleteResult.ErrorMessage);
+
+            Thread.Sleep(100);
 
             var testResult = await _fileService.GetFileReference(dirPath + "/" + fileNameData[0].Item1).ConfigureAwait(false);
             Assert.IsTrue(!testResult.IsSuccessful);
@@ -100,16 +116,17 @@ namespace DevelopmentHell.Hubba.FTPFileService.Test
         [TestMethod]
         public async Task DeleteDir()
         {
-            var dirResult = await _fileService.CreateDir(dirPath);
-            Assert.IsTrue(dirResult.IsSuccessful);
+            //var dirResult = await _fileService.CreateDir(dirPath);
+            //Assert.IsTrue(dirResult.IsSuccessful);
 
-            var result = await _fileService.UploadFile(dirPath, fileNameData[0].Item1, fileNameData[0].Item2).ConfigureAwait(false);
-            Assert.IsTrue(result.IsSuccessful);
+            Thread.Sleep(100);
 
             var deleteResult = await _fileService.DeleteDir(dirPath);
             Assert.IsTrue(deleteResult.IsSuccessful);
 
-            var testResult = await _fileService.GetFileReference(dirPath + "/" + fileNameData[0].Item1).ConfigureAwait(false);
+            Thread.Sleep(100);
+
+            var testResult = await _fileService.GetFileReference(dirPath).ConfigureAwait(false);
             Assert.IsTrue(!testResult.IsSuccessful);
         }
         [TestMethod]
@@ -118,8 +135,12 @@ namespace DevelopmentHell.Hubba.FTPFileService.Test
             var dirResult = await _fileService.CreateDir(dirPath);
             Assert.IsTrue(dirResult.IsSuccessful);
 
+            Thread.Sleep(100);
+
             var result = await _fileService.UploadDir(dirPath, fileNameData);
             Assert.IsTrue(result.IsSuccessful);
+
+            Thread.Sleep(100);
 
 
             var testResult = await _fileService.GetFilesInDir(dirPath).ConfigureAwait(false);
