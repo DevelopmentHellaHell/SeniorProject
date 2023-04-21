@@ -7,6 +7,7 @@ using DevelopmentHell.Hubba.Models.DTO;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.ListingProfile.Manager.Abstractions;
 using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 using System.Configuration;
 
 using System.Security.Claims;
@@ -36,14 +37,15 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
 
         public async Task<Result> CreateListing(string title)
         {
-            Result result = new Result();
+            //Result result = new Result();
 
             //authorize
             if (!_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unauthorized user.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unauthorized user.";
+                //return result;
+                return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
             }
 
             //assign Id from token
@@ -51,9 +53,10 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
             if (stringAccountId is null)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, invalid access token format.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Error, invalid access token format.";
+                //return result;
+                return new(Result.Failure("Error, invalid access token format.", StatusCodes.Status400BadRequest));
             }
             int ownerId = int.Parse(stringAccountId);
 
@@ -61,9 +64,10 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             var stringAccountUsername = claimsPrincipal?.FindFirstValue("azp");
             if (stringAccountUsername is null)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, invalid access token format.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Error, invalid access token format.";
+                //return result;
+                return new(Result.Failure("Error, invalid access token format.", StatusCodes.Status400BadRequest));
             }
             string ownerUsername = (string)stringAccountUsername;
 
@@ -72,18 +76,20 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             Result validationResult = _validationService.ValidateTitle(title);
             if (!validationResult.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = validationResult.ErrorMessage;
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = validationResult.ErrorMessage;
+                //return result;
+                return new(Result.Failure(validationResult.ErrorMessage!, StatusCodes.Status400BadRequest));
             }
 
 
             Result createListingResult = await _listingsService.CreateListing(ownerId, title).ConfigureAwait(false);
             if (!createListingResult.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = createListingResult.ErrorMessage;
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = createListingResult.ErrorMessage;
+                //return result;
+                return new(Result.Failure(createListingResult.ErrorMessage!, StatusCodes.Status400BadRequest));
             }
 
             //log 
@@ -91,26 +97,29 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             Result<HashData> userHashResult = _cryptographyService.HashString(ownerUsername, userHashKey);
             if (!userHashResult.IsSuccessful || userHashResult.Payload is null)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, unexpected error. Please contact system administrator.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Error, unexpected error. Please contact system administrator.";
+                //return result;
+                return new(Result.Failure("Error, unexpected error. Please contact system administrator.", StatusCodes.Status400BadRequest));
             }
             string userHash = Convert.ToBase64String(userHashResult.Payload.Hash!);
             _loggerService.Log(LogLevel.INFO, Category.BUSINESS, $"Successful listing creation from: {ownerUsername}.", userHash);
 
-            result.IsSuccessful = true;
-            return result;
+            //result.IsSuccessful = true;
+            //return result;
+            return Result.Success();
         }
 
         public async Task<Result<List<ListingViewDTO>>> ViewUserListings()
         {
-            Result<List<ListingViewDTO>> result = new Result<List<ListingViewDTO>>();
+            //Result<List<ListingViewDTO>> result = new Result<List<ListingViewDTO>>();
 
             if (!_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unauthorized user.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unauthorized user.";
+                //return result;
+                return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
             }
 
             //assign Id from token
@@ -118,29 +127,32 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
             if (stringAccountId is null)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, invalid access token format.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Error, invalid access token format.";
+                //return result;
+                return new(Result.Failure("Error, invalid access token format.", StatusCodes.Status400BadRequest));
             }
             int ownerId = int.Parse(stringAccountId);
 
             Result<List<ListingViewDTO>> getUserListingsResult = await _listingsService.GetUserListings(ownerId).ConfigureAwait(false);
             if (!getUserListingsResult.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unable to retrieve user listings.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unable to retrieve user listings.";
+                //return result;
+                return new(Result.Failure("Unable to retrieve user listings.", StatusCodes.Status400BadRequest));
             }
-            result.Payload = getUserListingsResult.Payload;
-
-
-            result.IsSuccessful = true;
-            return result;
+            
+            //result.Payload = getUserListingsResult.Payload;
+            //result.IsSuccessful = true;
+            //return result;
+            var payload = getUserListingsResult.Payload;
+            return Result<List<ListingViewDTO>>.Success(payload);
         }
 
         public async Task<Result<List<object>>> ViewListing(int listingId)
         {
-            Result<List<object>> result = new Result<List<object>>();
+            //Result<List<object>> result = new Result<List<object>>();
             List<object> payload = new List<object>();
             
 
@@ -148,9 +160,10 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             Result<ListingViewDTO> getListingResult = await _listingsService.GetListing(listingId).ConfigureAwait(false);
             if (!getListingResult.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = getListingResult.ErrorMessage;
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = getListingResult.ErrorMessage;
+                //return result;
+                return new(Result.Failure(getListingResult.ErrorMessage, StatusCodes.Status400BadRequest));
             }
             int ownerId = (int)getListingResult.Payload!.OwnerId;
 
@@ -162,28 +175,32 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
                 if (stringAccountId is null)
                 {
-                    result.IsSuccessful = false;
-                    result.ErrorMessage = "Unauthorized user.";
-                    return result;
+                    //result.IsSuccessful = false;
+                    //result.ErrorMessage = "Unauthorized user.";
+                    //return result;
+                    return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
                 }
                 int userId = int.Parse(stringAccountId);
                 //check userid to ownerId
                 if (ownerId != userId)
                 {
-                    result.IsSuccessful = false;
-                    result.ErrorMessage = "Unauthorized user.";
-                    return result;
+                    //result.IsSuccessful = false;
+                    //result.ErrorMessage = "Unauthorized user.";
+                    //return result;
+                    return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
                 }
             }
+            
             payload.Add(getListingResult.Payload);
 
             //get availabilities
             Result<List<ListingAvailabilityDTO>> getListingAvailabilityResult = await _listingsService.GetListingAvailabilities(listingId).ConfigureAwait(false);
             if (!getListingResult.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = getListingResult.ErrorMessage;
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = getListingResult.ErrorMessage;
+                //return result;
+                return new(Result.Failure(getListingResult.ErrorMessage, StatusCodes.Status400BadRequest));
             }
             payload.Add(getListingAvailabilityResult.Payload);
 
@@ -203,28 +220,31 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             Result<List<ListingRatingViewDTO>> getListingRatingsResult = await _listingsService.GetListingRatings(listingId).ConfigureAwait(false);
             if (!getListingRatingsResult.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = getListingRatingsResult.ErrorMessage;
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = getListingRatingsResult.ErrorMessage;
+                //return result;
+                return new(Result.Failure(getListingRatingsResult.ErrorMessage, StatusCodes.Status400BadRequest));
             }
             payload.Add(getListingRatingsResult.Payload);
-            result.Payload = payload;
 
-            result.IsSuccessful = true;
-            return result;
+            //result.Payload = payload;
+            //result.IsSuccessful = true;
+            //return result;
+            return Result<List<object>>.Success(payload);
         }
 
         public async Task<Result> EditListing(ListingEditorDTO listing)
         {
 
-            Result result = new Result();
+            //Result result = new Result();
 
             //authorize
             if (!_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unauthorized user.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unauthorized user.";
+                //return result;
+                return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
             }
 
             //assign Id from token
@@ -232,18 +252,20 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
             if (stringAccountId is null)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, invalid access token format.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Error, invalid access token format.";
+                //return result;
+                return new(Result.Failure("Error, invalid access token format.", StatusCodes.Status400BadRequest));
             }
             int userId = int.Parse(stringAccountId);
 
             //validate user is owner
             if (userId != listing.OwnerId)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unauthorized user.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unauthorized user.";
+                //return result;
+                return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
             }
 
             //validate changed field in a Listing
@@ -259,9 +281,10 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                     Result validationResult = _validationService.ValidateBodyText((string)value);
                     if (!validationResult.IsSuccessful)
                     {
-                        result.IsSuccessful = false;
-                        result.ErrorMessage = validationResult.ErrorMessage;
-                        return result;
+                        //result.IsSuccessful = false;
+                        //result.ErrorMessage = validationResult.ErrorMessage;
+                        //return result;
+                        return new(Result.Failure(validationResult.ErrorMessage!, StatusCodes.Status400BadRequest));
                     }
                 }
                 if (column.Name == "Price")
@@ -275,25 +298,28 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             Result updateListingResult = await _listingsService.UpdateListing(listing).ConfigureAwait(false);
             if (!updateListingResult.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unable to update listing.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unable to update listing.";
+                //return result;
+                return new(Result.Failure("Unable to update listing.", StatusCodes.Status400BadRequest));
             }
 
-            result.IsSuccessful = true;
-            return result;
+            //result.IsSuccessful = true;
+            //return result;
+            return Result.Success();
         }
 
         public async Task<Result> EditListingAvailabilities(List<ListingAvailabilityDTO> listingAvailabilities)
         {
-            Result result = new Result();
+            //Result result = new Result();
 
             //authorize
             if (!_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unauthorized user.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unauthorized user.";
+                //return result;
+                return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
             }
 
             //assign Id from token
@@ -301,18 +327,20 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
             if (stringAccountId is null)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, invalid access token format.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Error, invalid access token format.";
+                //return result;
+                return new(Result.Failure("Error, invalid access token format.", StatusCodes.Status400BadRequest));
             }
             int userId = int.Parse(stringAccountId);
 
             //validate user is owner
             if (userId != listingAvailabilities[0].OwnerId)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unauthorized user.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unauthorized user.";
+                //return result;
+                return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
             }
 
             //split listingavailabilities into 3 groups
@@ -325,9 +353,10 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 Result validationResult = _validationService.ValidateAvailability(listingAvailability);
                 if (!validationResult.IsSuccessful)
                 {
-                    result.IsSuccessful = false;
-                    result.ErrorMessage = validationResult.ErrorMessage;
-                    return result;
+                    //result.IsSuccessful = false;
+                    //result.ErrorMessage = validationResult.ErrorMessage;
+                    //return result;
+                    return new(Result.Failure(validationResult.ErrorMessage!, StatusCodes.Status400BadRequest));
                 }
 
                 if (listingAvailability.Action == AvailabilityAction.Delete)
@@ -347,6 +376,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             }
 
             bool errorFound = false;
+            string errorMessage = String.Empty;
 
             //add listingavailabilities
             if (addListingAvailabilities.Count > 0)
@@ -355,7 +385,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 if (!addListingAvailabilitiesResult.IsSuccessful)
                 {
                     errorFound = true;
-                    result.ErrorMessage += "Unable to add new listing availabilities.\n";
+                    errorMessage += "Unable to add new listing availabilities.\n";
                 }
             }
             
@@ -366,7 +396,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 if (!updateListingAvailabilitiesResult.IsSuccessful)
                 {
                     errorFound = true;
-                    result.ErrorMessage += "Unable to update preexisting listing availabilities.\n";
+                    errorMessage += "Unable to update preexisting listing availabilities.\n";
                 }
             }
 
@@ -377,18 +407,20 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 if (!deleteListingAvailabilitiesResult.IsSuccessful)
                 {
                     errorFound = true;
-                    result.ErrorMessage += "Unable to remove preexisting listing availabilities.\n";
+                    errorMessage += "Unable to remove preexisting listing availabilities.\n";
                 }
             }
             
             if (errorFound)
             {
-                result.IsSuccessful = false;
-                return result;
+                //result.IsSuccessful = false;
+                //return result;
+                return new(Result.Failure(errorMessage, StatusCodes.Status400BadRequest));
             }
 
-            result.IsSuccessful = true;
-            return result;
+            //result.IsSuccessful = true;
+            //return result;
+            return Result.Success();
         }
 
         public async Task<Result> EditListingFiles(List<IFormFile> listingFiles)
@@ -402,14 +434,15 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
 
         public async Task<Result> DeleteListing(int listingId)
         {
-            Result result = new Result();
+            //Result result = new Result();
 
             //authorize
             if (!_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unauthorized user.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unauthorized user.";
+                //return result;
+                return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
             }
 
             //assign Id from token
@@ -417,9 +450,10 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
             if (stringAccountId is null)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, invalid access token format.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Error, invalid access token format.";
+                //return result;
+                return new(Result.Failure("Error, invalid access token format.", StatusCodes.Status400BadRequest));
             }
             int userId = int.Parse(stringAccountId);
 
@@ -427,40 +461,45 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             Result<int> getListingOwnerIdResult = await _listingsService.GetListingOwnerId(listingId).ConfigureAwait(false);
             if (!getListingOwnerIdResult.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = getListingOwnerIdResult.ErrorMessage;
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = getListingOwnerIdResult.ErrorMessage;
+                //return result;
+                return new(Result.Failure(getListingOwnerIdResult.ErrorMessage, StatusCodes.Status400BadRequest));
             }
 
             if (userId != getListingOwnerIdResult.Payload)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unauthorized user.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unauthorized user.";
+                //return result;
+                return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
             }
 
             Result deleteListingResult = await _listingsService.DeleteListing(listingId).ConfigureAwait(false);
             if (!deleteListingResult.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unable to delete listing.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unable to delete listing.";
+                //return result;
+                return new(Result.Failure("Unable to delete listing.", StatusCodes.Status400BadRequest));
             }
 
-            result.IsSuccessful = true;
-            return result;
+            //result.IsSuccessful = true;
+            //return result;
+            return Result.Success();
         }
 
         public async Task<Result> PublishListing(int listingId)
         {
-            Result result = new Result();
+            //Result result = new Result();
 
             //authorize
             if (!_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unauthorized user.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unauthorized user.";
+                //return result;
+                return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
             }
 
             //assign Id from token
@@ -468,9 +507,10 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
             if (stringAccountId is null)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, invalid access token format.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Error, invalid access token format.";
+                //return result;
+                return new(Result.Failure("Error, invalid access token format.", StatusCodes.Status400BadRequest));
             }
             int userId = int.Parse(stringAccountId);
 
@@ -478,9 +518,10 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             Result<ListingViewDTO> getListingResult = await _listingsService.GetListing(listingId).ConfigureAwait(false);
             if (!getListingResult.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unable to retrieve specified listing.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unable to retrieve specified listing.";
+                //return result;
+                return new(Result.Failure("Unable to retrieve specified listing.", StatusCodes.Status400BadRequest));
             }
             int ownerId = (int)getListingResult.Payload!.OwnerId;
 
@@ -488,17 +529,19 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             Result validationListingResult = _validationService.ValidateModel(getListingResult.Payload);
             if (!validationListingResult.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = validationListingResult.ErrorMessage;
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = validationListingResult.ErrorMessage;
+                //return result;
+                return new(Result.Failure(validationListingResult.ErrorMessage!, StatusCodes.Status400BadRequest));
             }
 
             //check if published
             if (getListingResult.Payload.Published == true)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Listing already published.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Listing already published.";
+                //return result;
+                return new(Result.Failure("Listing already published.", StatusCodes.Status400BadRequest));
             }
 
             if (getListingResult.Payload.Published == false)
@@ -506,9 +549,10 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 //check userid to ownerId
                 if (ownerId != userId)
                 {
-                    result.IsSuccessful = false;
-                    result.ErrorMessage = "Unauthorized user.";
-                    return result;
+                    //result.IsSuccessful = false;
+                    //result.ErrorMessage = "Unauthorized user.";
+                    //return result;
+                    return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
                 }
             }
 
@@ -516,16 +560,18 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             Result<List<ListingAvailabilityDTO>> getListingAvailabilityResult = await _listingsService.GetListingAvailabilities(listingId).ConfigureAwait(false);
             if (!getListingResult.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = getListingResult.ErrorMessage;
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = getListingResult.ErrorMessage;
+                //return result;
+                return new(Result.Failure(getListingResult.ErrorMessage!, StatusCodes.Status400BadRequest));
             }
 
             if (getListingAvailabilityResult.Payload is null)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Listing contains no availabilities.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Listing contains no availabilities.";
+                //return result;
+                return new(Result.Failure("Listing contains no availabilities.", StatusCodes.Status400BadRequest));
             }
 
             //validate availabilities model
@@ -534,9 +580,10 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 Result validationAvailabilityResult = _validationService.ValidateModel(listingAvailability);
                 if (!validationAvailabilityResult.IsSuccessful)
                 {
-                    result.IsSuccessful = false;
-                    result.ErrorMessage = validationAvailabilityResult.ErrorMessage;
-                    return result;
+                    //result.IsSuccessful = false;
+                    //result.ErrorMessage = validationAvailabilityResult.ErrorMessage;
+                    //return result;
+                    return new(Result.Failure(validationAvailabilityResult.ErrorMessage!, StatusCodes.Status400BadRequest));
                 }
             }
 
@@ -573,26 +620,30 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             Result publishListingResult = await _listingsService.PublishListing(listingId).ConfigureAwait(false);
             if (!publishListingResult.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unable to publish listing.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unable to publish listing.";
+                //return result;
+                return new(Result.Failure("Unable to publish listing.", StatusCodes.Status400BadRequest));
+
             }
 
 
-            result.IsSuccessful = true;
-            return result;
+            //result.IsSuccessful = true;
+            //return result;
+            return Result.Success();
         }
 
         public async Task<Result> AddRating(int listingId, int rating, string? comment, bool anonymous)
         {
-            Result result = new Result();
+            //Result result = new Result();
 
             //authorize
             if (!_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unauthorized user.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unauthorized user.";
+                //return result;
+                return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
             }
 
             //assign Id from token
@@ -600,9 +651,10 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
             if (stringAccountId is null)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, invalid access token format.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Error, invalid access token format.";
+                //return result;
+                return new(Result.Failure("Error, invalid access token format.", StatusCodes.Status400BadRequest));
             }
             int userId = int.Parse(stringAccountId);
 
@@ -610,15 +662,17 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             Result<bool> checkListingHistoryResult = await _listingsService.CheckListingHistory(listingId, userId).ConfigureAwait(false);
             if (!checkListingHistoryResult.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unable to retrieve listing history.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unable to retrieve listing history.";
+                //return result;
+                return new(Result.Failure("Unable to retrieve listing history.", StatusCodes.Status400BadRequest));
             }
             if (checkListingHistoryResult.Payload == false)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unauthorized user.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unauthorized user.";
+                //return result;
+                return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
             }
 
             //validate comment
@@ -627,9 +681,10 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 Result validationCommentResult = _validationService.ValidateBodyText(comment);
                 if (!validationCommentResult.IsSuccessful)
                 {
-                    result.IsSuccessful = false;
-                    result.ErrorMessage = validationCommentResult.ErrorMessage;
-                    return result;
+                    //result.IsSuccessful = false;
+                    //result.ErrorMessage = validationCommentResult.ErrorMessage;
+                    //return result;
+                    return new(Result.Failure(validationCommentResult.ErrorMessage!, StatusCodes.Status400BadRequest));
                 }
             }
 
@@ -637,33 +692,37 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             Result validationRatingResult = _validationService.ValidateRating(rating);
             if (!validationRatingResult.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = validationRatingResult.ErrorMessage;
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = validationRatingResult.ErrorMessage;
+                //return result;
+                return new(Result.Failure(validationRatingResult.ErrorMessage!, StatusCodes.Status400BadRequest));
             }
 
             Result addReviewResult = await _listingsService.AddRating(listingId, userId, rating, comment, anonymous).ConfigureAwait(false);
             if (!addReviewResult.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unable to add review.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unable to add review.";
+                //return result;
+                return new(Result.Failure("Unable to add review.", StatusCodes.Status400BadRequest));
             }
 
-            result.IsSuccessful = true;
-            return result;
+            //result.IsSuccessful = true;
+            //return result;
+            return Result.Success();
         }
 
         public async Task<Result> EditRating(ListingRatingEditorDTO listingRating)
         {
-            Result result = new();
+            //Result result = new();
 
             //authorize
             if (!_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unauthorized user.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unauthorized user.";
+                //return result;
+                return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
             }
 
             //assign Id from token
@@ -671,25 +730,28 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
             if (stringAccountId is null)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, invalid access token format.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Error, invalid access token format.";
+                //return result;
+                return new(Result.Failure("Error, invalid access token format.", StatusCodes.Status400BadRequest));
             }
             int userId = int.Parse(stringAccountId);
 
             Result<bool> checkListingRating = await _listingsService.CheckListingRating(listingRating.ListingId, userId).ConfigureAwait(false);
             if (!checkListingRating.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unable to retrieve count.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unable to retrieve count.";
+                //return result;
+                return new(Result.Failure("Unable to retrieve count.", StatusCodes.Status400BadRequest));
             }
 
             if (checkListingRating.Payload == false)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unauthorized user.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unauthorized user.";
+                //return result;
+                return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
             }
             listingRating.UserId = userId;
 
@@ -699,9 +761,10 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 Result validationCommentResult = _validationService.ValidateBodyText(listingRating.Comment);
                 if (!validationCommentResult.IsSuccessful)
                 {
-                    result.IsSuccessful = false;
-                    result.ErrorMessage = validationCommentResult.ErrorMessage;
-                    return result;
+                    //result.IsSuccessful = false;
+                    //result.ErrorMessage = validationCommentResult.ErrorMessage;
+                    //return result;
+                    return new(Result.Failure(validationCommentResult.ErrorMessage!, StatusCodes.Status400BadRequest));
                 }
             }
 
@@ -709,33 +772,37 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             Result validationRatingResult = _validationService.ValidateRating(listingRating.Rating);
             if (!validationRatingResult.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = validationRatingResult.ErrorMessage;
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = validationRatingResult.ErrorMessage;
+                //return result;
+                return new(Result.Failure(validationRatingResult.ErrorMessage!, StatusCodes.Status400BadRequest));
             }
 
             Result updateReviewResult = await _listingsService.UpdateRating(listingRating).ConfigureAwait(false);
             if (!updateReviewResult.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unable to edit review.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unable to edit review.";
+                //return result;
+                return new(Result.Failure("Unable to edit review.", StatusCodes.Status400BadRequest));
             }
 
-            result.IsSuccessful = true;
-            return result;
+            //result.IsSuccessful = true;
+            //return result;
+            return Result.Success();
         }
 
         public async Task<Result> DeleteRating(int listingId)
         {
-            Result result = new();
+            //Result result = new();
 
             //authorize
             if (!_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unauthorized user.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unauthorized user.";
+                //return result;
+                return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
             }
 
             //assign Id from token
@@ -743,37 +810,42 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
             if (stringAccountId is null)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, invalid access token format.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Error, invalid access token format.";
+                //return result;
+                return new(Result.Failure("Error, invalid access token format.", StatusCodes.Status400BadRequest));
             }
             int userId = int.Parse(stringAccountId);
 
             Result<bool> checkListingRating = await _listingsService.CheckListingRating(listingId, userId).ConfigureAwait(false);
             if (!checkListingRating.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unable to retrieve count.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unable to retrieve count.";
+                //return result;
+                return new(Result.Failure("Unable to retrieve count.", StatusCodes.Status400BadRequest));
             }
 
             if (checkListingRating.Payload == false)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unauthorized user.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unauthorized user.";
+                //return result;
+                return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
             }
 
             Result deleteRatingResult = await _listingsService.DeleteRating(listingId, userId).ConfigureAwait(false);
             if (!deleteRatingResult.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Unable to delete review.";
-                return result;
+                //result.IsSuccessful = false;
+                //result.ErrorMessage = "Unable to delete review.";
+                //return result;
+                return new(Result.Failure("Unable to delete review.", StatusCodes.Status400BadRequest));
             }
 
-            result.IsSuccessful = true;
-            return result;
+            //result.IsSuccessful = true;
+            //return result;
+            return Result.Success();
         }
     }
 }
