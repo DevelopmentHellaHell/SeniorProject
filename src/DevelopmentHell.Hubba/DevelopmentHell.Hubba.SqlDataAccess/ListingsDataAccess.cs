@@ -91,7 +91,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 Title = (string)payload.First()["Title"],
                 Description = payload.First()["Description"] == DBNull.Value ? null : (string)payload.First()["Description"],
                 Location = payload.First()["Location"] == DBNull.Value ? null : (string)payload.First()["Location"],
-                Price = payload.First()["Price"] == DBNull.Value ? null : (double?)payload.First()["Price"],
+                Price = payload.First()["Price"] == DBNull.Value ? null : (double?)Convert.ToDouble((payload.First()["Price"])),
                 LastEdited = (DateTime)payload.First()["LastEdited"],
                 Published = (bool)payload.First()["Published"]
             };
@@ -132,7 +132,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             foreach (var column in listing.GetType().GetProperties())
             {
                 var value = column.GetValue(listing);
-                if (value is null || column.Name == "ListingId" || column.Name == "OwnerId") continue;
+                if ((column.Name == "Description" || column.Name == "Price" || column.Name == "Location") && value is null)
+                {
+                    values[column.Name] = DBNull.Value;
+                }
+                if (value is null || column.Name == "ListingId" || column.Name == "OwnerId" || column.Name == "Title") continue;
                 values[column.Name] = value;
             }
 

@@ -9,9 +9,11 @@ using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
+using Microsoft.IdentityModel.Abstractions;
 using System;
 using System.Configuration;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
 using System.Security.Policy;
 
@@ -162,38 +164,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
         }
 
         [TestMethod]
-        public async Task EditListing()
-        {
-            // Arrange
-            var ownerId = 1;
-            var title = "Listing Test Title 3";
-            await _listingsDataAccess.CreateListing(ownerId, title).ConfigureAwait(false);
-            var listingIdResult = await _listingsDataAccess.GetListingId(ownerId, title).ConfigureAwait(false);
-            int listingId = (int)listingIdResult.Payload;
-
-            var description = "New description";
-
-            ListingEditorDTO editListing = new()
-            {
-                ListingId = listingId,
-                OwnerId = ownerId,
-                Title = title,
-                Description = description
-            };
-            var expected = true;
-
-            // Actual
-            var actual = await _listingsDataAccess.UpdateListing(editListing).ConfigureAwait(false);
-            var listingResult = await _listingsDataAccess.GetListing(listingId).ConfigureAwait(false);
-
-            // Assert
-            Assert.IsNotNull(actual);
-            Assert.IsTrue(actual.IsSuccessful == expected);
-            Assert.IsNotNull(listingResult.Payload!.Description);
-        }
-
-        [TestMethod]
-        public async Task EditListingFailure()
+        public async Task UpdateListingFailure()
         {
             // Arrange
             var ownerId = 1;
@@ -309,5 +280,134 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
             Assert.IsTrue(actual.IsSuccessful == expected);
         }
 
+
+        [TestMethod]
+        public async Task UpdateListingWithDescription()
+        {
+            //Arrange
+            var ownerId = 1;
+            var title = "Listing Test Title 1";
+            var description = "Best listing NA!";
+            var price = 98.90;
+
+            await _listingsDataAccess.CreateListing(ownerId, title).ConfigureAwait(false);
+            var listingIdResult = await _listingsDataAccess.GetListingId(ownerId, title).ConfigureAwait(false);
+            int listingId = (int)listingIdResult.Payload;
+
+            var expected = true;
+
+            ListingEditorDTO listingEdit = new ListingEditorDTO()
+            {
+                ListingId = listingId,
+                OwnerId = ownerId,
+                Title = title,
+                Description = description,
+                Price = price,
+            };
+
+            // Actual
+            var actual = await _listingsDataAccess.UpdateListing(listingEdit).ConfigureAwait(false);
+            var getListing = await _listingsDataAccess.GetListing(listingId);
+
+            // Assert
+            Assert.IsNotNull(actual);
+            Assert.IsTrue(actual.IsSuccessful == expected);
+            Assert.IsTrue(getListing.Payload.Title.Equals(title));
+            Assert.IsTrue(getListing.Payload.Description.Equals(description));
+            Assert.IsTrue(getListing.Payload.Price.Equals(price));
+        }
+
+        [TestMethod]
+        public async Task UpdateListingRemoveDescription()
+        {
+            //Arrange
+            var ownerId = 1;
+            var title = "Listing Test Title 1";
+            var description = "Best listing NA!";
+            var price = 98.90;
+
+            await _listingsDataAccess.CreateListing(ownerId, title).ConfigureAwait(false);
+            var listingIdResult = await _listingsDataAccess.GetListingId(ownerId, title).ConfigureAwait(false);
+            int listingId = (int)listingIdResult.Payload;
+
+            var expected = true;
+
+            ListingEditorDTO listingEdit1 = new ListingEditorDTO()
+            {
+                ListingId = listingId,
+                OwnerId = ownerId,
+                Title = title,
+                Description = description,
+                Price = price,
+            };
+
+            await _listingsDataAccess.UpdateListing(listingEdit1).ConfigureAwait(false);
+
+            ListingEditorDTO listingEdit2 = new ListingEditorDTO()
+            {
+                ListingId = listingId,
+                OwnerId = ownerId,
+                Title = title,
+                Description = null,
+                Price = price,
+            };
+
+            // Actual
+            var actual = await _listingsDataAccess.UpdateListing(listingEdit2).ConfigureAwait(false);
+            var getListing = await _listingsDataAccess.GetListing(listingId);
+
+            // Assert
+            Assert.IsNotNull(actual);
+            Assert.IsTrue(actual.IsSuccessful == expected);
+            Assert.IsTrue(getListing.Payload.Title.Equals(title));
+            Assert.IsTrue(getListing.Payload.Description is null);
+            Assert.IsTrue(getListing.Payload.Price.Equals(price));
+        }
+
+        [TestMethod]
+        public async Task UpdateListingRemovePrice()
+        {
+            //Arrange
+            var ownerId = 1;
+            var title = "Listing Test Title 1";
+            var description = "Best listing NA!";
+            var price = 98.90;
+
+            await _listingsDataAccess.CreateListing(ownerId, title).ConfigureAwait(false);
+            var listingIdResult = await _listingsDataAccess.GetListingId(ownerId, title).ConfigureAwait(false);
+            int listingId = (int)listingIdResult.Payload;
+
+            var expected = true;
+
+            ListingEditorDTO listingEdit1 = new ListingEditorDTO()
+            {
+                ListingId = listingId,
+                OwnerId = ownerId,
+                Title = title,
+                Price = price,
+            };
+
+            await _listingsDataAccess.UpdateListing(listingEdit1).ConfigureAwait(false);
+
+            ListingEditorDTO listingEdit2 = new ListingEditorDTO()
+            {
+                ListingId = listingId,
+                OwnerId = ownerId,
+                Title = title,
+                Description = description,
+                Price = null,
+            };
+
+            // Actual
+            var actual = await _listingsDataAccess.UpdateListing(listingEdit2).ConfigureAwait(false);
+            var getListing = await _listingsDataAccess.GetListing(listingId);
+
+            // Assert
+            Assert.IsNotNull(actual);
+            Assert.IsTrue(actual.IsSuccessful == expected);
+            Assert.IsTrue(getListing.Payload.Title.Equals(title));
+            Assert.IsTrue(getListing.Payload.Description.Equals(description));
+            Assert.IsTrue(getListing.Payload.Price is null);
+        }
     }
 }
