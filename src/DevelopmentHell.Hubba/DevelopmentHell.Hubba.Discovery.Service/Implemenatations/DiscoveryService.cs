@@ -47,5 +47,56 @@ namespace DevelopmentHell.Hubba.Discovery.Service.Implemenatations
 
 			return Result<Dictionary<string, List<Dictionary<string, object>>?>>.Success(payload);
 		}
+
+        public async Task<Result<List<Dictionary<string, object>>>> GetSearch(string query, string category, string filter, int offset)
+        {
+			double FTTWeight = 0.5;
+			double otherWeights = 0.5;
+			switch (filter)
+            {
+                case "popular":
+                    FTTWeight = 0;
+                    otherWeights = 1;
+                    break;
+                default: // none
+					FTTWeight = 0.5;
+					otherWeights = 0.5;
+					break;
+            }
+
+			var payload = new List<Dictionary<string, object>>();
+			switch (category)
+            {
+                case "collaborators":
+                    var collaboratorsResult = await _collaboratorsDataAccess.Search(query, offset, FTTWeight, otherWeights).ConfigureAwait(false);
+                    if (!collaboratorsResult.IsSuccessful)
+                    {
+                        return new(Result.Failure(collaboratorsResult.ErrorMessage!, collaboratorsResult.StatusCode));
+                    }
+
+					payload = collaboratorsResult.Payload;
+                    break;
+                case "showcases":
+                    var showcasesResult = await _projectShowcaseDataAccess.Search(query, offset, FTTWeight, otherWeights).ConfigureAwait(false);
+					if (!showcasesResult.IsSuccessful)
+					{
+						return new(Result.Failure(showcasesResult.ErrorMessage!, showcasesResult.StatusCode));
+					}
+
+					payload = showcasesResult.Payload;
+					break;
+                default: // listings
+                    var listingsResult = await _listingsDataAccess.Search(query, offset, FTTWeight, otherWeights / 2, otherWeights / 2).ConfigureAwait(false);
+					if (!listingsResult.IsSuccessful)
+					{
+						return new(Result.Failure(listingsResult.ErrorMessage!, listingsResult.StatusCode));
+					}
+
+					payload = listingsResult.Payload;
+					break;
+            }   
+
+            return Result<List<Dictionary<string, object>>>.Success(payload!);
+		}
     }
 }
