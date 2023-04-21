@@ -357,7 +357,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     new Comparator("Id","=",id),
                 }
             ).ConfigureAwait(false);
-            if (!selectResult.IsSuccessful || selectResult.Payload is null)
+
+            if (!selectResult.IsSuccessful || selectResult.Payload.Count != 1)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = selectResult.ErrorMessage;

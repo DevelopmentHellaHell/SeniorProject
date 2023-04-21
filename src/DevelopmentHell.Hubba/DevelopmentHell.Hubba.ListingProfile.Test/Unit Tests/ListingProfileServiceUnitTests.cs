@@ -298,6 +298,28 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
         }
 
         [TestMethod]
+        public async Task GetListingFailure()
+        {
+            // Arrange
+            var ownerId = 1;
+            var title = "Title 1";
+            await _listingProfileService.CreateListing(ownerId, title).ConfigureAwait(false);
+            var listingIdResult = await _listingsDataAccess.GetListingId(ownerId, title).ConfigureAwait(false);
+            int listingId = (int)listingIdResult.Payload;
+
+            var expected = false;
+            var expectedErrorMessage = "Unable to retrieve username.";
+
+
+            //Act
+            var actual = await _listingProfileService.GetListing(listingId).ConfigureAwait(false);
+
+            //Assert
+            Assert.IsTrue(actual.IsSuccessful == expected);
+            Assert.IsTrue(actual.ErrorMessage == expectedErrorMessage);
+        }
+
+        [TestMethod]
         public async Task GetlistingWithRating()
         {
             // Arrange
