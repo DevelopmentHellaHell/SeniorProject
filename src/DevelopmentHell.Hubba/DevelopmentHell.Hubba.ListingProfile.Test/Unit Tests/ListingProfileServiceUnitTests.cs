@@ -144,15 +144,13 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
             _listingAvailabilitiesDataAccess = new ListingAvailabilitiesDataAccess(_listingProfileConnectionString, _listingAvailabilitiesTable);
 
             _listingHistoryDataAccess = new ListingHistoryDataAccess(_listingProfileConnectionString, _listingHistoryTable);
-
-
-
         }
 
         [TestInitialize]
         public async Task Setup()
         {
             await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.LISTING_PROFILES).ConfigureAwait(false);
+            await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.USERS).ConfigureAwait(false);
         }
 
         [TestMethod]
