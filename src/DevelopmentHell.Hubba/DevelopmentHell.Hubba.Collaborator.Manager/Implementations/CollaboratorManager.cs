@@ -128,6 +128,13 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
                 return new(Result.Failure("Error, user is not authorized for this request.", StatusCodes.Status401Unauthorized));
             }
 
+            var validateCollab = _validationService.ValidateCollaboratorAllowEmptyFiles(collab);
+
+            if (validateCollab == null || validateCollab.IsSuccessful)
+            {
+                return new(Result.Failure("New collaborator updates not valid. ", StatusCodes.Status412PreconditionFailed));
+            }
+
             var updateCollabResult = await _collaboratorService.EditCollaborator(collab, collabFiles, removedFiles, pfpFile).ConfigureAwait(false);
 
             if (!updateCollabResult.IsSuccessful)
