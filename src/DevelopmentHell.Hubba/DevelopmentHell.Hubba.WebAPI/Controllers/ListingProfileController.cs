@@ -15,6 +15,15 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             _listingProfileManager = listingProfileManager;
         }
 
+#if DEBUG
+        [HttpGet]
+        [Route("health")]
+        public Task<IActionResult> HeathCheck()
+        {
+            return Task.FromResult<IActionResult>(Ok("Healthy"));
+        }
+#endif
+
         [HttpGet]
         [Route("createListing")]
         public async Task<IActionResult> CreateListing(string title)
