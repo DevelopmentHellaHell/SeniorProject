@@ -18,7 +18,7 @@ namespace DevelopmentHell.Hubba.Validation.Service.Abstractions
 
         Result ValidateAvailability(ListingAvailabilityDTO listingAvailability);
 
-        Result ValidateFiles(Dictionary<string, IFormFile> files);
+        Result ValidateFiles(Dictionary<string, byte[]> files);
     }
 }
 

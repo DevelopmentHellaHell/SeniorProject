@@ -352,11 +352,11 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             //for each file, validate model and validate file (name, type, size)
             if (addListingFiles is not null && addListingFiles.Count > 0)
             {
-                //Result validationResult = _validationService.ValidateFiles(addListingFiles);
-                //if (!validationResult.IsSuccessful)
-                //{
-                //    return new(Result.Failure(validationResult.ErrorMessage!, StatusCodes.Status400BadRequest));
-                //}
+                Result validationResult = _validationService.ValidateFiles(addListingFiles);
+                if (!validationResult.IsSuccessful)
+                {
+                    return new(Result.Failure(validationResult.ErrorMessage!, StatusCodes.Status400BadRequest));
+                }
 
                 var filesStored = _fileService.GetFilesInDir(dir).Result.Payload.Count();
                 if (filesStored + addListingFiles.Count > 12)
@@ -538,7 +538,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             var filesStored = _fileService.GetFilesInDir("ListingProfiles/" + listingId).Result.Payload.Count();
             if (filesStored == 0)
             {
-                return new(Result.Failure("Listing contains no files", StatusCodes.Status400BadRequest));
+                return new(Result.Failure("Listing contains no pictures", StatusCodes.Status400BadRequest));
             }
 
             Result publishListingResult = await _listingsService.PublishListing(listingId).ConfigureAwait(false);
@@ -697,6 +697,29 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             return Result.Success();
         }
 
-        
+        public async Task<Result<List<string>>> GetListingFiles(int listingId)
+        {
+            //get listing
+            Result<ListingViewDTO> getListingResult = await _listingsService.GetListing(listingId).ConfigureAwait(false);
+            if (!getListingResult.IsSuccessful)
+            {
+                return new(Result.Failure(getListingResult.ErrorMessage!, StatusCodes.Status400BadRequest));
+            }
+            int ownerId = (int)getListingResult.Payload!.OwnerId;
+
+            //check if published
+            if (getListingResult.Payload!.Published == false)
+            {
+                return new(Result.Failure("Listing is not published.", StatusCodes.Status401Unauthorized));
+            }
+
+
+            Result<List<string>> getFiles = await _fileService.GetFilesInDir("ListingProfiles/" + listingId).ConfigureAwait(false);
+            if (!getFiles.IsSuccessful)
+            {
+                return new(Result.Failure(getFiles.ErrorMessage!, StatusCodes.Status400BadRequest));
+            }
+            return Result<List<string>>.Success(getFiles.Payload);
+        }
     }
 }

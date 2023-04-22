@@ -134,7 +134,7 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
             {
                 var value = prop.GetValue(obj, null);
                 if (obj is ListingViewDTO && prop.Name == "AverageRating") continue;
-                if (obj is ListingAvailabilityDTO && (prop.Name == "OwnerId" || prop.Name == "Action")) continue;
+                if ((obj is ListingAvailabilityDTO && prop.Name == "OwnerId") || (obj is ListingAvailabilityDTO && prop.Name == "Action")) continue;
                 if (prop.Name == "AverageRating") continue;
                 if (value is null || value.ToString()!.Length < 1)
                 {
@@ -255,36 +255,25 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
             return result;
         }
 
-        public Result ValidateFiles(Dictionary<string, IFormFile> files)
+        public Result ValidateFiles(Dictionary<string, byte[]> files)
         {
             Result result = new Result();
 
-            foreach (KeyValuePair<string, IFormFile> file in files)
+            foreach (KeyValuePair<string, byte[]> file in files)
             {
-                if (!Regex.IsMatch(file.Key, @"^[a-zA-Z0-9_.]*$"))
+                if (!Regex.IsMatch(file.Key, @"^[a-zA-Z0-9_\.]+$"))
                 {
                     result.IsSuccessful = false;
-                    result.ErrorMessage = "File names must consist of only letters, numbers, and underscores.";
+                    result.ErrorMessage = "File names must consist of only letters, numbers, underscores, and periods.";
                     return result;
                 }
 
-                if (file.Value == null || file.Value.Length == 0)
-                {
-                    result.IsSuccessful = false;
-                    result.ErrorMessage = $"File {file.Key} is empty";
-                    return result;
-                }
+                string extension = Path.GetExtension(file.Key).ToLower();
 
-                if (!file.Value.ContentType.StartsWith("image/") && file.Value.ContentType != "video/mp4")
+                if (extension == ".jpg" || extension == ".jpeg" || extension == ".png")
                 {
-                    result.IsSuccessful = false;
-                    result.ErrorMessage = file.Key + " is not a valid file type.";
-                    return result;
-                }
-
-                if (file.Value.ContentType.StartsWith("image/"))
-                {
-                    using (var image = System.Drawing.Image.FromStream(file.Value.OpenReadStream()))
+                    using (var stream = new MemoryStream(file.Value))
+                    using (var image = System.Drawing.Image.FromStream(stream))
                     {
                         if (image.RawFormat.Equals(System.Drawing.Imaging.ImageFormat.Jpeg) ||
                             image.RawFormat.Equals(System.Drawing.Imaging.ImageFormat.Png))
@@ -305,7 +294,7 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
                         }
                     }
                 }
-                else if (file.Value.ContentType == "video/mp4")
+                else if (extension == ".mp4")
                 {
                     // Check if the video size is less than or equal to 300 MB
                     if (file.Value.Length > 300 * 1024 * 1024)
@@ -326,6 +315,7 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
             result.IsSuccessful = true;
             return result;
         }
+
 
 
     }

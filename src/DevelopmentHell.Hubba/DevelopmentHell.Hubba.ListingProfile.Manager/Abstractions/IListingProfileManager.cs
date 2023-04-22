@@ -27,5 +27,7 @@ namespace DevelopmentHell.ListingProfile.Manager.Abstractions
         Task<Result> EditRating(ListingRatingEditorDTO listingRating);// -- ]]
 
         Task<Result> DeleteRating(int listingId);// -- ]]
+
+        Task<Result<List<string>>> GetListingFiles(int listingId);
     }
 }

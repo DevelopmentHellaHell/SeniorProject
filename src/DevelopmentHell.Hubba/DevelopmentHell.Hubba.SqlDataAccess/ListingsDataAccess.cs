@@ -198,6 +198,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     {
                         prop.SetValue(listing, null);
                     }
+                    else if (prop.Name == "Price")
+                    {
+                        prop.SetValue(listing, Convert.ToDouble(item.Value));
+                    }
                     else if (prop.PropertyType == typeof(int?) && item.Value is string stringValue)
                     {
                         int intValue;
