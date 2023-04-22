@@ -10,7 +10,7 @@ interface IProjectShowcaseCardProps {
 const ProjectShowcaseCard: React.FC<IProjectShowcaseCardProps> = (props) => {
     return (
         <div className="project-showcase-card" onClick={() => { alert(props.data.Id) }}>
-            <img className="thumbnail" src="http://104.187.196.233/Testing/TestDir/cecs448.png" />
+            <img className="thumbnail" src={`http://104.187.196.233/ProjectShowcase/${props.data.Id}/1.png`} />
             <div className="info-block">
                 <p className="title">{props.data.Title}</p>
                 <div className="rating-block">
