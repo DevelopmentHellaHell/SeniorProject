@@ -36,6 +36,9 @@ using DevelopmentHell.Hubba.Models.DTO;
 using System.Reflection;
 using System.Runtime.Intrinsics.X86;
 using DevelopmentHell.Hubba.Files.Service.Implementations;
+using DevelopmentHell.Hubba.Files.Service.Abstractions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace DevelopmentHell.Hubba.ListingProfile.Test.Integration_Tests
 {
@@ -54,6 +57,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Integration_Tests
         private readonly IListingHistoryDataAccess _listingHistoryDataAccess;
         private readonly IOTPDataAccess _otpDataAccess;
         private readonly ICryptographyService _cryptographyService;
+        private readonly IFileService _fileService;
 
         private readonly string _userConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
         private readonly string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
@@ -81,6 +85,8 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Integration_Tests
         private string _cryptographyKey = ConfigurationManager.AppSettings["CryptographyKey"]!;
 
 
+        private readonly string dirPath = "ListingProfiles";
+
         public ListingProfileIntegrationTests()
         {
             LoggerService loggerService = new LoggerService(
@@ -88,6 +94,14 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Integration_Tests
                     _logsConnectionString,
                     _logsTable
                 )
+            );
+
+            _fileService = new FTPFileService
+            (
+                _ftpServer,
+                _ftpUsername,
+                _ftpPassword,
+                loggerService
             );
 
             _listingProfileManager = new ListingProfileManager
@@ -101,13 +115,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Integration_Tests
                     new UserAccountDataAccess(_userConnectionString, _userAccountsTable),
                     loggerService
                 ),
-                new FTPFileService
-                (
-                    _ftpServer,
-                    _ftpUsername,
-                    _ftpPassword,
-                    loggerService
-                ),
+                _fileService,
                 new AuthorizationService
                 (
                      new UserAccountDataAccess
@@ -258,6 +266,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Integration_Tests
         {
             await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.LISTING_PROFILES).ConfigureAwait(false);
             await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.USERS).ConfigureAwait(false);
+            await _fileService.DeleteDir(dirPath).ConfigureAwait(false);
         }
 
 
@@ -293,6 +302,110 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Integration_Tests
 
             //Assert
             Assert.IsTrue(actual.IsSuccessful == expected);
+        }
+
+        [TestMethod]
+        public async Task EditListingFilesAdd1()
+        {
+            //Arrange
+            var email = "jettsonoda@gmail.com";
+            var password = "12345678";
+            var dummyIp = "192.0.2.0";
+            var title = "Best Popcorn Chicken NA";
+
+            var expected = true;
+
+            await _registrationManager.Register(email, password).ConfigureAwait(false);
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<int> getNewAccountId = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int newAccountId = getNewAccountId.Payload;
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(newAccountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            }
+
+            await _listingProfileManager.CreateListing(title).ConfigureAwait(false);
+
+            var getListingId = await _listingsDataAccess.GetListingId(newAccountId, title).ConfigureAwait(false);
+            int listingId = getListingId.Payload;
+
+
+            Dictionary<string, IFormFile> files = new Dictionary<string, IFormFile>();
+            IFormFile file1 = CreateFormFileFromFilePath("C:\\Users\\goodg\\OneDrive\\Pictures\\Screenshots\\Screenshot 2023-03-25 190512.png");
+            var file1Name = "Memed_pic_xdd.png";
+            files.Add(file1Name, file1);
+
+            //Act
+            var actual = await _listingProfileManager.EditListingFiles(listingId, null, files).ConfigureAwait(false);
+            var getFile1 = await _fileService.GetFileReference(dirPath + "/" + listingId + "/" + file1Name).ConfigureAwait(false);
+            //Assert
+            Assert.IsTrue(actual.IsSuccessful == expected);
+            Assert.IsTrue(getFile1.Payload == $"http://{_ftpServer}/{dirPath}/{listingId}/{file1Name}");
+        }
+
+        [TestMethod]
+        public async Task EditListingFilesAdd1Delete1()
+        {
+            //Arrange
+            var email = "jeffreyjones@gmail.com";
+            var password = "12345678";
+            var dummyIp = "192.0.2.0";
+            var title = "Best Popcorn Chicken NA";
+
+            var expected = true;
+
+            await _registrationManager.Register(email, password).ConfigureAwait(false);
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<int> getNewAccountId = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int newAccountId = getNewAccountId.Payload;
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(newAccountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            }
+
+            await _listingProfileManager.CreateListing(title).ConfigureAwait(false);
+
+            var getListingId = await _listingsDataAccess.GetListingId(newAccountId, title).ConfigureAwait(false);
+            int listingId = getListingId.Payload;
+
+            Dictionary<string, IFormFile> deletefiles = new Dictionary<string, IFormFile>();
+            IFormFile file1 = CreateFormFileFromFilePath("C:\\Users\\goodg\\OneDrive\\Pictures\\Screenshots\\Screenshot_20230213_010932.png");
+            var file1Name = "dumb_slatt.png";
+            deletefiles.Add(file1Name, file1);
+
+            await _listingProfileManager.EditListingFiles(listingId, null, deletefiles).ConfigureAwait(false);
+
+
+            Dictionary<string, IFormFile> addfiles = new Dictionary<string, IFormFile>();
+            IFormFile file2 = CreateFormFileFromFilePath("C:\\Users\\goodg\\OneDrive\\Pictures\\Screenshots\\Screenshot_20230219_021808.png");
+            var file2Name = "big_fax.png";
+            addfiles.Add(file2Name, file2);
+
+            List<string> deleteFileNames = new List<string> { file1Name };
+
+            //Act
+            var actual = await _listingProfileManager.EditListingFiles(listingId, deleteFileNames, addfiles).ConfigureAwait(false);
+            Console.WriteLine(actual.ErrorMessage);
+            var getFile1 = await _fileService.GetFileReference(dirPath + "/" + listingId + "/" + file1Name).ConfigureAwait(false);
+            var getFile2 = await _fileService.GetFileReference(dirPath + "/" + listingId + "/" + file2Name).ConfigureAwait(false);
+            //Assert
+            Assert.IsTrue(actual.IsSuccessful == expected);
+            Assert.IsTrue(getFile1.Payload is null);
+            Assert.IsTrue(getFile2.Payload == $"http://{_ftpServer}/{dirPath}/{listingId}/{file2Name}");
         }
 
         [TestMethod]
@@ -478,17 +591,17 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Integration_Tests
             //Assert
             Assert.IsTrue(actual.IsSuccessful == expected);
             Assert.IsTrue(actual.Payload.Count == 4);
-            Assert.IsTrue(actual.Payload[0] is ListingViewDTO);
-            Assert.IsTrue((actual.Payload[0] as ListingViewDTO).OwnerId.Equals(newAccountId));
-            Assert.IsTrue((actual.Payload[0] as ListingViewDTO).Title.Equals(title));
-            Assert.IsTrue((actual.Payload[0] as ListingViewDTO).Description is null);
-            Assert.IsTrue((actual.Payload[0] as ListingViewDTO).Location is null);
-            Assert.IsTrue((actual.Payload[0] as ListingViewDTO).Price is null);
-            Assert.IsTrue((actual.Payload[0] as ListingViewDTO).Published.Equals(false));
-            Assert.IsTrue((actual.Payload[0] as ListingViewDTO).AverageRating is null);
-            Assert.IsTrue((actual.Payload[1] is List<ListingAvailabilityDTO>));
-            Assert.IsTrue((actual.Payload[1] as List<ListingAvailabilityDTO>).Count == 0);
-            Assert.IsTrue((actual.Payload[3] as List<ListingRatingViewDTO>).Count == 0);
+            Assert.IsTrue(actual.Payload["Listing"] is ListingViewDTO);
+            Assert.IsTrue((actual.Payload["Listing"] as ListingViewDTO).OwnerId.Equals(newAccountId));
+            Assert.IsTrue((actual.Payload["Listing"] as ListingViewDTO).Title.Equals(title));
+            Assert.IsTrue((actual.Payload["Listing"] as ListingViewDTO).Description is null);
+            Assert.IsTrue((actual.Payload["Listing"] as ListingViewDTO).Location is null);
+            Assert.IsTrue((actual.Payload["Listing"] as ListingViewDTO).Price is null);
+            Assert.IsTrue((actual.Payload["Listing"] as ListingViewDTO).Published.Equals(false));
+            Assert.IsTrue((actual.Payload["Listing"] as ListingViewDTO).AverageRating is null);
+            Assert.IsTrue((actual.Payload["Availabilities"] is List<ListingAvailabilityDTO>));
+            Assert.IsTrue((actual.Payload["Availabilities"] as List<ListingAvailabilityDTO>).Count == 0);
+            Assert.IsTrue((actual.Payload["Ratings"] as List<ListingRatingViewDTO>).Count == 0);
         }
 
         [TestMethod]
@@ -540,17 +653,17 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Integration_Tests
             //Assert
             Assert.IsTrue(actual.IsSuccessful == expected);
             Assert.IsTrue(actual.Payload.Count == 4);
-            Assert.IsTrue(actual.Payload[0] is ListingViewDTO);
-            Assert.IsTrue((actual.Payload[0] as ListingViewDTO).OwnerId.Equals(newAccountId));
-            Assert.IsTrue((actual.Payload[0] as ListingViewDTO).Title.Equals(title));
-            Assert.IsTrue((actual.Payload[0] as ListingViewDTO).Description is null);
-            Assert.IsTrue((actual.Payload[0] as ListingViewDTO).Location is null);
-            Assert.IsTrue((actual.Payload[0] as ListingViewDTO).Price is null);
-            Assert.IsTrue((actual.Payload[0] as ListingViewDTO).Published.Equals(true));
-            Assert.IsTrue((actual.Payload[0] as ListingViewDTO).AverageRating is null);
-            Assert.IsTrue((actual.Payload[1] is List<ListingAvailabilityDTO>));
-            Assert.IsTrue((actual.Payload[1] as List<ListingAvailabilityDTO>).Count == 0);
-            Assert.IsTrue((actual.Payload[3] as List<ListingRatingViewDTO>).Count == 0);
+            Assert.IsTrue(actual.Payload["Listing"] is ListingViewDTO);
+            Assert.IsTrue((actual.Payload["Listing"] as ListingViewDTO).OwnerId.Equals(newAccountId));
+            Assert.IsTrue((actual.Payload["Listing"] as ListingViewDTO).Title.Equals(title));
+            Assert.IsTrue((actual.Payload["Listing"] as ListingViewDTO).Description is null);
+            Assert.IsTrue((actual.Payload["Listing"] as ListingViewDTO).Location is null);
+            Assert.IsTrue((actual.Payload["Listing"] as ListingViewDTO).Price is null);
+            Assert.IsTrue((actual.Payload["Listing"] as ListingViewDTO).Published.Equals(true));
+            Assert.IsTrue((actual.Payload["Listing"] as ListingViewDTO).AverageRating is null);
+            Assert.IsTrue((actual.Payload["Availabilities"] is List<ListingAvailabilityDTO>));
+            Assert.IsTrue((actual.Payload["Availabilities"] as List<ListingAvailabilityDTO>).Count == 0);
+            Assert.IsTrue((actual.Payload["Ratings"] as List<ListingRatingViewDTO>).Count == 0);
         }
 
         [TestMethod]
@@ -1365,7 +1478,6 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Integration_Tests
             Assert.IsTrue(actual.ErrorMessage == expectedErrorMessage);
         }
 
-
         [TestMethod]
         public async Task AddRating()
         {
@@ -1923,6 +2035,29 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Integration_Tests
             //Assert
             Assert.IsTrue(actual.IsSuccessful == expected);
             Assert.IsTrue(actual.ErrorMessage == expectedErrorMessage);
+        }
+
+
+        public IFormFile CreateFormFileFromFilePath(string filePath)
+        {
+            var fileName = Path.GetFileName(filePath);
+            var stream = new FileStream(filePath, FileMode.Open);
+            var formFile = new FormFile(stream, 0, stream.Length, "file", fileName)
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = GetContentType(fileName)
+            };
+
+            return formFile;
+        }
+        private string GetContentType(string fileName)
+        {
+            var provider = new FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(fileName, out var contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+            return contentType;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Models.DTO;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
 namespace DevelopmentHell.Hubba.Validation.Service.Abstractions
@@ -16,6 +17,8 @@ namespace DevelopmentHell.Hubba.Validation.Service.Abstractions
         Result ValidateRating(int rating);
 
         Result ValidateAvailability(ListingAvailabilityDTO listingAvailability);
+
+        Result ValidateFiles(Dictionary<string, IFormFile> files);
     }
 }
 

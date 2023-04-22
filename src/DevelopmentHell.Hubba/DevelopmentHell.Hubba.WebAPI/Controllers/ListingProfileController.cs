@@ -61,7 +61,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 
         [HttpPost]
         [Route("editListing")]
-        public async Task<IActionResult> ViewListing(ListingEditorDTO listingEditDTO)
+        public async Task<IActionResult> EditListing(ListingEditorDTO listingEditDTO)
         {
             return await GuardedWorkload(async () =>
             {
@@ -203,6 +203,48 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 }
 
                 return StatusCode(result.StatusCode, result.Payload);
+            }).ConfigureAwait(false);
+        }
+
+        [HttpPost]
+        [Route("editListingFiles")]
+        public async Task<IActionResult> EditListingFiles(FilesToEditDTO editFilesDTO)
+        {
+            return await GuardedWorkload(async () =>
+            {
+                if (!ModelState.IsValid)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest);
+                }
+
+                var result = await _listingProfileManager.EditListingFiles(editFilesDTO.ListingId, editFilesDTO.DeleteNames, editFilesDTO.AddFiles).ConfigureAwait(false);
+                if (!result.IsSuccessful)
+                {
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
+                }
+
+                return StatusCode(result.StatusCode);
+            }).ConfigureAwait(false);
+        }
+
+        [HttpPost]
+        [Route("editListingAvailabilities")]
+        public async Task<IActionResult> EditListingAvailabilties(List<ListingAvailabilityDTO> editAvailabiltiiesDTO)
+        {
+            return await GuardedWorkload(async () =>
+            {
+                if (!ModelState.IsValid)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest);
+                }
+
+                var result = await _listingProfileManager.EditListingAvailabilities(editAvailabiltiiesDTO).ConfigureAwait(false);
+                if (!result.IsSuccessful)
+                {
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
+                }
+
+                return StatusCode(result.StatusCode);
             }).ConfigureAwait(false);
         }
     }

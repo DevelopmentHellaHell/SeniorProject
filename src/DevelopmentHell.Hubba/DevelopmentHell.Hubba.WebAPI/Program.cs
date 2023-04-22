@@ -22,6 +22,8 @@ using DevelopmentHell.Hubba.Discovery.Manager.Implementations;
 using DevelopmentHell.Hubba.Discovery.Service.Implemenatations;
 using DevelopmentHell.Hubba.Email.Service.Abstractions;
 using DevelopmentHell.Hubba.Email.Service.Implementations;
+using DevelopmentHell.Hubba.Files.Service.Abstractions;
+using DevelopmentHell.Hubba.Files.Service.Implementations;
 using DevelopmentHell.Hubba.ListingProfile.Manager.Implementations;
 using DevelopmentHell.Hubba.ListingProfile.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
@@ -195,6 +197,16 @@ builder.Services.AddTransient<IOTPService, OTPService>(s =>
         s.GetService<ICryptographyService>()!
     );
 });
+
+builder.Services.AddTransient<IFileService, FTPFileService>(s =>
+    new FTPFileService
+            (
+                HubbaConfig.ConfigurationManager.AppSettings["FTPServer"]!,
+                HubbaConfig.ConfigurationManager.AppSettings["FTPUsername"]!,
+                HubbaConfig.ConfigurationManager.AppSettings["FTPPassword"]!,
+                s.GetService<ILoggerService>()!
+            )
+);
 builder.Services.AddTransient<IAuthorizationService, AuthorizationService>(s =>
     new AuthorizationService(
         new UserAccountDataAccess(
@@ -331,6 +343,7 @@ builder.Services.AddTransient<IListingProfileManager, ListingProfileManager>(s =
             ),
             s.GetService<ILoggerService>()!
         ),
+        s.GetService<IFileService>()!,
         s.GetService<IAuthorizationService>()!,
         s.GetService<ILoggerService>()!,
         s.GetService<IValidationService>()!,

@@ -8,6 +8,7 @@ using DevelopmentHell.Hubba.Models.DTO;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.ListingProfile.Manager.Abstractions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.StaticFiles;
 using System.ComponentModel.DataAnnotations;
 using System.Configuration;
 
@@ -135,7 +136,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             Result<ListingViewDTO> getListingResult = await _listingsService.GetListing(listingId).ConfigureAwait(false);
             if (!getListingResult.IsSuccessful)
             {
-                return new(Result.Failure(getListingResult.ErrorMessage, StatusCodes.Status400BadRequest));
+                return new(Result.Failure(getListingResult.ErrorMessage!, StatusCodes.Status400BadRequest));
             }
             int ownerId = (int)getListingResult.Payload!.OwnerId;
 
@@ -159,32 +160,32 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 }
             }
             
-            payload.Add("listing", getListingResult.Payload);
+            payload.Add("Listing", getListingResult.Payload);
 
             //get availabilities
             Result<List<ListingAvailabilityDTO>> getListingAvailabilityResult = await _listingsService.GetListingAvailabilities(listingId).ConfigureAwait(false);
             if (!getListingResult.IsSuccessful)
             {
-                return new(Result.Failure(getListingResult.ErrorMessage, StatusCodes.Status400BadRequest));
+                return new(Result.Failure(getListingResult.ErrorMessage!, StatusCodes.Status400BadRequest));
             }
-            payload.Add("availabilities", getListingAvailabilityResult.Payload);
+            payload.Add("Availabilities", getListingAvailabilityResult.Payload);
 
 
             //get files
-            Result<List<string>> getFiles = await _fileService.GetFilesInDir("Listing Profiles/" + listingId).ConfigureAwait(false);
+            Result<List<string>> getFiles = await _fileService.GetFilesInDir("ListingProfiles/" + listingId).ConfigureAwait(false);
             if (!getFiles.IsSuccessful)
             {
-                return new(Result.Failure(getFiles.ErrorMessage, StatusCodes.Status400BadRequest));
+                return new(Result.Failure(getFiles.ErrorMessage!, StatusCodes.Status400BadRequest));
             }
-            payload.Add("files", getFiles.Payload);
+            payload.Add("Files", getFiles.Payload);
 
             //get rating comments
             Result<List<ListingRatingViewDTO>> getListingRatingsResult = await _listingsService.GetListingRatings(listingId).ConfigureAwait(false);
             if (!getListingRatingsResult.IsSuccessful)
             {
-                return new(Result.Failure(getListingRatingsResult.ErrorMessage, StatusCodes.Status400BadRequest));
+                return new(Result.Failure(getListingRatingsResult.ErrorMessage!, StatusCodes.Status400BadRequest));
             }
-            payload.Add("ratings", getListingRatingsResult.Payload);
+            payload.Add("Ratings", getListingRatingsResult.Payload);
 
             return Result<Dictionary<string, object>>.Success(payload);
         }
@@ -340,13 +341,83 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             return Result.Success();
         }
 
-        public async Task<Result> EditListingFiles(List<IFormFile> listingFiles)
+        public async Task<Result> EditListingFiles(int listingId, List<string>? deleteListingNames, Dictionary<string, byte[]> addListingFiles)
         {
             //authorize
-
+            if (!_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
+            {
+                return new(Result.Failure("Unauthorized user.", StatusCodes.Status401Unauthorized));
+            }
+            string dir = "ListingProfiles/" + listingId + "/";
             //for each file, validate model and validate file (name, type, size)
+            if (addListingFiles is not null && addListingFiles.Count > 0)
+            {
+                //Result validationResult = _validationService.ValidateFiles(addListingFiles);
+                //if (!validationResult.IsSuccessful)
+                //{
+                //    return new(Result.Failure(validationResult.ErrorMessage!, StatusCodes.Status400BadRequest));
+                //}
 
-            throw new NotImplementedException();
+                var filesStored = _fileService.GetFilesInDir(dir).Result.Payload.Count();
+                if (filesStored + addListingFiles.Count > 12)
+                {
+                    return new(Result.Failure("Maximum of 12 files per listing.", StatusCodes.Status400BadRequest));
+                }
+                Result fileUploadResults = new Result();
+                bool uploadErrorFound = false;
+                foreach (KeyValuePair<string, byte[]> fileb in addListingFiles)
+                {
+                    try
+                    {
+                        Result uploadResult = await _fileService.UploadFile(dir, fileb.Key, fileb.Value).ConfigureAwait(false);
+                        if (!uploadResult.IsSuccessful)
+                        {
+                            fileUploadResults.ErrorMessage += "Failed to upload " + fileb.Key + "\n";
+                            uploadErrorFound = true;
+                        }
+                    }
+                    catch (FluentFTP.Exceptions.FtpException ex)
+                    {
+                        // handle FluentFTP exceptions
+                        fileUploadResults.ErrorMessage += "Failed to upload " + fileb.Key + Path.GetExtension(fileb.Key) + "\n";
+                        uploadErrorFound = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        // handle other exceptions
+                        fileUploadResults.ErrorMessage += "Failed to upload " + fileb.Key + Path.GetExtension(fileb.Key) + "\n";
+                        uploadErrorFound = true;
+                    }
+                }
+                if (uploadErrorFound)
+                {
+                    return new(Result.Failure(fileUploadResults.ErrorMessage!, StatusCodes.Status400BadRequest));
+                }
+
+            }
+
+            if (deleteListingNames is not null && deleteListingNames.Count > 0)
+            {
+                Result fileDeleteResults = new Result();
+                bool deleteErrorFound = false;
+                foreach (string filename in deleteListingNames)
+                {
+                    Result deleteResult = await _fileService.DeleteFile(dir + filename).ConfigureAwait(false);
+                    if (!deleteResult.IsSuccessful)
+                    {
+                        //fileDeleteResults.ErrorMessage += "Failed to delete " + filename + "\n";
+                        fileDeleteResults.ErrorMessage += deleteResult.ErrorMessage;
+                        deleteErrorFound = true;
+                    }
+                }
+                if (deleteErrorFound)
+                {
+                    return new(Result.Failure(fileDeleteResults.ErrorMessage, StatusCodes.Status400BadRequest));
+                }
+            }
+
+            return Result.Success();
+
         }
 
         public async Task<Result> DeleteListing(int listingId)
@@ -463,35 +534,12 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 }
             }
 
-
-
             //get files
-            //Result<List<Object>> getListingFilesResult = await _fileService.GetFiles(listingId).ConfigureAwait(false);
-            //if (!getListingResult.IsSuccessful)
-            //{
-            //    result.IsSuccessful = false;
-            //    result.ErrorMessage = getListingResult.ErrorMessage;
-            //    return result;
-            //}
-
-            //if (getListingFilesResult.Payload is null)
-            //{
-            //    result.IsSuccessful = false;
-            //    result.ErrorMessage = "Listing contains no availabilities.";
-            //    return result;
-            //}
-
-            //validate files model
-            //foreach (  in getListingFilesResult.Payload)
-            //{
-            //    Result validationFileResult = _validationService.ValidateModel();
-            //    if (!validationFileResult.IsSuccessful)
-            //    {
-            //        result.IsSuccessful = false;
-            //        result.ErrorMessage = validationFileResult.ErrorMessage;
-            //        return result;
-            //    }
-            //}
+            var filesStored = _fileService.GetFilesInDir("ListingProfiles/" + listingId).Result.Payload.Count();
+            if (filesStored == 0)
+            {
+                return new(Result.Failure("Listing contains no files", StatusCodes.Status400BadRequest));
+            }
 
             Result publishListingResult = await _listingsService.PublishListing(listingId).ConfigureAwait(false);
             if (!publishListingResult.IsSuccessful)
@@ -648,5 +696,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
 
             return Result.Success();
         }
+
+        
     }
 }
