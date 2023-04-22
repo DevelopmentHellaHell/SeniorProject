@@ -78,7 +78,7 @@ namespace DevelopmentHell.Hubba.FTPFileService.Test
 
             var testResult = await _fileService.GetFileReference(dirPath + "/" + fileNameData[0].Item1).ConfigureAwait(false);
             Assert.IsTrue(testResult.IsSuccessful);
-            Assert.IsTrue(testResult.Payload == $"ftp://{_ftpServer}/{dirPath}/{fileNameData[0].Item1}");
+            Assert.IsTrue(testResult.Payload == $"http://{_ftpServer}/{dirPath}/{fileNameData[0].Item1}");
         }
         [TestMethod]
         public async Task UploadDir()
