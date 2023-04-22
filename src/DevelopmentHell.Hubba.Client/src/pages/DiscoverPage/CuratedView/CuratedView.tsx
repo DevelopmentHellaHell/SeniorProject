@@ -1,5 +1,7 @@
+import CollaboratorCard from "../CollaboratorCard/CollaboratorCard";
 import { ICuratedData } from "../DiscoverPage";
 import ListingCard from "../ListingCard/ListingCard";
+import ProjectShowcaseCard from "../ProjectShowcaseCard/ProjectShowcaseCard";
 import "./CuratedView.css";
 interface ICuratedViewProps {
     data?: ICuratedData;
@@ -22,9 +24,9 @@ const CuratedView: React.FC<ICuratedViewProps> = (props) => {
             <h3 className="category">Project Showcases</h3>
             <div className="catalogue">
                 {props.data && 
-                    props.data.listings.map(item => {
+                    props.data.showcases.map(item => {
                         return (
-                            <ListingCard data={item} />
+                            <ProjectShowcaseCard data={item} />
                         );
                     })
                 }
@@ -33,9 +35,9 @@ const CuratedView: React.FC<ICuratedViewProps> = (props) => {
             <h3 className="category">Collaborators</h3>
             <div className="catalogue">
                 {props.data && 
-                    props.data.listings.map(item => {
+                    props.data.collaborators.map(item => {
                         return (
-                            <ListingCard data={item} />
+                            <CollaboratorCard data={item} />
                         );
                     })
                 }

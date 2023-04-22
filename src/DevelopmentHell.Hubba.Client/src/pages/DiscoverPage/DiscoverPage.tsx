@@ -167,7 +167,12 @@ const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
                 </div>
 
                 <div className="discover-wrapper">
-                    {renderView(view)}
+                    {error &&
+                        <p className="error">{error}</p>
+                    }
+                    {!error && 
+                        renderView(view)
+                    }
                 </div>
             </div>
 

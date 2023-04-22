@@ -48,3 +48,8 @@
 .sidebar h3 {
     color: rgb(var(--primary-text-dark));
 }
+
+.discover-wrapper .error {
+    color: rgb(var(--error-text));
+    padding: 20px;
+}
