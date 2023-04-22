@@ -16,5 +16,6 @@ namespace DevelopmentHell.Hubba.Files.Service.Abstractions
         public Task<Result> DeleteDir(string dirPath);
         public Task<Result<string>> GetFileReference(string filePath);
         public Task<Result<List<string>>> GetFilesInDir(string dirPath);
+        public Task<Result> Disconnect();
     }
 }

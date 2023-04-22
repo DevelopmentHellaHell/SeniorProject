@@ -47,14 +47,22 @@ namespace DevelopmentHell.Hubba.FTPFileService.Test
                 )
             );
         }
-        [TestInitialize]
+
+        private async Task AsyncSetup()
+        {
+            await _fileService.DeleteDir(dirPath);
+        }
+
+        [TestCleanup]
         public void Setup()
         {
-
+            _ = AsyncSetup();
         }
         [TestMethod]
         public async Task CreateDir_UploadFile_GetFileReference()
         {
+            await _fileService.DeleteDir(dirPath);
+
             var dirResult = await _fileService.CreateDir(dirPath);
             Assert.IsTrue(dirResult.IsSuccessful);
 
@@ -72,6 +80,8 @@ namespace DevelopmentHell.Hubba.FTPFileService.Test
         [TestMethod]
         public async Task UploadDir()
         {
+            await _fileService.DeleteDir(dirPath);
+
             var dirResult = await _fileService.CreateDir(dirPath);
             Assert.IsTrue(dirResult.IsSuccessful);
 
@@ -88,13 +98,15 @@ namespace DevelopmentHell.Hubba.FTPFileService.Test
 
             Thread.Sleep(100);
 
-            testResult = await _fileService.GetFileReference(dirPath + fileNameData[1].Item1).ConfigureAwait(false);
+            testResult = await _fileService.GetFileReference(dirPath + "/" + fileNameData[1].Item1).ConfigureAwait(false);
             Assert.IsTrue(testResult.IsSuccessful);
             Assert.IsTrue(testResult.Payload == $"ftp://{_ftpServer}/{dirPath}/{fileNameData[1].Item1}");
         }
         [TestMethod]
         public async Task DeleteFile()
         {
+            await _fileService.DeleteDir(dirPath);
+
             var dirResult = await _fileService.CreateDir(dirPath);
             Assert.IsTrue(dirResult.IsSuccessful);
 
@@ -116,8 +128,10 @@ namespace DevelopmentHell.Hubba.FTPFileService.Test
         [TestMethod]
         public async Task DeleteDir()
         {
-            //var dirResult = await _fileService.CreateDir(dirPath);
-            //Assert.IsTrue(dirResult.IsSuccessful);
+            await _fileService.DeleteDir(dirPath);
+
+            var dirResult = await _fileService.CreateDir(dirPath);
+            Assert.IsTrue(dirResult.IsSuccessful);
 
             Thread.Sleep(100);
 
@@ -132,6 +146,8 @@ namespace DevelopmentHell.Hubba.FTPFileService.Test
         [TestMethod]
         public async Task GetFilesInDir()
         {
+            await _fileService.DeleteDir(dirPath);
+
             var dirResult = await _fileService.CreateDir(dirPath);
             Assert.IsTrue(dirResult.IsSuccessful);
 
@@ -145,8 +161,16 @@ namespace DevelopmentHell.Hubba.FTPFileService.Test
 
             var testResult = await _fileService.GetFilesInDir(dirPath).ConfigureAwait(false);
             Assert.IsTrue(testResult.IsSuccessful);
-            Assert.IsTrue(testResult.Payload![0] == $"ftp://{_ftpServer}/{dirPath}/{fileNameData[0].Item1}");
-            Assert.IsTrue(testResult.Payload![1] == $"ftp://{_ftpServer}/{dirPath}/{fileNameData[1].Item1}");
+
+            HashSet<string> files = new HashSet<string>()
+            {
+                 $"ftp://{_ftpServer}/{dirPath}/{fileNameData[0].Item1}",
+                 $"ftp://{_ftpServer}/{dirPath}/{fileNameData[1].Item1}"
+            }
+            ;
+            Assert.IsTrue(files.Contains(testResult.Payload![0]));
+            files.Remove(testResult.Payload![0]);
+            Assert.IsTrue(files.Contains(testResult.Payload![1]));
         }
     }
 }
