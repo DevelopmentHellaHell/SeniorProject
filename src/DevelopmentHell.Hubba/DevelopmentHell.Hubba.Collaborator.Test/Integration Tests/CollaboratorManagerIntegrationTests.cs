@@ -738,6 +738,36 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             Assert.IsTrue(votesBefore == 0 && votesDuring == 1);
         }
 
+
+
+
+
+
+
+
+
+
+
+        [TestCleanup]
+        public async Task Cleanup()
+        {
+            await _testingService.DeleteAllRecords().ConfigureAwait(false);
+        }
+
+
+        // Making an IFormFile for testing, it streams the location of the file into a file object
+        public IFormFile CreateFormFileFromFilePath(string filePath)
+        {
+            var fileName = Path.GetFileName(filePath);
+            var stream = new FileStream(filePath, FileMode.Open);
+            var formFile = new FormFile(stream, 0, stream.Length, "file", fileName)
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = GetContentType(fileName)
+            };
+
+            return formFile;
+        }
         private string GetContentType(string fileName)
         {
             var provider = new FileExtensionContentTypeProvider();
