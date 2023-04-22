@@ -254,7 +254,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
             int listingId = (int)testData[nameof(Listing.ListingId)];
             int availabilityId = (int)testData["availabilityId_1"];
 
-            List<BookedTimeFrame> chosenTimeFrames = new List<BookedTimeFrame>()
+            List<BookedTimeFrame> invalidTimeFrames = new List<BookedTimeFrame>()
             {
                 new BookedTimeFrame()
                 {
@@ -263,12 +263,22 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
                     StartDateTime = DateTime.Now.Date.AddHours(9),
                     EndDateTime = DateTime.Now.Date.AddHours(10)
                 },
+                new BookedTimeFrame()
+                {
+                    ListingId = listingId,
+                    AvailabilityId = availabilityId,
+                    StartDateTime = DateTime.Now.Date.AddHours(14),
+                    EndDateTime = DateTime.Now.Date.AddHours(15)
+                },
             };
 
             //Act
-            var actual = await _availabilityService.ValidateChosenTimeFrames(listingId, availabilityId, chosenTimeFrames).ConfigureAwait(false);
+            Result<bool> actual = new();
+            foreach(var timeFrame in invalidTimeFrames)
+            {
+                actual = await _availabilityService.ValidateChosenTimeFrames(listingId, availabilityId, timeFrame).ConfigureAwait(false);
+            }
             //Assert
-
             Assert.IsNotNull(actual);
             Assert.IsFalse(actual.IsSuccessful);
         }
@@ -280,7 +290,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
             int listingId = (int)testData[nameof(Listing.ListingId)];
             int availabilityId = (int)testData["availabilityId_1"];
 
-            List<BookedTimeFrame> chosenTimeFrames = new List<BookedTimeFrame>()
+            List<BookedTimeFrame> validTimeFrames = new List<BookedTimeFrame>()
             {
                 new BookedTimeFrame()
                 {
@@ -289,12 +299,23 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
                     StartDateTime = DateTime.Now.Date.AddHours(12),
                     EndDateTime = DateTime.Now.Date.AddHours(13)
                 },
+                new BookedTimeFrame()
+                {
+                    ListingId = listingId,
+                    AvailabilityId = availabilityId,
+                    StartDateTime = DateTime.Now.Date.AddHours(15),
+                    EndDateTime = DateTime.Now.Date.AddHours(16)
+                },
             };
 
             //Act
-            var actual = await _availabilityService.ValidateChosenTimeFrames(listingId, availabilityId, chosenTimeFrames).ConfigureAwait(false);
-            //Assert
+            Result<bool> actual = new();
+            foreach (var timeFrame in validTimeFrames)
+            {
+                actual = await _availabilityService.ValidateChosenTimeFrames(listingId, availabilityId, timeFrame).ConfigureAwait(false);
+            }
 
+            //Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsSuccessful);
         }

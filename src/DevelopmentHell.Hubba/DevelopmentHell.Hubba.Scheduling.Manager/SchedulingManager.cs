@@ -88,7 +88,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
                 var isBooked = await _availabilityService.ValidateChosenTimeFrames(
                     listingId, 
                     (int)timeframe.AvailabilityId,
-                    new List<BookedTimeFrame>() { timeframe }
+                    timeframe
                     ).ConfigureAwait(false);
                 if (!isBooked.IsSuccessful) //timeframe already booked
                 {

@@ -166,8 +166,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// <returns>Bool in Payload</returns>
         public async Task<Result<bool>> UpdateBooking(Dictionary<string,object> values, List<Comparator> filters)
         {
-            var updateResult = await _updateDataAccess.Update (_tableName, filters, values).ConfigureAwait(false) as Result<bool>;
-            return updateResult;
+            Result updateResult = await _updateDataAccess.Update (_tableName, filters, values).ConfigureAwait(false);
+            return new(Result.Success());
         }
     }
 }

@@ -248,24 +248,24 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
             int bookingId = createBooking.Payload;
             Dictionary<string, object> values = new() 
             {
-                {nameof(Booking.BookingStatusId), BookingStatus.CANCELLED}
+                {nameof(Booking.BookingStatusId), (int)BookingStatus.CANCELLED}
             };
 
             List<Comparator> comparators = new()
             {
-                new Comparator(nameof(Booking.BookingStatusId),"=", bookingId)
+                new Comparator(nameof(Booking.BookingId),"=", bookingId)
             };
             List<Tuple<string, object>> filter = new() { new Tuple<string, object>(nameof(Booking.BookingId), bookingId) };
 
             //Act
             var actual = await _bookingDAO.UpdateBooking(values, comparators).ConfigureAwait(false);
             var getBooking = await _bookingDAO.GetBooking(filter).ConfigureAwait(false);
-            var updateResult = (Result<List<Booking>>)getBooking;
+            var expected = getBooking.Payload[0];
 
             //Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsSuccessful);
-            Assert.AreEqual(booking.BookingStatusId, updateResult.Payload[0].BookingStatusId);
+            Assert.AreEqual(expected.BookingStatusId, BookingStatus.CANCELLED);
         }
     }
 }

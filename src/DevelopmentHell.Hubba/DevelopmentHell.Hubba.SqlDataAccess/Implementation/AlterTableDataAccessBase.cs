@@ -24,23 +24,31 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                 {
                     query.Connection = conn;
                     await conn.OpenAsync().ConfigureAwait(false);
-                    var queryResult = await query.ExecuteScalarAsync().ConfigureAwait(false);
-                    return new Result<int>()
-                    {
-                        IsSuccessful = true,
-                        Payload = Convert.ToInt32(queryResult)
-                    };
+                    var queryResult = await query.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    return new (Result.Success());
                 }
             }
             catch (Exception e)
             {
-                return new Result()
-                {
-                    IsSuccessful = false,
-                    ErrorMessage = e.Message,
-                };
+                return new(Result.Failure(e.Message));
             }
-            
+        }
+        protected async Task<Result> SendScalarQuery(SqlCommand query)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(_connectionPath))
+                {
+                    query.Connection = conn;
+                    await conn.OpenAsync().ConfigureAwait(false);
+                    var queryResult = await query.ExecuteScalarAsync().ConfigureAwait(false);
+                    return Result<int>.Success(Convert.ToInt32(queryResult));
+                }
+            }
+            catch (Exception e)
+            {
+                return new(Result.Failure(e.Message));
+            }
         }
     }
 }

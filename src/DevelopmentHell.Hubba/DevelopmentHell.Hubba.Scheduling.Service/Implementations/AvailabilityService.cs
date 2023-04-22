@@ -42,10 +42,11 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
         /// </summary>
         /// <param name="listingId"></param>
         /// <param name="availabilityId"></param>
-        /// <param name="checkedTimeFrames"></param>
+        /// <param name="chosenTimeFrames"></param>
         /// <returns>Bool in result.Payload</returns>
-        public async Task<Result<bool>> ValidateChosenTimeFrames(int listingId, int availabilityId, List<BookedTimeFrame> checkedTimeFrames)
+        public async Task<Result<bool>> ValidateChosenTimeFrames(int listingId, int availabilityId, BookedTimeFrame chosenTimeFrame)
         {
+            
             List<Tuple<string,object>> filters = new()
             {
                 new Tuple<string,object>(nameof(BookedTimeFrame.ListingId), listingId),
@@ -54,19 +55,16 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
             // Get BookedTimeFrames by ListingId, AvailabilityId
             var getBookedTimeFrames = await ExecuteAvailabilityService(() => _bookedTimeFrameDAO.GetBookedTimeFrames(filters));
 
-            // Check each input time frame against booked time frames
-            foreach (var timeFrame in checkedTimeFrames)
-            {
                 // Check if the time frame overlaps with any booked time frame
                 foreach (var bookedTimeFrame in getBookedTimeFrames.Payload)
                 {
-                    if (timeFrame.StartDateTime < bookedTimeFrame.EndDateTime 
-                        && timeFrame.EndDateTime > bookedTimeFrame.StartDateTime)
+                    if (chosenTimeFrame.StartDateTime < bookedTimeFrame.EndDateTime 
+                        && chosenTimeFrame.EndDateTime > bookedTimeFrame.StartDateTime)
                     {
-                        return new(Result.Failure("Overlapped with existed Booked Time Frames"));
+                        return new(Result.Failure("Invalid Time Frame"));
                     }
                 }
-            }
+            
             // All time frames are available
             return Result<bool>.Success(true);
         }

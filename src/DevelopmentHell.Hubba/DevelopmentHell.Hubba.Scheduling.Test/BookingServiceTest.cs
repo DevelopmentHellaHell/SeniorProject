@@ -15,6 +15,7 @@ using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Runtime.InteropServices;
 
@@ -65,7 +66,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
         /// Set up dependencies, add a new Listing, add new Listing Availability
         /// </summary>
         /// <returns><Tuple<int, List<ListingAvailability>>(listingId, availId)</returns>
-        private async Task<Tuple<int, List<ListingAvailability>>> TestInitialize()
+        private async Task<Tuple<int, List<ListingAvailability>>> SetUp()
         {
             int ownerId = 200;
             string title = "Booked time frame test";
@@ -105,7 +106,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
         public async Task AddBooking_DupTimeFrames_Failed()
         {
             //Arrange
-            var createListingAvail = await TestInitialize().ConfigureAwait(false);
+            var createListingAvail = await SetUp().ConfigureAwait(false);
             int listingId = createListingAvail.Item1;
             List<ListingAvailability> listingAvailabilities = createListingAvail.Item2;
 
@@ -145,7 +146,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
         public async Task AddBooking_SameUserListingDifferentTime_Successful()
         {
             //Arrange
-            var createListingAvail = await TestInitialize().ConfigureAwait(false);
+            var createListingAvail = await SetUp().ConfigureAwait(false);
             int listingId = createListingAvail.Item1;
             List<ListingAvailability> listingAvailabilities = createListingAvail.Item2;
 
@@ -174,94 +175,148 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsSuccessful);
         }
-            //    //Arrange
-            //    var expected = new Result<int>();
-            //    var addBooking1 = await _bookingService.AddNewBooking(validBooking1).ConfigureAwait(false);
+        [TestMethod]
+        public async Task GetBookingStatusByBookingId_Successful()
+        {
+            //Arrange
+            var createListingAvail = await SetUp().ConfigureAwait(false);
+            int listingId = createListingAvail.Item1;
+            List<ListingAvailability> listingAvailabilities = createListingAvail.Item2;
 
-            //    //Act
-            //    var actual = await _bookingService.AddNewBooking(validBooking2).ConfigureAwait(false);
+            Booking booking = new Booking()
+            {
+                UserId = 1,
+                ListingId = listingId,
+                FullPrice = 150,
+                BookingStatusId = BookingStatus.CONFIRMED,
+                CreationDate = DateTime.Now,
+                LastEditUser = 1,
+                TimeFrames = new List<BookedTimeFrame>()
+                {
+                    new BookedTimeFrame()
+                    {
+                        ListingId = listingId,
+                        AvailabilityId = (int)listingAvailabilities[0].AvailabilityId,
+                        StartDateTime = DateTime.Today.AddDays(2).AddHours(1),
+                        EndDateTime = DateTime.Today.AddDays(2).AddHours(2)
+                    }
+                }
+            };
+            var addBooking = await _bookingService.AddNewBooking(booking).ConfigureAwait(false);
+            var actual = await _bookingService.GetBookingStatusByBookingId(addBooking.Payload).ConfigureAwait(false);
 
-            //    //Assert
-            //    Assert.IsNotNull(actual);
-            //    Assert.IsTrue(actual.IsSuccessful);
-            //    Assert.AreEqual(expected.GetType(), actual.GetType());
-            //}
-            //[TestMethod]
-            //public async Task AddBooking_Successful()
-            //{
-            //    //Arrange
-            //    var expected = new Result<int>();
-
-            //    //Act
-            //    var actual = await _bookingService.AddNewBooking(validBooking1).ConfigureAwait(false);
-
-            //    //Assert
-            //    Assert.IsNotNull(actual);
-            //    Assert.IsTrue(actual.IsSuccessful);
-            //    Assert.AreEqual(expected.GetType(), actual.GetType());
-            //}
-            ///// <summary>
-            ///// Return a List of 1 Booking
-            ///// </summary>
-            ///// <returns></returns>
-            //[TestMethod]
-            //public async Task GetBooking_ByBookingId_Successful()
-            //{
-            //    //Arrange
-            //    var addBooking = await _bookingService.AddNewBooking(validBooking2).ConfigureAwait(false);
-            //    var bookingId = ((Result<int>)addBooking).Payload;
-
-            //    //Act
-            //    var actual = await _bookingService.GetBookingByBookingId(bookingId).ConfigureAwait(false);
-            //    var payload = ((Result<Booking>)actual).Payload;
-            //    //Assert
-            //    Assert.IsNotNull(actual);
-            //    Assert.IsTrue(actual.IsSuccessful);
-            //    Assert.AreEqual(validBooking2.BookingId, payload.BookingId);
-            //}
-            ///// <summary>
-            ///// Should return BookingStatus in payload
-            ///// </summary>
-            //[TestMethod]
-            //public async Task GetBookingStatus_ByBookingId_Successful()
-            //{
-            //    //Arrange
-            //    var addBooking = await _bookingService.AddNewBooking(validBooking2).ConfigureAwait(false);
-            //    var bookingId = ((Result<int>)addBooking).Payload;
-            //    var expected = new BookingStatus();
-
-            //    //Act
-            //    var getBookingStatus = await _bookingService.GetBookingStatusByBookingId(bookingId).ConfigureAwait(false);
-            //    var actual = ((Result<BookingStatus>)getBookingStatus).Payload;
-
-            //    //Assert
-            //    Assert.IsTrue(getBookingStatus.IsSuccessful);
-            //    Assert.IsNotNull(actual);
-            //    Assert.AreEqual(expected.GetType(), actual.GetType());
-            //}
-
-            ///// <summary>
-            ///// BookingStatusId change from CONFIRMED to CANCELLED
-            ///// </summary>
-            ///// <returns></returns>
-            //[TestMethod]
-            //public async Task CancelBooking_Successful()
-            //{
-            //    //Arrange
-            //    var addBooking = await _bookingService.AddNewBooking(validBooking1).ConfigureAwait(false);
-            //    int bookingId = addBooking.Payload;
-
-            //    //Act
-            //    var actual = await _bookingService.CancelBooking(bookingId).ConfigureAwait(false);
-
-            //    var doubleCheck = await _bookingService.GetBookingStatusByBookingId(bookingId).ConfigureAwait(false);
-
-
-            //    //Assert
-            //    Assert.IsNotNull(actual);
-            //    Assert.IsTrue(actual.IsSuccessful);
-            //    Assert.IsTrue(doubleCheck.Payload == BookingStatus.CANCELLED);
-            //}
-
+            //Assert
+            Assert.IsNotNull(actual);
+            Assert.IsTrue(actual.IsSuccessful);
+            Assert.AreEqual(actual.Payload, BookingStatus.CONFIRMED);
         }
+        [TestMethod]
+        public async Task GetBookingByBookingId_Successful()
+        {
+            //Arrange
+            var createListingAvail = await SetUp().ConfigureAwait(false);
+            int listingId = createListingAvail.Item1;
+            List<ListingAvailability> listingAvailabilities = createListingAvail.Item2;
+
+            Booking booking = new Booking()
+            {
+                UserId = 1,
+                ListingId = listingId,
+                FullPrice = 150,
+                BookingStatusId = BookingStatus.CONFIRMED,
+                CreationDate = DateTime.Now,
+                LastEditUser = 1,
+                TimeFrames = new List<BookedTimeFrame>()
+                {
+                    new BookedTimeFrame()
+                    {
+                        ListingId = listingId,
+                        AvailabilityId = (int)listingAvailabilities[0].AvailabilityId,
+                        StartDateTime = DateTime.Today.AddDays(2).AddHours(1),
+                        EndDateTime = DateTime.Today.AddDays(2).AddHours(2)
+                    }
+                }
+            };
+            var addBooking = await _bookingService.AddNewBooking(booking).ConfigureAwait(false);
+            var actual = await _bookingService.GetBookingByBookingId(addBooking.Payload).ConfigureAwait(false);
+
+            //Assert
+            Assert.IsNotNull(actual);
+            Assert.IsTrue(actual.IsSuccessful);
+            Assert.AreEqual(actual.Payload.GetType(), booking.GetType());
+        }
+        [TestMethod]
+        public async Task GetBookedTimeFramesByBookingId_Successful()
+        {
+            //Arrange
+            var createListingAvail = await SetUp().ConfigureAwait(false);
+            int listingId = createListingAvail.Item1;
+            List<ListingAvailability> listingAvailabilities = createListingAvail.Item2;
+
+            Booking booking = new Booking()
+            {
+                UserId = 1,
+                ListingId = listingId,
+                FullPrice = 150,
+                BookingStatusId = BookingStatus.CONFIRMED,
+                CreationDate = DateTime.Now,
+                LastEditUser = 1,
+            };
+            List<BookedTimeFrame> expected = new()
+            {
+                new BookedTimeFrame()
+                {
+                    ListingId = listingId,
+                    AvailabilityId = (int)listingAvailabilities[0].AvailabilityId,
+                    StartDateTime = DateTime.Today.AddDays(2).AddHours(1),
+                    EndDateTime = DateTime.Today.AddDays(2).AddHours(2)
+                }
+            };
+            booking.TimeFrames = expected;
+            var addBooking = await _bookingService.AddNewBooking(booking).ConfigureAwait(false);
+            var actual = await _bookingService.GetBookedTimeFramesByBookingId(addBooking.Payload).ConfigureAwait(false);
+
+            //Assert
+            Assert.IsNotNull(actual);
+            Assert.IsTrue(actual.IsSuccessful);
+            Assert.AreEqual(actual.Payload.GetType(), expected.GetType());
+        }
+        [TestMethod]
+        public async Task CancelBooking_Successful()
+        {
+            //Arrange
+            var createListingAvail = await SetUp().ConfigureAwait(false);
+            int listingId = createListingAvail.Item1;
+            List<ListingAvailability> listingAvailabilities = createListingAvail.Item2;
+
+            Booking booking = new Booking()
+            {
+                UserId = 1,
+                ListingId = listingId,
+                FullPrice = 150,
+                BookingStatusId = BookingStatus.CONFIRMED,
+                CreationDate = DateTime.Now,
+                LastEditUser = 1,
+                TimeFrames = new List < BookedTimeFrame > ()
+                {
+                    new BookedTimeFrame()
+                    {
+                        ListingId = listingId,
+                        AvailabilityId = (int)listingAvailabilities[0].AvailabilityId,
+                        StartDateTime = DateTime.Today.AddDays(2).AddHours(1),
+                        EndDateTime = DateTime.Today.AddDays(2).AddHours(2)
+                    }
+                }
+            };
+            var addBooking = await _bookingService.AddNewBooking(booking).ConfigureAwait(false);
+            var actual = await _bookingService.CancelBooking(addBooking.Payload).ConfigureAwait(false);
+            var doubleCheck = await _bookingService.GetBookingStatusByBookingId(addBooking.Payload).ConfigureAwait(false);
+
+            //Assert
+            Assert.IsNotNull(actual);
+            Assert.IsTrue(actual.IsSuccessful);
+            Assert.IsTrue(doubleCheck.IsSuccessful);
+            Assert.AreEqual(doubleCheck.Payload, BookingStatus.CANCELLED);
+        }
+    }
 }

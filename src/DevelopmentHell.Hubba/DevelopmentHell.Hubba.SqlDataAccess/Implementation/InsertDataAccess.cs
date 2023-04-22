@@ -54,7 +54,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 
                 insertQuery.CommandText = string.Format("INSERT INTO {0} ({1}) VALUES {2}", table, columnString, valueString);
 
-                return await SendQuery(insertQuery).ConfigureAwait(false);
+                return await SendScalarQuery(insertQuery).ConfigureAwait(false);
             }
         }
 
@@ -90,7 +90,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                     "SELECT {3} FROM {4}", 
                     table, columnString, valueString, ouputColumn, tableVar);
 
-                return await SendQuery(insertQuery).ConfigureAwait(false);
+                return await SendScalarQuery(insertQuery).ConfigureAwait(false);
             }
         }
     }

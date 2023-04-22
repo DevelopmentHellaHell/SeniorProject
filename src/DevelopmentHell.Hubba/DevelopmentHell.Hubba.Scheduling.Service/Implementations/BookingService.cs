@@ -141,15 +141,29 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
         {
             Dictionary<string, object> values = new()
             {
-                { nameof(Booking.BookingStatusId), BookingStatus.CANCELLED}
+                { nameof(Booking.BookingStatusId), (int) BookingStatus.CANCELLED}
             };
             List<Comparator> comparators = new ()
             {
                 new Comparator(nameof(Booking.BookingId),"=", bookingId) 
             };
-            var updateBookingStatus = await ExecuteBookingService(() => _bookingDAO.UpdateBooking(values, comparators));
+            var cancelBooking = await ExecuteBookingService(() => _bookingDAO.UpdateBooking(values, comparators));
+            var deleteBookedTimeFrames = await ExecuteBookingService(() => _bookedTimeFrameDAO.DeleteBookedTimeFrames
+            (
+                new List<Tuple<string, object>>()
+                {
+                    new Tuple<string, object>(nameof(Booking.BookingId), bookingId)
+                }
+            )).ConfigureAwait(false);
+            // if failed to delete BookedTimeFrame, roll back and change BookingStatus back to CONFIRMED
             
-            return updateBookingStatus;
+            if (!deleteBookedTimeFrames.IsSuccessful)
+            {
+                values[nameof(Booking.BookingStatusId)] = (int)BookingStatus.CONFIRMED;
+                var rollbackConfirmBooking = await ExecuteBookingService(() => _bookingDAO.UpdateBooking(values, comparators));
+                return new(Result.Failure(rollbackConfirmBooking.ErrorMessage));
+            }
+            return Result<bool>.Success(true);
         }
     }
 }
