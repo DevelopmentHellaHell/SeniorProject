@@ -16,6 +16,7 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
     {
         private static FtpWebRequest? _request;
         private readonly string _ftpServer;
+        private readonly string _httpServer;
         private readonly string _ftpUsername;
         private readonly string _ftpPassword;
         private readonly ILoggerService _loggerService;
@@ -23,6 +24,7 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
         public FTPFileService(string ftpServer, string ftpUsername, string ftpPassword, ILoggerService loggerService)
         {
             _ftpServer = "ftp://"+ftpServer;
+            _httpServer = "http://"+ftpServer;
             _ftpUsername = ftpUsername;
             _ftpPassword = ftpPassword;
             _loggerService = loggerService;
@@ -86,7 +88,7 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
         {
             if (await _ftpClient.FileExists(filePath))
             {
-                return Result<string>.Success(_ftpServer+"/"+filePath);
+                return Result<string>.Success(_httpServer+"/"+filePath);
             }
             return new(Result.Failure("Failed to Check for file existence"));
         }
@@ -99,7 +101,7 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
                 var outFiles = new List<string>();
                 foreach (var file in fileList)
                 {
-                    outFiles.Add(_ftpServer + file.FullName);
+                    outFiles.Add(_httpServer + file.FullName);
                 }
                 return Result<List<string>>.Success(outFiles);
             }

@@ -94,13 +94,13 @@ namespace DevelopmentHell.Hubba.FTPFileService.Test
 
             var testResult = await _fileService.GetFileReference(dirPath + "/" + fileNameData[0].Item1).ConfigureAwait(false);
             Assert.IsTrue(testResult.IsSuccessful);
-            Assert.IsTrue(testResult.Payload == $"ftp://{_ftpServer}/{dirPath}/{fileNameData[0].Item1}");
+            Assert.IsTrue(testResult.Payload == $"http://{_ftpServer}/{dirPath}/{fileNameData[0].Item1}");
 
             Thread.Sleep(100);
 
             testResult = await _fileService.GetFileReference(dirPath + "/" + fileNameData[1].Item1).ConfigureAwait(false);
             Assert.IsTrue(testResult.IsSuccessful);
-            Assert.IsTrue(testResult.Payload == $"ftp://{_ftpServer}/{dirPath}/{fileNameData[1].Item1}");
+            Assert.IsTrue(testResult.Payload == $"http://{_ftpServer}/{dirPath}/{fileNameData[1].Item1}");
         }
         [TestMethod]
         public async Task DeleteFile()
@@ -164,8 +164,8 @@ namespace DevelopmentHell.Hubba.FTPFileService.Test
 
             HashSet<string> files = new HashSet<string>()
             {
-                 $"ftp://{_ftpServer}/{dirPath}/{fileNameData[0].Item1}",
-                 $"ftp://{_ftpServer}/{dirPath}/{fileNameData[1].Item1}"
+                 $"http://{_ftpServer}/{dirPath}/{fileNameData[0].Item1}",
+                 $"http://{_ftpServer}/{dirPath}/{fileNameData[1].Item1}"
             }
             ;
             Assert.IsTrue(files.Contains(testResult.Payload![0]));
