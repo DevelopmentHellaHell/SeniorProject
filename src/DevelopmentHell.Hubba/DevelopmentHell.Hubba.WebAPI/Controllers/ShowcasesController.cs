@@ -24,7 +24,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 
     [ApiController]
     [Route("[controller]")]
-    public class ShowcasesController : Controller
+    public class ShowcasesController : HubbaController
     {
         private readonly IProjectShowcaseManager _projectShowcaseManager;
         private readonly ILoggerService _logger;
@@ -53,23 +53,6 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                     return (object error) => StatusCode(500, error);
                 default:
                     return NotFound;
-            }
-        }
-
-        private async static Task<IActionResult> testFunc()
-        {
-
-        }
-
-        private async IActionResult TryCatch(SafeAction)
-        {
-            try
-            {
-
-            }
-            catch (Exception ex)
-            {
-                
             }
         }
 
@@ -194,7 +177,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 }
                 else
                 {
-                    var getResult = await _projectShowcaseManager.GetCommentReports(commentId);
+                    var getResult = await _projectShowcaseManager.GetCommentReports((int)commentId);
                     if (!getResult.IsSuccessful)
                     {
                         return GetFuncCode(getResult.StatusCode!)(getResult.ErrorMessage!);

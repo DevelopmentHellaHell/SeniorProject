@@ -1,5 +1,4 @@
 ﻿using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.Models.DTO;
 using Microsoft.Extensions.Options;
 
 namespace DevelopmentHell.Hubba.Validation.Service.Abstractions

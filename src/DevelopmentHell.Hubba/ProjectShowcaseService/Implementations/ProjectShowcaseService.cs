@@ -12,6 +12,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using System.Security.Cryptography;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
+using Microsoft.Identity.Client;
+using System.Drawing.Printing;
 
 namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
 {
@@ -26,6 +28,20 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             _projectShowcaseDataAccess = projectShowcaseDataAccess;
             _validationService = validationService;
             _logger = loggerService;
+        }
+
+        private T MapToType<T>(Dictionary<string,string> attToSqlVarMap, Dictionary<string, object> values) where T : new()
+        {
+            T outClass = new();
+            foreach (var attToSqlVar in attToSqlVarMap)
+            {
+                if (values.TryGetValue(attToSqlVar.Value, out _))
+                {
+                    var prop = typeof(T).GetProperty(attToSqlVar.Key);
+                    prop!.SetValue(outClass, Convert.ChangeType(values[attToSqlVar.Value], prop!.PropertyType));
+                }
+            }
+            return outClass;
         }
 
         public async Task<Result> AddComment(string showcaseId, string commentText)
@@ -548,6 +564,135 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             {
                 _logger.Warning(Category.BUSINESS, $"Error in unpublishing showcase: {ex.Message}", "ShowcaseService");
                 return new(Result.Failure("Error in unpublishing showcase"));
+            }
+        }
+
+        public async Task<Result<List<ShowcaseReport>>> GetAllShowcaseReports()
+        {
+            try
+            {
+                var getResult = await _projectShowcaseDataAccess.GetAllShowcaseReports().ConfigureAwait(false);
+                if (!getResult.IsSuccessful)
+                {
+                    return new(Result.Failure($"Error in getting showcases from DAC: {getResult.ErrorMessage}"));
+                }
+                List<ShowcaseReport> output = new();
+                Dictionary<string, string> varSqlVarMap = new()
+                {
+                    { "Timestamp", "Timestamp" },
+                    { "Reason", "Reason" },
+                    { "ShowcaseId", "ShowcaseId" },
+                    { "ReporterId", "ReporterId" },
+                    { "IsResolved", "IsResolved" }
+                };
+                foreach (var showcaseDict in getResult.Payload!)
+                {
+                    output.Add(MapToType<ShowcaseReport>(varSqlVarMap, showcaseDict));
+                }
+                return Result<List<ShowcaseReport>>.Success(output);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in getting showcases: {ex.Message}", "ShowcaseService");
+                return new(Result.Failure("Error in getting showcases"));
+            }
+        }
+
+        public async Task<Result<List<ShowcaseReport>>> GetShowcaseReports(string showcaseId)
+        {
+            try
+            {
+                var getResult = await _projectShowcaseDataAccess.GetShowcaseReports(showcaseId).ConfigureAwait(false);
+                if (!getResult.IsSuccessful)
+                {
+                    return new(Result.Failure($"Error in getting showcases from DAC: {getResult.ErrorMessage}"));
+                }
+                List<ShowcaseReport> output = new();
+                Dictionary<string, string> varSqlVarMap = new()
+                {
+                    { "Timestamp", "Timestamp" },
+                    { "Reason", "Reason" },
+                    { "ShowcaseId", "ShowcaseId" },
+                    { "ReporterId", "ReporterId" },
+                    { "IsResolved", "IsResolved" }
+                };
+                foreach (var showcaseDict in getResult.Payload!)
+                {
+                    output.Add(MapToType<ShowcaseReport>(varSqlVarMap, showcaseDict));
+                }
+                return Result<List<ShowcaseReport>>.Success(output);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in getting showcases: {ex.Message}", "ShowcaseService");
+                return new(Result.Failure("Error in getting showcases"));
+            }
+        }
+
+        public async Task<Result<List<CommentReport>>> GetAllCommentReports()
+        {
+            try
+            {
+                var getResult = await _projectShowcaseDataAccess.GetAllCommentReports().ConfigureAwait(false);
+                if (!getResult.IsSuccessful)
+                {
+                    return new(Result.Failure($"Error in getting showcases from DAC: {getResult.ErrorMessage}"));
+                }
+                List<CommentReport> output = new();
+                Dictionary<string, string> varSqlVarMap = new()
+                {
+                    { "Timestamp", "Timestamp" },
+                    { "Reason", "Reason" },
+                    { "CommentId", "CommentId" },
+                    { "ReporterId", "ReporterId" },
+                    { "IsResolved", "IsResolved" }
+                };
+                foreach (var showcaseDict in getResult.Payload!)
+                {
+                    output.Add(MapToType<CommentReport>(varSqlVarMap, showcaseDict));
+                }
+                return Result<List<CommentReport>>.Success(output);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in getting showcases: {ex.Message}", "ShowcaseService");
+                return new(Result.Failure("Error in getting showcases"));
+            }
+        }
+
+        public async Task<Result<List<CommentReport>>> GetCommentReports(int commentId)
+        {
+            try
+            {
+                var getResult = await _projectShowcaseDataAccess.GetCommentReports(commentId).ConfigureAwait(false);
+                if (!getResult.IsSuccessful)
+                {
+                    return new(Result.Failure($"Error in getting showcases from DAC: {getResult.ErrorMessage}"));
+                }
+                List<CommentReport> output = new();
+                Dictionary<string, string> varSqlVarMap = new()
+                {
+                    { "Timestamp", "Timestamp" },
+                    { "Reason", "Reason" },
+                    { "CommentId", "CommentId" },
+                    { "ReporterId", "ReporterId" },
+                    { "IsResolved", "IsResolved" }
+                };
+                foreach (var showcaseDict in getResult.Payload!)
+                {
+                    CommentReport showcase = new();
+                    foreach (var varSqlVar in varSqlVarMap)
+                    {
+                        output.Add(MapToType<CommentReport>(varSqlVarMap, showcaseDict));
+                    }
+                    output.Add(showcase);
+                }
+                return Result<List<CommentReport>>.Success(output);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in getting showcases: {ex.Message}", "ShowcaseService");
+                return new(Result.Failure("Error in getting showcases"));
             }
         }
     }

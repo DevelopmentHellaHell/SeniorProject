@@ -53,6 +53,7 @@ using HubbaConfig = System.Configuration;
 using DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions;
 using DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions;
 using DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations;
+using DevelopmentHell.Hubba.Files.Service.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 

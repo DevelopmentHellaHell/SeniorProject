@@ -219,6 +219,31 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return result;
         }
 
+        public async Task<Result<string>> GetCommentShowcase(int commentId)
+        {
+            var result = await _selectDataAccess.Select(
+                TableManip.InnerJoinTables(_showcaseTableName, _commentTableName, "Id", "ShowcaseId"),
+                new() { $"{_showcaseTableName}.Id" },
+                new()
+                    {
+                        new($"{_commentTableName}.Id", "=", commentId)
+                    }
+                ).ConfigureAwait(false);
+            if (!result.IsSuccessful)
+            {
+                return new(Result.Failure($"Error in getting showcase Id from Db: {result.ErrorMessage}"));
+            }
+            if (result.Payload!.Count > 1)
+            {
+                return new(Result.Failure("Database error: more than one comment with given Id"));
+            }
+            if (result.Payload!.Count == 0)
+            {
+                return new(Result.Failure("Comment does not exist in database."));
+            }
+            return Result<string>.Success((string)result.Payload![0][$"{_showcaseTableName}.Id"]);
+        }
+
         public async Task<Result<bool?>> GetCommentUserRating(int commentId, int voterId)
         {
             var result = await _selectDataAccess.Select (
@@ -232,11 +257,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             {
                 return new(Result.Failure($"Error in getting User Rating from Db"));
             }
-            if (result.Payload!.Count() > 1)
+            if (result.Payload!.Count > 1)
             {
                 return new(Result.Failure("More than one comment with given Id"));
             }
-            if (result.Payload!.Count()  == 0)
+            if (result.Payload!.Count  == 0)
             {
                 return Result<bool?>.Success(null);
             }
@@ -315,6 +340,55 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return Result<List<Dictionary<string,object>>>.Success(result.Payload!);
         }
 
+
+        public async Task<Result<List<Dictionary<string, object>>>> GetAllShowcaseReports()
+        {
+            List<string> selectList = new() { "Timestamp", "ShowcaseId", "ReporterId", "IsResolved", "Reason" };
+            var result = await _selectDataAccess.Select
+            (
+                _showcaseReportTableName,
+                selectList,
+                new() { new("1","=","1")}
+            );
+            return Result<List<Dictionary<string,object>>>.Success(result.Payload! );
+        }
+
+        public async Task<Result<List<Dictionary<string, object>>>> GetShowcaseReports(string showcaseId)
+        {
+            List<string> selectList = new() { "Timestamp", "ShowcaseId", "ReporterId", "IsResolved", "Reason" };
+            var result = await _selectDataAccess.Select
+            (
+                _showcaseReportTableName,
+                selectList,
+                new() { new("ShowcaseId", "=", showcaseId) }
+            );
+            return Result<List<Dictionary<string, object>>>.Success(result.Payload!);
+        }
+
+        public async Task<Result<List<Dictionary<string, object>>>> GetAllCommentReports()
+        {
+            List<string> selectList = new() { "Timestamp", "CommentId", "ReporterId", "IsResolved", "Reason" };
+            var result = await _selectDataAccess.Select
+            (
+                _showcaseReportTableName,
+                selectList,
+                new() { new("1", "=", "1") }
+            );
+            return Result<List<Dictionary<string, object>>>.Success(result.Payload!);
+        }
+
+        public async Task<Result<List<Dictionary<string, object>>>> GetCommentReports(int commentId)
+        {
+            List<string> selectList = new() { "Timestamp", "CommentId", "ReporterId", "IsResolved", "Reason" };
+            var result = await _selectDataAccess.Select
+            (
+                _showcaseReportTableName,
+                selectList,
+                new() { new("ShowcaseId", "=", commentId) }
+            );
+            return Result<List<Dictionary<string, object>>>.Success(result.Payload!);
+        }
+
         public async Task<Result<float>> IncrementShowcaseLikes(string showcaseId)
         {
             var updateResult = await _updateDataAccess.Update(_showcaseTableName, new() { new("Id", "=", showcaseId) }, new() { { "Rating", "Rating+1" } } );
@@ -345,6 +419,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             return await _insertDataAccess.Insert(_showcaseTableName, new() {
                 { "Id", showcaseId },
+                { "ShowcaseUserId", accountId },
                 { "Title", title },
                 { "Description", description },
                 { "IsPublished", false },

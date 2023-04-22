@@ -27,7 +27,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions
         Task<Result<List<ShowcaseReport>>> GetAllShowcaseReports();
         Task<Result<List<ShowcaseReport>>> GetShowcaseReports(string showcaseId);
         Task<Result<List<ShowcaseComment>>> GetComments(string showcaseId, int? commentCount, int? page);
-        Task<Result<ShowcaseComment>> GetComment(int commentId);
         Task<Result<List<CommentReport>>> GetAllCommentReports();
         Task<Result<List<CommentReport>>> GetCommentReports(int commentId);
         Task<Result<float>> LikeShowcase(string showcaseId);

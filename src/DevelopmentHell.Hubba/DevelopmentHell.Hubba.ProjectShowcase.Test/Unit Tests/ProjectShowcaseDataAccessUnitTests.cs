@@ -150,7 +150,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
                 description,
                 time
             ).ConfigureAwait(false);
-            Assert.IsTrue(insertResult.IsSuccessful);
+            Assert.IsTrue(insertResult.IsSuccessful,insertResult.ErrorMessage);
 
             var commentResult = await _projectShowcaseDataAccess.AddComment(showcaseId, accountId, commentText, time);
             Assert.IsTrue(commentResult.IsSuccessful);

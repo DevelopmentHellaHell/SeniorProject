@@ -3,6 +3,7 @@ using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions;
 using DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
+using DevelopmentHell.Hubba.Files.Service.Abstractions;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -41,10 +42,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 var createdResult = await _projectShowcaseService.AddComment(showcaseId, commentText).ConfigureAwait(false);
                 if (!createdResult.IsSuccessful)
                 {
-                    if (!createdResult.StatusCode.HasValue)
-                    {
-                        _logger.Warning(Category.BUSINESS, "Unable to Add Comment.", "ShowcaseService");
-                    }
                     return Result.Failure("Unable to add comment.");
                 }
 
@@ -67,19 +64,28 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                     return new(Result.Failure("Unauthorized attempt to create a showcase",401));
                 }
 
+
+
                 var createResult = await _projectShowcaseService.CreateShowcase(listingId, title, description).ConfigureAwait(false);
                 if (!createResult.IsSuccessful)
                 {
-                    if (!createResult.StatusCode.HasValue)
-                    {
-                        _logger.Warning(Category.BUSINESS, "Unable to Create Showcase.", "ShowcaseService");
-                    }
                     return new(Result.Failure("Unable to Create Showcase."));
                 }
 
                 for (int i = 0; i < files.Count; i++)
                 {
-                    _fileService.UploadFile($"showcases/{createResult.Payload!}/0{i}_{files[i].Name}", files[i]);
+                    byte[] bytes;
+                    using (var stream = new MemoryStream())
+                    {
+                        await files[i].CopyToAsync(stream);
+                        bytes = stream.ToArray();
+                        stream.Read(bytes, 0, (int)stream.Length);
+                    }
+                    var uploadResult = await _fileService.UploadFile($"showcases/{createResult.Payload!}",$"0{i}_{files[i].Name}", bytes);
+                    if (!uploadResult.IsSuccessful)
+                    {
+                        return new(Result.Failure("Unable to upload file."));
+                    }
                 }
 
                 return Result<string>.Success(createResult.Payload!);
@@ -184,10 +190,21 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
 
                 if (files != null && files.Count > 0)
                 {
-                    _fileService.DeleteDir($"showcases/{showcaseId}");
+                    await _fileService.DeleteDir($"showcases/{showcaseId}");
                     for (int i = 0; i < files.Count; i++)
                     {
-                        _fileService.UploadFile($"showcases/{showcaseId}/0{i}_{files[i].Name}", files[i]);
+                        byte[] bytes;
+                        using (var stream = new MemoryStream())
+                        {
+                            await files[i].CopyToAsync(stream);
+                            bytes = stream.ToArray();
+                            stream.Read(bytes, 0, (int)stream.Length);
+                        }
+                        var uploadResult = await _fileService.UploadFile($"showcases/{showcaseId}",$"0{i}_{files[i].Name}", bytes);
+                        if (!uploadResult.IsSuccessful)
+                        {
+                            return Result.Failure("Unable to upload new showcase files");
+                        }
                     }
                 }
 
@@ -219,10 +236,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 var testResult = await _projectShowcaseService.GetDetails(showcaseId);
                 if (!testResult.IsSuccessful)
                 {
-                    if (!testResult.StatusCode.HasValue)
-                    {
-                        _logger.Warning(Category.BUSINESS, "Error getting showcase Details.", "ShowcaseManager");
-                    }
                     return new(Result.Failure(testResult.ErrorMessage!));
                 }
                 if (!(bool)testResult.Payload!["IsPublished"])
@@ -239,25 +252,22 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
         }
 
-        public async Task<Result<ShowcaseComment>> GetComment(int commentId)
-        {
-            // if attatched showcase is published
-            // or if owner is requester
-            // or if requester is admin
-            try
-            {
-
-            }
-            catch (Exception ex)
-            {
-            }
-        }
-
         public async Task<Result<List<CommentReport>>> GetAllCommentReports()
         {
             try
             {
-
+                var authResult = _authorizationService.Authorize(new string[] { "AdminUser" });
+                if (!authResult.IsSuccessful)
+                {
+                    _logger.Warning(Category.BUSINESS, $"401 Error in getting comment reports", "ShowcaseManager");
+                    return new(Result.Failure("Unauthorized access to comment reports", 401));
+                }
+                var result = await _projectShowcaseService.GetAllCommentReports().ConfigureAwait(false);
+                if (!result.IsSuccessful)
+                {
+                    return new(Result.Failure("Unable to get all comment reports"));
+                }
+                return Result<List<CommentReport>>.Success(result.Payload!);
             }
             catch (Exception ex)
             {
@@ -266,11 +276,17 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
         }
 
-        public async public async  Task<Result<List<CommentReport>>> GetCommentReports(int commentId)
+        public async Task<Result<List<CommentReport>>> GetCommentReports(int commentId)
         {
             try
             {
-
+                var authResult = _authorizationService.Authorize(new string[] { "AdminUser" });
+                if (!authResult.IsSuccessful)
+                {
+                    _logger.Warning(Category.BUSINESS, $"401 Error in getting comment reports", "ShowcaseManager");
+                    return new(Result.Failure("Unauthorized access to comment reports", 401));
+                }
+                return await _projectShowcaseService.GetCommentReports(commentId).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -286,22 +302,14 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 var getShowcaseResult = await _projectShowcaseService.GetShowcase(showcaseId).ConfigureAwait(false);
                 if (!getShowcaseResult.IsSuccessful)
                 {
-                    if (!getShowcaseResult.StatusCode.HasValue)
-                    {
-                        _logger.Warning(Category.BUSINESS, "Error getting Showcase.", "ShowcaseManager");
-                    }
                     var errorMessage = $"Error in getting Showcase {showcaseId}: {getShowcaseResult.ErrorMessage}";
                     return new(Result.Failure(errorMessage));
                 }
 
-                Result<List<string>> getFilesResult = await _fileService.GetFolder($"showcases/{showcaseId}");
+                Result<List<string>> getFilesResult = await _fileService.GetFilesInDir($"showcases/{showcaseId}");
                 if (!getFilesResult.IsSuccessful)
                 {
                     var errorMessage = $"Error in getting files for Showcase {showcaseId}: {getFilesResult.ErrorMessage}";
-                    if (!getFilesResult.StatusCode.HasValue)
-                    {
-                        _logger.Warning(Category.BUSINESS, $"Error in getting files for Showcase {showcaseId}: {getFilesResult.ErrorMessage}", "ShowcaseManager");
-                    }
                     return new(Result.Failure(errorMessage));
                 }
 
@@ -315,10 +323,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 if (!getCommentsResult.IsSuccessful)
                 {
                     var errorMessage = $"Error in getting comments for Showcase {showcaseId}: {getFilesResult.ErrorMessage}";
-                    if (!getCommentsResult.StatusCode.HasValue)
-                    {
-                        _logger.Warning(Category.BUSINESS, errorMessage);
-                    }
                     return new(Result.Failure(errorMessage));
                 }
 
@@ -362,7 +366,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 {
                     return new(Result.Failure("Unauthorized attempt to get Showcase Reports", 401));
                 }
-                return await _projectShowcaseService.GetAllShowcaseReports();
+                return await _projectShowcaseService.GetAllShowcaseReports().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -595,10 +599,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 var verificationResult = await VerifyOwnership(showcaseId).ConfigureAwait(false);
                 if (!verificationResult.IsSuccessful)
                 {
-                    if (!verificationResult.StatusCode.HasValue)
-                    {
-                        _logger.Warning(Category.BUSINESS, "Error verifying showcase ownership.", "ShowcaseManager");
-                    }
                     return Result<bool>.Failure("Unable to verify showcase ownership");
                 }
                 else if (!verificationResult.Payload)
@@ -617,10 +617,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 var verificationResult = await VerifyCommentOwnership(commentId).ConfigureAwait(false);
                 if (!verificationResult.IsSuccessful)
                 {
-                    if (!verificationResult.StatusCode.HasValue)
-                    {
-                        _logger.Warning(Category.BUSINESS, "Error verifying comment ownership.", "ShowcaseManager");
-                    }
                     return Result<bool>.Failure("Unable to verify comment ownership");
                 }
                 else if (!verificationResult.Payload)
