@@ -35,6 +35,7 @@ using System.Security.Claims;
 using DevelopmentHell.Hubba.Models.DTO;
 using System.Reflection;
 using System.Runtime.Intrinsics.X86;
+using DevelopmentHell.Hubba.Files.Service.Implementations;
 
 namespace DevelopmentHell.Hubba.ListingProfile.Test.Integration_Tests
 {
@@ -71,6 +72,10 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Integration_Tests
         private readonly string _userOTPsTable = ConfigurationManager.AppSettings["UserOTPsTable"]!;
 
 
+        private readonly string _ftpServer = ConfigurationManager.AppSettings["FTPServer"]!;
+        private readonly string _ftpUsername = ConfigurationManager.AppSettings["FTPUsername"]!;
+        private readonly string _ftpPassword = ConfigurationManager.AppSettings["FTPPassword"]!;
+
         private readonly string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
         private string _jwtKey = ConfigurationManager.AppSettings["JwtKey"]!;
         private string _cryptographyKey = ConfigurationManager.AppSettings["CryptographyKey"]!;
@@ -94,6 +99,13 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Integration_Tests
                     new ListingHistoryDataAccess(_listingProfileConnectionString, _listingHistoryTable),
                     new RatingDataAccess(_listingProfileConnectionString, _listingRatingsTable),
                     new UserAccountDataAccess(_userConnectionString, _userAccountsTable),
+                    loggerService
+                ),
+                new FTPFileService
+                (
+                    _ftpServer,
+                    _ftpUsername,
+                    _ftpPassword,
                     loggerService
                 ),
                 new AuthorizationService
