@@ -144,6 +144,46 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             };
         }
 
+        public async Task<Result<List<int>>> SelectFileIdsFromUrl(List<string> fileUrls)
+        {
+            List<string> fileUrlsString = new List<string>();
+            foreach (string fileUrl in fileUrls)
+            {
+                fileUrlsString.Add(fileUrl);
+            }
+
+            Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.SelectWhereIn(
+                _tableName,
+                new List<String>() { "FileId" },
+                "FileUrl",
+                fileUrlsString
+            ).ConfigureAwait(false);
+
+            if (!selectResult.IsSuccessful || selectResult.Payload is null)
+            {
+                return new(Result.Failure("" + selectResult.ErrorMessage));
+            }
+
+            List<Dictionary<string, object>> payload = selectResult.Payload;
+            if (payload.Count > 10)
+            {
+                return new(Result.Failure($"Selected more than the valid number of files: {payload.Count}" + selectResult.ErrorMessage));
+            }
+
+            List<int> fileIds = new List<int>();
+
+            foreach (var row in payload)
+            {
+                fileIds.Add((int)row["FileId"]);
+            }
+
+            return new Result<List<int>>()
+            {
+                IsSuccessful = true,
+                Payload = fileIds
+            };
+        }
+
         public async Task<Result<List<int>>> SelectFileIdsFromOwner(int accountId)
         {
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
@@ -184,6 +224,27 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             List<string> removedFileUrlsList = removedFileUrls.ToList<string>();
             var deleteResult = await _deleteDataAccess.DeleteWhereIn(_tableName, "FileUrl", removedFileUrlsList).ConfigureAwait(false);
 
+            return deleteResult;
+        }
+
+        public async Task<Result> DeleteFilesFromFileId(List<int> fileIds)
+        {
+            List<string> fileIdsString = new List<string>();
+            foreach (var fileId in fileIds)
+            {
+                fileIdsString.Add(fileId.ToString());
+            }
+
+            var deleteResult = await _deleteDataAccess.DeleteWhereIn(_tableName, "FileId", fileIdsString).ConfigureAwait(false);
+            return deleteResult;
+        }
+
+        public async Task<Result> DeleteFilesFromOwnerId(int ownerId)
+        {
+            List<string> ownerIdString = new List<string>();
+            ownerIdString.Add(ownerId.ToString());
+
+            var deleteResult = await _deleteDataAccess.DeleteWhereIn(_tableName, "OwnerId", ownerIdString).ConfigureAwait(false);
             return deleteResult;
         }
     }

@@ -32,11 +32,21 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         public async Task<Result> Delete(int collabId)
         {
-            throw new NotImplementedException();
+            var deleteResult = await _deleteDataAccess.Delete(
+                _tableName,
+                new List<Comparator>()
+                {
+                    new Comparator("CollaboratorId", "=", collabId)
+                }).ConfigureAwait(false);
+            return deleteResult;
+
         }
 
-        public async Task<Result<CollaboratorProfile>> GetCollaboratorWithPfpId(int collabId)
+        public async Task<Result<CollaboratorProfile>> GetCollaborator(int collabId)
         {
+            // the collaborator profile returned by this method will contain the pfpId in the pfpurl section
+            // this method shouldn't be called by any method apart from CollaboratorService.GetCollaborator
+
             using (SqlCommand insertQuery = new SqlCommand())
             {
                 bool first = true;
@@ -128,32 +138,87 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             if (!selectResult.IsSuccessful || selectResult.Payload is null)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = selectResult.ErrorMessage;
-                return result;
+                return new(Result.Failure("Unable to select collaborator. " + selectResult.ErrorMessage));
             }
 
             List<Dictionary<string, object>> payload = selectResult.Payload;
             if (payload.Count > 1)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Invalid number of Collaborators selected.";
-                return result;
+                return new(Result.Failure("Invalid number of Collaborators selected. " + selectResult.ErrorMessage));
             }
 
+            if (payload.Count == 0)
+            {
+                return new(Result.Failure("Could not find selected collaborator."));
+            }
             result.IsSuccessful = true;
-            if (payload.Count > 0) result.Payload = (int)payload[0]["CollaboratorId"];
+            result.Payload = (int)payload[0]["CollaboratorId"];
             return result;
         }
 
         public async Task<Result<int>> GetOwnerId(int collabId)
         {
-            throw new NotImplementedException();
+            Result<int> result = new Result<int>();
+            Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
+                _tableName,
+                new List<string>() { "OwnerId" },
+                new List<Comparator>()
+                {
+                    new Comparator("CollaboratorId", "=", collabId)
+                }
+            ).ConfigureAwait(false);
+
+            if (!selectResult.IsSuccessful || selectResult.Payload is null)
+            {
+                return new(Result.Failure("Unable to select owner. " + selectResult.ErrorMessage));
+            }
+
+            List<Dictionary<string, object>> payload = selectResult.Payload;
+            if (payload.Count > 1)
+            {
+                return new(Result.Failure("Invalid number of Collaborators selected. " + selectResult.ErrorMessage));
+            }
+
+            if (payload.Count == 0)
+            {
+                return new(Result.Failure("Could not find selected Owner."));
+            }
+            result.IsSuccessful = true;
+            result.Payload = (int)payload[0]["OwnerId"];
+            return result;
+
         }
 
         public async Task<Result<bool>> GetPublished(int collabId)
         {
-            throw new NotImplementedException();
+            Result<bool> result = new Result<bool>();
+            Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
+                _tableName,
+                new List<string>() { "Published" },
+                new List<Comparator>()
+                {
+                    new Comparator("CollaboratorId", "=", collabId)
+                }
+            ).ConfigureAwait(false);
+
+            if (!selectResult.IsSuccessful || selectResult.Payload is null)
+            {
+                return new(Result.Failure("Unable to select published. " + selectResult.ErrorMessage));
+            }
+
+            List<Dictionary<string, object>> payload = selectResult.Payload;
+            if (payload.Count > 1)
+            {
+                return new(Result.Failure("Invalid number of Collaborators selected. " + selectResult.ErrorMessage));
+            }
+
+            if (payload.Count == 0)
+            {
+                return new(Result.Failure("Could not find selected collaborator."));
+            }
+            result.IsSuccessful = true;
+            result.Payload = (bool)payload[0]["Published"];
+            return result;
         }
 
         public async Task<Result<int>> CreateCollaborator(CollaboratorProfile collab)
@@ -216,7 +281,19 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         public async Task<Result> SetPublished(int collabId, bool published)
         {
-            throw new NotImplementedException();
+            var values = new Dictionary<string, object>();
+            values["Published"] = published;
+
+            Result updateResult = await _updateDataAccess.Update(
+                _tableName,
+                // comparator helps create WHERE SQL statement
+                new List<Comparator>()
+                {
+                    new Comparator("CollaboratorId", "=", collabId),
+                },
+                values
+            ).ConfigureAwait(false);
+            return updateResult;
         }
 
         public async Task<Result> Update(int collabId, CollaboratorProfile collab)
@@ -267,7 +344,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         public async Task<Result> UpdatePfpFileId(int collabId, int? pfpFileId = null)
         {
-
             var values = new Dictionary<string, object?>();
             if (pfpFileId == null)
             {
@@ -291,9 +367,72 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return updateResult;
         }
 
-        public async Task<Result> Remove(CollaboratorProfile collab)
+        public async Task<Result<bool>> HasCollaborator(int accountId)
         {
-            throw new NotImplementedException();
+            Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
+                _tableName,
+                new List<String>() { "OwnerId" },
+                new List<Comparator>()
+                {
+                    new Comparator("OwnerId", "=", accountId)
+                }
+            ).ConfigureAwait(false);
+
+            if (!selectResult.IsSuccessful || selectResult.Payload is null)
+            {
+                return new(Result.Failure("" + selectResult.ErrorMessage));
+            }
+
+            List<Dictionary<string, object>> payload = selectResult.Payload;
+            if (payload.Count == 1)
+            {
+                return new Result<bool>()
+                {
+                    IsSuccessful = true,
+                    Payload = true
+                };
+            }
+
+            return new Result<bool>()
+            {
+                IsSuccessful = true,
+                Payload = false
+            };
+
+        }
+
+        public async Task<Result<bool>> Exists(int collabId)
+        {
+            Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
+                _tableName,
+                new List<String>() { "CollaboratorId" },
+                new List<Comparator>()
+                {
+                    new Comparator("CollaboratorId", "=", collabId)
+                }
+            ).ConfigureAwait(false);
+
+            if (!selectResult.IsSuccessful || selectResult.Payload is null)
+            {
+                return new(Result.Failure("" + selectResult.ErrorMessage));
+            }
+
+            List<Dictionary<string, object>> payload = selectResult.Payload;
+            if (payload.Count == 1)
+            {
+                return new Result<bool>()
+                {
+                    IsSuccessful = true,
+                    Payload = true
+                };
+            }
+
+            return new Result<bool>()
+            {
+                IsSuccessful = true,
+                Payload = false
+            };
+
         }
 
         public async Task<Result<List<Dictionary<string, object>>>> Curate(int offset = 0)

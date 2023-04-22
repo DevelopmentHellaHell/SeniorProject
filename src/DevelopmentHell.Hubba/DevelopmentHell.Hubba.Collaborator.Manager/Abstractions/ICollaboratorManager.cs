@@ -10,7 +10,10 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Abstractions
         Task<Result> CreateCollaborator(CollaboratorProfile collab, IFormFile[] collabFiles, IFormFile? pfpFile = null);
         Task<Result> EditCollaborator(CollaboratorProfile collab, IFormFile[]? collabFiles = null, string[]? removedFiles = null, IFormFile? pfpFile = null);
         Task<Result> DeleteCollaborator(int collabId);
+        Task<Result> RemoveCollaborator(int collabId);
         Task<Result> DeleteCollaboratorWithAccountId(int accountId);
         Task<Result> ChangeVisibility(int collabId, bool isPublic);
+        Task<Result<bool>> HasCollaborator(int accountId);
+        Task<Result> Vote(int collabId, bool upvote);
     }
 }
