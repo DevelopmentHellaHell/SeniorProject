@@ -8,6 +8,7 @@ using Azure.Core;
 using FluentFTP;
 using FluentFTP.Exceptions;
 using FluentFTP.Helpers;
+using Microsoft.AspNetCore.Http;
 
 #pragma warning disable SYSLIB0014 // Type or member is obsolete
 namespace DevelopmentHell.Hubba.Files.Service.Implementations
@@ -132,6 +133,16 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
         public async Task<Result> UploadFile(string filePath, string fileName, byte[] fileData)
         {
             var status = await _ftpClient.UploadBytes(fileData, filePath + "/" + fileName);
+            if (status.IsFailure())
+            {
+                return new(Result.Failure($"Upload failed: {status.ToString()}"));
+            }
+            return Result.Success();
+        }
+
+        public async Task<Result> UploadIFormFile(string filePath, string fileName, IFormFile file)
+        {
+            var status = await _ftpClient.UploadStream(file.OpenReadStream(), filePath + "/" + fileName);
             if (status.IsFailure())
             {
                 return new(Result.Failure($"Upload failed: {status.ToString()}"));
