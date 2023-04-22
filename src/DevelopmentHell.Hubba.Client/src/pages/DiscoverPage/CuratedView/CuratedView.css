@@ -1,0 +1,12 @@
+.curated-view-wrapper .category {
+    line-height: 0;
+    margin-left: 50px;
+}
+
+.curated-view-wrapper .catalogue {
+    display: flex;
+    justify-content: space-around;
+    height: 200px;
+    padding: 10px 10px;
+    margin-bottom: 120px;
+}

@@ -5,18 +5,19 @@ import NavbarUser from "../../components/NavbarUser/NavbarUser";
 import "./DiscoverPage.css";
 import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
 import { Ajax } from "../../Ajax";
-import ListingCard from "./ListingCard/ListingCard";
 import Dropdown from "../../components/Dropdown/Dropdown";
 import Button from "../../components/Button/Button";
+import CuratedView from "./CuratedView/CuratedView";
+import SearchView from "./SearchView/SearchView";
 
 interface IDiscoverPageProps {
 
 }
 
-interface ICuratedData {
+export interface ICuratedData {
     listings: IDiscoveryListing[],
-    collaborators: any;
-    showcases: any;
+    collaborators: IDiscoveryCollaborator[];
+    showcases: IDiscoveryProjectShowcase[];
 }
 
 export interface IDiscoveryListing {
@@ -24,26 +25,62 @@ export interface IDiscoveryListing {
     ListingId: number;
     Location: string;
     Price: number;
-    Score: number;
     Title: string;
     TotalRatings: number;
 }
 
-enum Category {
+export interface IDiscoveryCollaborator {
+    CollaboratorId: number;
+    Name: string;
+    TotalVotes: number;
+}
+
+export interface IDiscoveryProjectShowcase {
+    Id: number;
+    Title: string;
+    Rating: number;
+    Description: string;
+}
+
+export enum Category {
     LISTINGS = "listings",
     PROJECT_SHOWCASES = "showcases",
     COLLABORATORS = "collaborators",
+}
+
+enum DiscoverViews {
+    CURATED,
+    SEARCH,
+}
+
+export interface SearchQuery {
+    query: string;
+    category: string;
+    filter: string;
 }
 
 const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
     const [data, setData] = useState<ICuratedData | null>(null);
     const [error, setError] = useState("");
     const [loaded, setLoaded] = useState(false);
-    const [query, setQuery] = useState<string | null>(null);
-    const [category, setCategory] = useState(Category.LISTINGS);
-    const [filter, setFilter] = useState("none");
+    const [searchQuery, setSearchQuery] = useState<SearchQuery>({
+        query: "",
+        category: Category.LISTINGS,
+        filter: "none"
+    });
+    const [lastSearchQuery, setLastSearchQuery] = useState<SearchQuery>(searchQuery);
+    const [view, setView] = useState(DiscoverViews.CURATED);
 
     const authData = Auth.getAccessData();
+
+    const renderView = (view: DiscoverViews) => {
+        switch(view) {
+            case DiscoverViews.CURATED:
+                return <CuratedView data={data ? data : undefined} />;
+            case DiscoverViews.SEARCH:
+                return <SearchView searchQuery={lastSearchQuery}/>;
+        }
+    }
 
     useEffect(() => {
         const getData = async () => {
@@ -54,6 +91,7 @@ const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
                     arr.push(obj);
                 }
             } 
+
             if (response.data) {
                 fill(response.data!.listings, {
                     AvgRatings: 0,
@@ -64,6 +102,17 @@ const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
                     Title: "Empty",
                     TotalRatings: 0,
                 }, 5);
+                fill(response.data!.collaborators, {
+                    CollaboratorId: -1,
+                    Name: "Empty",
+                    TotalVotes: 0,
+                }, 5);
+                fill(response.data!.showcases, {
+                    Id: -1,
+                    Title: "Empty",
+                    Rating: 0,
+                    Description: "Empty",
+                }, 5);
             }
             
             setData(response.data);
@@ -73,14 +122,6 @@ const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
 
         getData();
     }, []);
-
-    const search = async () => {
-        console.log(query, category, filter);
-        // todo switch views and transfer search data
-        const response = await Ajax.post<any>("/discovery/getSearch", { "Query": query, "Category": category, "Filter": filter, "Offset": 0 });
-        console.log(response.data);
-
-    }
 
     return (
         <div className="discover-container">
@@ -94,13 +135,14 @@ const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
                         <div className="search-group search">
                             <h3>Search</h3>
                             <input id="search" placeholder="Search" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                setQuery(event.target.value);
+                                setSearchQuery((previous) => { return {...previous, query: event.target.value} });
                             }}/>
                             <div className="search-button">
                                 <Button
                                     title="🔎"
                                     onClick={ () => {
-                                        search();
+                                        setLastSearchQuery(searchQuery);
+                                        setView(DiscoverViews.SEARCH);
                                     }}
                                 />
                             </div>
@@ -108,57 +150,24 @@ const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
                        
                         <div className="search-group">
                             <h3>Category</h3>
-                            <Dropdown title={category}>
-                                <p onClick={() => { setCategory(Category.LISTINGS) }}>Listings</p>
-                                <p onClick={() => { setCategory(Category.PROJECT_SHOWCASES) }}>Project Showcases</p>
-                                <p onClick={() => { setCategory(Category.COLLABORATORS) }}>Collaborators</p>
+                            <Dropdown title={searchQuery.category}>
+                                <p onClick={() => { setSearchQuery((previous) => { return {...previous, category: Category.LISTINGS} }) }}>Listings</p>
+                                <p onClick={() => { setSearchQuery((previous) => { return {...previous, category: Category.PROJECT_SHOWCASES} }) }}>Project Showcases</p>
+                                <p onClick={() => { setSearchQuery((previous) => { return {...previous, category: Category.COLLABORATORS} }) }}>Collaborators</p>
                             </Dropdown>
                         </div>
                         <div className="search-group">
                             <h3>Filter</h3>
-                            <Dropdown title={filter}>
-                                <p onClick={() => { setFilter("none") }}>None</p>
-                                <p onClick={() => { setFilter("popularity") }}>Popularity</p>
+                            <Dropdown title={searchQuery.filter}>
+                                <p onClick={() => { setSearchQuery((previous) => { return {...previous, filter: "none"} }) }}>None</p>
+                                <p onClick={() => { setSearchQuery((previous) => { return {...previous, filter: "popularity"} }) }}>Popularity</p>
                             </Dropdown>
                         </div>                        
                     </div>
                 </div>
 
                 <div className="discover-wrapper">
-                    <div>
-                        <h3 className="category">Listings</h3>
-                        <div className="catalogue">
-                            {data && 
-                                data.listings.map(item => {
-                                    return (
-                                        <ListingCard data={item} />
-                                    );
-                                })
-                            }
-                        </div>
-
-                        <h3 className="category">Project Showcases</h3>
-                        <div className="catalogue">
-                            {data && 
-                                data.listings.map(item => {
-                                    return (
-                                        <ListingCard data={item} />
-                                    );
-                                })
-                            }
-                        </div>
-
-                        <h3 className="category">Collaborators</h3>
-                        <div className="catalogue">
-                            {data && 
-                                data.listings.map(item => {
-                                    return (
-                                        <ListingCard data={item} />
-                                    );
-                                })
-                            }
-                        </div>
-                    </div>
+                    {renderView(view)}
                 </div>
             </div>
 

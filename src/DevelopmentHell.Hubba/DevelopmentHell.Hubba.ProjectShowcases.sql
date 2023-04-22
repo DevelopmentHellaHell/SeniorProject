@@ -256,7 +256,7 @@ GO
 -- SearchShowcases
 CREATE PROCEDURE [dbo].[SearchShowcases] @Query NVARCHAR(200), @Offset INT, @FTTableRankWeight FLOAT, @RatingsRankWeight FLOAT
 AS
-SELECT S.Id, S.Title, S.Rating,
+SELECT S.Id, S.Title, S.Rating, S.Description,
     (CAST(FT.Rank AS FLOAT) / ISNULL((NULLIF(MAX(FT.Rank) OVER(), 0)), 1) * @FTTableRankWeight             -- FTTableRank
     + (CAST(ISNULL(S.Rating, 0) AS FLOAT) / ISNULL(MAX(S.Rating) OVER(), 1)) * @RatingsRankWeight) AS Score -- RatingsRank
 FROM [DevelopmentHell.Hubba.ProjectShowcases].[dbo].[Showcases] AS S
