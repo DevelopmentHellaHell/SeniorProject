@@ -175,27 +175,27 @@ namespace DevelopmentHell.Hubba.FTPFileService.Test
             files.Remove(testResult.Payload![0]);
             Assert.IsTrue(files.Contains(testResult.Payload![1]));
         }
-        [TestMethod]
-        public async Task CreateDir_UploadFile_GetFileReference_UsingIFormFile()
-        {
-            await _fileService.DeleteDir(dirPath);
-            IFormFile file = CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza0.png");
-            var dirResult = await _fileService.CreateDir(dirPath);
-            Assert.IsTrue(dirResult.IsSuccessful);
+
+        //[TestMethod]
+        //public async Task CreateDir_UploadFile_GetFileReference_UsingIFormFile()
+        //{
+        //    await _fileService.DeleteDir(dirPath);
+        //    IFormFile file = CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza0.png");
+        //    var dirResult = await _fileService.CreateDir(dirPath);
+        //    Assert.IsTrue(dirResult.IsSuccessful);
 
 
-            Thread.Sleep(100);
+        //    Thread.Sleep(100);
 
-            var result = await _fileService.UploadIFormFile(dirPath, "Sick_ass_shiny_rayquaza_wtf.png", file).ConfigureAwait(false);
-            Assert.IsTrue(result.IsSuccessful);
+        //    var result = await _fileService.UploadIFormFile(dirPath, "Sick_ass_shiny_rayquaza_wtf.png", file).ConfigureAwait(false);
+        //    Assert.IsTrue(result.IsSuccessful);
 
-            Thread.Sleep(100);
+        //    Thread.Sleep(100);
 
-            var testResult = await _fileService.GetFileReference(dirPath + "/" + "Sick_ass_shiny_rayquaza_wtf.png").ConfigureAwait(false);
-            Assert.IsTrue(testResult.IsSuccessful);
-            Assert.IsTrue(testResult.Payload == $"ftp://{_ftpServer}/{dirPath}/Sick_ass_shiny_rayquaza_wtf.png");
-        }
-
+        //    var testResult = await _fileService.GetFileReference(dirPath + "/" + "Sick_ass_shiny_rayquaza_wtf.png").ConfigureAwait(false);
+        //    Assert.IsTrue(testResult.IsSuccessful);
+        //    Assert.IsTrue(testResult.Payload == $"ftp://{_ftpServer}/{dirPath}/Sick_ass_shiny_rayquaza_wtf.png");
+        //}
 
 
 
