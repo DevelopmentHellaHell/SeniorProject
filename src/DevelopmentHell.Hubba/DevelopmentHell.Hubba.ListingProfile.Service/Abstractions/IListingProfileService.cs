@@ -39,6 +39,6 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Abstractions
 
         Task<Result> AddRating(int listingId, int userId, int rating, string? comment, bool anonymous);
 
-
+        Task<Result<int>> GetListingId(string title, int userId);
     }
 }

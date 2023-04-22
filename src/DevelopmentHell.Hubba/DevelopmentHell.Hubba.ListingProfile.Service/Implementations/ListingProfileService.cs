@@ -437,5 +437,11 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
             result.Payload = username;
             return result;
         }
+
+        public async Task<Result<int>> GetListingId(string title, int userId)
+        {
+            return await _listingDataAccess.GetListingId(userId, title).ConfigureAwait(false);
+
+        }
     }
 }

@@ -10,7 +10,7 @@ namespace DevelopmentHell.ListingProfile.Manager.Abstractions
 
         Task<Result<List<ListingViewDTO>>> ViewUserListings();//
 
-        Task<Result<List<object>>> ViewListing(int listingId);//only title => need to try some with listingavailabilities, files, and ratings
+        Task<Result<Dictionary<string, object>>> ViewListing(int listingId);//only title => need to try some with listingavailabilities, files, and ratings
 
         Task<Result> EditListing(ListingEditorDTO listing);//
 

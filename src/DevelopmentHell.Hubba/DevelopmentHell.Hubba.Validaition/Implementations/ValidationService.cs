@@ -131,6 +131,7 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
             foreach (PropertyInfo prop in obj.GetType().GetProperties())
             {
                 var value = prop.GetValue(obj, null);
+                if (prop.Name == "AverageRating") continue;
                 if (value is null || value.ToString()!.Length < 1)
                 {
                     nullValueNames.Add(prop.Name);

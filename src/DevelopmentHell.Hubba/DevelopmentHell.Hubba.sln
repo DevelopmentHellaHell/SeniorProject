@@ -16,8 +16,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DS_schemas", "DS_schemas", 
 	ProjectSection(SolutionItems) = preProject
 		DevelopmentHell.Hubba.CollaboratorProfiles.sql = DevelopmentHell.Hubba.CollaboratorProfiles.sql
 		DevelopmentHell.Hubba.ListingProfiles.sql = DevelopmentHell.Hubba.ListingProfiles.sql
-		DevelopmentHell.Hubba.Notifications.sql = DevelopmentHell.Hubba.Notifications.sql
 		DevelopmentHell.Hubba.Logs.sql = DevelopmentHell.Hubba.Logs.sql
+		DevelopmentHell.Hubba.Notifications.sql = DevelopmentHell.Hubba.Notifications.sql
 		DevelopmentHell.Hubba.ProjectShowcases.sql = DevelopmentHell.Hubba.ProjectShowcases.sql
 		DevelopmentHell.Hubba.Users.sql = DevelopmentHell.Hubba.Users.sql
 		README.txt = README.txt
@@ -128,17 +128,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Listi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.ListingProfile.Service", "DevelopmentHell.Hubba.ListingProfile.Service\DevelopmentHell.Hubba.ListingProfile.Service.csproj", "{B167CFCA-81D2-4DC3-905E-0A47AA60B86D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.ListingProfile.Test", "DevelopmentHell.Hubba.ListingProfile.Test\DevelopmentHell.Hubba.ListingProfile.Test.csproj", "{D95CB2FF-82DE-461B-81E3-8A30D15FCC5D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.ListingProfile.Test", "DevelopmentHell.Hubba.ListingProfile.Test\DevelopmentHell.Hubba.ListingProfile.Test.csproj", "{D95CB2FF-82DE-461B-81E3-8A30D15FCC5D}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Discovery.Service", "DevelopmentHell.Hubba.Discovery.Service\DevelopmentHell.Hubba.Discovery.Service.csproj", "{F06EDD6F-D663-4B7E-8193-DECF534F3BA3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Discovery.Manager", "DevelopmentHell.Hubba.Discovery.Manager\DevelopmentHell.Hubba.Discovery.Manager.csproj", "{0C6C9F09-B242-4F5B-A1EE-89FC3E90F7B5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Analytics.Test", "DevelopmentHell.Hubba.Analytics.Test\DevelopmentHell.Hubba.Analytics.Test.csproj", "{7820FCED-77E1-433C-A718-4E565615ABBA}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Files.Service", "DevelopmentHell.Hubba.Files.Service\DevelopmentHell.Hubba.Files.Service.csproj", "{138C17F1-CCF5-4979-A4D8-B39E9B533B45}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Analytics.Test", "DevelopmentHell.Hubba.Analytics.Test\DevelopmentHell.Hubba.Analytics.Test.csproj", "{7820FCED-77E1-433C-A718-4E565615ABBA}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.FTPFileService.Test", "DevelopmentHell.Hubba.FTPFileService.Test\DevelopmentHell.Hubba.FTPFileService.Test.csproj", "{AAAB789A-60E2-4C2B-B4F4-27ACBB02794B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.FTPFileService.Test", "DevelopmentHell.Hubba.FTPFileService.Test\DevelopmentHell.Hubba.FTPFileService.Test.csproj", "{AAAB789A-60E2-4C2B-B4F4-27ACBB02794B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -306,14 +306,14 @@ Global
 		{0C6C9F09-B242-4F5B-A1EE-89FC3E90F7B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C6C9F09-B242-4F5B-A1EE-89FC3E90F7B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C6C9F09-B242-4F5B-A1EE-89FC3E90F7B5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{138C17F1-CCF5-4979-A4D8-B39E9B533B45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{138C17F1-CCF5-4979-A4D8-B39E9B533B45}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{138C17F1-CCF5-4979-A4D8-B39E9B533B45}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{138C17F1-CCF5-4979-A4D8-B39E9B533B45}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7820FCED-77E1-433C-A718-4E565615ABBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7820FCED-77E1-433C-A718-4E565615ABBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7820FCED-77E1-433C-A718-4E565615ABBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7820FCED-77E1-433C-A718-4E565615ABBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{138C17F1-CCF5-4979-A4D8-B39E9B533B45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{138C17F1-CCF5-4979-A4D8-B39E9B533B45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{138C17F1-CCF5-4979-A4D8-B39E9B533B45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{138C17F1-CCF5-4979-A4D8-B39E9B533B45}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AAAB789A-60E2-4C2B-B4F4-27ACBB02794B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AAAB789A-60E2-4C2B-B4F4-27ACBB02794B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AAAB789A-60E2-4C2B-B4F4-27ACBB02794B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -368,8 +368,8 @@ Global
 		{D95CB2FF-82DE-461B-81E3-8A30D15FCC5D} = {5A528968-95F9-4E5A-98CB-501EE0759FDC}
 		{F06EDD6F-D663-4B7E-8193-DECF534F3BA3} = {307E617F-C023-4041-A86D-3E23B67866B0}
 		{0C6C9F09-B242-4F5B-A1EE-89FC3E90F7B5} = {629C2E91-06B4-4B72-9BCF-7BA00EB8CBED}
-		{138C17F1-CCF5-4979-A4D8-B39E9B533B45} = {33222376-EAA6-4A44-A1D7-B6DB5BE1E13B}
 		{7820FCED-77E1-433C-A718-4E565615ABBA} = {5A528968-95F9-4E5A-98CB-501EE0759FDC}
+		{138C17F1-CCF5-4979-A4D8-B39E9B533B45} = {33222376-EAA6-4A44-A1D7-B6DB5BE1E13B}
 		{AAAB789A-60E2-4C2B-B4F4-27ACBB02794B} = {5A528968-95F9-4E5A-98CB-501EE0759FDC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

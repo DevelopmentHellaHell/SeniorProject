@@ -1,5 +1,6 @@
 ﻿using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
+using DevelopmentHell.Hubba.Files.Service.Abstractions;
 using DevelopmentHell.Hubba.ListingProfile.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
@@ -17,18 +18,17 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
     public class ListingProfileManager : IListingProfileManager
     {
         private IListingProfileService _listingsService;
-        //private IFileService _fileService;
+        private IFileService _fileService;
         private IAuthorizationService _authorizationService;
         private ILoggerService _loggerService;
         private IValidationService _validationService;
         private ICryptographyService _cryptographyService;
 
 
-        public ListingProfileManager(IListingProfileService listingsService,
-            //IFileService fileService,
-            IAuthorizationService authorizationService, ILoggerService loggerService, IValidationService validationService, ICryptographyService cryptographyService)
+        public ListingProfileManager(IListingProfileService listingsService, IFileService fileService, IAuthorizationService authorizationService, ILoggerService loggerService, IValidationService validationService, ICryptographyService cryptographyService)
         {
             _listingsService = listingsService;
+            _fileService = fileService;
             _authorizationService = authorizationService;
             _loggerService = loggerService;
             _validationService = validationService;
@@ -75,6 +75,19 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 return new(Result.Failure(createListingResult.ErrorMessage!, StatusCodes.Status400BadRequest));
             }
 
+            Result<int> getListingId = await _listingsService.GetListingId(title, ownerId).ConfigureAwait(false);
+            if (!getListingId.IsSuccessful)
+            {
+                return new(Result.Failure(getListingId.ErrorMessage!, StatusCodes.Status400BadRequest));
+            }
+            int listingId = getListingId.Payload;
+
+            Result createFileDir = await _fileService.CreateDir("ListingProfiles/" + listingId).ConfigureAwait(false);
+            if (!createFileDir.IsSuccessful)
+            {
+                return new(Result.Failure(createFileDir.ErrorMessage!, StatusCodes.Status400BadRequest));
+            }
+
             //log 
             string userHashKey = ConfigurationManager.AppSettings["UserHashKey"]!;
             Result<HashData> userHashResult = _cryptographyService.HashString(ownerUsername, userHashKey);
@@ -114,9 +127,9 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             return Result<List<ListingViewDTO>>.Success(payload);
         }
 
-        public async Task<Result<List<object>>> ViewListing(int listingId)
+        public async Task<Result<Dictionary<string, object>>> ViewListing(int listingId)
         {
-            List<object> payload = new List<object>();
+            Dictionary<string, object> payload = new Dictionary<string, object>();
 
             //get listing
             Result<ListingViewDTO> getListingResult = await _listingsService.GetListing(listingId).ConfigureAwait(false);
@@ -146,7 +159,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 }
             }
             
-            payload.Add(getListingResult.Payload);
+            payload.Add("listing", getListingResult.Payload);
 
             //get availabilities
             Result<List<ListingAvailabilityDTO>> getListingAvailabilityResult = await _listingsService.GetListingAvailabilities(listingId).ConfigureAwait(false);
@@ -154,19 +167,16 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             {
                 return new(Result.Failure(getListingResult.ErrorMessage, StatusCodes.Status400BadRequest));
             }
-            payload.Add(getListingAvailabilityResult.Payload);
+            payload.Add("availabilities", getListingAvailabilityResult.Payload);
 
 
             //get files
-            //Result<List<Object>> getListingFilesResult = await _fileService.GetFiles(listingId).ConfigureAwait(false);
-            //if (!getListingResult.IsSuccessful)
-            //{
-            //    result.IsSuccessful = false;
-            //    result.ErrorMessage = getListingResult.ErrorMessage;
-            //    return result;
-            //}
-            //payload.Add(getListingFilesResult.Payload);
-            payload.Add(new string("temp"));
+            Result<List<string>> getFiles = await _fileService.GetFilesInDir("Listing Profiles/" + listingId).ConfigureAwait(false);
+            if (!getFiles.IsSuccessful)
+            {
+                return new(Result.Failure(getFiles.ErrorMessage, StatusCodes.Status400BadRequest));
+            }
+            payload.Add("files", getFiles.Payload);
 
             //get rating comments
             Result<List<ListingRatingViewDTO>> getListingRatingsResult = await _listingsService.GetListingRatings(listingId).ConfigureAwait(false);
@@ -174,9 +184,9 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             {
                 return new(Result.Failure(getListingRatingsResult.ErrorMessage, StatusCodes.Status400BadRequest));
             }
-            payload.Add(getListingRatingsResult.Payload);
+            payload.Add("ratings", getListingRatingsResult.Payload);
 
-            return Result<List<object>>.Success(payload);
+            return Result<Dictionary<string, object>>.Success(payload);
         }
 
         public async Task<Result> EditListing(ListingEditorDTO listing)
@@ -404,6 +414,11 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             }
             int ownerId = (int)getListingResult.Payload!.OwnerId;
 
+            if (!userId.Equals(ownerId))
+            {
+                return new(Result.Failure("Unauthorized user.", StatusCodes.Status401Unauthorized));
+            }
+
             //validate listing model
             Result validationListingResult = _validationService.ValidateModel(getListingResult.Payload);
             if (!validationListingResult.IsSuccessful)
@@ -513,7 +528,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             }
             if (checkListingHistoryResult.Payload == false)
             {
-                return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
+                return new(Result.Failure("Unauthorized user.", StatusCodes.Status401Unauthorized));
             }
 
             //validate comment
