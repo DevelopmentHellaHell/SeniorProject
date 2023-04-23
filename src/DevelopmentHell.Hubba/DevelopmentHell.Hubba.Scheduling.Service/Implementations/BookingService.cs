@@ -4,6 +4,7 @@ using DevelopmentHell.Hubba.Scheduling.Service.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -31,7 +32,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
                 var result = await operation().ConfigureAwait(false);
                 if (!result.IsSuccessful)
                 {
-                    return new(Result.Failure(result.ErrorMessage));
+                    return new(Result.Failure(result.ErrorMessage, result.StatusCode));
                 }
                 return Result<T>.Success(result.Payload!);
             }
@@ -40,7 +41,6 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
                 return new(Result.Failure(ex.Message));
             }
         }
-
         private async Task<Result<List<Booking>>> GetBookingsByFilters(List<Tuple<string, object>> filters)
         {
             var getBooking = await ExecuteBookingService(() => _bookingDAO.GetBooking(filters));
@@ -51,7 +51,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
             }
             if (getBooking.Payload!.Count < 1)
             {
-                return new(Result.Failure( "No booking found"));
+                return new(Result.Failure( "No booking found", getBooking.StatusCode));
             }
             return Result<List<Booking>>.Success(getBooking.Payload);
         }
@@ -69,7 +69,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
             var createBooking = await ExecuteBookingService(() => _bookingDAO.CreateBooking(booking));
             if (!createBooking.IsSuccessful)
             {
-                return createBooking;
+                return new (Result.Failure(createBooking.ErrorMessage, createBooking.StatusCode));
             }
             else
             {
@@ -86,7 +86,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
                         { 
                             new Tuple<string, object>( nameof(Booking.BookingId), booking.BookingId) 
                         }));
-                    return new (Result.Failure(createBookedTimeFrames.ErrorMessage!));
+                    return new (Result.Failure(createBookedTimeFrames.ErrorMessage!, createBookedTimeFrames.StatusCode));
                 }
                 else
                 {
@@ -147,7 +147,13 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
             {
                 new Comparator(nameof(Booking.BookingId),"=", bookingId) 
             };
+            // Change BookingStatus from CONFIRMED to CANCELLED
             var cancelBooking = await ExecuteBookingService(() => _bookingDAO.UpdateBooking(values, comparators));
+            if (!cancelBooking.IsSuccessful) 
+            { 
+                return new(Result.Failure(cancelBooking.ErrorMessage));
+            }
+            // Delete BookedTimeFrames associated with BookingId
             var deleteBookedTimeFrames = await ExecuteBookingService(() => _bookedTimeFrameDAO.DeleteBookedTimeFrames
             (
                 new List<Tuple<string, object>>()
@@ -155,15 +161,26 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
                     new Tuple<string, object>(nameof(Booking.BookingId), bookingId)
                 }
             )).ConfigureAwait(false);
-            // if failed to delete BookedTimeFrame, roll back and change BookingStatus back to CONFIRMED
-            
+
             if (!deleteBookedTimeFrames.IsSuccessful)
             {
+                // if failed to delete BookedTimeFrame, roll back and change BookingStatus back to CONFIRMED
                 values[nameof(Booking.BookingStatusId)] = (int)BookingStatus.CONFIRMED;
                 var rollbackConfirmBooking = await ExecuteBookingService(() => _bookingDAO.UpdateBooking(values, comparators));
                 return new(Result.Failure(rollbackConfirmBooking.ErrorMessage));
             }
             return Result<bool>.Success(true);
+        }
+
+        public async Task<Result<bool>> DeleteIncompleteBooking(int bookingId)
+        {
+            List<Tuple<string, object>> filter = new()
+            {
+                new Tuple<string,object>(nameof(Booking.BookingId), bookingId)
+            };
+            var deleteBooking = await ExecuteBookingService(() => _bookingDAO.DeleteBooking(filter)).ConfigureAwait(false);
+
+            return deleteBooking;
         }
     }
 }

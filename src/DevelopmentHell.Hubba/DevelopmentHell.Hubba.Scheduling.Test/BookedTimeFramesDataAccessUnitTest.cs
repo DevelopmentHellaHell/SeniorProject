@@ -160,7 +160,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
                 {
                         new BookedTimeFrame()
                         {
-                            BookingId =bookingId,
+                            BookingId = bookingId,
                             ListingId = listingId,
                             AvailabilityId = (int) availId,
                             StartDateTime = DateTime.Now.AddDays(1),

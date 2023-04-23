@@ -2,6 +2,7 @@
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,7 +35,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         public async Task<Result<int>> CreateBooking(Booking booking)
         {
             //TODO: double check if ListingId existed in Listings table
-            Result<int> result = new() { IsSuccessful = false };
 
             var insertResult = await _insertDataAccess.InsertOutput(
                 _tableName,
@@ -52,12 +52,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             if (!insertResult.IsSuccessful)
             {
-                result.ErrorMessage = insertResult.ErrorMessage;
-                return result;
+                return new(Result.Failure(insertResult.ErrorMessage));
             }
-            result.IsSuccessful = true;
-            result.Payload = ((Result<int>)insertResult).Payload;
-            return result;
+            
+            return Result<int>.Success(insertResult.Payload);
         }
         /// <summary>
         /// Delete rows
@@ -66,7 +64,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// <returns>Bool in Payload</returns>
         public async Task<Result<bool>> DeleteBooking(List<Tuple<string, object>> filters)
         {
-            Result<bool> result = new() { IsSuccessful = false };
             List<Comparator> deleteFilters = new();
 
             foreach (var filter in filters)
@@ -77,11 +74,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             var deleteResult = await _deleteDataAccess.Delete( _tableName,deleteFilters).ConfigureAwait(false);
             if(!deleteResult.IsSuccessful)
             {
-                result.ErrorMessage = deleteResult.ErrorMessage;
-                return result;
+                return new(Result.Failure(deleteResult.ErrorMessage));
             }
-            result.IsSuccessful = true;
-            return result;
+            return new(Result.Success());
         }
         /// <summary>
         /// Execute query to look up Bookings
@@ -91,13 +86,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// <returns>List<Booking> in Payload</returns>
         public async Task<Result<List<Booking>>> GetBooking(List<Tuple<string,object>> filters)
         {
-            Result<List<Booking>> result = new() { IsSuccessful = false };
-            result.Payload = new List<Booking>();
+            
             
             if (filters.Count == 0)
             {
-                result.ErrorMessage = "Filter is empty";
-                return result;
+                return new(Result.Failure("Invalid filter", StatusCodes.Status400BadRequest));
             }
             // prepare for string query
             List<string> columns = new()
@@ -129,17 +122,15 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             if (!selectResult.IsSuccessful || selectResult.Payload is null)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = selectResult.ErrorMessage;
-                return result;
+                return new(Result.Failure(selectResult.ErrorMessage));
             }
+            Result<List<Booking>> result = new(Result.Success());
+            result.Payload = new List<Booking>();
 
             List<Dictionary<string, object>> payload = selectResult.Payload;
             if (payload.Count < 1)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "No booking found";
-                return result;
+                return new(Result.Failure("No booking found", StatusCodes.Status404NotFound));
             }
             else
             {
@@ -156,7 +147,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     }); ;
                 }
             }
-            result.IsSuccessful = true;
             return result;
         }
         /// <summary>
@@ -166,8 +156,12 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// <returns>Bool in Payload</returns>
         public async Task<Result<bool>> UpdateBooking(Dictionary<string,object> values, List<Comparator> filters)
         {
-            Result updateResult = await _updateDataAccess.Update (_tableName, filters, values).ConfigureAwait(false);
-            return new(Result.Success());
+            var  updateResult = await _updateDataAccess.Update (_tableName, filters, values).ConfigureAwait(false);
+            if(!updateResult.IsSuccessful)
+            {
+                return new(Result.Failure(updateResult.ErrorMessage, updateResult.StatusCode));
+            }
+            return new (Result.Success());
         }
     }
 }

@@ -58,7 +58,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
             }
         }
 
-        public async Task<Result> InsertOutput(string table, Dictionary<string, object> values, string ouputColumn)
+        public async Task<Result<int>> InsertOutput(string table, Dictionary<string, object> values, string ouputColumn)
         {
             using (SqlCommand insertQuery = new SqlCommand())
             {
@@ -90,7 +90,12 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                     "SELECT {3} FROM {4}", 
                     table, columnString, valueString, ouputColumn, tableVar);
 
-                return await SendScalarQuery(insertQuery).ConfigureAwait(false);
+                var insertResult = await SendScalarQuery(insertQuery).ConfigureAwait(false);
+                if (!insertResult.IsSuccessful)
+                {
+                    return new(Result.Failure(insertResult.ErrorMessage));
+                }
+                return (Result<int>)insertResult;
             }
         }
     }

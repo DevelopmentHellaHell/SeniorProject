@@ -9,5 +9,6 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Abstractions
         Task<Result<BookingStatus>> GetBookingStatusByBookingId(int bookingId);
         Task<Result<List<BookedTimeFrame>>> GetBookedTimeFramesByBookingId(int bookingId);
         Task<Result<bool>> CancelBooking(int bookingId);
+        Task<Result<bool>> DeleteIncompleteBooking(int bookingId);
     }
 }

@@ -100,7 +100,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
                 CreationDate = DateTime.Now,
                 LastEditUser = 1
             };
-            var expeted = new Result<int> { IsSuccessful = true };
+            var expeted = Result<int>.Success(new int());
 
             //Act
             var createBooking = await _bookingDAO.CreateBooking(booking).ConfigureAwait(false);
@@ -127,14 +127,13 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
                 CreationDate = DateTime.Now,
                 LastEditUser = 1
             };
-            var expectedBool = false;
 
             //Act
-            Result actual = await _bookingDAO.CreateBooking(invalidBooking).ConfigureAwait(false);
+            var actual = await _bookingDAO.CreateBooking(invalidBooking).ConfigureAwait(false);
 
             //Assert
             Assert.IsNotNull(actual);
-            Assert.IsTrue(actual.IsSuccessful == expectedBool);
+            Assert.IsFalse(actual.IsSuccessful);
         }
 
         [TestMethod]

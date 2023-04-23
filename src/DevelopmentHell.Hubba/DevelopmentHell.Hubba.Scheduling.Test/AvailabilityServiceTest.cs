@@ -164,13 +164,13 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
             Assert.IsTrue(actual.Payload.SequenceEqual(expected));
         }
         [TestMethod]
-        public async Task GetOpenTimeSlotsByMonth_InvalidMonth_Failed()
+        public async Task GetOpenTimeSlotsByMonth_NoFound_Successful()
         {
             //Arrange
             var testData = await SetUp();
             int month = 5;
             //Act
-            Result<List<Tuple<DateTime, DateTime>>> actual = await _availabilityService.GetOpenTimeSlotsByMonth(
+            var actual = await _availabilityService.GetOpenTimeSlotsByMonth(
                 (int)testData[nameof(Listing.ListingId)],
                 month,
                 (int)testData["Year"]
@@ -178,7 +178,8 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
 
             //Assert
             Assert.IsNotNull(actual);
-            Assert.IsTrue(!actual.IsSuccessful);
+            Assert.IsTrue(actual.IsSuccessful);
+            Assert.IsTrue(actual.Payload.Count == 0);
         }
         [TestMethod]
         public async Task GetOpenTimeSlots_AfterAddingMoreBookedTimeFrames_Successful()
@@ -320,19 +321,19 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
             Assert.IsTrue(actual.IsSuccessful);
         }
         [TestMethod]
-        public async Task GetOwnerId_Successful()
+        public async Task GetListingDetails_Successful()
         {
             //Arrange
             var testData = await SetUp().ConfigureAwait(false);
             int listingId = (int)testData[nameof(Listing.ListingId)];
             int ownerId = (int)testData[nameof(Listing.OwnerId)];
             //Act
-            var actual = await _availabilityService.GetOwnerId(listingId).ConfigureAwait(false);
+            var actual = await _availabilityService.GetListingDetails(listingId).ConfigureAwait(false);
 
             //Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsSuccessful);
-            Assert.AreEqual(actual.Payload, ownerId);
+            Assert.AreEqual(actual.Payload.GetType(), typeof(BookingViewDTO));
         }
     }
 }

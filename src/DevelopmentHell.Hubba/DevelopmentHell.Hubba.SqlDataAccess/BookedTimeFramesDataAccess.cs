@@ -3,7 +3,7 @@ using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
-
+using Microsoft.AspNetCore.Http;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
@@ -29,7 +29,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         { 
             if (timeframes.Count == 0)
             {
-                return new ( Result.Failure("Chosen timeframes empty"));
+                return new ( Result.Failure("Chosen timeframes empty", StatusCodes.Status400BadRequest));
             }
             List<string> columns = new List<string>()
             {
@@ -94,7 +94,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
             if (selectResult.Payload.Count == 0)
             {
-                return new(Result.Failure("No booked time frame found"));
+                return new(Result.Failure("No booked time frame found", StatusCodes.Status404NotFound));
             }
             List<BookedTimeFrame> resultList = new();
             foreach (var row in selectResult.Payload)
