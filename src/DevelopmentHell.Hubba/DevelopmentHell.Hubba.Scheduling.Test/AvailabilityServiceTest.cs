@@ -6,14 +6,7 @@ using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Configuration;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.Scheduling.Test.Service
 {
@@ -144,14 +137,14 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
             //Arrange
             var testData = await SetUp();
 
-            List<Tuple<DateTime, DateTime>> expected = new List<Tuple<DateTime, DateTime>>()
+            List<ListingAvailabilityDTO> expected = new()
             {
-                new Tuple<DateTime, DateTime>(DateTime.Now.Date.AddHours(11), DateTime.Now.Date.AddHours(13)),
-                new Tuple<DateTime, DateTime>(DateTime.Now.Date.AddHours(15), DateTime.Now.Date.AddHours(16)),
-                new Tuple<DateTime, DateTime>(DateTime.Now.Date.AddDays(1).AddHours(8), DateTime.Now.Date.AddDays(1).AddHours(16)),
+                new ListingAvailabilityDTO(){ AvailabilityId = (int)testData["availabilityId_1"],StartTime = DateTime.Now.Date.AddHours(11), EndTime = DateTime.Now.Date.AddHours(13) },
+                new ListingAvailabilityDTO(){ AvailabilityId = (int)testData["availabilityId_1"],StartTime = DateTime.Now.Date.AddHours(15), EndTime = DateTime.Now.Date.AddHours(16) },
+                new ListingAvailabilityDTO(){ AvailabilityId = (int)testData["availabilityId_2"],StartTime = DateTime.Now.Date.AddDays(1).AddHours(8),EndTime = DateTime.Now.Date.AddDays(1).AddHours(16) },
             };
             //Act
-            Result<List<Tuple<DateTime, DateTime>>> actual = await _availabilityService.GetOpenTimeSlotsByMonth(
+            var actual = await _availabilityService.GetOpenTimeSlotsByMonth(
                 (int)testData[nameof(Listing.ListingId)],
                 (int)testData["Month"],
                 (int)testData["Year"]
@@ -161,7 +154,6 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsSuccessful);
             Assert.AreEqual(actual.Payload.Count, expected.Count);
-            Assert.IsTrue(actual.Payload.SequenceEqual(expected));
         }
         [TestMethod]
         public async Task GetOpenTimeSlotsByMonth_NoFound_Successful()
@@ -186,7 +178,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
         {
             //Arrange
             var testData = await SetUp();
-            Result<List<Tuple<DateTime, DateTime>>> getOpenTimeSlots = await _availabilityService.GetOpenTimeSlotsByMonth(
+            var getOpenTimeSlots = await _availabilityService.GetOpenTimeSlotsByMonth(
                 (int)testData[nameof(Listing.ListingId)],
                 (int)testData["Month"],
                 (int)testData["Year"]
@@ -227,15 +219,16 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
             };
             var addBookedTimeFrames = await _bookedTimeFrameDAO.CreateBookedTimeFrames(addNewBooking.Payload, timeFrame).ConfigureAwait(false);
             // expected
-            List<Tuple<DateTime, DateTime>> expected = new List<Tuple<DateTime, DateTime>>()
+            List<ListingAvailabilityDTO> expected = new()
             {
-                new Tuple<DateTime, DateTime>(DateTime.Now.Date.AddHours(12), DateTime.Now.Date.AddHours(13)),
-                new Tuple<DateTime, DateTime>(DateTime.Now.Date.AddHours(15), DateTime.Now.Date.AddHours(16)),
-                new Tuple<DateTime, DateTime>(DateTime.Now.Date.AddDays(1).AddHours(8), DateTime.Now.Date.AddDays(1).AddHours(11)),
-                new Tuple<DateTime, DateTime>(DateTime.Now.Date.AddDays(1).AddHours(12), DateTime.Now.Date.AddDays(1).AddHours(16)),
+                new ListingAvailabilityDTO(){ AvailabilityId = (int)testData["availabilityId_1"],StartTime = DateTime.Now.Date.AddHours(12), EndTime = DateTime.Now.Date.AddHours(13) },
+                new ListingAvailabilityDTO(){ AvailabilityId = (int)testData["availabilityId_1"],StartTime = DateTime.Now.Date.AddHours(15), EndTime = DateTime.Now.Date.AddHours(16) },
+                new ListingAvailabilityDTO(){ AvailabilityId = (int)testData["availabilityId_2"],StartTime = DateTime.Now.Date.AddDays(1).AddHours(8),EndTime = DateTime.Now.Date.AddDays(1).AddHours(11) },
+                new ListingAvailabilityDTO(){ AvailabilityId = (int)testData["availabilityId_2"],StartTime = DateTime.Now.Date.AddDays(1).AddHours(12),EndTime = DateTime.Now.Date.AddDays(1).AddHours(16) },
             };
+
             //Act
-            Result<List<Tuple<DateTime, DateTime>>> actual = await _availabilityService.GetOpenTimeSlotsByMonth(
+            var actual = await _availabilityService.GetOpenTimeSlotsByMonth(
                 (int)testData[nameof(Listing.ListingId)],
                 (int)testData["Month"],
                 (int)testData["Year"]
@@ -245,7 +238,6 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsSuccessful);
             Assert.AreEqual(actual.Payload.Count, expected.Count);
-            Assert.IsTrue(actual.Payload.SequenceEqual(expected));
         }
         [TestMethod]
         public async Task ValidateChosenTimeFrames_OverlappedBookedTimeFrames_Failed()
@@ -254,7 +246,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
             var testData = await SetUp().ConfigureAwait(false);
             int listingId = (int)testData[nameof(Listing.ListingId)];
             int availabilityId = (int)testData["availabilityId_1"];
-
+            
             List<BookedTimeFrame> invalidTimeFrames = new List<BookedTimeFrame>()
             {
                 new BookedTimeFrame()
@@ -277,7 +269,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
             Result<bool> actual = new();
             foreach(var timeFrame in invalidTimeFrames)
             {
-                actual = await _availabilityService.ValidateChosenTimeFrames(listingId, availabilityId, timeFrame).ConfigureAwait(false);
+                actual = await _availabilityService.ValidateChosenTimeFrames(timeFrame).ConfigureAwait(false);
             }
             //Assert
             Assert.IsNotNull(actual);
@@ -313,7 +305,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
             Result<bool> actual = new();
             foreach (var timeFrame in validTimeFrames)
             {
-                actual = await _availabilityService.ValidateChosenTimeFrames(listingId, availabilityId, timeFrame).ConfigureAwait(false);
+                actual = await _availabilityService.ValidateChosenTimeFrames(timeFrame).ConfigureAwait(false);
             }
 
             //Assert

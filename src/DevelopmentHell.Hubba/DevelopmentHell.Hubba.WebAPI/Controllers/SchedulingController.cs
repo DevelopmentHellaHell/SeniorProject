@@ -1,0 +1,84 @@
+﻿using DevelopmentHell.Hubba.Scheduling.Manager;
+using DevelopmentHell.Hubba.WebAPI.DTO.Scheduling;
+using Microsoft.AspNetCore.Mvc;
+
+namespace DevelopmentHell.Hubba.WebAPI.Controllers
+{
+    [ApiController]
+    [Route("[controller]")]
+    public class SchedulingController : HubbaController
+    {
+        private readonly ISchedulingManager _schedulingManager;
+        public SchedulingController(ISchedulingManager schedulingManager)
+        {
+            _schedulingManager = schedulingManager;
+        }
+        [HttpPost]
+        [Route("findListingAvailabilityByMonth")]
+        public async Task<IActionResult> FindListingAvailabilityByMonth(FindAvailabilityDTO findAvailabilityDTO)
+        {
+            return await GuardedWorkload(async () =>
+            {
+                if (!ModelState.IsValid)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest);
+                }
+                var result = await _schedulingManager.FindListingAvailabiityByMonth(
+                    findAvailabilityDTO.ListingId,
+                    findAvailabilityDTO.Month,
+                    findAvailabilityDTO.Year).ConfigureAwait(false);
+                if (!result.IsSuccessful)
+                {
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
+                }
+
+                return StatusCode(result.StatusCode, result.Payload);
+            }).ConfigureAwait(false);
+        }
+        [HttpPost]
+        [Route("reserve")]
+        public async Task<IActionResult> Reserve(ReserveDTO reserveDTO)
+        {
+            return await GuardedWorkload(async () =>
+            {
+                if (!ModelState.IsValid)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest);
+                }
+                
+                var result = await _schedulingManager.ReserveBooking(
+                    reserveDTO.UserId,
+                    reserveDTO.ListingId,
+                    reserveDTO.FullPrice,
+                    reserveDTO.ChosenTimeFrames).ConfigureAwait(false);
+                if (!result.IsSuccessful)
+                {
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
+                }
+
+                return StatusCode(result.StatusCode, result.Payload);
+            }).ConfigureAwait(false);
+        }
+
+        [HttpPost]
+        [Route("cancel")]
+        public async Task<IActionResult> Cancel(CancelBookingDTO cancelBookingDTO)
+        {
+            return await GuardedWorkload(async () =>
+            {
+                if (!ModelState.IsValid)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest);
+                }
+
+                var result = await _schedulingManager.CancelBooking(cancelBookingDTO.UserId, cancelBookingDTO.BookingId).ConfigureAwait(false);
+                if (!result.IsSuccessful)
+                {
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
+                }
+
+                return StatusCode(result.StatusCode, result.Payload);
+            }).ConfigureAwait(false);
+        }
+    }
+}

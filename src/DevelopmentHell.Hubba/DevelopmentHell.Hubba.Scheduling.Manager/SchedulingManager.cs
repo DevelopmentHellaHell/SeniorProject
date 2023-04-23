@@ -31,7 +31,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
             _notificationService = notificationService;
             _loggerService = loggerService;
         }
-        private async Task<Result> AuthorizeUser (int userId)
+        private Result AuthorizeUser (int userId)
         {
             var authzResult = _authorizationService.Authorize(new string[] { "AdminUser", "VerifiedUser" });
             if (!authzResult.IsSuccessful)
@@ -93,7 +93,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
         {
             //TODO implement
             // Authorize user 
-            var authzUser = await AuthorizeUser(userId).ConfigureAwait(false);
+            var authzUser = AuthorizeUser(userId);
             if (!authzUser.IsSuccessful)
             {
                 return new(Result.Failure(authzUser.ErrorMessage, authzUser.StatusCode));
@@ -107,6 +107,11 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
             if(userId != getBooking.Payload.UserId)
             {
                 return new(Result.Failure("Booking not found. Unable to make the cancellation.", StatusCodes.Status400BadRequest));
+            }
+            // If Booking already cancelled
+            if (getBooking.Payload.BookingStatusId == BookingStatus.CANCELLED)
+            {
+                return new(Result.Failure("Booking already cancelled.", StatusCodes.Status400BadRequest));
             }
             // get Listing ownerId
             var getListingDetails = await _availabilityService.GetListingDetails(getBooking.Payload.ListingId).ConfigureAwait(false);
@@ -132,7 +137,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
             return new(Result.Success());
         }
 
-        public async Task<Result<List<Tuple<DateTime,DateTime>>>> FindListingAvailabiityByMonth(int listingId, int month, int year)
+        public async Task<Result<List<ListingAvailabilityDTO>>> FindListingAvailabiityByMonth(int listingId, int month, int year)
         {
             var getOpenTimeSlots = await _availabilityService.GetOpenTimeSlotsByMonth(listingId, month, year).ConfigureAwait(false);
             // TODO: what if someone else booked during this searching?
@@ -140,13 +145,13 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
             {
                 return new(Result.Failure(getOpenTimeSlots.ErrorMessage, getOpenTimeSlots.StatusCode));
             }
-            return Result<List<Tuple<DateTime,DateTime>>>.Success(getOpenTimeSlots.Payload);
+            return Result<List<ListingAvailabilityDTO>>.Success(getOpenTimeSlots.Payload);
         }
 
         public async Task<Result<BookingViewDTO>> ReserveBooking(int userId, int listingId, float fullPrice, List<BookedTimeFrame> chosenTimeframes, BookingStatus bookingStatus = BookingStatus.CONFIRMED)
         {
             // Authorize user 
-            var authzUser = await AuthorizeUser(userId).ConfigureAwait(false);
+            var authzUser = AuthorizeUser(userId);
             if(!authzUser.IsSuccessful)
             {
                 return new (Result.Failure(authzUser.ErrorMessage, authzUser.StatusCode));
@@ -168,17 +173,12 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
             // check each chosen time frame against the BookedTimeFrames table
             foreach (var timeframe in chosenTimeframes)
             {
-                var isOpentoBook = await _availabilityService.ValidateChosenTimeFrames(
-                    listingId, 
-                    (int)timeframe.AvailabilityId,
-                    timeframe
-                    ).ConfigureAwait(false);
+                var isOpentoBook = await _availabilityService.ValidateChosenTimeFrames(timeframe).ConfigureAwait(false);
                 if (!isOpentoBook.IsSuccessful) //timeframe already booked
                 {
                     return new(Result.Failure(isOpentoBook.ErrorMessage, isOpentoBook.StatusCode));
                 }
             }
-
             // Add a new booking
             Booking booking = new()
             {
@@ -186,7 +186,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
                 ListingId = listingId,
                 FullPrice = fullPrice,
                 BookingStatusId = BookingStatus.CONFIRMED,
-                TimeFrames = chosenTimeframes
+                TimeFrames = chosenTimeframes,
             };
 
             var createBooking = await _bookingService.AddNewBooking(booking).ConfigureAwait(false);

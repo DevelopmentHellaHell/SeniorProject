@@ -34,6 +34,9 @@ using DevelopmentHell.Hubba.Registration.Manager.Abstractions;
 using DevelopmentHell.Hubba.Registration.Manager.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
+using DevelopmentHell.Hubba.Scheduling.Manager;
+using DevelopmentHell.Hubba.Scheduling.Service.Abstractions;
+using DevelopmentHell.Hubba.Scheduling.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
@@ -134,7 +137,8 @@ builder.Services.AddTransient<INotificationManager, NotificationManager>(s =>
 );
 builder.Services.AddTransient<IListingsDataAccess, ListingsDataAccess>(s =>
     new ListingsDataAccess(
-        HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!
+        HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+        HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesTable"]!
     )
 );
 builder.Services.AddTransient<ICollaboratorsDataAccess, CollaboratorsDataAccess>(s =>
@@ -294,6 +298,43 @@ builder.Services.AddTransient<IUserManagementManager, UserManagementManager>(s =
     )
 );
 
+builder.Services.AddTransient<IAvailabilityService, AvailabilityService>(s =>
+    new AvailabilityService(
+        new ListingsDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["ListingsTable"]!
+        ),
+        new ListingAvailabilitiesDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["ListingAvailabilitiesTable"]!
+        ),
+        new BookedTimeFramesDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["SchedulingsConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["BookedTimeFramesTable"]!
+        )
+    )
+);
+builder.Services.AddTransient<IBookingService, BookingService>(s =>
+    new BookingService(
+        new BookingsDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["SchedulingsConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["BookingsTable"]!
+        ),
+        new BookedTimeFramesDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["SchedulingsConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["BookedTimeFramesTable"]!
+        )
+    )
+);
+builder.Services.AddTransient<ISchedulingManager, SchedulingManager>(s =>
+    new SchedulingManager(
+        s.GetService<IBookingService>()!,
+        s.GetService<IAvailabilityService>()!,
+        s.GetService<IAuthorizationService>()!,
+        s.GetService<INotificationService>()!,
+        s.GetService<ILoggerService>()!
+    )
+);
 
 builder.Services.AddCors();
 

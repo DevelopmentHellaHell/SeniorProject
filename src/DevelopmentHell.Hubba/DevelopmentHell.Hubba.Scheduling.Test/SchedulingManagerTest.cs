@@ -15,12 +15,7 @@ using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
-using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DevelopmentHell.Hubba.Scheduling.Manager;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Manager.Abstractions;
@@ -164,11 +159,11 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.LISTING_PROFILES).ConfigureAwait(false);
         }
 
-        private async Task<Dictionary<string, object>> SetUp()
+        private async Task<Dictionary<string, object>> SetUpTestData()
         {
             var testData = new Dictionary<string, object>();
             int ownerId = 200;
-            string title = "Booked time frame test";
+            string title = "Scheduling Manager test";
             testData["OwnerId"] = ownerId;
             testData["Title"] = title;
 
@@ -256,11 +251,12 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
 
             return testData;
         }
+
         [TestMethod]
         public async Task FindListingAvailabilityByMonth_PayloadEmpty_Successful()
         {
             //Arrange
-            var testData = await SetUp().ConfigureAwait(false);
+            var testData = await SetUpTestData().ConfigureAwait(false);
             int listingId = (int)testData["ListingId"];
             int month = 10;
             int year = 2023;
@@ -277,24 +273,69 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
         public async Task FindListingAvailabilityByMonth_PayloadNotEmpty_Successful()
         {
             //Arrange
-            var testData = await SetUp().ConfigureAwait(false);
+            var testData = await SetUpTestData().ConfigureAwait(false);
             int listingId = (int)testData["ListingId"];
+            int avail_0 = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
+            int avail_1 = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[1].AvailabilityId;
             int month = (int)testData["Month"];
             int year = (int)testData["Year"];
-            var expected = new List<Tuple<DateTime, DateTime>>()
+            var expected = new List<ListingAvailabilityDTO>()
             {
-                new Tuple<DateTime, DateTime>(DateTime.Today.AddDays(2).AddHours(11), DateTime.Today.AddDays(2).AddHours(13)),
-                new Tuple<DateTime, DateTime>(DateTime.Today.AddDays(2).AddHours(15), DateTime.Today.AddDays(2).AddHours(18)),
-                new Tuple<DateTime, DateTime>(DateTime.Today.AddDays(3).AddHours(8), DateTime.Today.AddDays(3).AddHours(18)),
+                new ListingAvailabilityDTO() { AvailabilityId = avail_0, StartTime = DateTime.Today.AddDays(2).AddHours(11), EndTime = DateTime.Today.AddDays(2).AddHours(13) },
+                new ListingAvailabilityDTO() { AvailabilityId = avail_0, StartTime = DateTime.Today.AddDays(2).AddHours(15), EndTime = DateTime.Today.AddDays(2).AddHours(18) },
+                new ListingAvailabilityDTO(){ AvailabilityId = avail_1, StartTime = DateTime.Today.AddDays(3).AddHours(8), EndTime = DateTime.Today.AddDays(3).AddHours(18) },
             };
+            
             //Act
-            Result<List<Tuple<DateTime,DateTime>>> actual = await _schedulingManager.FindListingAvailabiityByMonth(listingId, month, year).ConfigureAwait(false);
+            var actual = await _schedulingManager.FindListingAvailabiityByMonth(listingId, month, year).ConfigureAwait(false);
 
             //Assert
             Assert.IsNotNull(actual);
+            Assert.IsTrue(actual.IsSuccessful);
             Assert.IsTrue(expected.GetType() == actual.Payload.GetType());
             Assert.AreEqual(expected.Count, actual.Payload.Count);
-            Assert.IsTrue(expected.SequenceEqual(actual.Payload));
+        }
+        [TestMethod]
+        public async Task ReserveBooking_InvalidListingId_Failed()
+        {
+            //Arrange
+            //  - Setup user and initial state
+            var credentialEmail = "test@gmail.com";
+            var credentialPassword = "12345678";
+            await _registrationManager.Register(credentialEmail, credentialPassword).ConfigureAwait(false);
+            var userIdResult = await _userAccountDataAccess.GetId(credentialEmail).ConfigureAwait(false);
+            var userId = userIdResult.Payload;
+
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(userId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(userId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+
+            }
+            //  - Setup test data
+            var testData = await SetUpTestData().ConfigureAwait(false);
+            int listingId = (int)testData["ListingId"];
+            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
+            float fullPrice = 100;
+            int invalidListingId = 0;
+            List<BookedTimeFrame> chosenTimeFrames = new()
+            {
+                new BookedTimeFrame()
+                {
+                    ListingId = invalidListingId,                 
+                    AvailabilityId = availabilityId, 
+                    StartDateTime = DateTime.Today.AddDays(2).AddHours(11),
+                    EndDateTime = DateTime.Today.AddDays(2).AddHours(12) 
+                },
+            };
+            
+            //Act
+            var actual = await _schedulingManager.ReserveBooking(userId, invalidListingId, fullPrice, chosenTimeFrames).ConfigureAwait(false);
+
+            //Assert
+            Assert.IsNotNull(actual);
+            Assert.IsFalse(actual.IsSuccessful);
         }
         [TestMethod]
         public async Task ReserveBooking_OwnerTryToBookTheirListing_Failed()
@@ -314,20 +355,20 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
 
             }
-            var testData = await SetUp().ConfigureAwait(false);
+            //  - Setup test data
+            var testData = await SetUpTestData().ConfigureAwait(false);
             int ownerId = (int)testData["OwnerId"];
             int listingId = (int)testData["ListingId"];
             int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
             float fullPrice = 100;
             List<BookedTimeFrame> chosenTimeFrames = new()
             {
-                new BookedTimeFrame()
-                {
+                new BookedTimeFrame(){
                     ListingId = listingId,
-                    AvailabilityId = availabilityId,
-                    StartDateTime = DateTime.Now.Date.AddHours(11),
-                    EndDateTime = DateTime.Now.Date.AddHours(12)
-                }
+                    AvailabilityId = availabilityId, 
+                    StartDateTime = DateTime.Today.AddDays(2).AddHours(11),
+                    EndDateTime = DateTime.Today.AddDays(2).AddHours(12) 
+                },
             };
             //Act
             var actual = await _schedulingManager.ReserveBooking(ownerId, listingId, fullPrice, chosenTimeFrames).ConfigureAwait(false);
@@ -336,6 +377,74 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             Assert.IsNotNull(actual);
             Assert.IsFalse(actual.IsSuccessful);
             Assert.IsFalse(actual.ErrorMessage.IsNullOrEmpty());
+        }
+        [TestMethod]
+        public async Task ReserveBooking_UnauthorizedUser_Failed()
+        {
+            //Arrange
+            //  - Setup test data
+            var testData = await SetUpTestData().ConfigureAwait(false);
+            int listingId = (int)testData["ListingId"];
+            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
+            float fullPrice = 100;
+            List<BookedTimeFrame> chosenTimeFrames = new()
+            {
+                new BookedTimeFrame()
+                {
+                    ListingId = listingId,
+                    AvailabilityId = availabilityId, 
+                    StartDateTime = DateTime.Today.AddDays(2).AddHours(11),
+                    EndDateTime = DateTime.Today.AddDays(2).AddHours(12) 
+                },
+            };
+            int randomUserId = 0;
+
+            //Act
+            var actual = await _schedulingManager.ReserveBooking(randomUserId, listingId, fullPrice, chosenTimeFrames).ConfigureAwait(false);
+
+            //Assert
+            Assert.IsNotNull (actual);
+            Assert.IsFalse(actual.IsSuccessful);
+
+        }
+        [TestMethod]
+        public async Task ReserveBooking_InvalidTimeFrames_Failed() 
+        {
+            // Arrange
+            //  - Setup user and initial state
+            var credentialEmail = "test@gmail.com";
+            var credentialPassword = "12345678";
+            await _registrationManager.Register(credentialEmail, credentialPassword).ConfigureAwait(false);
+            var userIdResult = await _userAccountDataAccess.GetId(credentialEmail).ConfigureAwait(false);
+            var userId = userIdResult.Payload;
+
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(userId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(userId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+            //  - Setup test data
+            var testData = await SetUpTestData().ConfigureAwait(false);
+            int listingId = (int)testData["ListingId"];
+            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
+            float fullPrice = 100;
+            List<BookedTimeFrame> chosenTimeFrames = new()
+            {
+                new BookedTimeFrame()
+                {
+                    ListingId = listingId,
+                    AvailabilityId = availabilityId, 
+                    StartDateTime = DateTime.Today.AddDays(2).AddHours(9),
+                    EndDateTime = DateTime.Today.AddDays(2).AddHours(11) 
+                },
+            };
+            //Act
+            var actual = await _schedulingManager.ReserveBooking(userId, listingId, fullPrice, chosenTimeFrames).ConfigureAwait(false);
+
+            //Assert
+            Assert.IsNotNull(actual);
+            Assert.IsFalse(actual.IsSuccessful);
         }
         [TestMethod]
         public async Task ReserveBooking_Successful()
@@ -355,7 +464,8 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
 
             }
-            var testData = await SetUp().ConfigureAwait(false);
+            //  - Setup test data
+            var testData = await SetUpTestData().ConfigureAwait(false);
             int listingId = (int) testData["ListingId"];
             int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
             float fullPrice = 100;
@@ -364,10 +474,10 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
                 new BookedTimeFrame()
                 {
                     ListingId = listingId,
-                    AvailabilityId = availabilityId,
-                    StartDateTime = DateTime.Now.Date.AddHours(11),
-                    EndDateTime = DateTime.Now.Date.AddHours(12)
-                }
+                    AvailabilityId = availabilityId, 
+                    StartDateTime = DateTime.Today.AddDays(2).AddHours(11),
+                    EndDateTime = DateTime.Today.AddDays(2).AddHours(12) 
+                },
             };
 
             //Act
@@ -378,7 +488,105 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             Assert.IsTrue(actual.IsSuccessful);
             Assert.AreEqual(actual.Payload.GetType(), typeof(BookingViewDTO));
         }
+        [TestMethod]
+        public async Task CancelBooking_AuthorizedUser_BookingBelongsToOtherUser_Failed()
+        {
+            //Arrange
+            //  - Setup user and initial state
+            var credentialEmail = "test@gmail.com";
+            var credentialPassword = "12345678";
+            await _registrationManager.Register(credentialEmail, credentialPassword).ConfigureAwait(false);
+            var userIdResult = await _userAccountDataAccess.GetId(credentialEmail).ConfigureAwait(false);
+            var userId = userIdResult.Payload;
 
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(userId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(userId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+
+            }
+            //  - Setup test data
+            var testData = await SetUpTestData().ConfigureAwait(false);
+            int listingId = (int)testData["ListingId"];
+            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
+            float fullPrice = 100;
+            List<BookedTimeFrame> chosenTimeFrames = new()
+            {
+                new BookedTimeFrame()
+                {
+                    ListingId = listingId,
+                    AvailabilityId = availabilityId,
+                    StartDateTime = DateTime.Today.AddDays(2).AddHours(11),
+                    EndDateTime = DateTime.Today.AddDays(2).AddHours(12)
+                }
+            };
+            int validBookingId = (int)testData["BookingId"];
+            //Act
+            var actual = await _schedulingManager.CancelBooking(userId, validBookingId).ConfigureAwait(false);
+
+            //Assert
+            Assert.IsNotNull(actual);
+            Assert.IsFalse(actual.IsSuccessful);
+        }
+        [TestMethod]
+        public async Task CancelBooking_UnauthorizedUser_Failed()
+        {
+            // Arrange
+            //  - Setup test data
+            var testData = await SetUpTestData().ConfigureAwait(false);
+            int bookingId = (int)testData["BookingId"];
+            int userId = ((Booking)testData["Booking"]).UserId;
+            int listingId = (int)testData["ListingId"];
+            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
+            float fullPrice = 100;
+            List<BookedTimeFrame> chosenTimeFrames = new()
+            {
+                new BookedTimeFrame()
+                {
+                    ListingId = listingId,
+                    AvailabilityId = availabilityId,
+                    StartDateTime = DateTime.Today.AddDays(2).AddHours(11),
+                    EndDateTime = DateTime.Today.AddDays(2).AddHours(12)
+                }
+            };
+
+            //Act
+            var actual = await _schedulingManager.CancelBooking(userId, bookingId).ConfigureAwait(false);
+
+            //Assert
+            Assert.IsNotNull(actual);
+            Assert.IsFalse(actual.IsSuccessful);
+        }
+
+        [TestMethod]
+        public async Task CancelBooking_NonExistingBooking_Failed()
+        {
+            // Arrange
+            //  - Setup test data
+            var testData = await SetUpTestData().ConfigureAwait(false);
+            int userId = ((Booking)testData["Booking"]).UserId;
+            int listingId = (int)testData["ListingId"];
+            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
+            float fullPrice = 100;
+            List<BookedTimeFrame> chosenTimeFrames = new()
+            {
+                new BookedTimeFrame()
+                {
+                    ListingId = listingId,
+                    AvailabilityId = availabilityId,
+                    StartDateTime = DateTime.Today.AddDays(2).AddHours(11),
+                    EndDateTime = DateTime.Today.AddDays(2).AddHours(12)
+                }
+            };
+            int nonExistingBookingId = 0;
+            //Act
+            var actual = await _schedulingManager.CancelBooking(userId, nonExistingBookingId).ConfigureAwait(false);
+
+            //Assert
+            Assert.IsNotNull(actual);
+            Assert.IsFalse(actual.IsSuccessful);
+        }
         [TestMethod]
         public async Task CancelBooking_Successful()
         {
@@ -397,7 +605,8 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
 
             }
-            var testData = await SetUp().ConfigureAwait(false);
+            //  - Setup test data
+            var testData = await SetUpTestData().ConfigureAwait(false);
             int listingId = (int)testData["ListingId"];
             int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
             float fullPrice = 100;
@@ -406,11 +615,12 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
                 new BookedTimeFrame()
                 {
                     ListingId = listingId,
-                    AvailabilityId = availabilityId,
-                    StartDateTime = DateTime.Now.Date.AddHours(11),
-                    EndDateTime = DateTime.Now.Date.AddHours(12)
-                }
+                    AvailabilityId = availabilityId, 
+                    StartDateTime = DateTime.Today.AddDays(2).AddHours(11),
+                    EndDateTime = DateTime.Today.AddDays(2).AddHours(12) 
+                },
             };
+
             // reserve a booking
             var reserveBooking = await _schedulingManager.ReserveBooking(userId, listingId, fullPrice, chosenTimeFrames).ConfigureAwait(false);
             int bookingId = reserveBooking.Payload!.BookingId;
@@ -426,5 +636,45 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             Assert.IsTrue(returnBookingStatus == BookingStatus.CANCELLED);
         }
 
+        [TestMethod]
+        public async Task CancelBooking_AlreadyCancelledBooking_Failed()
+        {
+            // Arrange
+            //  - Setup user and initial state
+            var credentialEmail = "test@gmail.com";
+            var credentialPassword = "12345678";
+            await _registrationManager.Register(credentialEmail, credentialPassword).ConfigureAwait(false);
+            var userIdResult = await _userAccountDataAccess.GetId(credentialEmail).ConfigureAwait(false);
+            var userId = userIdResult.Payload;
+
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(userId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(userId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+
+            }
+            //  - Setup test data
+            var testData = await SetUpTestData().ConfigureAwait(false);
+            int listingId = (int)testData["ListingId"];
+            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
+            float fullPrice = 100;
+            List<BookedTimeFrame> chosenTimeFrames = new()
+            {
+                new BookedTimeFrame(){ListingId = listingId, AvailabilityId = availabilityId, StartDateTime = DateTime.Today.AddDays(2).AddHours(11),EndDateTime = DateTime.Today.AddDays(2).AddHours(12) },
+            };
+
+            // reserve a booking
+            var reserveBooking = await _schedulingManager.ReserveBooking(userId, listingId, fullPrice, chosenTimeFrames).ConfigureAwait(false);
+            int bookingId = reserveBooking.Payload!.BookingId;
+            var cancelBooking = await _schedulingManager.CancelBooking(userId, bookingId).ConfigureAwait(false);
+
+            //Act
+            var actual = await _schedulingManager.CancelBooking(userId, bookingId).ConfigureAwait(false);
+
+            //Assert
+            Assert.IsNotNull(actual);
+            Assert.IsFalse(actual.IsSuccessful);
+        }
     }
 }

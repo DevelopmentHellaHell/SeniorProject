@@ -11,7 +11,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
 {
     public interface ISchedulingManager
     {
-        Task<Result<List<Tuple<DateTime,DateTime>>>> FindListingAvailabiityByMonth(int listingId, int month, int year);
+        Task<Result<List<ListingAvailabilityDTO>>> FindListingAvailabiityByMonth(int listingId, int month, int year);
         Task<Result<BookingViewDTO>> ReserveBooking(int userId, int listingId, float fullPrice, List<BookedTimeFrame> chosenTimeframes, BookingStatus bookingStatus = BookingStatus.CONFIRMED);
         Task<Result<bool>> CancelBooking(int userId, int bookingId);
     }

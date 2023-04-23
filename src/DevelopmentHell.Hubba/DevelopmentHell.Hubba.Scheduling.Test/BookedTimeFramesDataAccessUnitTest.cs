@@ -3,7 +3,6 @@ using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Configuration;
 
 namespace DevelopmentHell.Hubba.Scheduling.Test.DAL

@@ -29,6 +29,8 @@
     <ProjectReference Include="..\DevelopmentHell.Hubba.Discovery.Manager\DevelopmentHell.Hubba.Discovery.Manager.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.Notification.Manager\DevelopmentHell.Hubba.Notification.Manager.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.RegistrationManager\DevelopmentHell.Hubba.Registration.Manager.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.Scheduling.Manager\DevelopmentHell.Hubba.Scheduling.Manager.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.Scheduling.Service\DevelopmentHell.Hubba.Scheduling.Service.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.Testing.Service\DevelopmentHell.Hubba.Testing.Service.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.UserManagement.Manager\DevelopmentHell.Hubba.UserManagement.Manager.csproj" />
   </ItemGroup>
