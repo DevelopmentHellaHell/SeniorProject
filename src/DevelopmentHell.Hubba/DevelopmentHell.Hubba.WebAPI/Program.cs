@@ -140,7 +140,7 @@ builder.Services.AddTransient<INotificationManager, NotificationManager>(s =>
 );
 builder.Services.AddTransient<IListingsDataAccess, ListingsDataAccess>(s =>
     new ListingsDataAccess(
-        HubbaConfig.ConfigurationManager.AppSettings["ListingProfileConnectionString"]!,
+        HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
         HubbaConfig.ConfigurationManager.AppSettings["ListingsTable"]!
     )
 );
@@ -318,22 +318,22 @@ builder.Services.AddTransient<IListingProfileManager, ListingProfileManager>(s =
         (
             new ListingsDataAccess
             (
-                HubbaConfig.ConfigurationManager.AppSettings["ListingProfileConnectionString"]!,
+                HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
                 HubbaConfig.ConfigurationManager.AppSettings["ListingsTable"]!
             ),
             new ListingAvailabilitiesDataAccess
             (
-                HubbaConfig.ConfigurationManager.AppSettings["ListingProfileConnectionString"]!,
+                HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
                 HubbaConfig.ConfigurationManager.AppSettings["ListingAvailabilitiesTable"]!
             ),
             new ListingHistoryDataAccess
             (
-                HubbaConfig.ConfigurationManager.AppSettings["ListingProfileConnectionString"]!,
+                HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
                 HubbaConfig.ConfigurationManager.AppSettings["ListingHistoryTable"]!
             ),
             new RatingDataAccess
             (
-                HubbaConfig.ConfigurationManager.AppSettings["ListingProfileConnectionString"]!,
+                HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
                 HubbaConfig.ConfigurationManager.AppSettings["ListingRatingsTable"]!
             ),
             new UserAccountDataAccess
