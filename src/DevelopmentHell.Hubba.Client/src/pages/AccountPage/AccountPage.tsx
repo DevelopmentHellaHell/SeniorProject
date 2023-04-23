@@ -60,7 +60,7 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
             case AccountViews.MANAGE_LISTINGS:
                 return <></>; //TODO
             case AccountViews.PROJECT_SHOWCASES:
-                return <ProjectShowcaseView/>; //TODO
+                return <ProjectShowcaseView />; //TODO
         }
     }
 
