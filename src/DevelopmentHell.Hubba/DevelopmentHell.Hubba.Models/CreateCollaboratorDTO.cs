@@ -1,4 +1,6 @@
-﻿namespace DevelopmentHell.Hubba.WebAPI.DTO.Collaborator
+﻿using Microsoft.AspNetCore.Http;
+
+namespace DevelopmentHell.Hubba.WebAPI.DTO.Collaborator
 {
     public class CreateCollaboratorDTO
     {

@@ -19,8 +19,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         private DeleteDataAccess _deleteDataAccess;
         private UpdateDataAccess _updateDataAccess;
         private string _tableName;
+        private string _collaboratorIdColumn = "CollaboratorId";
 
-		public CollaboratorsDataAccess(string connectionString, string tableName)
+
+        public CollaboratorsDataAccess(string connectionString, string tableName)
 		{
 			_executeDataAccess = new ExecuteDataAccess(connectionString);
             _insertDataAccess = new InsertDataAccess(connectionString);
@@ -36,7 +38,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 _tableName,
                 new List<Comparator>()
                 {
-                    new Comparator("CollaboratorId", "=", collabId)
+                    new Comparator(_collaboratorIdColumn, "=", collabId)
                 }).ConfigureAwait(false);
             return deleteResult;
 
@@ -63,7 +65,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     "Published"
                 };
 
-                Comparator filter = new Comparator("CollaboratorId", "=", collabId);
+                Comparator filter = new Comparator(_collaboratorIdColumn, "=", collabId);
                 sbFilter.Append($"c.{filter.Key} {filter.Op} @{filter.Key}");
 
                 insertQuery.Parameters.Add(new SqlParameter(filter.Key.ToString(), filter.Value.ToString()));
@@ -79,9 +81,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     sbColumn.Append("c."+column);
                 }
 
-                insertQuery.CommandText = $"SELECT {sbColumn}, COUNT(uv.CollaboratorId) as Votes " +
+                insertQuery.CommandText = $"SELECT {sbColumn}, COUNT(uv.{_collaboratorIdColumn}) as Votes " +
                     $"FROM Collaborators as c " +
-                    $"LEFT JOIN UserVotes uv on c.CollaboratorId = uv.CollaboratorId " +
+                    $"LEFT JOIN UserVotes uv on c.{_collaboratorIdColumn} = uv.{_collaboratorIdColumn} " +
                     $"WHERE {sbFilter} " +
                     $"GROUP BY {sbColumn}";
                 
@@ -98,22 +100,34 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     return new(Result.Failure("Invalid number of Collaborators selected", StatusCodes.Status500InternalServerError));
                 }
 
+                if (payload.Count == 0)
+                {
+                    return new(Result.Failure("No collaborator found.", StatusCodes.Status404NotFound));
+                }
+
                 var collab = new CollaboratorProfile()
                 {
                     Name = (string)payload[0]["Name"],
                     ContactInfo = (string)payload[0]["ContactInfo"],
-                    Tags = (string)payload[0]["Tags"],
                     Description = (string)payload[0]["Description"],
-                    Availability = (string)payload[0]["Availability"],
                     Votes = (int)payload[0]["Votes"],
                     CollabUrls = new List<string>(),
                     Published = (bool)payload[0]["Published"]
                 };
-
-                if (payload[0]["ProfilePicture"] != null )
+                if (payload[0]["ProfilePicture"] != DBNull.Value)
                 {
                     collab.PfpUrl = ((int)payload[0]["ProfilePicture"]).ToString();
                 }
+                if (payload[0]["Tags"] != DBNull.Value)
+                {
+                    collab.Tags = (string)payload[0]["Tags"];
+                }
+                if (payload[0]["Availability"] != DBNull.Value)
+                {
+                    collab.Availability = (string)payload[0]["Availability"];
+                }
+
+                
 
                 return new Result<CollaboratorProfile>()
                 {
@@ -129,7 +143,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
-                new List<string>() { "CollaboratorId" },
+                new List<string>() { _collaboratorIdColumn },
                 new List<Comparator>()
                 {
                     new Comparator("OwnerId", "=", ownerId)
@@ -152,7 +166,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 return new(Result.Failure("Could not find selected collaborator."));
             }
             result.IsSuccessful = true;
-            result.Payload = (int)payload[0]["CollaboratorId"];
+            result.Payload = (int)payload[0][_collaboratorIdColumn];
             return result;
         }
 
@@ -164,7 +178,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 new List<string>() { "OwnerId" },
                 new List<Comparator>()
                 {
-                    new Comparator("CollaboratorId", "=", collabId)
+                    new Comparator(_collaboratorIdColumn, "=", collabId)
                 }
             ).ConfigureAwait(false);
 
@@ -197,7 +211,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 new List<string>() { "Published" },
                 new List<Comparator>()
                 {
-                    new Comparator("CollaboratorId", "=", collabId)
+                    new Comparator(_collaboratorIdColumn, "=", collabId)
                 }
             ).ConfigureAwait(false);
 
@@ -237,7 +251,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     { "Name", collab.Name!},
                     { "ContactInfo", collab.ContactInfo!},
                     { "Description", collab.Description!},
-                    { "Availability", collab.Availability!},
                     { "OwnerId", accountIdInt},
                     { "LastModifiedUser", accountIdInt},
                     { "CreateDate", DateTime.Now},
@@ -259,7 +272,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             var insertResult = await _insertDataAccess.InsertWithOutput(
                 _tableName,
                 insertDict,
-                "CollaboratorId"
+                _collaboratorIdColumn
             ).ConfigureAwait(false);
 
             if (!insertResult.IsSuccessful || insertResult.Payload is null)
@@ -275,7 +288,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 return result;
             }
             result.IsSuccessful = true;
-            result.Payload = (int)(insertResult.Payload[0]["CollaboratorId"]);
+            result.Payload = (int)(insertResult.Payload[0][_collaboratorIdColumn]);
             return result;
         }
 
@@ -289,7 +302,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 // comparator helps create WHERE SQL statement
                 new List<Comparator>()
                 {
-                    new Comparator("CollaboratorId", "=", collabId),
+                    new Comparator(_collaboratorIdColumn, "=", collabId),
                 },
                 values
             ).ConfigureAwait(false);
@@ -326,7 +339,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 _tableName,
                 new List<Comparator>()
                 {
-                    new Comparator("CollaboratorId", "=", collabId),
+                    new Comparator(_collaboratorIdColumn, "=", collabId),
                 },
                 updateDict
             ).ConfigureAwait(false);
@@ -359,7 +372,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 // comparator helps create WHERE SQL statement
                 new List<Comparator>()
                 {
-                    new Comparator("CollaboratorId", "=", collabId),
+                    new Comparator(_collaboratorIdColumn, "=", collabId),
                 },
                 values
             ).ConfigureAwait(false);
@@ -405,10 +418,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
-                new List<String>() { "CollaboratorId" },
+                new List<String>() { _collaboratorIdColumn },
                 new List<Comparator>()
                 {
-                    new Comparator("CollaboratorId", "=", collabId)
+                    new Comparator(_collaboratorIdColumn, "=", collabId)
                 }
             ).ConfigureAwait(false);
 

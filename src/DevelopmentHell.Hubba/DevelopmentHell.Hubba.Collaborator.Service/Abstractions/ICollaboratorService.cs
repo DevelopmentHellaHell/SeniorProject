@@ -16,5 +16,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Abstractions
         Task<Result<int>> GetOwnerId(int collabId);
         Task<Result<bool>> HasCollaborator(int accountId);
         Task<Result> Vote(int collabId, bool upvote);
+        Task<Result<string[]>> GetFileUrls(int collabId);
+        Task<Result<int>> CountFilesWithoutPfp(int accountId);
     }
 }

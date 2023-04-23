@@ -1,4 +1,5 @@
 ﻿using DevelopmentHell.Hubba.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace DevelopmentHell.Hubba.Validation.Service.Abstractions
 {
@@ -9,6 +10,6 @@ namespace DevelopmentHell.Hubba.Validation.Service.Abstractions
         Result ValidatePhoneNumber(string phoneNumber);
         Result ValidateCollaboratorAllowEmptyFiles(CollaboratorProfile collab);
         Result ValidateCollaborator(CollaboratorProfile collab);
-
+        Result ValidateImageFile(IFormFile file);
     }
 }

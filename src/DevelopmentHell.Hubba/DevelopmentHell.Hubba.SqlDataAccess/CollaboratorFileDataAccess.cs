@@ -2,6 +2,7 @@
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Identity.Client;
 using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
@@ -144,7 +145,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             };
         }
 
-        public async Task<Result<List<int>>> SelectFileIdsFromUrl(List<string> fileUrls)
+        public async Task<Result<List<int>>> SelectFileIdsFromUrl(string[] fileUrls)
         {
             List<string> fileUrlsString = new List<string>();
             foreach (string fileUrl in fileUrls)
@@ -203,7 +204,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             List<Dictionary<string, object>> payload = selectResult.Payload;
             if (payload.Count > 10)
             {
-                return new(Result.Failure($"Selected more than the valid number of files: {payload.Count}" + selectResult.ErrorMessage));
+                return new(Result.Failure($"Selected more than the valid number of files: {payload.Count}"));
             }
 
             List<int> fileIds = new List<int>();
@@ -219,8 +220,38 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 Payload = fileIds
             };
         }
+
+        public async Task<Result<string>> SelectFileExtension(int fileId)
+        {
+            Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
+                _tableName,
+                new List<String>() { "FileType" },
+                new List<Comparator>()
+                {
+                    new Comparator("FileId", "=", fileId)
+                }
+            ).ConfigureAwait(false);
+
+            if (!selectResult.IsSuccessful || selectResult.Payload is null)
+            {
+                return new(Result.Failure("" + selectResult.ErrorMessage));
+            }
+
+            List<Dictionary<string, object>> payload = selectResult.Payload;
+            if (payload.Count > 1)
+            {
+                return new(Result.Failure($"Selected more than the valid number of files: {payload.Count}"));
+            }
+            return new Result<string>()
+            {
+                IsSuccessful = true,
+                Payload = $".{(string)payload[0]["FileType"]}"
+            };
+        }
         public async Task<Result> DeleteFilesFromUrl(string[] removedFileUrls)
         {
+            if (removedFileUrls.Length == 0)
+                return new Result() { IsSuccessful = true };
             List<string> removedFileUrlsList = removedFileUrls.ToList<string>();
             var deleteResult = await _deleteDataAccess.DeleteWhereIn(_tableName, "FileUrl", removedFileUrlsList).ConfigureAwait(false);
 
@@ -229,6 +260,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         public async Task<Result> DeleteFilesFromFileId(List<int> fileIds)
         {
+            if (fileIds.Count == 0)
+                return new Result() { IsSuccessful = true };
             List<string> fileIdsString = new List<string>();
             foreach (var fileId in fileIds)
             {
@@ -243,7 +276,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             List<string> ownerIdString = new List<string>();
             ownerIdString.Add(ownerId.ToString());
-
             var deleteResult = await _deleteDataAccess.DeleteWhereIn(_tableName, "OwnerId", ownerIdString).ConfigureAwait(false);
             return deleteResult;
         }

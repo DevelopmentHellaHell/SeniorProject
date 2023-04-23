@@ -1,5 +1,6 @@
 ﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
+using Microsoft.AspNetCore.Http;
 using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -219,7 +220,7 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
                 return result;
             }
 
-            Regex regex = new(@"^((https?)://)?(www.)?[a-z0-9]+(.[a-z]+)(/[a-zA-Z0-9#]+/?)*/?$");
+            Regex regex = new(@"^((https?)://)?((www.)?[a-z0-9]+(.[a-z]+)|(([0-9]{1,3}.){3}([0-9]{1,3})))(/[a-zA-Z0-9#.]+/?)*/?$");
 
             // checking profile picture requirements
             // pfp is optional
@@ -255,6 +256,58 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
                     return result;
                 }
             }
+
+            result.IsSuccessful = true;
+            return result;
+        }
+
+        public Result ValidateImageFile(IFormFile file)
+        {
+            Result result = new Result();
+            if (!Regex.IsMatch(file.FileName, @"^[a-zA-Z0-9_. ]*$"))
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "File names must consist of only letters, numbers, spaces, and underscores.";
+                result.StatusCode = StatusCodes.Status412PreconditionFailed;
+                return result;
+            }
+            if (file == null || file.Length == 0)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = $"File {file!.FileName} is empty";
+                result.StatusCode = StatusCodes.Status412PreconditionFailed;
+                return result;
+            }
+            if (file.ContentType.StartsWith("image/"))
+            {
+                string fileExtension = Path.GetExtension(file.FileName);
+                if (fileExtension == ".jpeg" || fileExtension == ".jpg" || fileExtension == ".png")
+                {
+                    // Check if the image size is less than or equal to 25 MB
+                    if (file.Length > 25 * 1024 * 1024)
+                    {
+                        result.IsSuccessful = false;
+                        result.ErrorMessage = file.FileName + " is too large.";
+                        result.StatusCode = StatusCodes.Status412PreconditionFailed;
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.IsSuccessful = false;
+                    result.ErrorMessage = file.FileName + " is an invalid image file type.";
+                    result.StatusCode = StatusCodes.Status412PreconditionFailed;
+                    return result;
+                }
+            }
+            else
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = file.FileName + " is an invalid file type.";
+                result.StatusCode = StatusCodes.Status412PreconditionFailed;
+                return result;
+            }
+
 
             result.IsSuccessful = true;
             return result;

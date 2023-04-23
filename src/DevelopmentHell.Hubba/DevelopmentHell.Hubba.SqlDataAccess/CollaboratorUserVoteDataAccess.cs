@@ -10,6 +10,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         private SelectDataAccess _selectDataAccess;
         private DeleteDataAccess _deleteDataAccess;
         private string _tableName;
+        private readonly string _collaboratorIdColumn = "CollaboratorId";
+        private readonly string _accountIdColumn = "AccountId";
 
         public CollaboratorUserVoteDataAccess(string connectionString, string tableName)
         {
@@ -24,8 +26,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 _tableName,
                 new List<Comparator>()
                 {
-                    new Comparator("CollaboratorId", "=", collabId),
-                    new Comparator("AccountId", "=", accountId)
+                    new Comparator(_collaboratorIdColumn, "=", collabId),
+                    new Comparator(_accountIdColumn, "=", accountId)
                 }
             ).ConfigureAwait(false);
             return new Result(deleteUpvoteResult);
@@ -35,11 +37,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             var selectUpvoteResult = await _selectDataAccess.Select(
                 _tableName,
-                new List<string>() { "AccountId" },
+                new List<string>() { _accountIdColumn },
                 new List<Comparator>()
                 { 
-                    new Comparator("CollaboratorId", "=", collabId),
-                    new Comparator("AccountId", "=", accountId) 
+                    new Comparator(_collaboratorIdColumn, "=", collabId),
+                    new Comparator(_accountIdColumn, "=", accountId) 
                 }
             ).ConfigureAwait(false);
             if (!selectUpvoteResult.IsSuccessful)
@@ -58,8 +60,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     _tableName,
                     new Dictionary<string, object>()
                     {
-                        {"CollaboratorId",  collabId},
-                        {"AccountId",  accountId}
+                        {_collaboratorIdColumn,  collabId},
+                        {_accountIdColumn,  accountId}
                     }).ConfigureAwait(false);
             if(!insertUpvoteResult.IsSuccessful)
             {

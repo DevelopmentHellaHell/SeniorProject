@@ -4,6 +4,7 @@ using DevelopmentHell.Hubba.Collaborator.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
+using DevelopmentHell.Hubba.WebAPI.DTO.Collaborator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Identity.Client;
@@ -31,6 +32,10 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
 
         public async Task<Result> ChangeVisibility(int collabId, bool isPublic)
         {
+            if (collabId < 0)
+            {
+                return new(Result.Failure("Invalid collaborator id.", StatusCodes.Status412PreconditionFailed));
+            }
             Result result = new Result();
             if (Thread.CurrentPrincipal is null)
             {
@@ -58,12 +63,22 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
 
             var changeVisibilityResult = await _collaboratorService.UpdatePublished(collabId, isPublic).ConfigureAwait(false);
 
-            return changeVisibilityResult;
+            if (!changeVisibilityResult.IsSuccessful)
+            {
+                return new(Result.Failure("Could not update public viewing status."));
+            }
+
+            return new Result()
+            {
+                IsSuccessful = true,
+                StatusCode = StatusCodes.Status202Accepted
+            };
 
         }
 
-        public async Task<Result> CreateCollaborator(CollaboratorProfile collab, IFormFile[] collabFiles, IFormFile? pfpFile = null)
+        public async Task<Result> CreateCollaborator(CreateCollaboratorDTO collabDTO)
         {
+            // check if user is logged in
             Result result = new Result();
             if (Thread.CurrentPrincipal is null)
             {
@@ -71,13 +86,53 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
                 result.ErrorMessage = "Error, user is not logged in.";
                 return result;
             }
-
             Result authorizationResult = _authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" });
-
             if (!(authorizationResult.IsSuccessful))
             {
                 return authorizationResult;
             }
+
+            // validating file inputs
+            if (collabDTO.UploadedFiles == null)
+            {
+                return new(Result.Failure("No files uploaded.", StatusCodes.Status412PreconditionFailed));
+            }
+            if(collabDTO.UploadedFiles.Length > 10)
+            {
+                return new(Result.Failure("More than 10 files uploaded.", StatusCodes.Status412PreconditionFailed));
+            }
+            // check if collaborator files are valid
+            foreach(var file in collabDTO.UploadedFiles)
+            {
+                var validImageResult = _validationService.ValidateImageFile(file);
+                if (!validImageResult.IsSuccessful)
+                {
+                    return validImageResult;
+                }
+            }
+            // check if pfpfile is valid
+            if (collabDTO.PfpFile != null)
+            {
+                var validPfpImageResult = _validationService.ValidateImageFile(collabDTO.PfpFile);
+                if (!validPfpImageResult.IsSuccessful)
+                {
+                    return validPfpImageResult;
+                }
+            }
+
+            // casting DTO to objects
+            CollaboratorProfile collab = new CollaboratorProfile()
+            {
+                Name = collabDTO.Name,
+                ContactInfo = collabDTO.ContactInfo,
+                Tags = collabDTO.Tags,
+                Description = collabDTO.Description,
+                Availability = collabDTO.Availability,
+                Votes = 0,
+                Published = collabDTO.Published
+            };
+            IFormFile[] collabFiles = collabDTO.UploadedFiles;
+            IFormFile? pfpFile = collabDTO.PfpFile;
 
             Result collabValidation = _validationService.ValidateCollaboratorAllowEmptyFiles(collab);
 
@@ -86,52 +141,29 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
                 return collabValidation;
             }
 
-            if (collabFiles == null)
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "No files uploaded, unable to create collaborator profile.";
-                return result;
-            }
-
-            Result createCollabResult;
-            if (pfpFile != null)
-                createCollabResult = await _collaboratorService.CreateCollaborator(collab, collabFiles, pfpFile).ConfigureAwait(false);
-            else
-                createCollabResult = await _collaboratorService.CreateCollaborator(collab, collabFiles).ConfigureAwait(false);
+            // will work regardless of if pfpFile is null or not
+            Result createCollabResult = await _collaboratorService.CreateCollaborator(collab, collabFiles, pfpFile).ConfigureAwait(false);
 
             if (!createCollabResult.IsSuccessful)
             {
                 result.ErrorMessage = "Unable to create collaborator. " + createCollabResult.ErrorMessage;
-
-                // remove uploaded files 
-                //if (pfpFile != null)
-                //{
-                    //Result deletePfp = await CollaboratorFileUploadManager.Delete(pfpString).ConfigureAwait(false);
-                    //if(!deletePfp.IsSuccessful)
-                    //{
-                        //Result logRes = _loggerService.Log(Models.LogLevel.ERROR, Category.SERVER, $"Unable to remove uploaded collab" +
-                        //    $" profile picture files. Account id: {accountIdInt}", null);
-                    //}
-                //}
-                //foreach (var file in collabString)
-                //{
-                    //var deleteFile = await CollaboratorFileUploadManager.Delete(file).ConfigureAwait(false);
-                    //if(deleteFile == null || !deleteFile.IsSuccessful)
-                    //{
-                        //Result logRes = _loggerService.Log(Models.LogLevel.ERROR, Category.SERVER, $"Unable to remove uploaded collab" +
-                        //    $" files. Account id: {accountIdInt}", null);
-                    //}
-                //}
                 return result;
             }
 
-            result.IsSuccessful = true;
-            return result;
+            return new Result()
+            {
+                IsSuccessful = true,
+                StatusCode = StatusCodes.Status201Created
+            };
 
         }
 
         public async Task<Result> DeleteCollaborator(int collabId)
         {
+            if (collabId < 0)
+            {
+                return new(Result.Failure("Invalid collaborator id.", StatusCodes.Status412PreconditionFailed));
+            }
             // check if user is logged in
             if (Thread.CurrentPrincipal is null)
             {
@@ -143,7 +175,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
 
             if(!getCollabAccountId.IsSuccessful)
             {
-                return new(Result.Failure("Could not get owner Id to authorize deletion" + getCollabAccountId.ErrorMessage,
+                return new(Result.Failure("Could not find owner in Collaborators for deletion.",
                     StatusCodes.Status412PreconditionFailed));
             }
             int ownerId = (int)getCollabAccountId.Payload;
@@ -169,11 +201,16 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             return new Result()
             {
                 IsSuccessful = true,
+                StatusCode = StatusCodes.Status202Accepted
             };
         }
 
         public async Task<Result> RemoveCollaborator(int collabId)
         {
+            if (collabId < 0)
+            {
+                return new(Result.Failure("Invalid collaborator id.", StatusCodes.Status412PreconditionFailed));
+            }
             // check if user is logged in
             if (Thread.CurrentPrincipal is null)
             {
@@ -208,6 +245,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             return new Result()
             {
                 IsSuccessful = true,
+                StatusCode = StatusCodes.Status202Accepted
             };
         }
 
@@ -240,11 +278,11 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             return new Result()
             {
                 IsSuccessful = true,
+                StatusCode = StatusCodes.Status202Accepted
             };
         }
 
-        public async Task<Result> EditCollaborator(CollaboratorProfile collab, IFormFile[]? collabFiles = null, 
-            string[]? removedFiles = null, IFormFile? pfpFile = null)
+        public async Task<Result> EditCollaborator(EditCollaboratorDTO collabDTO)
         {
             if (Thread.CurrentPrincipal is null)
             {
@@ -256,10 +294,69 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             {
                 return new(Result.Failure("Error, user is not authorized for this request.", StatusCodes.Status401Unauthorized));
             }
+            // validating file inputs
+            if (collabDTO.UploadedFiles != null)
+            {
+                foreach (var file in collabDTO.UploadedFiles)
+                {
+                    var validImageResult = _validationService.ValidateImageFile(file);
+                    if (!validImageResult.IsSuccessful)
+                    {
+                        return validImageResult;
+                    }
+                }
+            }
+            if (collabDTO.PfpFile != null)
+            {
+                var validPfpImageResult = _validationService.ValidateImageFile(collabDTO.PfpFile);
+                if (!validPfpImageResult.IsSuccessful)
+                {
+                    return validPfpImageResult;
+                }
+            }
+
+            // casting DTO to objects
+            CollaboratorProfile collab = new CollaboratorProfile()
+            {
+                Name = collabDTO.Name,
+                ContactInfo = collabDTO.ContactInfo,
+                Tags = collabDTO.Tags,
+                Description = collabDTO.Description,
+                Availability = collabDTO.Availability,
+                Votes = 0,
+                Published = collabDTO.Published
+            };
+
+            IFormFile[]? collabFiles = collabDTO.UploadedFiles;
+            IFormFile? pfpFile = collabDTO.PfpFile;
+            string[]? removedFiles = collabDTO.RemovedFiles;
+
+            // check amount of new uploaded files
+            int uploadedCount = 0;
+            int removedCount = 0;
+            if (collabFiles != null)
+                 uploadedCount = collabFiles.Length;
+            if (removedFiles != null)
+                removedCount = removedFiles.Length;
+
+            // get the owner ID to count the amount of files in database
+            var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            string accountIDStr = principal.FindFirstValue("sub");
+            int.TryParse(accountIDStr, out int accountIdInt);
+            var countFilesResult = await _collaboratorService.CountFilesWithoutPfp(accountIdInt).ConfigureAwait(false);
+            if (!countFilesResult.IsSuccessful)
+            {
+                return new(Result.Failure("Unable to determine number of uploaded files currently stored in database. " + countFilesResult.ErrorMessage));
+            }
+
+            if (uploadedCount - removedCount +  countFilesResult.Payload > 10)
+            {
+                return new(Result.Failure("A maximum of 10 files can be uploaded to the server, including those already stored. ",StatusCodes.Status412PreconditionFailed));
+            }
 
             var validateCollab = _validationService.ValidateCollaboratorAllowEmptyFiles(collab);
 
-            if (validateCollab == null || !validateCollab.IsSuccessful)
+            if (!validateCollab.IsSuccessful)
             {
                 return new(Result.Failure("New collaborator updates not valid. ", StatusCodes.Status412PreconditionFailed));
             }
@@ -274,11 +371,16 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             return new Result()
             {
                 IsSuccessful = true,
+                StatusCode = StatusCodes.Status202Accepted
             };
         }
 
         public async Task<Result<CollaboratorProfile>> GetCollaborator(int collabId)
         {
+            if (collabId < 0)
+            {
+                return new(Result.Failure("Invalid collaborator id.", StatusCodes.Status412PreconditionFailed));
+            }
             if (Thread.CurrentPrincipal is null)
             {
                 return new (Result.Failure("Error, user is not logged in", StatusCodes.Status401Unauthorized));
@@ -301,24 +403,30 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
                 return new(Result.Failure("Collaborator not found." + getCollabResult.ErrorMessage, StatusCodes.Status404NotFound));
             }
 
-            // validate collaborator object
-            var validationResult = _validationService.ValidateCollaborator(getCollabResult.Payload!);
-            if (!validationResult.IsSuccessful)
-            {
-                return new(Result.Failure("Collaborator found not properly formatted." + validationResult.ErrorMessage,
-                    StatusCodes.Status500InternalServerError));
-            }
-
             // check if the profile is publicly visible
             if(!getCollabResult.Payload!.Published)
             {
-                return new(Result.Failure("Collaborator is hidden from public view.", StatusCodes.Status401Unauthorized));
+                // check if this is the owner
+                var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
+                string accountIDStr = principal.FindFirstValue("sub");
+                int.TryParse(accountIDStr, out int accountIdInt);
+                var ownerIdResult = await _collaboratorService.GetOwnerId(collabId).ConfigureAwait(false);
+                if (!ownerIdResult.IsSuccessful)
+                {
+                    return new(Result.Failure("Unable to validate owner and collaborator is hidden " +
+                        "from public view.", StatusCodes.Status401Unauthorized));
+                }
+                else if (ownerIdResult.Payload != accountIdInt)
+                {
+                    return new(Result.Failure("Collaborator is hidden from public view.", StatusCodes.Status401Unauthorized));
+                }
             }
 
+            getCollabResult.StatusCode = StatusCodes.Status200OK;
             return getCollabResult;
         }
 
-        public async Task<Result<bool>> HasCollaborator(int accountId)
+        public async Task<Result<bool>> HasCollaborator(int? accountId = null)
         {
             if (Thread.CurrentPrincipal is null)
             {
@@ -330,13 +438,26 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             {
                 return new(Result.Failure("Error, user is not authorized for this request.", StatusCodes.Status401Unauthorized));
             }
+            if (accountId == null)
+            {
+                var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
+                string accountIDStr = principal.FindFirstValue("sub");
+                int.TryParse(accountIDStr, out int accountIdInt);
+                accountId = accountIdInt;
+            }
 
-            var hasCollaboratorResult = await _collaboratorService.HasCollaborator(accountId).ConfigureAwait(false);
+            var hasCollaboratorResult = await _collaboratorService.HasCollaborator((int)accountId).ConfigureAwait(false);
+            if(hasCollaboratorResult.IsSuccessful)
+                hasCollaboratorResult.StatusCode = StatusCodes.Status200OK;
             return hasCollaboratorResult;
         }
 
         public async Task<Result> Vote(int collabId, bool upvote)
         {
+            if (collabId < 0)
+            {
+                return new(Result.Failure("Invalid collaborator id.", StatusCodes.Status412PreconditionFailed));
+            }
             if (Thread.CurrentPrincipal is null)
             {
                 return new(Result.Failure("Error, user is not logged in", StatusCodes.Status401Unauthorized));
@@ -353,8 +474,30 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             {
                 return new(Result.Failure("Error, user is not authorized for this request.", StatusCodes.Status401Unauthorized));
             }
-            return new Result() { IsSuccessful= true};
+            return new Result() { 
+                IsSuccessful= true,
+                StatusCode = StatusCodes.Status202Accepted
+            };
 
+        }
+
+        public async Task<Result<string[]>> GetFileUrls(int collabId)
+        {
+            if (collabId < 0)
+            {
+                return new(Result.Failure("Invalid collaborator id.", StatusCodes.Status412PreconditionFailed));
+            }
+            var getFileUrlsResult = await _collaboratorService.GetFileUrls(collabId).ConfigureAwait(false);
+            if (!getFileUrlsResult.IsSuccessful)
+            {
+                return new(Result.Failure("Unable to retrieve file urls from provided collaborator. " + getFileUrlsResult.ErrorMessage, getFileUrlsResult.StatusCode));
+            }
+            return new Result<string[]>()
+            {
+                IsSuccessful = true,
+                StatusCode = StatusCodes.Status200OK,
+                Payload = getFileUrlsResult.Payload
+            };
         }
     }
 }

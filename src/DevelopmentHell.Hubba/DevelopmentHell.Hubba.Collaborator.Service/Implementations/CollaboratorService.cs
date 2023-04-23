@@ -1,4 +1,5 @@
 ﻿using DevelopmentHell.Hubba.Collaborator.Service.Abstractions;
+using DevelopmentHell.Hubba.Files.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
@@ -6,6 +7,7 @@ using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Identity.Client;
+using System.Configuration;
 using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
@@ -16,17 +18,21 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
         private ICollaboratorFileDataAccess _collaboratorFileDataAccess;
         private ICollaboratorFileJunctionDataAccess _collaboratorFileJunctionDataAccess;
         private ICollaboratorUserVoteDataAccess _collaboratorUserVoteDataAccess;
+        private IFileService _fileService;
         private ILoggerService _loggerService;
         private IValidationService _validationService;
+        private string _dirPath = "Collaborators";
+        private string _ftpServer = ConfigurationManager.AppSettings["FTPServer"]!;
 
         public CollaboratorService(ICollaboratorsDataAccess collaboratorDataAccess, ICollaboratorFileDataAccess collaboratorFileDataAccess,
             ICollaboratorFileJunctionDataAccess collaboratorFileJunctionDataAccess, ICollaboratorUserVoteDataAccess collaboratorUserVoteDataAccess,
-            ILoggerService loggerService, IValidationService validationService)
+            IFileService fileService, ILoggerService loggerService, IValidationService validationService)
         {
             _collaboratorDataAccess = collaboratorDataAccess;
             _collaboratorFileDataAccess = collaboratorFileDataAccess;
             _collaboratorFileJunctionDataAccess = collaboratorFileJunctionDataAccess;
             _collaboratorUserVoteDataAccess = collaboratorUserVoteDataAccess;
+            _fileService = fileService;
             _loggerService = loggerService;
             _validationService = validationService;
         }
@@ -35,8 +41,8 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
         {
             // Get the ID of current thread
             var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
-            string accountIDStr = principal.FindFirstValue("sub");
-            int.TryParse(accountIDStr, out int accountIdInt);
+            string accountIdStr = principal.FindFirstValue("sub");
+            int.TryParse(accountIdStr, out int accountIdInt);
 
             Result result = new Result();
             result.IsSuccessful = false;
@@ -72,17 +78,16 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
                     return result;
                 }
 
-                // TODO: Complete upload file manager
-                //Result uploadPfp = await CollaboratorFileUploadManager.Upload(pfpFile, createPfpFileResult.Payload).ConfigureAwait(false);
-                //if(!uploadPfp.IsSuccessful)
-                //{
-                //    result.IsSuccessful = false;
-                //    result.ErrorMessage = "Profile picture upload failed.";
-                //    return result;
-                //}
-                //string PfpUrl = uploadPfp.Payload;
+                // uploading profile picture to web server file directory
+                var uploadFileResult = await UploadFileToServer(accountIdInt, createPfpFileResult.Payload, pfpFile).ConfigureAwait(false);
+                if (!uploadFileResult.IsSuccessful)
+                {
+                    return uploadFileResult;
+                }
 
-                string pfpUrl = string.Format("www.server.com/collaborator/{0}/file/{1}", accountIdInt, createPfpFileResult.Payload);
+                // storing the url and uploaded files
+                string fileExtension = Path.GetExtension(pfpFile.FileName);
+                string pfpUrl = string.Format("http://{0}/{1}/{2}{3}", _ftpServer, _dirPath + $"/{accountIdStr}", createPfpFileResult.Payload, fileExtension);
                 successfullyUploadedFileIds.Add(createPfpFileResult.Payload);
 
                 // update the file url in the file database, if they fail remove the file from the server
@@ -110,22 +115,21 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
                 if(!fileResult.IsSuccessful)
                 {
                     return Result.Failure(fileResult.ErrorMessage!,
-                    (int)StatusCodes.Status500InternalServerError);
+                    StatusCodes.Status500InternalServerError);
                 }
 
-                // TODO: Complete upload file manager
-                //var uploadFile = await CollaboratorFileUploadManager.Upload(collabFiles[i], fileResult.Payload).ConfigureAwait(false);
-                //if(uploadFile == null || !uploadFile.IsSuccessful)
-                //{
-                //    result.IsSuccessful = false;
-                //    result.ErrorMessage = "Profile picture upload failed.";
-                //    return result;
-                //}
-                //collab.CollabUrls.append(uploadFile.Payload);
+                // uploading  picture to web server file directory
+                var uploadFileResult = await UploadFileToServer(accountIdInt, fileResult.Payload, collabFiles[i]).ConfigureAwait(false);
+                if(!uploadFileResult.IsSuccessful)
+                {
+                    return uploadFileResult;
+                }
 
+                // storing the url and uploaded files
+                string fileExtension = Path.GetExtension(collabFiles[i].FileName);
+                string collabUrl = string.Format("http://{0}/{1}/{2}{3}", _ftpServer, _dirPath + $"/{accountIdStr}", fileResult.Payload, fileExtension);
 
                 successfullyUploadedFileIds.Add(fileResult.Payload);
-                string collabUrl = (string.Format("www.server.com/collaborator/{0}/file/{1}", accountIdInt, fileResult.Payload));
 
                 var updateFileResult = await _collaboratorFileDataAccess.UpdateFileUrl(fileResult.Payload, collabUrl);
                 if (!updateFileResult.IsSuccessful)
@@ -168,37 +172,35 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
 
             // get files to be deleted from server from file database
             var fileIdResult = await _collaboratorFileDataAccess.SelectFileIdsFromOwner(ownerId).ConfigureAwait(false);
-            if(!fileIdResult.IsSuccessful)
-            {
-                return new(Result.Failure("Cannot find files to be removed. " + fileIdResult.ErrorMessage));
-            }
-            if (fileIdResult.Payload == null)
+            if(!fileIdResult.IsSuccessful || fileIdResult.Payload == null)
             {
                 return new(Result.Failure("Cannot find files to be removed. " + fileIdResult.ErrorMessage));
             }
 
-            // delete file database
+            // delete files from server
+            foreach (int fileId in fileIdResult.Payload!)
+            {
+                await RemoveFileFromServer(ownerId, fileId).ConfigureAwait(false);
+            }
+
+            // delete file sql database
             var deleteFilesResult = await _collaboratorFileDataAccess.DeleteFilesFromFileId(fileIdResult.Payload!).ConfigureAwait(false);
             if(!deleteFilesResult.IsSuccessful)
             {
                 return new(Result.Failure("Files were unable to be deleted. " + deleteFilesResult.ErrorMessage));
             }
 
-            // delete collaborator database
+            // delete collaborator sql database
             var deleteCollabResult = await _collaboratorDataAccess.Delete(collabId).ConfigureAwait(false);
             if (!deleteCollabResult.IsSuccessful)
             {
-                _loggerService.Log(Models.LogLevel.ERROR, Category.SERVER, $"Unable to delete collaborator" +
-                    $" {collabId} but files were removed from database.", null);
                 return new(Result.Failure($"Collaborator {collabId} was unable to be deleted, files were removed from database. " 
                     + deleteCollabResult.ErrorMessage));
             }
 
-            // delete files from server
-            foreach (int fileId in fileIdResult.Payload!) { 
-                var removeFileFromServerResult = RemoveFileFromServer(ownerId, fileId).ConfigureAwait(false);
-            }
 
+            _loggerService.Log(Models.LogLevel.INFO, Category.BUSINESS, $"Deleted collaborator" +
+                $" {collabId}.", null);
             return new Result() { IsSuccessful = true};
         }
 
@@ -242,13 +244,21 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
 
             // get files to be deleted from server from file database
             var fileIdResult = await _collaboratorFileDataAccess.SelectFileIdsFromOwner(ownerId).ConfigureAwait(false);
-            if (!fileIdResult.IsSuccessful)
+            if (!fileIdResult.IsSuccessful || fileIdResult.Payload == null)
             {
                 return new(Result.Failure("Cannot find files to be removed. " + fileIdResult.ErrorMessage, StatusCodes.Status404NotFound));
             }
-            if (fileIdResult.Payload == null)
+
+            // delete files from server
+            foreach (int fileId in fileIdResult.Payload!)
             {
-                return new(Result.Failure("Cannot find files to be removed. " + fileIdResult.ErrorMessage, StatusCodes.Status404NotFound));
+                var removeFileFromServerResult = await RemoveFileFromServer(ownerId, fileId).ConfigureAwait(false);
+                if (!removeFileFromServerResult.IsSuccessful)
+                {
+                    return new(Result.Failure($"Collaborator uploaded files were unable to be deleted. "
+                    + removeFileFromServerResult.ErrorMessage));
+                    //TODO: ADD ROLLBACK
+                }
             }
 
             // delete file database
@@ -256,6 +266,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
             if (!deleteFilesResult.IsSuccessful)
             {
                 return new(Result.Failure("Files were unable to be deleted. " + deleteFilesResult.ErrorMessage));
+                // TODO: ADD ROLLBACK
             }
 
             CollaboratorProfile defaultValuesCollab = new CollaboratorProfile()
@@ -275,26 +286,18 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
             var removeCollabResult = await _collaboratorDataAccess.Update(collabId, defaultValuesCollab).ConfigureAwait(false);
             if (!removeCollabResult.IsSuccessful)
             {
-                _loggerService.Log(Models.LogLevel.ERROR, Category.SERVER, $"Unable to clear collaborator" +
-                    $" {collabId} but files were removed from database.", null);
-                return new(Result.Failure($"Collaborator {collabId} was unable to be cleared, files were removed from database. "
+                return new(Result.Failure($"Collaborator was unable to be cleared. "
                     + removeCollabResult.ErrorMessage));
+                // TODO: ADD ROLLBACK
             }
 
             // remove pfpurl from collaborator database
             var removepfpUrl = await _collaboratorDataAccess.UpdatePfpFileId(collabId).ConfigureAwait(false);
             if (!removepfpUrl.IsSuccessful)
             {
-                _loggerService.Log(Models.LogLevel.ERROR, Category.SERVER, $"Unable to clear pfp url of collaborator" +
-                    $" {collabId} but details were cleared and files were removed from database.", null);
-                return new(Result.Failure($"Collaborator {collabId} pfp url was unable to be deleted, data and files were removed from database. "
+                return new(Result.Failure($"Collaborator pfp url was unable to be deleted. "
                     + removepfpUrl.ErrorMessage));
-            }
-
-            // delete files from server
-            foreach (int fileId in fileIdResult.Payload!)
-            {
-                var removeFileFromServerResult = RemoveFileFromServer(ownerId, fileId).ConfigureAwait(false);
+                //TODO: ADD ROLLBACK
             }
 
             return new Result() { IsSuccessful = true };
@@ -306,109 +309,114 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
         {
             // get account id of user
             var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
-            string accountIDStr = principal.FindFirstValue("sub");
-            int.TryParse(accountIDStr, out int accountIdInt);
-
-            if (removedFileUrls != null)
-            {
-                var removedFileIds = _collaboratorFileDataAccess.SelectFileIdsFromUrl(removedFileUrls.ToList());
-            }
+            string accountIdStr = principal.FindFirstValue("sub");
+            int.TryParse(accountIdStr, out int accountIdInt);
 
             var collabIdResult = await _collaboratorDataAccess.GetCollaboratorId(accountIdInt).ConfigureAwait(false);
             if (!collabIdResult.IsSuccessful)
             {
-                return new(Result.Failure("Unable to find requested collaborator Id for edits using ownerId."));
+                return new(Result.Failure("Unable to find owner of requested collaborator. " + collabIdResult.ErrorMessage));
             }
 
             int collabId = (int)collabIdResult.Payload;
 
-            var collabResult = await _collaboratorDataAccess.GetCollaborator(collabId).ConfigureAwait(false);
+            var collabResult = await GetCollaborator(collabId).ConfigureAwait(false);
             if (!collabResult.IsSuccessful) 
             {
-                return new(Result.Failure("Unable to find requested collaborator object for edits using collabId."));
+                return new(Result.Failure("Unable to find requested collaborator object for edits using collabId." + collabResult.ErrorMessage));
+            }
+
+            // do not allow editing if a new profile picture is being uploaded without being removed
+            if ((removedFileUrls != null && collabResult.Payload!.PfpUrl != null && !removedFileUrls.Contains<string>(collabResult.Payload!.PfpUrl))
+                || (removedFileUrls == null && collabResult.Payload!.PfpUrl != null))
+            {
+                return new(Result.Failure("Cannot upload Pfp file without firt removing current Pfp file.", StatusCodes.Status412PreconditionFailed));
+            }
+
+            // if the Pfp is going to be removed, delete reference from sql database
+            if (removedFileUrls != null && collabResult.Payload!.PfpUrl != null && removedFileUrls.Contains<string>(collabResult.Payload!.PfpUrl))
+            {
+                var updateCollabResult = await _collaboratorDataAccess.UpdatePfpFileId(collabId).ConfigureAwait(false);
+                if (!updateCollabResult.IsSuccessful)
+                {
+                    return new(Result.Failure("Unable to clear pfp url in file database after removal." + updateCollabResult.ErrorMessage));
+                }
             }
 
             // removing provided array of removedFilesUrls
             if (removedFileUrls != null &&  removedFileUrls.Length > 0)
             {
+
+                // get the ids of removed files
+                var deletedFileIdsResult = await _collaboratorFileDataAccess.SelectFileIdsFromUrl(removedFileUrls).ConfigureAwait(false); 
+                if (!deletedFileIdsResult.IsSuccessful)
+                {
+                    return new(Result.Failure("Could not find files to be deleted. " + deletedFileIdsResult.ErrorMessage));
+                }
+
+                // remove files from web server
+                foreach (var fileId in deletedFileIdsResult.Payload!)
+                {
+                    var removeFileFromServerResult = await RemoveFileFromServer(accountIdInt, fileId).ConfigureAwait(false);
+                    if (!removeFileFromServerResult.IsSuccessful)
+                    {
+                        return new(Result.Failure($"Collaborator uploaded files were unable to be deleted. "
+                        + removeFileFromServerResult.ErrorMessage));
+                    }
+                }
+
+                // remove files from sql database
                 var deleteResult = await _collaboratorFileDataAccess.DeleteFilesFromUrl(removedFileUrls).ConfigureAwait(false);
                 if (!deleteResult.IsSuccessful)
                 {
                     return new(Result.Failure("Unable to delete removed files. " + deleteResult.ErrorMessage));
                 }
-
-                // TODO: Complete upload file manager - remove files
-                //var deleteFileResult = await CollaboratorFileUploadManager.Upload(collabFiles[i], fileResult.Payload).ConfigureAwait(false);
-                //if(!deleteFileResult.IsSuccessful)
-                //{
-                //    result.IsSuccessful = false;
-                //    result.ErrorMessage = "File removals failed.";
-                //    return result;
-                //}
-                //collab.CollabUrls.append(uploadFile.Payload);
+                
             }
 
             // keeping track of all uploaded files to server so they can be removed if an error occurs
             List<int> successfullyUploadedFileIds = new List<int>();
 
-            // check if the profile picture was one of the removed files
-            if (collabResult.Payload != null && !string.IsNullOrEmpty(collabResult.Payload!.PfpUrl))
+            // upload new profile picture
+            if(pfpFile != null)
             {
-                int.TryParse(collabResult.Payload!.PfpUrl, out int pfpIdInt);
-                List<int> pfpIdList = new List<int>() { pfpIdInt };
-                // selecting to see if pfp file still exists
-                var checkPfpResult = await _collaboratorFileDataAccess.SelectFileUrls(pfpIdList).ConfigureAwait(false);
-
-                // if the pfp file was removed, either set to null or add the new one
-                if(checkPfpResult.IsSuccessful && checkPfpResult.Payload!.Count == 0)
+                var createPfpFileResult = await _collaboratorFileDataAccess.InsertFileWithOutputId("Placeholder Url", pfpFile).ConfigureAwait(false);
+                if (!createPfpFileResult.IsSuccessful)
                 {
-                    if(pfpFile == null)
-                    {
-                        var updateCollabResult = _collaboratorDataAccess.UpdatePfpFileId(collabId);
-                    }
-                    else
-                    {
-                        var createPfpFileResult = await _collaboratorFileDataAccess.InsertFileWithOutputId("Placeholder Url", pfpFile).ConfigureAwait(false);
-                        if (!createPfpFileResult.IsSuccessful)
-                        {
-                            return new(Result.Failure(""+createPfpFileResult.ErrorMessage));
-                        }
+                    return new(Result.Failure("" + createPfpFileResult.ErrorMessage));
+                }
 
-                        // TODO: Complete upload file manager
-                        //Result uploadPfp = await CollaboratorFileUploadManager.Upload(pfpFile, createPfpFileResult.Payload).ConfigureAwait(false);
-                        //if(!uploadPfp.IsSuccessful)
-                        //{
-                        //    result.IsSuccessful = false;
-                        //    result.ErrorMessage = "Profile picture upload failed.";
-                        //    return result;
-                        //}
-                        //collab.PfpUrl = uploadPfp.Payload;
+                // uploading profile picture to web server file directory
+                var uploadFileResult = await UploadFileToServer(accountIdInt, createPfpFileResult.Payload, pfpFile).ConfigureAwait(false);
+                if (!uploadFileResult.IsSuccessful)
+                {
+                    return uploadFileResult;
+                }
 
-                        collab.PfpUrl = collab.PfpUrl = string.Format("www.server.com/collaborator/{0}/file/{1}", accountIdInt, createPfpFileResult.Payload);
-                        successfullyUploadedFileIds.Add(createPfpFileResult.Payload);
+                // storing the url and uploaded files
+                string fileExtension = Path.GetExtension(pfpFile.FileName);
+                collab.PfpUrl = string.Format("http://{0}/{1}/{2}{3}", _ftpServer, _dirPath + $"/{accountIdStr}", createPfpFileResult.Payload, fileExtension);
+                successfullyUploadedFileIds.Add(createPfpFileResult.Payload);
 
-                        // removing the profile picture from the server if an error occurred
-                        var updatePfpFileResult = await _collaboratorFileDataAccess.UpdateFileUrl(createPfpFileResult.Payload, collab.PfpUrl);
-                        if (!updatePfpFileResult.IsSuccessful)
-                        {
-                            await RemoveFileFromServer(accountIdInt, createPfpFileResult.Payload).ConfigureAwait(false);
-                            return new(Result.Failure("Unable to update pfp url in file database after upload." + updatePfpFileResult.ErrorMessage));
-                        }
+                // updating the profile picture to the sql server 
+                var updatePfpFileResult = await _collaboratorFileDataAccess.UpdateFileUrl(createPfpFileResult.Payload, collab.PfpUrl);
+                if (!updatePfpFileResult.IsSuccessful)
+                {
+                    await RemoveFileFromServer(accountIdInt, createPfpFileResult.Payload).ConfigureAwait(false);
+                    return new(Result.Failure("Unable to update pfp url in file database after upload." + updatePfpFileResult.ErrorMessage));
+                }
 
-                        var updateCollabPfpResult = await _collaboratorDataAccess.UpdatePfpFileId(collabId, createPfpFileResult.Payload).ConfigureAwait(false);
-                        if (!updateCollabPfpResult.IsSuccessful)
-                        {
-                            await RemoveFileFromServer(accountIdInt, createPfpFileResult.Payload).ConfigureAwait(false);
-                            return new(Result.Failure("Unable to update pfp url in collab database after upload" + updateCollabPfpResult.ErrorMessage));
-                        }
-                    }
+                var updateCollabPfpResult = await _collaboratorDataAccess.UpdatePfpFileId(collabId, createPfpFileResult.Payload).ConfigureAwait(false);
+                if (!updateCollabPfpResult.IsSuccessful)
+                {
+                    await RemoveFileFromServer(accountIdInt, createPfpFileResult.Payload).ConfigureAwait(false);
+                    return new(Result.Failure("Unable to update pfp url in collab database after upload" + updateCollabPfpResult.ErrorMessage));
                 }
             }
 
             // create junction table for each collaborator file that has been uploaded
             if (collabFiles != null)
             {
-
                 for (int i = 0; i < collabFiles.Length; i++)
                 {
                     // upload file details to database
@@ -419,18 +427,21 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
                         (int)StatusCodes.Status500InternalServerError);
                     }
 
-                    // TODO: Complete upload file manager
-                    //var uploadFile = await CollaboratorFileUploadManager.Upload(collabFiles[i], fileResult.Payload).ConfigureAwait(false);
-                    //if(uploadFile == null || !uploadFile.IsSuccessful)
-                    //{
-                    //    result.IsSuccessful = false;
-                    //    result.ErrorMessage = "Profile picture upload failed.";
-                    //    return result;
-                    //}
-                    //collab.CollabUrls.append(uploadFile.Payload);
+                    // uploading  picture to web server file directory
+                    var uploadFileResult = await UploadFileToServer(accountIdInt, fileResult.Payload, collabFiles[i]).ConfigureAwait(false);
+                    if (!uploadFileResult.IsSuccessful)
+                    {
+                        return uploadFileResult;
+                    }
 
+                    // storing the url and uploaded files
+                    string fileExtension = Path.GetExtension(collabFiles[i].FileName);
                     successfullyUploadedFileIds.Add(fileResult.Payload);
-                    collab.CollabUrls!.Add(string.Format("www.server.com/collaborator/{0}/file/{1}", accountIdInt, fileResult.Payload));
+                    if(collab.CollabUrls == null)
+                    {
+                        collab.CollabUrls = new List<string>();
+                    }
+                    collab.CollabUrls!.Add(string.Format("http://{0}/{1}/{2}{3}", _ftpServer, _dirPath + $"/{accountIdStr}", fileResult.Payload, fileExtension));
 
                     var updateFileResult = await _collaboratorFileDataAccess.UpdateFileUrl(fileResult.Payload, collab.CollabUrls[i]);
                     if (!updateFileResult.IsSuccessful)
@@ -480,7 +491,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
             if(!getCollabResult.IsSuccessful)
             {
                 return new(Result.Failure(string.Format("Failed to get collaborator {0} ", collabId) + 
-                    getCollabResult.ErrorMessage,StatusCodes.Status500InternalServerError));
+                    getCollabResult.ErrorMessage,StatusCodes.Status404NotFound));
             }
             if(getCollabResult.Payload == null)
             {
@@ -514,7 +525,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
             }
 
             // get the file ids from junction table
-            var getFileIdsResult = await _collaboratorFileJunctionDataAccess.SelectFiles(collabId).ConfigureAwait(false);
+            var getFileIdsResult = await _collaboratorFileJunctionDataAccess.SelectFileIdsFromCollabId(collabId).ConfigureAwait(false);
             if (!getFileIdsResult.IsSuccessful)
             {
                 return new(Result.Failure(string.Format("Failed to get collaborator {0} files ", collabId) +
@@ -530,33 +541,45 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
             var getFileUrlsResult = await _collaboratorFileDataAccess.SelectFileUrls(getFileIdsResult.Payload).ConfigureAwait(false);
             if (!getFileUrlsResult.IsSuccessful)
             {
-                return new(Result.Failure(string.Format("Failed to get collaborator {0} file urls ", collabId) +
+                return new(Result.Failure(string.Format("Failed to get collaborator file urls ", collabId) +
                     getFileIdsResult.ErrorMessage, StatusCodes.Status500InternalServerError));
             }
             if (getFileUrlsResult.Payload == null)
             {
-                return new(Result.Failure(string.Format("Failed to find collaborator {0} file urls ", collabId) +
+                return new(Result.Failure(string.Format("Failed to find collaborator file urls ", collabId) +
                     getFileIdsResult.ErrorMessage, StatusCodes.Status404NotFound));
             }
 
             // add file urls to collaborator object then validate
             getCollabResult.Payload.CollabUrls = getFileUrlsResult.Payload;
             var validationResult = _validationService.ValidateCollaborator(getCollabResult.Payload);
+
+            // if validation fails, check if the request came from owner
             if (!validationResult.IsSuccessful)
             {
-                return new(Result.Failure("Collaborator found not properly formatted. " + validationResult.ErrorMessage,
-                    StatusCodes.Status500InternalServerError));
-            }
+                var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
+                string accountIDStr = principal.FindFirstValue("sub");
+                int.TryParse(accountIDStr, out int accountIdInt);
+                var ownerIdResult = await GetOwnerId(collabId).ConfigureAwait(false);
 
+                // if its not able to verify owner don't return
+                if (!ownerIdResult.IsSuccessful)
+                {
+                    return new(Result.Failure("Collaborator found not properly formatted. " + validationResult.ErrorMessage,
+                    StatusCodes.Status500InternalServerError));
+                }
+                // if it's not the owner dont return
+                else if (ownerIdResult.Payload != accountIdInt)
+                {
+                    return new(Result.Failure("Collaborator is not properly formatted.", StatusCodes.Status401Unauthorized));
+                }
+                return getCollabResult;
+            }
             return getCollabResult;
         }
 
         public async Task<Result<int>> GetOwnerId(int collabId)
         {
-            if(collabId < 0)
-            {
-                return new(Result.Failure("Invalid collaborator id.", StatusCodes.Status412PreconditionFailed));
-            }
             var accountIdResult = await _collaboratorDataAccess.GetOwnerId(collabId).ConfigureAwait(false);
             if (!accountIdResult.IsSuccessful)
             {
@@ -570,6 +593,16 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
             if (collabId < 0)
             {
                 return new(Result.Failure("Invalid collaborator id.", StatusCodes.Status412PreconditionFailed));
+            }
+            var getCollaboratorResult = await GetCollaborator(collabId).ConfigureAwait(false);
+            if (!getCollaboratorResult.IsSuccessful || getCollaboratorResult.Payload == null)
+            {
+                return new(Result.Failure("Unable to find collaborator to change visibility. " + getCollaboratorResult.ErrorMessage, StatusCodes.Status412PreconditionFailed));
+            }
+            var validateCollaboratorResult = _validationService.ValidateCollaborator(getCollaboratorResult.Payload);
+            if (!validateCollaboratorResult.IsSuccessful)
+            {
+                return new(Result.Failure("Cannot change invalid collaborator format's visibility. " + getCollaboratorResult.ErrorMessage, StatusCodes.Status412PreconditionFailed));
             }
             // change the published status of the collab
             var changeVisibilityResult = await _collaboratorDataAccess.SetPublished(collabId, isPublic).ConfigureAwait(false);
@@ -626,19 +659,93 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
             return vote;
         }
 
-        private async Task<Result> RemoveFileFromServer(int accountId, int fileID)
+        public async Task<Result<string[]>> GetFileUrls(int collabId)
         {
-            // this will be used to log files removed from server if they fail
-            var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
-            string accountIDStr = principal.FindFirstValue("sub");
-            int.TryParse(accountIDStr, out int accountIdInt);
-            //var deleteFile = await CollaboratorFileUploadManager.Delete(file).ConfigureAwait(false);
-            //if(deleteFile == null || !deleteFile.IsSuccessful)
-            //{
-                //Result logRes = _loggerService.Log(Models.LogLevel.ERROR, Category.SERVER, $"Unable to remove uploaded" +
-                //    $" files. Account id: {accountIdInt} File id: {fileId}", null);
-            //}
+            var getPublishedResult = await _collaboratorDataAccess.GetPublished(collabId).ConfigureAwait(false);
+            if (!getPublishedResult.IsSuccessful)
+            {
+                return new(Result.Failure("Cannot determine visibility of collaborator.", StatusCodes.Status500InternalServerError));
+            }
+            // if the published status is false, do not return any files
+            if(!getPublishedResult.Payload)
+            {
+                return new Result<String[]>()
+                {
+                    IsSuccessful = true,
+                    Payload = new string[0]                
+                };
+            }
+            
+            var getFilesResult = await _collaboratorFileJunctionDataAccess.SelectFileUrlsFromCollabId(collabId).ConfigureAwait(false);
+            if(!getFilesResult.IsSuccessful)
+            {
+                return new(Result.Failure("Could not retrieve file urls from collaborator.", StatusCodes.Status500InternalServerError));
+            }
+            string[] fileUrls = getFilesResult.Payload!.ToArray();
+
+            return new Result<string[]> { 
+                IsSuccessful = true,
+                Payload = fileUrls 
+            };
+        }
+
+        public async Task<Result<int>> CountFilesWithoutPfp(int accountId)
+        {
+            var getFilesResult = await _collaboratorFileJunctionDataAccess.SelectFileUrlsFromOwnerId(accountId).ConfigureAwait(false);
+            if (!getFilesResult.IsSuccessful)
+            {
+                return new(Result.Failure("Could not retrieve count of files from Owner. ", StatusCodes.Status500InternalServerError));
+            }
+            int count = getFilesResult.Payload!.Count();
+            return new Result<int>
+            {
+                IsSuccessful = true,
+                Payload = count
+            };
+        }
+
+        private async Task<Result> RemoveFileFromServer(int accountId, int fileId)
+        {
+            Result result = new Result();
+            string accountIdStr = accountId.ToString();
+            string dirPath = _dirPath + $"/{accountIdStr}";
+            var fileExtensionResult = await _collaboratorFileDataAccess.SelectFileExtension(fileId).ConfigureAwait(false);
+            if (!fileExtensionResult.IsSuccessful)
+            {
+                return new(Result.Failure("Unable to find extension for file to be removed. " + fileExtensionResult.ErrorMessage));
+            }
+            var deleteResult = await _fileService.DeleteFile(dirPath + "/" + fileId + fileExtensionResult.Payload);
+            if (!deleteResult.IsSuccessful)
+            {
+                result.ErrorMessage = deleteResult.ErrorMessage;
+            }
+            Thread.Sleep(100);
             return new Result() { IsSuccessful = true };
+        }
+
+        private async Task<Result> UploadFileToServer(int accountId, int fileId, IFormFile file)
+        {
+            Result result = new Result();
+            string accountIdStr = accountId.ToString();
+            // build personal directory path
+            string dirPath = _dirPath + $"/{accountIdStr}";
+            var createDirResult = await _fileService.CreateDir(dirPath);
+            if (!createDirResult.IsSuccessful)
+            {
+                result.ErrorMessage = createDirResult.ErrorMessage;
+            }
+            Thread.Sleep(100);
+            // upload file with fileId as name
+            string fileExtension = Path.GetExtension(file.FileName);
+            
+            var uploadResult = await _fileService.UploadIFormFile(dirPath, fileId + fileExtension, file).ConfigureAwait(false);
+            if (!uploadResult.IsSuccessful)
+            {
+                result.ErrorMessage = uploadResult.ErrorMessage;
+            }
+            Thread.Sleep(100);
+            result.IsSuccessful = true;
+            return result;
         }
     }
 }
