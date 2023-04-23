@@ -408,7 +408,47 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
 
         }
         [TestMethod]
-        public async Task ReserveBooking_InvalidTimeFrames_Failed() 
+        public async Task ReserveBooking_InvalidTimeFramesInput_Failed()
+        {
+            // Arrange
+            //  - Setup user and initial state
+            var credentialEmail = "test@gmail.com";
+            var credentialPassword = "12345678";
+            await _registrationManager.Register(credentialEmail, credentialPassword).ConfigureAwait(false);
+            var userIdResult = await _userAccountDataAccess.GetId(credentialEmail).ConfigureAwait(false);
+            var userId = userIdResult.Payload;
+
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(userId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(userId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+            //  - Setup test data
+            var testData = await SetUpTestData().ConfigureAwait(false);
+            int listingId = (int)testData["ListingId"];
+            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
+            float fullPrice = 100;
+            List<BookedTimeFrame> chosenTimeFrames = new()
+            {
+                new BookedTimeFrame()
+                {
+                    ListingId = listingId,
+                    AvailabilityId = availabilityId,
+                    StartDateTime = DateTime.Today.AddDays(2).AddHours(9),
+                    EndDateTime = DateTime.Today.AddDays(3).AddHours(11)
+                },
+            };
+            //Act
+            var actual = await _schedulingManager.ReserveBooking(userId, listingId, fullPrice, chosenTimeFrames).ConfigureAwait(false);
+
+            //Assert
+            Assert.IsNotNull(actual);
+            Assert.IsFalse(actual.IsSuccessful);
+        }
+
+            [TestMethod]
+        public async Task ReserveBooking_ChosenTimeFramesAlreadyBooked_Failed() 
         {
             // Arrange
             //  - Setup user and initial state

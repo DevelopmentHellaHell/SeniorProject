@@ -11,7 +11,7 @@ namespace DevelopmentHell.Hubba.Models
         public int BookingId { get; set; }
         public int UserId { get; set; }
         public int ListingId { get; set; }
-        public float FullPrice { get; set; }
+        public double FullPrice { get; set; }
         public BookingStatus? BookingStatusId { get; set; }
         public DateTime CreationDate { get; set; }
         public int LastEditUser { get; set; }

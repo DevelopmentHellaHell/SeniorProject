@@ -83,7 +83,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 Title = (string)payload.First()["Title"],
                 Description = payload.First()["Description"] == DBNull.Value ? null : (string)payload.First()["Description"],
                 Location = payload.First()["Location"] == DBNull.Value ? null : (string)payload.First()["Location"],
-                Price = payload.First()["Price"] == DBNull.Value ? null : (double?)payload.First()["Price"],
+                Price = payload.First()["Price"] == DBNull.Value ? null : (decimal?)payload.First()["Price"],
                 LastEdited = (DateTime)payload.First()["LastEdited"],
                 Published = (bool)payload.First()["Published"]
             };

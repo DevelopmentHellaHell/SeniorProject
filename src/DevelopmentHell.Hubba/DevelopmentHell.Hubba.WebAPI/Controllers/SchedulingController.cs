@@ -1,4 +1,5 @@
-﻿using DevelopmentHell.Hubba.Scheduling.Manager;
+﻿using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.Scheduling.Manager;
 using DevelopmentHell.Hubba.WebAPI.DTO.Scheduling;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,12 +46,22 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
-                
+                List<BookedTimeFrame> chosenTimeFrames = new();
+                foreach( var item in reserveDTO.ChosenTimeFrames)
+                {
+                    chosenTimeFrames.Add(new BookedTimeFrame()
+                    {
+                        ListingId = reserveDTO.ListingId,
+                        AvailabilityId = item.AvailabilityId,
+                        StartDateTime = DateTime.Parse(item.StartDateTime),
+                        EndDateTime = DateTime.Parse(item.EndDateTime)
+                    });
+                }
                 var result = await _schedulingManager.ReserveBooking(
                     reserveDTO.UserId,
                     reserveDTO.ListingId,
                     reserveDTO.FullPrice,
-                    reserveDTO.ChosenTimeFrames).ConfigureAwait(false);
+                    chosenTimeFrames).ConfigureAwait(false);
                 if (!result.IsSuccessful)
                 {
                     return StatusCode(result.StatusCode, result.ErrorMessage);

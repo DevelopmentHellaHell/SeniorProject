@@ -134,7 +134,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
             {
                 return new(Result.Failure(notifyUsers.ErrorMessage, notifyUsers.StatusCode));
             }
-            return new(Result.Success());
+            return Result<bool>.Success(true);
         }
 
         public async Task<Result<List<ListingAvailabilityDTO>>> FindListingAvailabiityByMonth(int listingId, int month, int year)
@@ -150,6 +150,11 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
 
         public async Task<Result<BookingViewDTO>> ReserveBooking(int userId, int listingId, float fullPrice, List<BookedTimeFrame> chosenTimeframes, BookingStatus bookingStatus = BookingStatus.CONFIRMED)
         {
+            // Time frame can't be null
+            if (chosenTimeframes == null)
+            {
+                return new(Result.Failure("Time Frames can't be empty.", StatusCodes.Status400BadRequest));
+            }
             // Authorize user 
             var authzUser = AuthorizeUser(userId);
             if(!authzUser.IsSuccessful)
@@ -161,18 +166,24 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager
             var getListingDetails = await _availabilityService.GetListingDetails(listingId).ConfigureAwait(false);
             if (!getListingDetails.IsSuccessful || getListingDetails.Payload == null)
             {
-                return new(Result.Failure("No listing found.", StatusCodes.Status400BadRequest));
+                return new(Result.Failure(getListingDetails.ErrorMessage, getListingDetails.StatusCode));
             }
+
             int ownerId = (int) getListingDetails.Payload.OwnerId;
             if(userId == ownerId)
             {
                 return new (Result.Failure("Owner can't book their own listing", StatusCodes.Status400BadRequest));
             }
-
-            // Check timeframes have not already booked
-            // check each chosen time frame against the BookedTimeFrames table
+            
+            // Check if timeframes are valid
             foreach (var timeframe in chosenTimeframes)
             {
+                // each pair of Start and End Time must be on the same date
+                if(timeframe.StartDateTime.Date != timeframe.EndDateTime.Date)
+                {
+                    return new(Result.Failure("Invalid chosen time frame. Start and End time must be on the same date", StatusCodes.Status400BadRequest));
+                }
+                // check each chosen time frame against the BookedTimeFrames table
                 var isOpentoBook = await _availabilityService.ValidateChosenTimeFrames(timeframe).ConfigureAwait(false);
                 if (!isOpentoBook.IsSuccessful) //timeframe already booked
                 {

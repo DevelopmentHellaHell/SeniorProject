@@ -53,7 +53,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             if (!insertResult.IsSuccessful) 
             {
-                return new(Result.Failure(insertResult.ErrorMessage));
+                return new(Result.Failure(insertResult.ErrorMessage!));
             }
             return new (Result<bool>.Success());
         }
@@ -92,27 +92,26 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             {
                 return new (Result.Failure(selectResult.ErrorMessage));
             }
-            if (selectResult.Payload.Count == 0)
-            {
-                return new(Result.Failure("No booked time frame found", StatusCodes.Status404NotFound));
-            }
             List<BookedTimeFrame> resultList = new();
-            foreach (var row in selectResult.Payload)
+            if (selectResult.Payload.Count > 0)
             {
-                int bookingId = (int)row[nameof(BookedTimeFrame.BookingId)];
-                int listingId = (int)row[nameof(BookedTimeFrame.ListingId)];
-                int availabilityId = (int)row[nameof(BookedTimeFrame.AvailabilityId)];
-                DateTime startDateTime = (DateTime) row[nameof(BookedTimeFrame.StartDateTime)];
-                DateTime endDateTime = (DateTime)row[nameof(BookedTimeFrame.EndDateTime)];
-
-                resultList.Add( new BookedTimeFrame() 
+                foreach (var row in selectResult.Payload)
                 {
-                    BookingId = bookingId,
-                    ListingId = listingId,
-                    AvailabilityId = availabilityId,
-                    StartDateTime = startDateTime,
-                    EndDateTime = endDateTime
-                });
+                    int bookingId = (int)row[nameof(BookedTimeFrame.BookingId)];
+                    int listingId = (int)row[nameof(BookedTimeFrame.ListingId)];
+                    int availabilityId = (int)row[nameof(BookedTimeFrame.AvailabilityId)];
+                    DateTime startDateTime = (DateTime)row[nameof(BookedTimeFrame.StartDateTime)];
+                    DateTime endDateTime = (DateTime)row[nameof(BookedTimeFrame.EndDateTime)];
+
+                    resultList.Add(new BookedTimeFrame()
+                    {
+                        BookingId = bookingId,
+                        ListingId = listingId,
+                        AvailabilityId = availabilityId,
+                        StartDateTime = startDateTime,
+                        EndDateTime = endDateTime
+                    });
+                }
             }
             return Result<List<BookedTimeFrame>>.Success(resultList);
         }
