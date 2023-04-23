@@ -24,6 +24,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
     public class ProjectShowcaseDataAccessUnitTests
     {
         private string _usersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
+        private string _showcaseConnectionString = ConfigurationManager.AppSettings["ProjectShowcasesConnectionString"]!;
         private string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
         private string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
         private string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
@@ -34,6 +35,9 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
         private readonly string _showcaseCommentVotesTable = ConfigurationManager.AppSettings["ShowcaseCommentVotesTable"]!;
         private readonly string _showcaseReportsTable = ConfigurationManager.AppSettings["ShowcaseReportsTable"]!;
         private readonly string _showcaseCommentReportsTable = ConfigurationManager.AppSettings["ShowcaseCommentReportsTable"]!;
+
+        private readonly string _showcaseDatabaseName = ConfigurationManager.AppSettings["ProjectShowcasesDatabaseName"]!;
+        private readonly string _usersDatabaseName = ConfigurationManager.AppSettings["UsersDatabaseName"]!;
 
         private readonly IUserAccountDataAccess _userAccountDataAccess;
         private readonly IRegistrationService _registrationService;
@@ -60,7 +64,9 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
                 new TestsDataAccess()
             );
             _projectShowcaseDataAccess = new ProjectShowcaseDataAccess(
-                _usersConnectionString,
+                _showcaseConnectionString,
+                _showcaseDatabaseName,
+                _usersDatabaseName,
                 _showcasesTable,
                 _showcaseCommentsTable,
                 _showcaseVotesTable,
@@ -540,19 +546,21 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
         [TestMethod]
         public async Task GetDetailsSuccess()
         {
-            string credentialEmail = "test@gmail.com";
+            DateTime time = DateTime.UtcNow;
+            string credentialEmail = $"test{time.Millisecond}@gmail.com";
             string credentialPassword = "12345678";
 
-            string showcaseId = "showcaseId";
+            string showcaseId = $"{time.Millisecond}showcaseId";
             int? listingId = null;
             string title = "Test Title";
             string description = "Test Description";
-            DateTime time = DateTime.UtcNow;
 
             bool isPublished = true;
 
-            await _registrationService.RegisterAccount(credentialEmail, credentialPassword).ConfigureAwait(false);
+            var regResult = await _registrationService.RegisterAccount(credentialEmail, credentialPassword).ConfigureAwait(false);
+            Assert.IsTrue(regResult.IsSuccessful, regResult.ErrorMessage);
             var userIdResult = await _userAccountDataAccess.GetId(credentialEmail).ConfigureAwait(false);
+            Assert.IsTrue(userIdResult.IsSuccessful);
 
             var accountId = userIdResult.Payload;
 
@@ -564,10 +572,10 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
                 description,
                 time
             ).ConfigureAwait(false);
-            Assert.IsTrue(insertResult.IsSuccessful);
+            Assert.IsTrue(insertResult.IsSuccessful, insertResult.ErrorMessage);
 
             var getResult = await _projectShowcaseDataAccess.GetDetails(showcaseId);
-            Assert.IsTrue(getResult.IsSuccessful);
+            Assert.IsTrue(getResult.IsSuccessful,getResult.ErrorMessage);
 
             Assert.IsTrue((string)getResult.Payload![$"{_showcasesTable}.Id"] == showcaseId);
             Assert.IsTrue((string)getResult.Payload!["Email"] == credentialEmail);

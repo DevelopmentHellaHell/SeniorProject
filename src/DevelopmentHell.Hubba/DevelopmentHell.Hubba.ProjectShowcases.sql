@@ -4,16 +4,16 @@ GO
 alter database [DevelopmentHell.Hubba.ProjectShowcases] set single_user with rollback immediate
 DROP DATABASE [DevelopmentHell.Hubba.ProjectShowcases]
 GO
+
 USE [master]
 GO
-
-/****** Object:  Database [DevelopmentHell.Hubba.ProjectShowcases]    Script Date: 4/19/2023 11:22:13 PM ******/
 CREATE DATABASE [DevelopmentHell.Hubba.ProjectShowcases]
  CONTAINMENT = NONE
  ON  PRIMARY 
 ( NAME = N'DevelopmentHell.Hubba.ProjectShowcases', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\DATA\DevelopmentHell.Hubba.ProjectShowcases.mdf' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB )
  LOG ON 
 ( NAME = N'DevelopmentHell.Hubba.ProjectShowcases_log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\DATA\DevelopmentHell.Hubba.ProjectShowcases_log.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )
+ COLLATE SQL_Latin1_General_CP1_CI_AS
  WITH CATALOG_COLLATION = DATABASE_DEFAULT, LEDGER = OFF
 GO
 ALTER DATABASE [DevelopmentHell.Hubba.ProjectShowcases] SET COMPATIBILITY_LEVEL = 160
@@ -89,77 +89,49 @@ ALTER DATABASE [DevelopmentHell.Hubba.ProjectShowcases] SET QUERY_STORE = ON
 GO
 ALTER DATABASE [DevelopmentHell.Hubba.ProjectShowcases] SET QUERY_STORE (OPERATION_MODE = READ_WRITE, CLEANUP_POLICY = (STALE_QUERY_THRESHOLD_DAYS = 30), DATA_FLUSH_INTERVAL_SECONDS = 900, INTERVAL_LENGTH_MINUTES = 60, MAX_STORAGE_SIZE_MB = 1000, QUERY_CAPTURE_MODE = AUTO, SIZE_BASED_CLEANUP_MODE = AUTO, MAX_PLANS_PER_QUERY = 200, WAIT_STATS_CAPTURE_MODE = ON)
 GO
-/****** Object:  Login [NT SERVICE\Winmgmt]    Script Date: 4/19/2023 11:22:13 PM ******/
 CREATE LOGIN [NT SERVICE\Winmgmt] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
-/****** Object:  Login [NT SERVICE\SQLWriter]    Script Date: 4/19/2023 11:22:13 PM ******/
 CREATE LOGIN [NT SERVICE\SQLWriter] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
-/****** Object:  Login [NT SERVICE\SQLTELEMETRY$SQLEXPRESS]    Script Date: 4/19/2023 11:22:13 PM ******/
 CREATE LOGIN [NT SERVICE\SQLTELEMETRY$SQLEXPRESS] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
-/****** Object:  Login [NT SERVICE\SQLTELEMETRY]    Script Date: 4/19/2023 11:22:13 PM ******/
 CREATE LOGIN [NT SERVICE\SQLTELEMETRY] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
-/****** Object:  Login [NT SERVICE\SQLSERVERAGENT]    Script Date: 4/19/2023 11:22:13 PM ******/
 CREATE LOGIN [NT SERVICE\SQLSERVERAGENT] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
-/****** Object:  Login [NT Service\MSSQLSERVER]    Script Date: 4/19/2023 11:22:13 PM ******/
 CREATE LOGIN [NT Service\MSSQLSERVER] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
-/****** Object:  Login [NT Service\MSSQL$SQLEXPRESS]    Script Date: 4/19/2023 11:22:13 PM ******/
 CREATE LOGIN [NT Service\MSSQL$SQLEXPRESS] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
-/****** Object:  Login [NT AUTHORITY\SYSTEM]    Script Date: 4/19/2023 11:22:13 PM ******/
 CREATE LOGIN [NT AUTHORITY\SYSTEM] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
-/****** Object:  Login [GMAIN\tsuma]    Script Date: 4/19/2023 11:22:13 PM ******/
 CREATE LOGIN [GMAIN\tsuma] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.User]    Script Date: 4/19/2023 11:22:13 PM ******/
-CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.User] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
-GO
-ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.User] ENABLE
+CREATE LOGIN [distributor_admin] WITH PASSWORD=N'ivSEtnTjBR4wc5nKNpVKv2VK68A/nPv7+IqIoo3POYU=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.ProjectShowcase]    Script Date: 4/19/2023 11:22:13 PM ******/
-CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.ProjectShowcase] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
-GO
-ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.ProjectShowcase] ENABLE
+CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.User] WITH PASSWORD=N'DghDlOCavr/USZOiWuWNcTWe7GPk8laQdJ0CXR+0T5U=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.Notification]    Script Date: 4/19/2023 11:22:13 PM ******/
-CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.Notification] WITH PASSWORD=N'password', DEFAULT_DATABASE=[DevelopmentHell.Hubba.Notifications], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
-GO
-ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.Notification] ENABLE
+CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.ProjectShowcase] WITH PASSWORD=N'xXis+dQ/pPePs0y+iwfZPK5++sB4eLnjfD/I6dqoaps=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.Logging]    Script Date: 4/19/2023 11:22:13 PM ******/
-CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
-GO
-ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] ENABLE
+CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.Notification] WITH PASSWORD=N'dhF3BP2vEKdnkaxi6ZBVVvfHvb0HbhXNGe1oDxAD6Ss=', DEFAULT_DATABASE=[DevelopmentHell.Hubba.Notifications], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.ListingProfile]    Script Date: 4/19/2023 11:22:13 PM ******/
-CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.ListingProfile] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
+CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] WITH PASSWORD=N'M6g+dGncCSp9/3IbhrkzojzgYH92NPf0pFjjpbBVqgY=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
 GO
-ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.ListingProfile] ENABLE
+/* For security reasons the login is created disabled and with a random password. */
+CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.ListingProfile] WITH PASSWORD=N'hjvNj9LhpL7PzyyHZxj2MN6WXqf7pFIgTCw9EgEure4=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
 GO
-/****** Object:  Login [BUILTIN\Users]    Script Date: 4/19/2023 11:22:13 PM ******/
 CREATE LOGIN [BUILTIN\Users] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [##MS_PolicyTsqlExecutionLogin##]    Script Date: 4/19/2023 11:22:13 PM ******/
-CREATE LOGIN [##MS_PolicyTsqlExecutionLogin##] WITH PASSWORD=N'/VgTVtQ+Dr6FnSMJBPyt0swQYHFG79IhMufBJRC54kk=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
-GO
-ALTER LOGIN [##MS_PolicyTsqlExecutionLogin##] DISABLE
+CREATE LOGIN [##MS_PolicyTsqlExecutionLogin##] WITH PASSWORD=N'q7s0+K3YRt9rQqfIciAoET+SahlsHALyvVh8eXxOBC8=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [##MS_PolicyEventProcessingLogin##]    Script Date: 4/19/2023 11:22:13 PM ******/
-CREATE LOGIN [##MS_PolicyEventProcessingLogin##] WITH PASSWORD=N'v6oSChtkmfb6FXQuO/KF12RWfSeCk5436eNnRq4aEWc=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
-GO
-ALTER LOGIN [##MS_PolicyEventProcessingLogin##] DISABLE
+CREATE LOGIN [##MS_PolicyEventProcessingLogin##] WITH PASSWORD=N'AkxT7y8UVCLGN/VHg88eScuaFSUr4ckzzdKMhxUnyL8=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
 GO
 ALTER AUTHORIZATION ON DATABASE::[DevelopmentHell.Hubba.ProjectShowcases] TO [GMAIN\tsuma]
 GO
@@ -175,9 +147,10 @@ ALTER SERVER ROLE [sysadmin] ADD MEMBER [NT Service\MSSQL$SQLEXPRESS]
 GO
 ALTER SERVER ROLE [sysadmin] ADD MEMBER [GMAIN\tsuma]
 GO
+ALTER SERVER ROLE [sysadmin] ADD MEMBER [distributor_admin]
+GO
 USE [DevelopmentHell.Hubba.ProjectShowcases]
 GO
-/****** Object:  User [DevelopmentHell.Hubba.SqlUser.ProjectShowcase]    Script Date: 4/19/2023 11:22:13 PM ******/
 CREATE USER [DevelopmentHell.Hubba.SqlUser.ProjectShowcase] FOR LOGIN [DevelopmentHell.Hubba.SqlUser.ProjectShowcase] WITH DEFAULT_SCHEMA=[dbo]
 GO
 ALTER ROLE [db_datareader] ADD MEMBER [DevelopmentHell.Hubba.SqlUser.ProjectShowcase]
@@ -190,21 +163,94 @@ GRANT VIEW ANY COLUMN ENCRYPTION KEY DEFINITION TO [public] AS [dbo]
 GO
 GRANT VIEW ANY COLUMN MASTER KEY DEFINITION TO [public] AS [dbo]
 GO
-/****** Object:  FullTextCatalog [ShowcasesCatalog]    Script Date: 4/19/2023 11:22:14 PM ******/
 CREATE FULLTEXT CATALOG [ShowcasesCatalog] WITH ACCENT_SENSITIVITY = ON
 AUTHORIZATION [dbo]
 GO
-/****** Object:  Table [dbo].[Showcases]    Script Date: 4/19/2023 11:22:14 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ShowcaseCommentReports](
+	[CommentId] [bigint] NOT NULL,
+	[ReporterId] [int] NOT NULL,
+	[Timestamp] [datetime] NOT NULL,
+	[IsResolved] [bit] NOT NULL,
+	[Reason] [nvarchar](250) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL
+) ON [PRIMARY]
+GO
+ALTER AUTHORIZATION ON [dbo].[ShowcaseCommentReports] TO  SCHEMA OWNER 
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ShowcaseComments](
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
+	[CommenterId] [int] NOT NULL,
+	[ShowcaseId] [nvarchar](30) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	[Timestamp] [datetime] NOT NULL,
+	[Text] [nvarchar](250) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	[Rating] [float] NOT NULL,
+	[EditTimestamp] [datetime] NULL,
+ CONSTRAINT [PK_ShowcaseComments] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+ CONSTRAINT [UK_ShowcaseComments] UNIQUE NONCLUSTERED 
+(
+	[CommenterId] ASC,
+	[Timestamp] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER AUTHORIZATION ON [dbo].[ShowcaseComments] TO  SCHEMA OWNER 
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ShowcaseCommentVotes](
+	[VoterId] [int] NOT NULL,
+	[CommentId] [bigint] NOT NULL,
+	[IsUpvote] [bit] NOT NULL,
+ CONSTRAINT [PK_ShowcaseCommentVotes] PRIMARY KEY CLUSTERED 
+(
+	[VoterId] ASC,
+	[CommentId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER AUTHORIZATION ON [dbo].[ShowcaseCommentVotes] TO  SCHEMA OWNER 
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ShowcaseReports](
+	[ShowcaseId] [nvarchar](30) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	[ReporterId] [int] NOT NULL,
+	[Timestamp] [datetime] NOT NULL,
+	[IsResolved] [bit] NOT NULL,
+	[Reason] [nvarchar](250) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+ CONSTRAINT [PK_ShowcaseReports] PRIMARY KEY CLUSTERED 
+(
+	[ShowcaseId] ASC,
+	[ReporterId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER AUTHORIZATION ON [dbo].[ShowcaseReports] TO  SCHEMA OWNER 
+GO
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[Showcases](
-	[Id] [nvarchar](30) NOT NULL,
+	[Id] [nvarchar](30) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 	[ShowcaseUserId] [int] NOT NULL,
 	[ListingId] [int] NULL,
-	[Title] [nvarchar](50) NOT NULL,
-	[Description] [nvarchar](3000) NOT NULL,
+	[Title] [nvarchar](50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	[Description] [nvarchar](3000) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 	[IsPublished] [bit] NOT NULL,
 	[Rating] [float] NOT NULL,
 	[PublishTimestamp] [datetime] NULL,
@@ -217,19 +263,56 @@ CREATE TABLE [dbo].[Showcases](
 GO
 ALTER AUTHORIZATION ON [dbo].[Showcases] TO  SCHEMA OWNER 
 GO
-/****** Object:  FullTextIndex     Script Date: 4/19/2023 11:22:14 PM ******/
-CREATE FULLTEXT INDEX ON [dbo].[Showcases](
-[Description] LANGUAGE 'English', 
-[Title] LANGUAGE 'English')
-KEY INDEX [PK_Showcases]ON ([ShowcasesCatalog], FILEGROUP [PRIMARY])
-WITH (CHANGE_TRACKING = AUTO, STOPLIST = SYSTEM)
-
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ShowcaseVotes](
+	[UserAccountId] [int] NOT NULL,
+	[ShowcaseId] [nvarchar](30) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+ CONSTRAINT [PK_ShowcaseVotes] PRIMARY KEY CLUSTERED 
+(
+	[UserAccountId] ASC,
+	[ShowcaseId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER AUTHORIZATION ON [dbo].[ShowcaseVotes] TO  SCHEMA OWNER 
 GO
 ALTER TABLE [dbo].[Showcases] ADD  CONSTRAINT [DF_Showcases_IsPublished]  DEFAULT ((0)) FOR [IsPublished]
 GO
 ALTER TABLE [dbo].[Showcases] ADD  CONSTRAINT [DF_Showcases_Rating]  DEFAULT ((0)) FOR [Rating]
 GO
-/****** Object:  StoredProcedure [dbo].[CurateShowcases]    Script Date: 4/19/2023 11:22:14 PM ******/
+ALTER TABLE [dbo].[ShowcaseCommentReports]  WITH CHECK ADD  CONSTRAINT [FK_ShowcaseCommentReports_ShowcaseComments] FOREIGN KEY([CommentId])
+REFERENCES [dbo].[ShowcaseComments] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[ShowcaseCommentReports] CHECK CONSTRAINT [FK_ShowcaseCommentReports_ShowcaseComments]
+GO
+ALTER TABLE [dbo].[ShowcaseComments]  WITH CHECK ADD  CONSTRAINT [FK_ShowcaseComments_Showcases] FOREIGN KEY([ShowcaseId])
+REFERENCES [dbo].[Showcases] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[ShowcaseComments] CHECK CONSTRAINT [FK_ShowcaseComments_Showcases]
+GO
+ALTER TABLE [dbo].[ShowcaseCommentVotes]  WITH CHECK ADD  CONSTRAINT [FK_ShowcaseCommentVotes_ShowcaseComments] FOREIGN KEY([CommentId])
+REFERENCES [dbo].[ShowcaseComments] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[ShowcaseCommentVotes] CHECK CONSTRAINT [FK_ShowcaseCommentVotes_ShowcaseComments]
+GO
+ALTER TABLE [dbo].[ShowcaseReports]  WITH CHECK ADD  CONSTRAINT [FK_ShowcaseReports_Showcases] FOREIGN KEY([ShowcaseId])
+REFERENCES [dbo].[Showcases] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[ShowcaseReports] CHECK CONSTRAINT [FK_ShowcaseReports_Showcases]
+GO
+ALTER TABLE [dbo].[ShowcaseVotes]  WITH CHECK ADD  CONSTRAINT [FK_ShowcaseVotes_Showcases] FOREIGN KEY([ShowcaseId])
+REFERENCES [dbo].[Showcases] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[ShowcaseVotes] CHECK CONSTRAINT [FK_ShowcaseVotes_Showcases]
+GO
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -248,7 +331,6 @@ ALTER AUTHORIZATION ON [dbo].[CurateShowcases] TO  SCHEMA OWNER
 GO
 GRANT EXECUTE ON [dbo].[CurateShowcases] TO [DevelopmentHell.Hubba.SqlUser.ProjectShowcase] AS [dbo]
 GO
-/****** Object:  StoredProcedure [dbo].[SearchShowcases]    Script Date: 4/19/2023 11:22:14 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON

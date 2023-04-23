@@ -21,6 +21,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         private readonly string _userAccountsTableName;
 
+        private readonly string _usersDatabaseName;
+        private readonly string _projectShowcaseDatabaseName;
+
         private readonly InsertDataAccess _insertDataAccess;
         private readonly UpdateDataAccess _updateDataAccess;
         private readonly SelectDataAccess _selectDataAccess;
@@ -28,7 +31,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
 
         public ProjectShowcaseDataAccess(
-            string connectionString, 
+            string connectionString,
+            string showcaseDatabaseName,
+            string userDatabaseName,
             string showcaseTableName,
             string commentTableName,
             string showcaseLikeTableName,
@@ -45,6 +50,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             _commentReportTableName = commentReportTableName;
 
             _userAccountsTableName = userAccountsTableName;
+
+            _usersDatabaseName = userDatabaseName;
+            _projectShowcaseDatabaseName = showcaseDatabaseName;
 
 
             _insertDataAccess = new InsertDataAccess(connectionString);
@@ -175,9 +183,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             var result = await _selectDataAccess.Select
             (
-                SQLManip.InnerJoinTables(
-                    new Joiner(_commentTableName, _userAccountsTableName, "CommenterId", "Id")
-                ),
+                SQLManip.InnerJoinTables(_projectShowcaseDatabaseName, _usersDatabaseName, _commentTableName, _userAccountsTableName, "ShowcaseUserId", "Id"),
                 new() { $"{_showcaseTableName}.Id", "Email", "CommenterId", $"{_userAccountsTableName}.Id", "ListingId", "Title", "IsPublished", "Rating" },
                 new() { new($"{_showcaseTableName}.Id", "=", commentId) }
             ).ConfigureAwait(false);
@@ -201,9 +207,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             //SELECT TOP 10 ShowcaseComments.Id, Email, Text, Rating, Timestamp<br/>FROM ShowcaseComments INNER JOIN UserAccounts<br/>ON ShowcaseComments.CommenterId=UserAccounts.Id<br/>WHERE ShowcaseId={showcaseId} ORDER BY Timestamp<br/>OFFSET {{page-1}*{commentCount}-1} ROWS
             var result = await _selectDataAccess.Select
             (
-                SQLManip.InnerJoinTables(
-                    new Joiner(_commentTableName,_userAccountsTableName,"CommenterId","Id")
-                ),
+                SQLManip.InnerJoinTables(_projectShowcaseDatabaseName, _usersDatabaseName, _commentTableName, _userAccountsTableName, "ShowcaseUserId", "Id"),
                 new() { $"{_commentTableName}.Id", "Email", "Text", "Rating", "Timestamp", "EditTimestamp" },
                 new() { new("ShowcaseId", "=", showcaseId) },
                 "",
@@ -272,9 +276,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             var result = await _selectDataAccess.Select
             (
-                SQLManip.InnerJoinTables(
-                    new Joiner(_showcaseTableName, _userAccountsTableName, "ShowcaseUserId", "Id")
-                ),
+                SQLManip.InnerJoinTables(_projectShowcaseDatabaseName, _usersDatabaseName, _showcaseTableName, _userAccountsTableName, "ShowcaseUserId", "Id"),
                 new() { $"{_showcaseTableName}.Id", "Email", "ShowcaseUserId", $"{_userAccountsTableName}.Id", "ListingId", "Title", "IsPublished", "Rating" },
                 new() { new($"{_showcaseTableName}.Id", "=", showcaseId) }
             ).ConfigureAwait(false);
@@ -297,9 +299,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             var result = await _selectDataAccess.Select
             (
-                SQLManip.InnerJoinTables(
-                    new Joiner(_showcaseTableName,_userAccountsTableName,"ShowcaseUserId","Id")
-                ),
+                SQLManip.InnerJoinTables(_projectShowcaseDatabaseName, _usersDatabaseName, _showcaseTableName, _userAccountsTableName, "ShowcaseUserId", "Id"),
                 new() { $"{_showcaseTableName}.Id", "Email", "ShowcaseUserId", $"{_userAccountsTableName}.Id", "ListingId", "Title", "Description", "IsPublished", "Rating"}, 
                 new() { new($"{_showcaseTableName}.Id","=",showcaseId) }
             ).ConfigureAwait(false);
@@ -327,9 +327,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
             var result = await _selectDataAccess.Select
             (
-                SQLManip.InnerJoinTables(
-                    new Joiner(_showcaseTableName, _userAccountsTableName, "ShowcaseUserId", "Id")
-                ),
+                SQLManip.InnerJoinTables(_projectShowcaseDatabaseName, _usersDatabaseName, _showcaseTableName, _userAccountsTableName, "ShowcaseUserId", "Id"),
                 selectList,
                 new() { new($"{_userAccountsTableName}.Id", "=", userId) }
             ).ConfigureAwait(false);
