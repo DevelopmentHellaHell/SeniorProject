@@ -303,5 +303,21 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 			return result;
 		}
 
+        public async Task<Result> UnpublishListing(int listingId)
+        {
+            var values = new Dictionary<string, object>();
+            values["Published"] = false;
+
+            Result updateResult = await _updateDataAccess.Update(
+                _tableName,
+                new List<Comparator>()
+                {
+                    new Comparator("ListingId", "=", listingId),
+                },
+                values
+            ).ConfigureAwait(false);
+
+            return updateResult;
+        }
     }
 }
