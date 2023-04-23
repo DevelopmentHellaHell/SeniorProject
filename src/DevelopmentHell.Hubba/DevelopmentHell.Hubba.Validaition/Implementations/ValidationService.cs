@@ -209,42 +209,42 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
         {
             Result result = new Result();
 
-            if (listingAvailability.StartTime.Day != listingAvailability.EndTime.Day)
+            if (Convert.ToDateTime(listingAvailability.StartTime).Day != Convert.ToDateTime(listingAvailability.EndTime).Day)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Start time and end time may not be on different days.";
                 return result;
             }
 
-            if (listingAvailability.StartTime.Minute % 30 != 0)
+            if (Convert.ToDateTime(listingAvailability.StartTime).Minute % 30 != 0)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Start time must be on the hour or half hour.";
                 return result;
             }
 
-            if (listingAvailability.EndTime.Minute % 30 != 0)
+            if (Convert.ToDateTime(listingAvailability.EndTime).Minute % 30 != 0)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "End time must be on the hour or half hour.";
                 return result;
             }
 
-            if (listingAvailability.EndTime.CompareTo(listingAvailability.StartTime) <= 0)
+            if (Convert.ToDateTime(listingAvailability.EndTime).CompareTo(Convert.ToDateTime(listingAvailability.StartTime)) <= 0)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "End time must be at least 30 mins past start time.";
                 return result;
             }
 
-            if (DateTime.Now.AddMinutes(30).CompareTo(listingAvailability.StartTime) > 0)
+            if (DateTime.Now.AddMinutes(30).CompareTo(Convert.ToDateTime(listingAvailability.StartTime)) > 0)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Start time must be more than 30 minutes of right now.";
                 return result;
             }
 
-            if (DateTime.Now.AddHours(1).CompareTo(listingAvailability.EndTime) > 0)
+            if (DateTime.Now.AddHours(1).CompareTo(Convert.ToDateTime(listingAvailability.EndTime)) > 0)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "End time must be more than 60 minutes of right now.";
@@ -316,7 +316,76 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
             return result;
         }
 
+        public Result ValidateFile(IFormFile file)
+        {
+            Result result = new Result();
 
+
+            if (!Regex.IsMatch(file.FileName, @"^[a-zA-Z0-9_.]*$"))
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "File names must consist of only letters, numbers, and underscores.";
+                return result;
+            }
+
+            if (file == null || file.Length == 0)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = $"File {file.FileName} is empty";
+                return result;
+            }
+
+            if (!file.ContentType.StartsWith("image/") && file.ContentType != "video/mp4")
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = file.FileName + " is not a valid file type.";
+                return result;
+            }
+
+            if (file.ContentType.StartsWith("image/"))
+            {
+                using (var image = System.Drawing.Image.FromStream(file.OpenReadStream()))
+                {
+                    if (image.RawFormat.Equals(System.Drawing.Imaging.ImageFormat.Jpeg) ||
+                        image.RawFormat.Equals(System.Drawing.Imaging.ImageFormat.Png))
+                    {
+                        // Check if the image size is less than or equal to 25 MB
+                        if (file.Length > 25 * 1024 * 1024)
+                        {
+                            result.IsSuccessful = false;
+                            result.ErrorMessage = file.FileName + " is too large.";
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.IsSuccessful = false;
+                        result.ErrorMessage = file.FileName + " is an invalid image file type.";
+                        return result;
+                    }
+                }
+            }
+            else if (file.ContentType == "video/mp4")
+            {
+                // Check if the video size is less than or equal to 300 MB
+                if (file.Length > 300 * 1024 * 1024)
+                {
+                    result.IsSuccessful = false;
+                    result.ErrorMessage = file.FileName + " is too large.";
+                    return result;
+                }
+            }
+            else
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = file.FileName + " is an invalid file type.";
+                return result;
+            }
+            
+
+            result.IsSuccessful = true;
+            return result;
+        }
 
     }
 }
