@@ -15,6 +15,7 @@ using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using Microsoft.Identity.Client;
 using System.Drawing.Printing;
 using DevelopmentHell.Hubba.SqlDataAccess;
+using System.Collections;
 
 namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
 {
@@ -33,18 +34,23 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             _logger = loggerService;
         }
 
-        private T MapToType<T>(Dictionary<string,string> attToSqlVarMap, Dictionary<string, object> values) where T : new()
+
+        private Dictionary<string,object> MapToAttDict(Dictionary<string,string> attToSqlVarMap, Dictionary<string,object> values)
         {
-            T outClass = new();
+            Dictionary<string, object> nextDict = new Dictionary<string, object>();
             foreach (var attToSqlVar in attToSqlVarMap)
             {
-                if (values.TryGetValue(attToSqlVar.Value, out _))
+                object? mappedVar;
+                if (values.TryGetValue(attToSqlVar.Value, out mappedVar))
                 {
-                    var prop = typeof(T).GetProperty(attToSqlVar.Key);
-                    prop!.SetValue(outClass, Convert.ChangeType(values[attToSqlVar.Value], prop!.PropertyType));
+                    nextDict[attToSqlVar.Key] = mappedVar;
+                }
+                else
+                {
+                    nextDict[attToSqlVar.Key] = null;
                 }
             }
-            return outClass;
+            return nextDict;
         }
 
         public async Task<Result> AddComment(string showcaseId, string commentText)
@@ -246,7 +252,17 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
 
                 foreach (var commentDict in getResult.Payload!)
                 {
-                    ShowcaseComment nextComment = MapToType<ShowcaseComment>(varSqlVarMap, commentDict);
+                    var valDict = MapToAttDict(varSqlVarMap, commentDict);
+                    ShowcaseComment nextComment = new();
+                    nextComment.CommenterId = valDict["CommenterId"].GetType() == typeof(DBNull) ? null : (int)valDict["CommenterId"];
+                    nextComment.ShowcaseId = valDict["ShowcaseId"].GetType() == typeof(DBNull) ? null : (string)valDict["ShowcaseId"];
+                    nextComment.Id = valDict["Id"].GetType() == typeof(DBNull) ? null : (int)valDict["Id"];
+                    nextComment.Text = valDict["Text"].GetType() == typeof(DBNull) ? null : (string)valDict["Text"];
+                    nextComment.Rating = valDict["Rating"].GetType() == typeof(DBNull) ? null : (int)valDict["Rating"];
+                    nextComment.Timestamp = valDict["Timestamp"].GetType() == typeof(DBNull) ? null : (DateTime)valDict["Timestamp"];
+                    nextComment.EditTimestamp = valDict["EditTimestamp"].GetType() == typeof(DBNull) ? null : (DateTime?)valDict["EditTimestamp"];
+
+
                     var userResult = await _userAccountDataAccess.GetUser((int)nextComment.Id!).ConfigureAwait(false);
                     if (!userResult.IsSuccessful)
                     {
@@ -305,18 +321,19 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
                     { "PublishTimestamp","PublishTimestamp" },
                     { "EditTimestamp", "EditTimestamp" }
                 };
-                foreach (var varSqlVar in varSqlVarMap)
-                {
-                    object? test = null;
-                    if (!getResult.Payload!.TryGetValue(varSqlVar.Value, out test))
-                    {
-                        // Set all of the attributes in the output var to the ones in the dict from getResult.Payload
-                        var prop = typeof(Showcase).GetProperty(varSqlVar.Key);
-                        prop!.SetValue(output, Convert.ChangeType(getResult.Payload![varSqlVar.Value], prop!.PropertyType));
-                    }
-                }
 
-                Showcase nextShowcase = MapToType<Showcase>(varSqlVarMap, getResult.Payload!);
+                var valDict = MapToAttDict(varSqlVarMap, getResult.Payload!);
+                Showcase nextShowcase = new();
+                nextShowcase.PublishTimestamp = valDict["PublishTimestamp"].GetType() == typeof(DBNull) ? null : (DateTime)valDict["PublishTimestamp"];
+                nextShowcase.IsPublished = valDict["IsPublished"].GetType() == typeof(DBNull) ? null : (bool)valDict["IsPublished"];
+                nextShowcase.EditTimestamp = valDict["EditTimestamp"].GetType() == typeof(DBNull) ? null : (DateTime)valDict["EditTimestamp"];
+                nextShowcase.Title = valDict["Title"].GetType() == typeof(DBNull) ? null : (string)valDict["Title"];
+                nextShowcase.Description = valDict["Description"].GetType() == typeof(DBNull) ? null : (string)valDict["Description"];
+                nextShowcase.ListingId = valDict["ListingId"].GetType() == typeof(DBNull) ? null : (int)valDict["ListingId"];
+                nextShowcase.Rating = valDict["Rating"].GetType() == typeof(DBNull) ? null : (double)valDict["Rating"];
+                nextShowcase.Id = valDict["Id"].GetType() == typeof(DBNull) ? null : (string)valDict["Id"];
+                nextShowcase.ShowcaseUserId = valDict["ShowcaseUserId"].GetType() == typeof(DBNull) ? null : (int)valDict["ShowcaseUserId"];
+
                 var userResult = await _userAccountDataAccess.GetUser((int)nextShowcase.ShowcaseUserId!).ConfigureAwait(false);
                 if (!userResult.IsSuccessful)
                 {
@@ -357,9 +374,20 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
                     { "EditTimestamp", "EditTimestamp" }
                 };
                 foreach (var showcaseDict in getResult.Payload!)
-                    
+
                 {
-                    Showcase nextShowcase = MapToType<Showcase>(varSqlVarMap, showcaseDict);
+                    var valDict = MapToAttDict(varSqlVarMap, showcaseDict);
+                    Showcase nextShowcase = new();
+                    nextShowcase.PublishTimestamp =  valDict["PublishTimestamp"].GetType() == typeof(DBNull) ? null : (DateTime)valDict["PublishTimestamp"];
+                    nextShowcase.IsPublished = valDict["IsPublished"].GetType() == typeof(DBNull) ? null : (bool)valDict["IsPublished"];
+                    nextShowcase.EditTimestamp = valDict["EditTimestamp"].GetType() == typeof(DBNull) ? null : (DateTime)valDict["EditTimestamp"];
+                    nextShowcase.Title = valDict["Title"].GetType() == typeof(DBNull) ? null : (string)valDict["Title"];
+                    nextShowcase.Description = valDict["Description"].GetType() == typeof(DBNull) ? null : (string)valDict["Description"];
+                    nextShowcase.ListingId = valDict["ListingId"].GetType() == typeof(DBNull) ? null : (int)valDict["ListingId"];
+                    nextShowcase.Rating = valDict["Rating"].GetType() == typeof(DBNull) ? null : (double)valDict["Rating"];
+                    nextShowcase.Id = valDict["Id"].GetType() == typeof(DBNull) ? null : (string)valDict["Id"];
+                    nextShowcase.ShowcaseUserId = valDict["ShowcaseUserId"].GetType() == typeof(DBNull) ? null : (int)valDict["ShowcaseUserId"];
+
                     var userResult = await _userAccountDataAccess.GetUser((int)nextShowcase.ShowcaseUserId!).ConfigureAwait(false);
                     if (!userResult.IsSuccessful)
                     {
@@ -377,7 +405,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             }
         }
 
-        public async Task<Result<float>> LikeShowcase(string showcaseId)
+        public async Task<Result<double>> LikeShowcase(string showcaseId)
         {
             try
             {
@@ -589,7 +617,14 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
                 };
                 foreach (var showcaseDict in getResult.Payload!)
                 {
-                    output.Add(MapToType<ShowcaseReport>(varSqlVarMap, showcaseDict));
+                    var valDict = MapToAttDict(varSqlVarMap, showcaseDict);
+                    ShowcaseReport nextReport = new();
+                    nextReport.Timestamp = valDict["Timestamp"].GetType() == typeof(DBNull) ? null : (DateTime)valDict["Timestamp"];
+                    nextReport.Reason = valDict["Reason"].GetType() == typeof(DBNull) ? null : (string)valDict["Reason"];
+                    nextReport.ShowcaseId = valDict["ShowcaseId"].GetType() == typeof(DBNull) ? null : (string)valDict["ShowcaseId"];
+                    nextReport.ReporterId = valDict["ReporterId"].GetType() == typeof(DBNull) ? null : (int)valDict["ReporterId"];
+                    nextReport.IsResolved = valDict["IsResolved"].GetType() == typeof(DBNull) ? null : (bool)valDict["IsResolved"];
+                    output.Add(nextReport);
                 }
                 return Result<List<ShowcaseReport>>.Success(output);
             }
@@ -620,7 +655,14 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
                 };
                 foreach (var showcaseDict in getResult.Payload!)
                 {
-                    output.Add(MapToType<ShowcaseReport>(varSqlVarMap, showcaseDict));
+                    var valDict = MapToAttDict(varSqlVarMap, showcaseDict);
+                    ShowcaseReport nextReport = new();
+                    nextReport.Timestamp = valDict["Timestamp"].GetType() == typeof(DBNull) ? null : (DateTime)valDict["Timestamp"];
+                    nextReport.Reason = valDict["Reason"].GetType() == typeof(DBNull) ? null : (string)valDict["Reason"];
+                    nextReport.ShowcaseId = valDict["ShowcaseId"].GetType() == typeof(DBNull) ? null : (string)valDict["ShowcaseId"];
+                    nextReport.ReporterId = valDict["ReporterId"].GetType() == typeof(DBNull) ? null : (int)valDict["ReporterId"];
+                    nextReport.IsResolved = valDict["IsResolved"].GetType() == typeof(DBNull) ? null : (bool)valDict["IsResolved"];
+                    output.Add(nextReport);
                 }
                 return Result<List<ShowcaseReport>>.Success(output);
             }
@@ -649,9 +691,16 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
                     { "ReporterId", "ReporterId" },
                     { "IsResolved", "IsResolved" }
                 };
-                foreach (var showcaseDict in getResult.Payload!)
+                foreach (var commentDict in getResult.Payload!)
                 {
-                    output.Add(MapToType<CommentReport>(varSqlVarMap, showcaseDict));
+                    var valDict = MapToAttDict(varSqlVarMap, commentDict);
+                    CommentReport nextReport = new();
+                    nextReport.Timestamp = valDict["Timestamp"].GetType() == typeof(DBNull) ? null : (DateTime)valDict["Timestamp"];
+                    nextReport.Reason = valDict["Reason"].GetType() == typeof(DBNull) ? null : (string)valDict["Reason"];
+                    nextReport.CommentId = valDict["CommentId"].GetType() == typeof(DBNull) ? null : (long)valDict["CommentId"];
+                    nextReport.ReporterId = valDict["ReporterId"].GetType() == typeof(DBNull) ? null : (int)valDict["ReporterId"];
+                    nextReport.IsResolved = valDict["IsResolved"].GetType() == typeof(DBNull) ? null : (bool)valDict["IsResolved"];
+                    output.Add(nextReport);
                 }
                 return Result<List<CommentReport>>.Success(output);
             }
@@ -680,14 +729,16 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
                     { "ReporterId", "ReporterId" },
                     { "IsResolved", "IsResolved" }
                 };
-                foreach (var showcaseDict in getResult.Payload!)
+                foreach (var commentDict in getResult.Payload!)
                 {
-                    CommentReport showcase = new();
-                    foreach (var varSqlVar in varSqlVarMap)
-                    {
-                        output.Add(MapToType<CommentReport>(varSqlVarMap, showcaseDict));
-                    }
-                    output.Add(showcase);
+                    var valDict = MapToAttDict(varSqlVarMap, commentDict);
+                    CommentReport nextReport = new();
+                    nextReport.Timestamp = valDict["Timestamp"].GetType() == typeof(DBNull) ? null : (DateTime)valDict["Timestamp"];
+                    nextReport.Reason = valDict["Reason"].GetType() == typeof(DBNull) ? null : (string)valDict["Reason"];
+                    nextReport.CommentId = valDict["CommentId"].GetType() == typeof(DBNull) ? null : (long)valDict["CommentId"];
+                    nextReport.ReporterId = valDict["ReporterId"].GetType() == typeof(DBNull) ? null : (int)valDict["ReporterId"];
+                    nextReport.IsResolved = valDict["IsResolved"].GetType() == typeof(DBNull) ? null : (bool)valDict["IsResolved"];
+                    output.Add(nextReport);
                 }
                 return Result<List<CommentReport>>.Success(output);
             }

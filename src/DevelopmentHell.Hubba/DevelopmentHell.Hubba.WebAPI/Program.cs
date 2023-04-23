@@ -301,7 +301,7 @@ builder.Services.AddTransient<IUserManagementManager, UserManagementManager>(s =
 builder.Services.AddTransient<IProjectShowcaseService, ProjectShowcaseService>(s =>
     new ProjectShowcaseService(
         new ProjectShowcaseDataAccess(
-            HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["ProjectShowcasesConnectionString"]!,
             HubbaConfig.ConfigurationManager.AppSettings["ShowcasesTable"]!,
             HubbaConfig.ConfigurationManager.AppSettings["ShowcaseCommentsTable"]!,
             HubbaConfig.ConfigurationManager.AppSettings["ShowcaseVotesTable"]!,

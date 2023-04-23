@@ -52,7 +52,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             if (showcaseId == null || showcaseId.Length == 0)
             {
-                return Result.Failure("Showcase Id is not valid",400);
+                return Result.Failure("Showcase Id is not valid", 400);
             }
             if (commentText == null || commentText.Length == 0)
             {
@@ -104,7 +104,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             {
                 { "ShowcaseId", showcaseId },
                 { "ReporterId", reporterId },
-                { "ReasonId", reason },
+                { "Reason", reason },
                 { "Timestamp", time },
                 { "IsResolved", false }
             }).ConfigureAwait(false);
@@ -112,20 +112,20 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         public async Task<Result> ChangePublishStatus(string showcaseId, bool isPublished, DateTime? time = null)
         {
-            Dictionary<string, object> updateDict = new() { { "IsPublished", isPublished} };
+            Dictionary<string, object> updateDict = new() { { "IsPublished", isPublished } };
             if (time != null)
             {
                 updateDict.Add("PublishTimestamp", time);
             }
             var updateResult = await _updateDataAccess.Update
             (
-                _showcaseTableName, 
-                new List<Comparator>() { new("Id", "=", showcaseId) }, 
+                _showcaseTableName,
+                new List<Comparator>() { new("Id", "=", showcaseId) },
                 updateDict
             );
             if (!updateResult.IsSuccessful)
             {
-                return Result.Failure("Failed to change publish status"); 
+                return Result.Failure("Failed to change publish status");
             }
             return Result.Success();
         }
@@ -155,11 +155,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         public async Task<Result> EditShowcase(string showcaseId, string? title, string? description, DateTime time)
         {
             Dictionary<string, object> updateDict = new();
-            if(title != null)
+            if (title != null)
             {
                 updateDict["Title"] = title;
             }
-            if(description != null)
+            if (description != null)
             {
                 updateDict["Description"] = description;
             }
@@ -172,8 +172,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             var result = await _selectDataAccess.Select
             (
                 _commentTableName,
-                new() {"Id", "CommenterId", "ShowcaseId", "Timestamp", "Rating", "EditTimestamp" },
-                new() { new($"ShowcaseId", "=", commentId) }
+                new() { "Id", "CommenterId", "ShowcaseId", "Timestamp", "Rating", "EditTimestamp" },
+                new() { new($"Id", "=", commentId) }
             ).ConfigureAwait(false);
 
             if (!result.IsSuccessful)
@@ -233,12 +233,12 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             {
                 return new(Result.Failure("Comment does not exist in database."));
             }
-            return Result<string>.Success((string)result.Payload![0][$"{_showcaseTableName}.Id"]);
+            return Result<string>.Success((string)result.Payload![0]["Id"]);
         }
 
         public async Task<Result<bool?>> GetCommentUserRating(int commentId, int voterId)
         {
-            var result = await _selectDataAccess.Select (
+            var result = await _selectDataAccess.Select(
                 _commentLikeTableName,
                 new() { "IsUpvote" },
                 new() {
@@ -253,7 +253,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             {
                 return new(Result.Failure("More than one comment with given Id"));
             }
-            if (result.Payload!.Count  == 0)
+            if (result.Payload!.Count == 0)
             {
                 return Result<bool?>.Success(null);
             }
@@ -288,8 +288,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             var result = await _selectDataAccess.Select
             (
                 _showcaseTableName,
-                new() { $"Id", "ShowcaseUserId", "ListingId", "Title", "IsPublished", "Rating", "PublishTimestamp", "EditTimestamp", "Description" }, 
-                new() { new($"{_showcaseTableName}.Id","=",showcaseId) }
+                new() { $"Id", "ShowcaseUserId", "ListingId", "Title", "IsPublished", "Rating", "PublishTimestamp", "EditTimestamp", "Description" },
+                new() { new($"Id", "=", showcaseId) }
             ).ConfigureAwait(false);
             if (!result.IsSuccessful)
             {
@@ -323,7 +323,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             {
                 return new(Result.Failure("Unknown error occured while trying to retrieve User's showcases from Db"));
             }
-            return Result<List<Dictionary<string,object>>>.Success(result.Payload!);
+            return Result<List<Dictionary<string, object>>>.Success(result.Payload!);
         }
 
 
@@ -334,9 +334,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             (
                 _showcaseReportTableName,
                 selectList,
-                new() { new("1","=","1")}
+                new() { new("1", "=", "1") }
             );
-            return Result<List<Dictionary<string,object>>>.Success(result.Payload! );
+            return Result<List<Dictionary<string, object>>>.Success(result.Payload!);
         }
 
         public async Task<Result<List<Dictionary<string, object>>>> GetShowcaseReports(string showcaseId)
@@ -356,10 +356,14 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             List<string> selectList = new() { "Timestamp", "CommentId", "ReporterId", "IsResolved", "Reason" };
             var result = await _selectDataAccess.Select
             (
-                _showcaseReportTableName,
+                _commentReportTableName,
                 selectList,
                 new() { new("1", "=", "1") }
             );
+            if (!result.IsSuccessful)
+            {
+                return new(Result.Failure(result.ErrorMessage!));
+            }
             return Result<List<Dictionary<string, object>>>.Success(result.Payload!);
         }
 
@@ -368,27 +372,25 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             List<string> selectList = new() { "Timestamp", "CommentId", "ReporterId", "IsResolved", "Reason" };
             var result = await _selectDataAccess.Select
             (
-                _showcaseReportTableName,
+                _commentReportTableName,
                 selectList,
-                new() { new("ShowcaseId", "=", commentId) }
+                new() { new("CommentId", "=", commentId) }
             );
+            if (!result.IsSuccessful)
+            {
+                return new(Result.Failure(result.ErrorMessage!));
+            }
             return Result<List<Dictionary<string, object>>>.Success(result.Payload!);
         }
 
-        public async Task<Result<float>> IncrementShowcaseLikes(string showcaseId)
+        public async Task<Result<double>> IncrementShowcaseLikes(string showcaseId)
         {
-            var updateResult = await _updateDataAccess.Update(_showcaseTableName, new() { new("Id", "=", showcaseId) }, new() { { "Rating", "Rating+1" } } );
-            if (!updateResult.IsSuccessful)
-            {
-                return new(Result.Failure($"Unable to update showcase rating: {updateResult.ErrorMessage}"));
-            }
-
             var selectResult = await _selectDataAccess.Select(_showcaseTableName, new() { "Rating" }, new() { new("Id", "=", showcaseId) }).ConfigureAwait(false);
             if (!selectResult.IsSuccessful)
             {
                 return new(Result.Failure($"Unable to select updated showcase rating: {selectResult.ErrorMessage}"));
             }
-            
+
             if (selectResult.Payload!.Count() == 0)
             {
                 return new(Result.Failure($"Unable to find rating for showcase {showcaseId} in Db"));
@@ -397,8 +399,13 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             {
                 return new(Result.Failure($"Retrieved more than one rating for showcase {showcaseId} in Db"));
             }
+            var updateResult = await _updateDataAccess.Update(_showcaseTableName, new() { new("Id", "=", showcaseId) }, new() { { "Rating", (double)selectResult.Payload![0]["Rating"] + 1 } });
+            if (!updateResult.IsSuccessful)
+            {
+                return new(Result.Failure($"Unable to update showcase rating: {updateResult.ErrorMessage}"));
+            }
 
-            return Result<float>.Success((float)selectResult.Payload![0]["Rating"]);
+            return Result<double>.Success((double)selectResult.Payload![0]["Rating"] + 1);
         }
 
         public async Task<Result> InsertShowcase(int accountId, string showcaseId, int? listingId, string title, string description, DateTime time)
@@ -426,10 +433,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         public async Task<Result> RecordUserLike(int raterId, string showcaseId)
         {
-            var insertResult = await _insertDataAccess.Insert(_showcaseLikeTableName, new() 
-            { 
-                { "UserAccountId", raterId }, 
-                { "ShowcaseId", showcaseId } 
+            var insertResult = await _insertDataAccess.Insert(_showcaseLikeTableName, new()
+            {
+                { "UserAccountId", raterId },
+                { "ShowcaseId", showcaseId }
             }).ConfigureAwait(false);
             return insertResult;
         }
@@ -448,12 +455,12 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         public async Task<Result> UpdateComment(int commentId, string commentText, DateTime time)
         {
-            return await _updateDataAccess.Update(_commentTableName, new() 
+            return await _updateDataAccess.Update(_commentTableName, new()
             { new Comparator("Id","=",commentId) },
-            new() 
-            { 
-                { "Text", commentText }, 
-                { "EditTimestamp", time } 
+            new()
+            {
+                { "Text", commentText },
+                { "EditTimestamp", time }
             }).ConfigureAwait(false);
         }
 
@@ -471,7 +478,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 return new(Result.Failure("Unable to update Comment Rating"));
             }
 
-            var selectResult =  await _selectDataAccess.Select(_commentTableName, new()
+            var selectResult = await _selectDataAccess.Select(_commentTableName, new()
             { "Rating" },
             new()
             {

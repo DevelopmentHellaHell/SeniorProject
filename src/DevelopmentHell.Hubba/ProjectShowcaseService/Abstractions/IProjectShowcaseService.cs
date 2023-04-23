@@ -11,7 +11,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase
     public struct ShowcaseComment
     {
         public int? Id { get; set; }
-        public int? CommenterId { get; set; }
+        public long? CommenterId { get; set; }
         public string? CommenterEmail { get; set; }
         public string? ShowcaseId { get; set; }
         public string? Text { get; set; }
@@ -29,7 +29,8 @@ namespace DevelopmentHell.Hubba.ProjectShowcase
         public string? Title { get; set; }
         public string? Description { get; set; }
         public bool? Reported { get; set; }
-        public bool? Published { get; set; }
+        public bool? IsPublished { get; set; }
+        public double? Rating { get; set; }
         public DateTime? EditTimestamp { get; set; }
         public DateTime? PublishTimestamp { get; set; }
     }
@@ -45,7 +46,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase
     {
         public DateTime? Timestamp { get; set; }
         public string? Reason { get; set; }
-        public int? CommentId { get; set; }
+        public long? CommentId { get; set; }
         public int? ReporterId { get; set; }
         public bool? IsResolved { get; set; }
     }
@@ -64,7 +65,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions
         Task<Result<List<ShowcaseReport>>> GetShowcaseReports(string showcaseId);
         Task<Result<List<CommentReport>>> GetAllCommentReports();
         Task<Result<List<CommentReport>>> GetCommentReports(int commentId);
-        Task<Result<float>> LikeShowcase(string showcaseId);
+        Task<Result<double>> LikeShowcase(string showcaseId);
         Task<Result<string>> CreateShowcase(int listingId, string title, string description);
         Task<Result> EditShowcase(string showcaseId, int? listingId, string? title, string? description);
         Task<Result> DeleteShowcase(string showcaseId);

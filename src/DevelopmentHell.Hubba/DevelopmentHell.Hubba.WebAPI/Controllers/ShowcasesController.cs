@@ -6,30 +6,30 @@ using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.WebAPI.Controllers
 {
-    public struct ShowcaseDTO
-    {
-        public int? ListingId { get; set; }
-        public string? Title { get; set; }
-        public string? Description { get; set; }
-        public List<IFormFile>? Files { get; set; }
-    }
-    public struct CommentDTO
-    {
-        public string? CommentText { get; set; }
-    }
-
-    public struct ReportDTO
-    {
-        public string? ReasonText { get; set; }
-    }
-
     [ApiController]
     [Route("[controller]")]
     public class ShowcasesController : HubbaController
     {
+        public struct ShowcaseDTO
+        {
+            public int? ListingId { get; set; }
+            public string? Title { get; set; }
+            public string? Description { get; set; }
+            public List<IFormFile>? Files { get; set; }
+        }
+        public struct CommentDTO
+        {
+            public string? CommentText { get; set; }
+        }
+
+        public struct ReportDTO
+        {
+            public string? ReasonText { get; set; }
+        }
+
         private readonly IProjectShowcaseManager _projectShowcaseManager;
         private readonly ILoggerService _logger;
-        ShowcasesController(IProjectShowcaseManager projectShowcaseManager, ILoggerService loggerService)
+        public ShowcasesController(IProjectShowcaseManager projectShowcaseManager, ILoggerService loggerService)
         {
             _projectShowcaseManager = projectShowcaseManager;
             _logger = loggerService;

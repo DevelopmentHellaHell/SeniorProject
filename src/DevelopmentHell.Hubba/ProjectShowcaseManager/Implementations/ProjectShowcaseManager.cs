@@ -576,7 +576,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             var detailResult = await _projectShowcaseService.GetDetails(showcaseId).ConfigureAwait(false);
             if (!detailResult.IsSuccessful)
             {
-                return new(Result.Failure("Unable to get Shwocase Details"));
+                return new(Result.Failure("Unable to get Showcase Details"));
             }
 
             if ((int)detailResult.Payload!["ShowcaseUserId"] != int.Parse((Thread.CurrentPrincipal as ClaimsPrincipal)?.FindFirstValue("sub")!))

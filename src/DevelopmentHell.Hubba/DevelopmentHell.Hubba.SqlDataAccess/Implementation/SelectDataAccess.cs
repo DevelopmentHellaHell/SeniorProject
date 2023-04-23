@@ -69,9 +69,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                         sbFilter.Append(" AND ");
                     }
                     first = false;
-                    sbFilter.Append($"{filter.Key} {filter.Op} @{filter.Key}");
+                    sbFilter.Append($"{filter.Key} {filter.Op} @{filter.Key.ToString()!.Replace(".","")}");
 
-                    insertQuery.Parameters.Add(new SqlParameter(filter.Key.ToString(), filter.Value.ToString()));
+                    insertQuery.Parameters.Add(new SqlParameter(filter.Key.ToString()!.Replace(".", ""), filter.Value.ToString()));
                 }
                 first = true;
                 foreach (string column in columns)
