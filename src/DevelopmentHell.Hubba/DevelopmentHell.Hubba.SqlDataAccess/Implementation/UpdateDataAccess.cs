@@ -35,7 +35,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 
                     if (!first)
                     {
-                        filterSb.Append(", ");
+                        filterSb.Append(" AND ");
                     }
                     first = false;
                     filterSb.Append($"{filter.Key} {filter.Op} @{filter.Key}");
