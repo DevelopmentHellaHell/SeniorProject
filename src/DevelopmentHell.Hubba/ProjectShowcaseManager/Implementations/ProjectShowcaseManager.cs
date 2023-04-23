@@ -393,7 +393,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
         }
 
-        public async Task<Result<float>> LikeShowcase(string showcaseId)
+        public async Task<Result<double>> LikeShowcase(string showcaseId)
         {
             try
             {
