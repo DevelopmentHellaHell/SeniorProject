@@ -36,9 +36,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
         private readonly string _showcaseReportsTable = ConfigurationManager.AppSettings["ShowcaseReportsTable"]!;
         private readonly string _showcaseCommentReportsTable = ConfigurationManager.AppSettings["ShowcaseCommentReportsTable"]!;
 
-        private readonly string _showcaseDatabaseName = ConfigurationManager.AppSettings["ProjectShowcasesDatabaseName"]!;
-        private readonly string _usersDatabaseName = ConfigurationManager.AppSettings["UsersDatabaseName"]!;
-
         private readonly IUserAccountDataAccess _userAccountDataAccess;
         private readonly IRegistrationService _registrationService;
         private readonly ITestingService _testingService;
@@ -65,15 +62,12 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
             );
             _projectShowcaseDataAccess = new ProjectShowcaseDataAccess(
                 _showcaseConnectionString,
-                _showcaseDatabaseName,
-                _usersDatabaseName,
                 _showcasesTable,
                 _showcaseCommentsTable,
                 _showcaseVotesTable,
                 _showcaseCommentVotesTable,
                 _showcaseReportsTable,
-                _showcaseCommentReportsTable,
-                _userAccountsTable
+                _showcaseCommentReportsTable
             );
         }
 
@@ -88,14 +82,14 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
         [TestMethod]
         public async Task AddCommentSuccess()
         {
-            string credentialEmail = "test@gmail.com";
+            DateTime time = DateTime.UtcNow;
+            string credentialEmail = $"test{time.Millisecond}@gmail.com";
             string credentialPassword = "12345678";
 
-            string showcaseId = "showcaseId";
+            string showcaseId = $"showcaseId{time.Millisecond}";
             int? listingId = null;
             string title = "Test Title";
             string description = "Test Description";
-            DateTime time = DateTime.UtcNow;
 
             string commentText = "Test Comment";
 
@@ -131,14 +125,14 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
         [TestMethod]
         public async Task AddCommentReportSuccess()
         {
-            string credentialEmail = "test@gmail.com";
+            DateTime time = DateTime.UtcNow;
+            string credentialEmail = $"test{time.Millisecond}@gmail.com";
             string credentialPassword = "12345678";
 
-            string showcaseId = "showcaseId";
+            string showcaseId = $"showcaseId{time.Millisecond}";
             int? listingId = null;
             string title = "Test Title";
             string description = "Test Description";
-            DateTime time = DateTime.UtcNow;
 
             string commentText = "Test Comment";
             string reason = "Test Reason";
@@ -159,9 +153,9 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
             Assert.IsTrue(insertResult.IsSuccessful,insertResult.ErrorMessage);
 
             var commentResult = await _projectShowcaseDataAccess.AddComment(showcaseId, accountId, commentText, time);
-            Assert.IsTrue(commentResult.IsSuccessful);
+            Assert.IsTrue(commentResult.IsSuccessful, commentResult.ErrorMessage);
             var getCommentResult = await _projectShowcaseDataAccess.GetComments(showcaseId, 10, 1).ConfigureAwait(false);
-            var commentId = (int)getCommentResult.Payload![0][$"{_showcaseCommentsTable}.Id"];
+            var commentId = (int)getCommentResult.Payload![0]["Id"];
 
             var commentReportResult = await _projectShowcaseDataAccess.AddCommentReport(commentId, accountId, reason, time);
             Assert.IsTrue(commentReportResult.IsSuccessful);
@@ -179,13 +173,13 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
         [TestMethod]
         public async Task InsertGetShowcaseSuccess()
         {
-            var credentialEmail = "test@gmail.com";
+            DateTime time = DateTime.UtcNow;
+            var credentialEmail = $"test{time.Millisecond}@gmail.com";
             var credentialPassword = "12345678";
-            var showcaseId = "showcaseId";
+            var showcaseId = $"showcaseId{time.Millisecond}";
             int? listingId = null;
             string title = "Test Title";
             string description = "Test Description";
-            DateTime time = DateTime.UtcNow;
             await _registrationService.RegisterAccount(credentialEmail, credentialPassword).ConfigureAwait(false);
             var userIdResult = await _userAccountDataAccess.GetId(credentialEmail).ConfigureAwait(false);
 
@@ -216,14 +210,14 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
         [TestMethod]
         public async Task AddShowcaseReportSuccess()
         {
-            string credentialEmail = "test@gmail.com";
+            DateTime time = DateTime.UtcNow;
+            string credentialEmail = $"test{time.Millisecond}@gmail.com";
             string credentialPassword = "12345678";
 
-            string showcaseId = "showcaseId";
+            string showcaseId = $"showcaseId{time.Millisecond}";
             int? listingId = null;
             string title = "Test Title";
             string description = "Test Description";
-            DateTime time = DateTime.UtcNow;
 
             string reason = "Test Reason";
 
@@ -258,14 +252,14 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
         [TestMethod]
         public async Task ChangePublishStatusSuccess()
         {
-            string credentialEmail = "test@gmail.com";
+            DateTime time = DateTime.UtcNow;
+            string credentialEmail = $"test{time.Millisecond}@gmail.com";
             string credentialPassword = "12345678";
 
-            string showcaseId = "showcaseId";
+            string showcaseId = $"showcaseId{time.Millisecond}";
             int? listingId = null;
             string title = "Test Title";
             string description = "Test Description";
-            DateTime time = DateTime.UtcNow;
 
             bool isPublished = true;
 
@@ -296,14 +290,14 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
         [TestMethod]
         public async Task DeleteCommentSuccess()
         {
-            string credentialEmail = "test@gmail.com";
+            DateTime time = DateTime.UtcNow;
+            string credentialEmail = $"test{time.Millisecond}@gmail.com";
             string credentialPassword = "12345678";
 
-            string showcaseId = "showcaseId";
+            string showcaseId = $"showcaseId{time.Millisecond}";
             int? listingId = null;
             string title = "Test Title";
             string description = "Test Description";
-            DateTime time = DateTime.UtcNow;
 
             string commentText = "Test Comment";
 
@@ -338,14 +332,14 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
         [TestMethod]
         public async Task DeleteShowcaseSuccess()
         {
-            string credentialEmail = "test@gmail.com";
+            DateTime time = DateTime.UtcNow;
+            string credentialEmail = $"test{time.Millisecond}@gmail.com";
             string credentialPassword = "12345678";
 
-            string showcaseId = "showcaseId";
+            string showcaseId = $"showcaseId{time.Millisecond}";
             int? listingId = null;
             string title = "Test Title";
             string description = "Test Description";
-            DateTime time = DateTime.UtcNow;
 
             await _registrationService.RegisterAccount(credentialEmail, credentialPassword).ConfigureAwait(false);
             var userIdResult = await _userAccountDataAccess.GetId(credentialEmail).ConfigureAwait(false);
@@ -372,14 +366,14 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
         [TestMethod]
         public async Task EditShowcaseSuccess()
         {
-            string credentialEmail = "test@gmail.com";
+            DateTime time = DateTime.UtcNow;
+            string credentialEmail = $"test{time.Millisecond}@gmail.com";
             string credentialPassword = "12345678";
 
-            string showcaseId = "showcaseId";
+            string showcaseId = $"showcaseId{time.Millisecond}";
             int? listingId = null;
             string title = "Test Title";
             string description = "Test Description";
-            DateTime time = DateTime.UtcNow;
 
             string editedTitle = "Edited Title";
             string editedDescription = "Edited Description";
@@ -413,14 +407,14 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
         [TestMethod]
         public async Task GetCommentDetailsSuccess()
         {
-            string credentialEmail = "test@gmail.com";
+            DateTime time = DateTime.UtcNow;
+            string credentialEmail = $"test{time.Millisecond}@gmail.com";
             string credentialPassword = "12345678";
 
-            string showcaseId = "showcaseId";
+            string showcaseId = $"showcaseId{time.Millisecond}";
             int? listingId = null;
             string title = "Test Title";
             string description = "Test Description";
-            DateTime time = DateTime.UtcNow;
 
             string commentText = "Test Comment";
 
@@ -460,14 +454,14 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
         [TestMethod]
         public async Task GetCommentsSuccess()
         {
-            string credentialEmail = "test@gmail.com";
+            DateTime time = DateTime.UtcNow;
+            string credentialEmail = $"test{time.Millisecond}@gmail.com";
             string credentialPassword = "12345678";
 
-            string showcaseId = "showcaseId";
+            string showcaseId = $"showcaseId{time.Millisecond}";
             int? listingId = null;
             string title = "Test Title";
             string description = "Test Description";
-            DateTime time = DateTime.UtcNow;
 
             string commentText = "Test Comment";
 
@@ -504,14 +498,14 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
         [TestMethod]
         public async Task InsertGetUserCommentRatingSuccess()
         {
-            string credentialEmail = "test@gmail.com";
+            DateTime time = DateTime.UtcNow;
+            string credentialEmail = $"test{time.Millisecond}@gmail.com";
             string credentialPassword = "12345678";
 
-            string showcaseId = "showcaseId";
+            string showcaseId = $"showcaseId{time.Millisecond}";
             int? listingId = null;
             string title = "Test Title";
             string description = "Test Description";
-            DateTime time = DateTime.UtcNow;
 
             string commentText = "Test Comment";
 
@@ -550,7 +544,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
             string credentialEmail = $"test{time.Millisecond}@gmail.com";
             string credentialPassword = "12345678";
 
-            string showcaseId = $"{time.Millisecond}showcaseId";
+            string showcaseId = $"showcaseId{time.Millisecond}";
             int? listingId = null;
             string title = "Test Title";
             string description = "Test Description";
@@ -590,14 +584,14 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
         [TestMethod]
         public async Task IncrementShowcaseLikesSuccess()
         {
-            string credentialEmail = "test@gmail.com";
+            DateTime time = DateTime.UtcNow;
+            string credentialEmail = $"test{time.Millisecond}@gmail.com";
             string credentialPassword = "12345678";
 
-            string showcaseId = "showcaseId";
+            string showcaseId = $"showcaseId{time.Millisecond}";
             int? listingId = null;
             string title = "Test Title";
             string description = "Test Description";
-            DateTime time = DateTime.UtcNow;
 
             await _registrationService.RegisterAccount(credentialEmail, credentialPassword).ConfigureAwait(false);
             var userIdResult = await _userAccountDataAccess.GetId(credentialEmail).ConfigureAwait(false);
@@ -626,14 +620,14 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
         [TestMethod]
         public async Task RecordUserLikeSuccess()
         {
-            string credentialEmail = "test@gmail.com";
+            DateTime time = DateTime.UtcNow;
+            string credentialEmail = $"test{time.Millisecond}@gmail.com";
             string credentialPassword = "12345678";
 
-            string showcaseId = "showcaseId";
+            string showcaseId = $"showcaseId{time.Millisecond}";
             int? listingId = null;
             string title = "Test Title";
             string description = "Test Description";
-            DateTime time = DateTime.UtcNow;
 
             await _registrationService.RegisterAccount(credentialEmail, credentialPassword).ConfigureAwait(false);
             var userIdResult = await _userAccountDataAccess.GetId(credentialEmail).ConfigureAwait(false);
@@ -659,14 +653,14 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
         [TestMethod]
         public async Task RemoveShowcaseListingSuccess()
         {
-            string credentialEmail = "test@gmail.com";
+            DateTime time = DateTime.UtcNow;
+            string credentialEmail = $"test{time.Millisecond}@gmail.com";
             string credentialPassword = "12345678";
 
-            string showcaseId = "showcaseId";
+            string showcaseId = $"showcaseId{time.Millisecond}";
             int? listingId = null;
             string title = "Test Title";
             string description = "Test Description";
-            DateTime time = DateTime.UtcNow;
 
             await _registrationService.RegisterAccount(credentialEmail, credentialPassword).ConfigureAwait(false);
             var userIdResult = await _userAccountDataAccess.GetId(credentialEmail).ConfigureAwait(false);
@@ -693,14 +687,14 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
         [TestMethod]
         public async Task UpdateCommentSuccess()
         {
-            string credentialEmail = "test@gmail.com";
+            DateTime time = DateTime.UtcNow;
+            string credentialEmail = $"test{time.Millisecond}@gmail.com";
             string credentialPassword = "12345678";
 
-            string showcaseId = "showcaseId";
+            string showcaseId = $"showcaseId{time.Millisecond}";
             int? listingId = null;
             string title = "Test Title";
             string description = "Test Description";
-            DateTime time = DateTime.UtcNow;
 
             string commentText = "Test Comment";
             string editedText = "Edited Text";
@@ -739,14 +733,14 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
         [TestMethod]
         public async Task UpdateCommentRatingSuccess()
         {
-            string credentialEmail = "test@gmail.com";
+            DateTime time = DateTime.UtcNow;
+            string credentialEmail = $"test{time.Millisecond}@gmail.com";
             string credentialPassword = "12345678";
 
-            string showcaseId = "showcaseId";
+            string showcaseId = $"showcaseId{time.Millisecond}";
             int? listingId = null;
             string title = "Test Title";
             string description = "Test Description";
-            DateTime time = DateTime.UtcNow;
 
             string commentText = "Test Comment";
             int difference = 3;
@@ -784,14 +778,14 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
         [TestMethod]
         public async Task UpdateUserCommentRatingSuccess()
         {
-            string credentialEmail = "test@gmail.com";
+            DateTime time = DateTime.UtcNow;
+            string credentialEmail = $"test{time.Millisecond}@gmail.com";
             string credentialPassword = "12345678";
 
-            string showcaseId = "showcaseId";
+            string showcaseId = $"showcaseId{time.Millisecond}";
             int? listingId = null;
             string title = "Test Title";
             string description = "Test Description";
-            DateTime time = DateTime.UtcNow;
 
             string commentText = "Test Comment";
             int difference = 3;

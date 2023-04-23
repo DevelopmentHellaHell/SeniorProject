@@ -2,6 +2,7 @@
 using DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions;
 using Microsoft.AspNetCore.Authentication;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
+using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.WebAPI.Controllers
 {
@@ -88,7 +89,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             {
                 if (accountId == null)
                 {
-                    return BadRequest("Invalid request.");
+                    accountId = int.Parse((Thread.CurrentPrincipal as ClaimsPrincipal)?.FindFirstValue("sub")!);
                 }
                 var showcaseResult = await _projectShowcaseManager.GetUserShowcases((int)accountId);
                 if (!showcaseResult.IsSuccessful)
@@ -112,7 +113,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             {
                 if (accountId == null)
                 {
-                    return BadRequest("Invalid request");
+                    accountId = int.Parse((Thread.CurrentPrincipal as ClaimsPrincipal)?.FindFirstValue("sub")!);
                 }
                 var detailResult = await _projectShowcaseManager.GetUserShowcases((int)accountId, false);
                 if (!detailResult.IsSuccessful)

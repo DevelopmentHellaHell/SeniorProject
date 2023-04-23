@@ -11,7 +11,8 @@ namespace DevelopmentHell.Hubba.ProjectShowcase
     public struct ShowcaseComment
     {
         public int? Id { get; set; }
-        public int? CommenterEmail { get; set; }
+        public int? CommenterId { get; set; }
+        public string? CommenterEmail { get; set; }
         public string? ShowcaseId { get; set; }
         public string? Text { get; set; }
         public int? Rating { get; set; }
@@ -23,7 +24,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase
     {
         public string? Id { get; set; }
         public int? ShowcaseUserId { get; set; }
-        public int? ShowcaseUserEmail { get; set; }
+        public string? ShowcaseUserEmail { get; set; }
         public int? ListingId { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }

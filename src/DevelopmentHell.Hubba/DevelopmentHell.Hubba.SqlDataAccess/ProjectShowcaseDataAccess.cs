@@ -19,11 +19,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         private readonly string _showcaseReportTableName;
         private readonly string _commentReportTableName;
 
-        private readonly string _userAccountsTableName;
-
-        private readonly string _usersDatabaseName;
-        private readonly string _projectShowcaseDatabaseName;
-
         private readonly InsertDataAccess _insertDataAccess;
         private readonly UpdateDataAccess _updateDataAccess;
         private readonly SelectDataAccess _selectDataAccess;
@@ -32,15 +27,12 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         public ProjectShowcaseDataAccess(
             string connectionString,
-            string showcaseDatabaseName,
-            string userDatabaseName,
             string showcaseTableName,
             string commentTableName,
             string showcaseLikeTableName,
             string commentLikeTableName,
             string showcaseReportTableName,
-            string commentReportTableName,
-            string userAccountsTableName)
+            string commentReportTableName)
         {
             _showcaseTableName = showcaseTableName;
             _commentTableName = commentTableName;
@@ -48,11 +40,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             _commentLikeTableName = commentLikeTableName;
             _showcaseReportTableName = showcaseReportTableName;
             _commentReportTableName = commentReportTableName;
-
-            _userAccountsTableName = userAccountsTableName;
-
-            _usersDatabaseName = userDatabaseName;
-            _projectShowcaseDatabaseName = showcaseDatabaseName;
 
 
             _insertDataAccess = new InsertDataAccess(connectionString);
@@ -72,11 +59,12 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 return Result.Failure("Comment is not valid", 400);
             }
 
-            return await _insertDataAccess.Insert(_showcaseTableName, new() {
+            return await _insertDataAccess.Insert(_commentTableName, new() {
                 { "ShowcaseId", showcaseId },
                 { "CommenterId", accountId },
                 { "Text", commentText },
-                { "Rating", 0 }
+                { "Rating", 0 },
+                { "Timestamp", time }
             }).ConfigureAwait(false);
         }
 
@@ -183,17 +171,18 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             var result = await _selectDataAccess.Select
             (
-                SQLManip.InnerJoinTables(_projectShowcaseDatabaseName, _usersDatabaseName, _commentTableName, _userAccountsTableName, "ShowcaseUserId", "Id"),
-                new() { $"{_showcaseTableName}.Id", "Email", "CommenterId", $"{_userAccountsTableName}.Id", "ListingId", "Title", "IsPublished", "Rating" },
-                new() { new($"{_showcaseTableName}.Id", "=", commentId) }
+                _commentTableName,
+                new() {"Id", "CommenterId", "ShowcaseId", "Timestamp", "Rating", "EditTimestamp" },
+                new() { new($"ShowcaseId", "=", commentId) }
             ).ConfigureAwait(false);
+
             if (!result.IsSuccessful)
             {
-                return new(Result.Failure($"Error in getting showcase details from Db: {result.ErrorMessage}"));
+                return new(Result.Failure($"Error in getting comment details from Db: {result.ErrorMessage}"));
             }
             if (result.Payload!.Count() > 1)
             {
-                return new(Result.Failure($"More than one showcase with given Id: {result.ErrorMessage}"));
+                return new(Result.Failure($"More than one comment with given Id: {result.ErrorMessage}"));
             }
             if (result.Payload!.Count() == 0)
             {
@@ -204,11 +193,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         public async Task<Result<List<Dictionary<string, object>>>> GetComments(string showcaseId, int commentCount, int page)
         {
-            //SELECT TOP 10 ShowcaseComments.Id, Email, Text, Rating, Timestamp<br/>FROM ShowcaseComments INNER JOIN UserAccounts<br/>ON ShowcaseComments.CommenterId=UserAccounts.Id<br/>WHERE ShowcaseId={showcaseId} ORDER BY Timestamp<br/>OFFSET {{page-1}*{commentCount}-1} ROWS
             var result = await _selectDataAccess.Select
             (
-                SQLManip.InnerJoinTables(_projectShowcaseDatabaseName, _usersDatabaseName, _commentTableName, _userAccountsTableName, "ShowcaseUserId", "Id"),
-                new() { $"{_commentTableName}.Id", "Email", "Text", "Rating", "Timestamp", "EditTimestamp" },
+                _commentTableName,
+                new() { $"Id", "CommenterId", "ShowcaseId", "Text", "Rating", "Timestamp", "EditTimestamp" },
                 new() { new("ShowcaseId", "=", showcaseId) },
                 "",
                 "Timestamp",
@@ -276,9 +264,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             var result = await _selectDataAccess.Select
             (
-                SQLManip.InnerJoinTables(_projectShowcaseDatabaseName, _usersDatabaseName, _showcaseTableName, _userAccountsTableName, "ShowcaseUserId", "Id"),
-                new() { $"{_showcaseTableName}.Id", "Email", "ShowcaseUserId", $"{_userAccountsTableName}.Id", "ListingId", "Title", "IsPublished", "Rating" },
-                new() { new($"{_showcaseTableName}.Id", "=", showcaseId) }
+                _showcaseTableName,
+                new() { $"Id", "ShowcaseUserId", "ListingId", "Title", "IsPublished", "Rating", "PublishTimestamp", "EditTimestamp" },
+                new() { new($"Id", "=", showcaseId) }
             ).ConfigureAwait(false);
             if (!result.IsSuccessful)
             {
@@ -299,8 +287,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             var result = await _selectDataAccess.Select
             (
-                SQLManip.InnerJoinTables(_projectShowcaseDatabaseName, _usersDatabaseName, _showcaseTableName, _userAccountsTableName, "ShowcaseUserId", "Id"),
-                new() { $"{_showcaseTableName}.Id", "Email", "ShowcaseUserId", $"{_userAccountsTableName}.Id", "ListingId", "Title", "Description", "IsPublished", "Rating"}, 
+                _showcaseTableName,
+                new() { $"Id", "ShowcaseUserId", "ListingId", "Title", "IsPublished", "Rating", "PublishTimestamp", "EditTimestamp", "Description" }, 
                 new() { new($"{_showcaseTableName}.Id","=",showcaseId) }
             ).ConfigureAwait(false);
             if (!result.IsSuccessful)
@@ -320,16 +308,16 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         public async Task<Result<List<Dictionary<string, object>>>> GetUserShowcases(int userId, bool includeDescription = true)
         {
-            List<string> selectList = new() { $"{_showcaseTableName}.Id", "Email", "ShowcaseUserId", $"{_userAccountsTableName}.Id", "ListingId", "Title", "IsPublished", "Rating" };
+            List<string> selectList = new() { $"Id", "ShowcaseUserId", "ListingId", "Title", "IsPublished", "Rating", "PublishTimestamp", "EditTimestamp" };
             if (includeDescription)
             {
                 selectList.Add("Description");
             }
             var result = await _selectDataAccess.Select
             (
-                SQLManip.InnerJoinTables(_projectShowcaseDatabaseName, _usersDatabaseName, _showcaseTableName, _userAccountsTableName, "ShowcaseUserId", "Id"),
+                _showcaseTableName,
                 selectList,
-                new() { new($"{_userAccountsTableName}.Id", "=", userId) }
+                new() { new($"ShowcaseUserId", "=", userId) }
             ).ConfigureAwait(false);
             if (!result.IsSuccessful)
             {

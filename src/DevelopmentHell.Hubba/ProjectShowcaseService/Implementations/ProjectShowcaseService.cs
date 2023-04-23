@@ -14,17 +14,20 @@ using System.Security.Cryptography;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using Microsoft.Identity.Client;
 using System.Drawing.Printing;
+using DevelopmentHell.Hubba.SqlDataAccess;
 
 namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
 {
     public class ProjectShowcaseService : IProjectShowcaseService
     {
         private readonly IProjectShowcaseDataAccess _projectShowcaseDataAccess;
+        private readonly IUserAccountDataAccess _userAccountDataAccess;
         private readonly IValidationService _validationService;
         private readonly ILoggerService _logger;
 
-        public ProjectShowcaseService(IProjectShowcaseDataAccess projectShowcaseDataAccess, IValidationService validationService, ILoggerService loggerService) 
-        { 
+        public ProjectShowcaseService(IProjectShowcaseDataAccess projectShowcaseDataAccess, IUserAccountDataAccess userAccountDataAccess, IValidationService validationService, ILoggerService loggerService) 
+        {
+            _userAccountDataAccess = userAccountDataAccess;
             _projectShowcaseDataAccess = projectShowcaseDataAccess;
             _validationService = validationService;
             _logger = loggerService;
@@ -231,30 +234,26 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
 
                 List<ShowcaseComment> output = new();
                 Dictionary<string, string> varSqlVarMap = new()
-            {
-                { "CommenterEmail", "Email" },
-                { "ShowcaseId", "ShowcaseId" },
-                { "Id", "ShowcaseComments.Id" },
-                { "Text", "Text" },
-                { "Rating", "Rating" },
-                { "Timestamp", "Timestamp" },
-                { "EditTimestamp", "EditTimestamp" },
-            };
+                {
+                    { "CommenterId", "CommenterId" },
+                    { "ShowcaseId", "ShowcaseId" },
+                    { "Id", "Id" },
+                    { "Text", "Text" },
+                    { "Rating", "Rating" },
+                    { "Timestamp", "Timestamp" },
+                    { "EditTimestamp", "EditTimestamp" },
+                };
 
                 foreach (var commentDict in getResult.Payload!)
                 {
-                    ShowcaseComment comment = new();
-                    foreach (var varSqlVar in varSqlVarMap)
+                    ShowcaseComment nextComment = MapToType<ShowcaseComment>(varSqlVarMap, commentDict);
+                    var userResult = await _userAccountDataAccess.GetUser((int)nextComment.Id!).ConfigureAwait(false);
+                    if (!userResult.IsSuccessful)
                     {
-                        object? test = null;
-                        if (!commentDict.TryGetValue(varSqlVar.Value, out test))
-                        {
-                            // Set all of the attributes in the output var to the ones in the dict from getResult.Payload
-                            var prop = typeof(ShowcaseComment).GetProperty(varSqlVar.Key);
-                            prop!.SetValue(comment, Convert.ChangeType(commentDict[varSqlVar.Value], prop!.PropertyType));
-                        }
+                        return new(Result.Failure($"Unable to get user email: {userResult.ErrorMessage}"));
                     }
-                    output.Add(comment);
+                    nextComment.CommenterEmail = userResult.Payload!.Email;
+                    output.Add(nextComment);
                 }
 
                 return Result<List<ShowcaseComment>>.Success(output);
@@ -296,9 +295,8 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
                 Showcase output = new();
                 Dictionary<string, string> varSqlVarMap = new()
                 {
-                    { "Id", "Showcases.Id" },
-                    { "ShowcaseUserEmail", "Email" },
-                    { "ShowcaseUserId", "UserAccounts.Id" },
+                    { "Id", "Id" },
+                    { "ShowcaseUserId", "ShowcaseUserId" },
                     { "ListingId", "ListingId" },
                     { "Title", "Title" },
                     { "Description", "Description" },
@@ -318,7 +316,15 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
                     }
                 }
 
-                return Result<Showcase>.Success(output);
+                Showcase nextShowcase = MapToType<Showcase>(varSqlVarMap, getResult.Payload!);
+                var userResult = await _userAccountDataAccess.GetUser((int)nextShowcase.ShowcaseUserId!).ConfigureAwait(false);
+                if (!userResult.IsSuccessful)
+                {
+                    return new(Result.Failure($"Unable to get user email: {userResult.ErrorMessage}"));
+                }
+                nextShowcase.ShowcaseUserEmail = userResult.Payload!.Email;
+
+                return Result<Showcase>.Success(nextShowcase);
             }
             catch (Exception ex)
             {
@@ -340,9 +346,8 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
                 List<Showcase> output = new();
                 Dictionary<string, string> varSqlVarMap = new()
                 {
-                    { "Id", "Showcases.Id" },
-                    { "ShowcaseUserEmail", "Email" },
-                    { "ShowcaseUserId", "UserAccounts.Id" },
+                    { "Id", "Id" },
+                    { "ShowcaseUserId", "ShowcaseUserId" },
                     { "ListingId", "ListingId" },
                     { "Title", "Title" },
                     { "Description", "Description" },
@@ -352,19 +357,16 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
                     { "EditTimestamp", "EditTimestamp" }
                 };
                 foreach (var showcaseDict in getResult.Payload!)
+                    
+                {
+                    Showcase nextShowcase = MapToType<Showcase>(varSqlVarMap, showcaseDict);
+                    var userResult = await _userAccountDataAccess.GetUser((int)nextShowcase.ShowcaseUserId!).ConfigureAwait(false);
+                    if (!userResult.IsSuccessful)
                     {
-                    Showcase showcase = new();
-                    foreach (var varSqlVar in varSqlVarMap)
-                        {
-                        object? test = null;
-                        if (!showcaseDict.TryGetValue(varSqlVar.Value, out test))
-                            {
-                            // Set all of the attributes in the output var to the ones in the dict from getResult.Payload
-                            var prop = typeof(Showcase).GetProperty(varSqlVar.Key);
-                            prop!.SetValue(showcase, Convert.ChangeType(showcaseDict[varSqlVar.Value], prop!.PropertyType));
-                        }
+                        return new(Result.Failure($"Unable to get user email: {userResult.ErrorMessage}"));
                     }
-                    output.Add(showcase);
+                    nextShowcase.ShowcaseUserEmail = userResult.Payload!.Email;
+                    output.Add(nextShowcase);
                 }
                 return Result<List<Showcase>>.Success(output);
             }

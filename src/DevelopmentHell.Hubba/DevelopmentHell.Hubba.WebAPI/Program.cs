@@ -307,7 +307,10 @@ builder.Services.AddTransient<IProjectShowcaseService, ProjectShowcaseService>(s
             HubbaConfig.ConfigurationManager.AppSettings["ShowcaseVotesTable"]!,
             HubbaConfig.ConfigurationManager.AppSettings["ShowcaseCommentVotesTable"]!,
             HubbaConfig.ConfigurationManager.AppSettings["ShowcaseReportsTable"]!,
-            HubbaConfig.ConfigurationManager.AppSettings["ShowcaseCommentReportsTable"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["ShowcaseCommentReportsTable"]!
+        ),
+        new UserAccountDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
             HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
         ),
         s.GetService<IValidationService>()!,
