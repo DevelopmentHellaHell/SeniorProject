@@ -778,7 +778,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
             Assert.IsTrue(actual.IsSuccessful == expected);
             Assert.IsTrue(actual.Payload is not null);
             Assert.IsTrue(actual.Payload[0].ListingId.Equals(listingId));
-            foreach (ListingAvailabilityDTO availability in actual.Payload)
+            foreach (ListingAvailabilityViewDTO availability in actual.Payload)
             {
                 if (!expectedStarts.Any(expectedStart => expectedStart.ToString().Trim().CompareTo(availability.StartTime.ToString().Trim()) == 0))
                 {

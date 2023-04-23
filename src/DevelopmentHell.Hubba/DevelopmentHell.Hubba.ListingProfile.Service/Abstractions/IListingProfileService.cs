@@ -11,7 +11,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Abstractions
 
         Task<Result<int>> GetListingOwnerId(int listingId);
 
-        Task<Result<List<ListingAvailabilityDTO>>> GetListingAvailabilities(int listingId);
+        Task<Result<List<ListingAvailabilityViewDTO>>> GetListingAvailabilities(int listingId);
 
         Task<Result<List<ListingViewDTO>>> GetUserListings(int ownerId);
 
@@ -40,5 +40,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Abstractions
         Task<Result> AddRating(int listingId, int userId, int rating, string? comment, bool anonymous);
 
         Task<Result<int>> GetListingId(string title, int userId);
+
+        Task<Result> UnpublishListing(int listingId);
     }
 }

@@ -156,9 +156,9 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
             return result;
         }
 
-        public async Task<Result<List<ListingAvailabilityDTO>>> GetListingAvailabilities(int listingId)
+        public async Task<Result<List<ListingAvailabilityViewDTO>>> GetListingAvailabilities(int listingId)
         {
-            Result<List<ListingAvailabilityDTO>> result = new Result<List<ListingAvailabilityDTO>>();
+            Result<List<ListingAvailabilityViewDTO>> result = new Result<List<ListingAvailabilityViewDTO>>();
 
             Result<List<ListingAvailability>> getListingAvailabilitiesResult = await _listingAvailabilitiesDataAccess.GetListingAvailabilities(listingId).ConfigureAwait(false);
             if (!getListingAvailabilitiesResult.IsSuccessful)
@@ -169,20 +169,20 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
             }
 
             result.IsSuccessful = true;
-            List<ListingAvailabilityDTO> listingAvailabilitiesDTOList = new();
+            List<ListingAvailabilityViewDTO> listingAvailabilitiesViewDTOList = new();
             List<ListingAvailability> payload = getListingAvailabilitiesResult.Payload;
             foreach (ListingAvailability listingAvailability in payload)
             {
-                ListingAvailabilityDTO temp = new ListingAvailabilityDTO()
+                ListingAvailabilityViewDTO temp = new ListingAvailabilityViewDTO()
                 {
                     ListingId = (int)listingAvailability.ListingId!,
                     AvailabilityId = (int)listingAvailability.AvailabilityId!,
                     StartTime = (DateTime)listingAvailability.StartTime!,
                     EndTime = (DateTime)listingAvailability.EndTime!
                 };
-                listingAvailabilitiesDTOList.Add(temp);
+                listingAvailabilitiesViewDTOList.Add(temp);
             }
-            result.Payload = listingAvailabilitiesDTOList;
+            result.Payload = listingAvailabilitiesViewDTOList;
 
 
             return result;
@@ -251,6 +251,22 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = publishListing.ErrorMessage;
+                return result;
+            }
+
+            result.IsSuccessful = true;
+            return result;
+        }
+
+        public async Task<Result> UnpublishListing(int listingId)
+        {
+            Result result = new Result();
+
+            Result unpublishListing = await _listingDataAccess.UnpublishListing(listingId).ConfigureAwait(false);
+            if (!unpublishListing.IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = unpublishListing.ErrorMessage;
                 return result;
             }
 
