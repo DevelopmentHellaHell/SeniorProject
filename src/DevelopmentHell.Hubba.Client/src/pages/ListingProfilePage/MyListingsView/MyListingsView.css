@@ -1,0 +1,17 @@
+
+.my-listing-view table {
+    width: 100%;
+}
+
+.my-listing-view, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+.my-listing-view, th {
+    text-align: center;
+}
+
+.my-listing-view, td {
+    text-align: left;
+}

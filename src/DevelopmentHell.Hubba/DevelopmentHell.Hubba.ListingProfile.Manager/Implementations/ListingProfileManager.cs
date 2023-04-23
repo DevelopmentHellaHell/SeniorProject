@@ -227,7 +227,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             foreach (var column in listing.GetType().GetProperties())
             {
                 var value = column.GetValue(listing);
-                if (value is null || column.Name == "ListingId" || column.Name == "OwnerId") continue;
+                if (value is null || column.Name == "ListingId" || column.Name == "OwnerId" || column.Name == "Title") continue;
 
                 
                 if (column.Name == "Description" || column.Name == "Location")
@@ -359,6 +359,8 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                     errorFound = true;
                     errorMessage += "Unable to remove preexisting listing availabilities.\n";
                 }
+
+
             }
             
             if (errorFound)
@@ -375,11 +377,9 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             if (availabilitiesCheck.Payload.Count == 0)
             {
                 Result unpublish = await _listingsService.UnpublishListing(listingId).ConfigureAwait(false);
-                if (!unpublish.IsSuccessful)
-                {
-                    return new(Result.Failure("Unable to unpublish listing", StatusCodes.Status400BadRequest));
-                }
             }
+
+
 
             return Result.Success();
         }
@@ -525,16 +525,14 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 {
                     return new(Result.Failure(fileDeleteResults.ErrorMessage, StatusCodes.Status400BadRequest));
                 }
-            }
-            picturesStored = _fileService.GetFilesInDir(dir + "Pictures/").Result.Payload.Count();
-            if (picturesStored == 0)
-            {
-                Result unpublish = await _listingsService.UnpublishListing(listingId).ConfigureAwait(false);
-                if (!unpublish.IsSuccessful)
+
+                picturesStored = _fileService.GetFilesInDir(dir + "Pictures/").Result.Payload.Count();
+                if (picturesStored == 0)
                 {
-                    return new(Result.Failure("Unable to unpublish listing", StatusCodes.Status400BadRequest));
+                    Result unpublish = await _listingsService.UnpublishListing(listingId).ConfigureAwait(false);
                 }
             }
+            
 
 
             return Result.Success();
