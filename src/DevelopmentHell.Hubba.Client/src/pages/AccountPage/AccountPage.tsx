@@ -8,6 +8,7 @@ import "./AccountPage.css";
 import DeleteAccountView from "./LoginSecurityView/DeleteAccountView/DeleteAccountView";
 import LoginSecurityView from "./LoginSecurityView/LoginSecurityView";
 import NotificationSettingsView from "./NotificationSettingsView/NotificationSettingsView";
+import CollaboratorProfileView from "./CollaboratorProfileView/CollaboratorProfileView";
 
 interface IAccountPageProps {
 
@@ -22,12 +23,15 @@ enum AccountViews {
     SCHEDULING_HISTORY = "Scheduling History",
     MANAGE_LISTINGS = "Manage Listings",
     PROJECT_SHOWCASES = "Project Showcases",
+    COLLABORATOR_PROFILE = "Collaborator Profile",
+    COLLABORATOR_PROFILE_REMOVAL = "Collaborator Profile Removal",
 }
 
 const SubViews: {
     [view in AccountViews]?: AccountViews[];
 } = {
-    [AccountViews.LOGIN_SECURITY]: [AccountViews.LOGIN_SECURITY_ACCOUNT_DELETION, AccountViews.LOGIN_SECURITY_UPDATE_PASSWORD]
+    [AccountViews.LOGIN_SECURITY]: [AccountViews.LOGIN_SECURITY_ACCOUNT_DELETION, AccountViews.LOGIN_SECURITY_UPDATE_PASSWORD],
+    [AccountViews.COLLABORATOR_PROFILE]: [AccountViews.COLLABORATOR_PROFILE_REMOVAL]
 }
 
 const AccountPage: React.FC<IAccountPageProps> = (props) => {
@@ -60,6 +64,8 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
                 return <></>; //TODO
             case AccountViews.PROJECT_SHOWCASES:
                 return <></>; //TODO
+            case AccountViews.COLLABORATOR_PROFILE:
+                return <CollaboratorProfileView onRemoveClick={() => { setView(AccountViews.COLLABORATOR_PROFILE_REMOVAL)}}/>; 
         }
     }
 
@@ -86,6 +92,7 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
                     {getListItem(AccountViews.SCHEDULING_HISTORY, view)}
                     {getListItem(AccountViews.MANAGE_LISTINGS, view)}
                     {getListItem(AccountViews.PROJECT_SHOWCASES, view)}
+                    {getListItem(AccountViews.COLLABORATOR_PROFILE, view)}
                 </Sidebar>
 
                 <div className="account-wrapper">
