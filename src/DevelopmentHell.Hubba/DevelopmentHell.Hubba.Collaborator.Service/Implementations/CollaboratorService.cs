@@ -57,6 +57,18 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
                     (int)StatusCodes.Status412PreconditionFailed);
             }
 
+            var checkExistingCollaborator = await HasCollaborator(accountIdInt).ConfigureAwait(false);
+            if (!checkExistingCollaborator.IsSuccessful)
+            {
+                return Result.Failure("Error, cannot determine if existing collaborator profile is present. " 
+                    + checkExistingCollaborator.ErrorMessage, (int)StatusCodes.Status412PreconditionFailed);
+            }
+            if(checkExistingCollaborator.Payload)
+            {
+                return Result.Failure("Found existing collaborator profile. Cannot create new profile.",
+                    (int)StatusCodes.Status412PreconditionFailed);
+            }
+
 
             // create new collaborator entry into collaborators table
             var createCollabResult = await _collaboratorDataAccess.CreateCollaborator(collab).ConfigureAwait(false);
@@ -327,10 +339,10 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
             }
 
             // do not allow editing if a new profile picture is being uploaded without being removed
-            if ((removedFileUrls != null && collabResult.Payload!.PfpUrl != null && !removedFileUrls.Contains<string>(collabResult.Payload!.PfpUrl))
-                || (removedFileUrls == null && collabResult.Payload!.PfpUrl != null))
+            if ((pfpFile != null && collabResult.Payload!.PfpUrl != null && removedFileUrls != null  && !removedFileUrls.Contains<string>(collabResult.Payload!.PfpUrl))
+                || (removedFileUrls == null && collabResult.Payload!.PfpUrl != null && pfpFile != null))
             {
-                return new(Result.Failure("Cannot upload Pfp file without firt removing current Pfp file.", StatusCodes.Status412PreconditionFailed));
+                return new(Result.Failure("Cannot upload Pfp file without first removing current Pfp file.", StatusCodes.Status412PreconditionFailed));
             }
 
             // if the Pfp is going to be removed, delete reference from sql database
@@ -586,6 +598,28 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
                 return new(Result.Failure("Could not get owner Id. " + accountIdResult.ErrorMessage));
             }
             return accountIdResult;   
+        }
+
+        public async Task<Result<string?>> GetPfpUrl(int ownerId)
+        {
+            if (ownerId < 0)
+            {
+                return new(Result.Failure("Invalid collaborator id.", StatusCodes.Status412PreconditionFailed));
+            }
+            var selectPfpUrl = await _collaboratorFileDataAccess.SelectPfpUrl(ownerId).ConfigureAwait(false);
+            if(!selectPfpUrl.IsSuccessful)
+            {
+                return new(Result.Failure("Unable to select profile picture url."));
+            }
+            if(selectPfpUrl.Payload == null)
+            {
+                return new Result<string?>()
+                {
+                    IsSuccessful = true,
+                    Payload = null
+                };
+            }
+            return selectPfpUrl;
         }
 
         public async Task<Result> UpdatePublished(int collabId, bool isPublic)

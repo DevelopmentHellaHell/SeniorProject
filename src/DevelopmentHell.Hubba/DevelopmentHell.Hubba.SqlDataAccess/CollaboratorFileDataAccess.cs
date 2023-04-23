@@ -126,7 +126,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
 
             List<Dictionary<string, object>> payload = selectResult.Payload;
-            if (payload.Count > 10)
+            if (payload.Count > 11)
             {
                 return new(Result.Failure($"Selected more than the valid number of files: {payload.Count}" + selectResult.ErrorMessage));
             }
@@ -166,7 +166,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
 
             List<Dictionary<string, object>> payload = selectResult.Payload;
-            if (payload.Count > 10)
+            if (payload.Count > 11)
             {
                 return new(Result.Failure($"Selected more than the valid number of files: {payload.Count}" + selectResult.ErrorMessage));
             }
@@ -185,14 +185,14 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             };
         }
 
-        public async Task<Result<List<int>>> SelectFileIdsFromOwner(int accountId)
+        public async Task<Result<List<int>>> SelectFileIdsFromOwner(int ownerId)
         {
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
                 new List<String>() { "FileId" },
                 new List<Comparator>()
                 {
-                    new Comparator("OwnerId", "=", accountId)
+                    new Comparator("OwnerId", "=", ownerId)
                 }
             ).ConfigureAwait(false);
 
@@ -202,7 +202,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
 
             List<Dictionary<string, object>> payload = selectResult.Payload;
-            if (payload.Count > 10)
+            if (payload.Count > 11)
             {
                 return new(Result.Failure($"Selected more than the valid number of files: {payload.Count}"));
             }
@@ -248,6 +248,46 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 Payload = $".{(string)payload[0]["FileType"]}"
             };
         }
+
+        public async Task<Result<string?>> SelectPfpUrl(int ownerId)
+        {
+            Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
+                _tableName,
+                new List<String>() { "FileUrl" },
+                new List<Comparator>()
+                {
+                    new Comparator("OwnerId", "=", ownerId),
+                    new Comparator("FileName", "=", "PfpFile")
+                }
+            ).ConfigureAwait(false);
+
+            if (!selectResult.IsSuccessful || selectResult.Payload is null)
+            {
+                return new(Result.Failure("" + selectResult.ErrorMessage));
+            }
+
+            List<Dictionary<string, object>> payload = selectResult.Payload;
+            if (payload.Count > 1)
+            {
+                return new(Result.Failure($"Selected more than the valid number of files: {payload.Count}"));
+            }
+
+            if (payload.Count == 0)
+            {
+                return new Result<string?>()
+                {
+                    IsSuccessful = true,
+                    Payload = null
+                };
+            }
+
+            return new Result<string?>()
+            {
+                IsSuccessful = true,
+                Payload = (string)payload[0]["FileUrl"]
+            };
+        }
+
         public async Task<Result> DeleteFilesFromUrl(string[] removedFileUrls)
         {
             if (removedFileUrls.Length == 0)

@@ -235,6 +235,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return result;
         }
 
+
         public async Task<Result<int>> CreateCollaborator(CollaboratorProfile collab)
         {
             var result = new Result<int>();

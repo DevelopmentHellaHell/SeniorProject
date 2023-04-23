@@ -349,9 +349,41 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
                 return new(Result.Failure("Unable to determine number of uploaded files currently stored in database. " + countFilesResult.ErrorMessage));
             }
 
-            if (uploadedCount - removedCount +  countFilesResult.Payload > 10)
+            // storing way more than the stored file limit
+            if (uploadedCount - removedCount + countFilesResult.Payload > 10)
             {
-                return new(Result.Failure("A maximum of 10 files can be uploaded to the server, including those already stored. ",StatusCodes.Status412PreconditionFailed));
+                return new(Result.Failure("A maximum of 10 files can be uploaded to the server, including those already stored. ", StatusCodes.Status412PreconditionFailed));
+            }
+
+
+            // borderline case, should check if a profile picture is being removed since it
+            // doesn't count towards total number of files stored
+            if (uploadedCount > 0 && (uploadedCount - removedCount +  countFilesResult.Payload == 10))
+            {
+                // can't do that if they're not removing anything
+                if(removedCount == 0)
+                {
+                    return new(Result.Failure("A maximum of 10 files can be uploaded to the server, including those already stored. ", StatusCodes.Status412PreconditionFailed));
+                }
+
+                // gotta check if the profile picture is being removed
+                var pfpurl = await _collaboratorService.GetPfpUrl(accountIdInt).ConfigureAwait(false);
+                if(!pfpurl.IsSuccessful)
+                {
+                    return new(Result.Failure("Unable to check if profile picture is being removed. "));
+                }
+                // they don't have a pfp to remove so they're immediately unable to upload more than 10 files
+                if(pfpurl.Payload == null)
+                {
+                    return new(Result.Failure("A maximum of 10 files can be uploaded to the server, including those already stored. ",StatusCodes.Status412PreconditionFailed));
+                }
+                // looks like theyre removing the profile picture so they can't upload
+                // a new photo since it doesn't count towards max file storage
+                if(removedFiles != null && removedFiles.Contains<string>(pfpurl.Payload))
+                {
+                    return new(Result.Failure("A maximum of 10 files can be uploaded to the server, including those already stored." +
+                        " The Profile Picture does not count towards the 10 file maximum. Please remove another file instead.", StatusCodes.Status412PreconditionFailed));
+                }
             }
 
             var validateCollab = _validationService.ValidateCollaboratorAllowEmptyFiles(collab);

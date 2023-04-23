@@ -15,5 +15,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
         Task<Result> DeleteFilesFromUrl(string[] removedFileUrls);
         Task<Result> DeleteFilesFromFileId(List<int> fileIds);
         Task<Result> DeleteFilesFromOwnerId(int ownerId);
+        Task<Result<string?>> SelectPfpUrl(int ownerId);
     }
 }
