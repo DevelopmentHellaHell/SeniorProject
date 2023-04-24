@@ -103,9 +103,9 @@ const MyListingsView: React.FC<IMyListingsViewProps> = (props) => {
                             }} title={"Submit"} />
                         }       
                 { showTitleField && 
-                    <div className="title-input-field">
+                    <div className="input-field">
                         <label>Title</label>
-                        <input id="title" type="text" maxLength={50} placeholder="Title" onChange={
+                        <input id="title-input" type="text" maxLength={50} placeholder="Title" onChange={
                             (event: React.ChangeEvent<HTMLInputElement>) => {
                             setTitle(event.target.value);
                             setShowSubmitButton(true);
