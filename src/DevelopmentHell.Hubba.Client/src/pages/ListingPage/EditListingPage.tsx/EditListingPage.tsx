@@ -6,6 +6,7 @@ import Footer from "../../../components/Footer/Footer"
 import NavbarUser from "../../../components/NavbarUser/NavbarUser"
 import { IListing } from "../../ListingProfilePage/MyListingsView/MyListingsView"
 import { Auth } from "../../../Auth"
+import { Buffer } from 'buffer';
 
 interface IListingPageProps {
 
@@ -51,7 +52,11 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
     const [isListingEdited, setIsListingEdited] = useState(false);
     const [showPublish, setShowPublish] = useState(false);
     const [files, setFiles] = useState<File[]>([]);
-    const [fileData, setFileData] = useState<{ [key: string]: ArrayBuffer }>({});
+    //const [fileData, setFileData] = useState<{ [key: string]: ArrayBuffer }>({});
+    //const [fileData, setFileData] = useState<string[]>([]);
+    const [fileData, setFileData] = useState<{ Item1: string, Item2: string} []>([]);
+
+
 
 
     useEffect(() => {
@@ -130,57 +135,162 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
         }
       };
 
-      const handleFileSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    //   const handleFileSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    //     event.preventDefault();
+      
+    //     const fileDataList: { name: string, data: string }[] = [];
+      
+    //     // loop through each selected file and read as data URL
+    //     // files.forEach((file) => {
+    //     //   const reader = new FileReader();
+    //     await Promise.all(files.map(file => new Promise((resolve, reject) => {
+    //         const reader = new FileReader();
+      
+    //       reader.readAsDataURL(file);
+    //       reader.onload = () => {
+    //         // convert data URL to base64 encoded string
+    //         const dataUrl = reader.result as string;
+    //         const base64String = dataUrl.split(',')[1];
+      
+    //         // create a new object with file name and base64-encoded data
+    //         const fileData = {
+    //           name: file.name,
+    //           data: base64String,
+    //         };
+      
+    //         // add the new object to the fileDataList
+    //         fileDataList.push(fileData);
+      
+    //         // set state with updated file data list
+    //         if (fileDataList.length === files.length) {
+    //             // create the dictionary from the fileDataList using reduce
+    //             const fileDataDict = fileDataList.reduce((acc, curr) => {
+    //                 // //const binaryString = atob(curr.data)
+    //                 // const buffer = Buffer.from(base64String, 'base64');
+    //                 // const bytes = new Uint8Array(buffer);
+    //                 // // for (let i = 0; i < binaryString.length; i++) {
+    //                 // // bytes[i] = binaryString.charCodeAt(i);
+    //                 // // }
+
+    //                 const buffer = Buffer.from(curr.data, 'base64');
+    //                 const bytes = new Uint8Array(buffer);
+    //                 acc[curr.name] = bytes.buffer;
+    //                 acc[curr.name] = bytes.buffer;
+    //                 return acc;
+    //             }, {} as { [key: string]: ArrayBuffer });
+      
+    //             // set state with the file data dictionary
+    //             //setFileData((previous)=>{ return {...previous, ...fileDataDict} });
+    //             setFileData(previous => ({ ...previous, ...fileDataDict }));
+    //             console.log(fileDataDict)
+    //         }
+    //       };
+    //     })));
+    //     //console.log({ ListingId: data?.Listing.listingId, DeleteNames: null,  AddFiles: fileData});
+    //     console.log("file data: " + fileData)
+        
+    //     const response = await Ajax.post<null>("/listingprofile/editListingFiles", { ListingId: data?.Listing.listingId, DeleteNames: null,  AddFiles: fileData});
+    //     if (response.error) {
+    //         setError(response.error);
+    //         console.log(response.error)
+    //         console.log(response)
+    //     } else {
+    //         navigate("/viewlisting", { state: { listingId: data?.Listing.listingId } });
+    //     }
+
+    //   };
+
+    // const handleFileSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    //     event.preventDefault();
+      
+    //     const fileDataList: string[] = [];
+      
+    //     try {
+    //       await Promise.all(files.map(file => new Promise<void>((resolve, reject) => {
+    //         const reader = new FileReader();
+    //         reader.readAsDataURL(file);
+    //         reader.onload = () => {
+    //           // convert data URL to base64 encoded string
+    //           const dataUrl = reader.result as string;
+    //           const base64String = dataUrl.split(',')[1];
+      
+    //           // add the base64-encoded data to the fileDataList
+    //           fileDataList.push(base64String);
+      
+    //           // set state with updated file data list
+    //           if (fileDataList.length === files.length) {
+    //             // set state with the file data list
+    //             setFileData(fileDataList);
+    //             console.log("file data: ", fileDataList);
+    //           }
+      
+    //           resolve();
+    //         };
+      
+    //         reader.onerror = reject;
+    //       })));
+      
+    //       console.log("file data: ", fileDataList);
+    //       const response = await Ajax.post<null>("/listingprofile/editListingFiles", { ListingId: data?.Listing.listingId, DeleteNames: null,  AddFiles: fileDataList });
+      
+    //       if (response.error) {
+    //         setError(response.error);
+    //         console.log(response.error)
+    //         console.log(response)
+    //       } else {
+    //         navigate("/viewlisting", { state: { listingId: data?.Listing.listingId } });
+    //       }
+    //     } catch (error) {
+    //       //setError(error);
+    //       console.log(error);
+    //     }
+    //   };
+      
+    const handleFileSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
       
-        const fileDataList: { name: string, data: string }[] = [];
+        const fileDataList: { Item1: string, Item2: string }[] = [];
       
-        // loop through each selected file and read as data URL
-        files.forEach((file) => {
-          const reader = new FileReader();
+        try {
+          await Promise.all(files.map(file => new Promise<void>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+              // convert data URL to base64 encoded string
+              const dataUrl = reader.result as string;
+              const base64String = dataUrl.split(',')[1];
       
-          reader.readAsDataURL(file);
-          reader.onload = () => {
-            // convert data URL to base64 encoded string
-            const dataUrl = reader.result as string;
-            const base64String = dataUrl.split(',')[1];
+              // add the new object with file name and base64-encoded data to the fileDataList
+              const fileData = { Item1: file.name, Item2: base64String };
+              fileDataList.push(fileData);
       
-            // create a new object with file name and base64-encoded data
-            const fileData = {
-              name: file.name,
-              data: base64String,
+              // set state with updated file data list
+              if (fileDataList.length === files.length) {
+                // set state with the file data list
+                setFileData(fileDataList);
+                console.log("file data: ", fileDataList);
+              }
+      
+              resolve();
             };
       
-            // add the new object to the fileDataList
-            fileDataList.push(fileData);
+            reader.onerror = reject;
+          })));
       
-            // set state with updated file data list
-            if (fileDataList.length === files.length) {
-                // create the dictionary from the fileDataList using reduce
-                const fileDataDict = fileDataList.reduce((acc, curr) => {
-                    const binaryString = atob(curr.data);
-                    const bytes = new Uint8Array(binaryString.length);
-                    for (let i = 0; i < binaryString.length; i++) {
-                    bytes[i] = binaryString.charCodeAt(i);
-                    }
-                    acc[curr.name] = bytes.buffer;
-                    return acc;
-                }, {} as { [key: string]: ArrayBuffer });
+          console.log("file data: ", fileDataList);
+          const response = await Ajax.post<null>("/listingprofile/editListingFiles", { ListingId: data?.Listing.listingId, DeleteNames: null,  AddFiles: fileDataList });
       
-                // set state with the file data dictionary
-                setFileData((previous)=>{ return {...previous, ...fileDataDict} });
-                
-            }
-          };
-        });
-        console.log({ ListingId: data?.Listing.listingId, DeleteNames: null,  AddFiles: fileData});
-        const response = await Ajax.post<null>("/listingprofile/editListingFiles", { ListingId: data?.Listing.listingId, DeleteNames: null,  AddFiles: fileData});
-        if (response.error) {
+          if (response.error) {
             setError(response.error);
-        } else {
+            console.log(response.error)
+            console.log(response)
+          } else {
             navigate("/viewlisting", { state: { listingId: data?.Listing.listingId } });
+          }
+        } catch (error) {
+          //setError(error);
+          console.log(error);
         }
-
       };
 
       const handleFileNameChange = (index: number, name: string) => {

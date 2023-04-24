@@ -54,6 +54,7 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
     useEffect(() => {
     const getData = async () => {
         const response = await Ajax.post<IViewListingData>('/listingprofile/viewListing', { listingId: state.listingId });
+        console.log(response.data);
         setData(response.data);
         setError(response.error);
         setLoaded(response.loaded);

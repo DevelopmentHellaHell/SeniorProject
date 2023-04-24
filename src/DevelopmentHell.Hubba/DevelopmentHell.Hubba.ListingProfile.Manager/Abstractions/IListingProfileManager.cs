@@ -16,7 +16,11 @@ namespace DevelopmentHell.ListingProfile.Manager.Abstractions
 
         Task<Result> EditListingAvailabilities(List<ListingAvailabilityDTO> listingAvailabilities);// -- ]]
 
-        Task<Result> EditListingFiles(int listingId, List<string> deleteFileNames, Dictionary<string, byte[]> addListingFiles);// -- ]]
+        //Task<Result> EditListingFiles(int listingId, List<string> deleteFileNames, Dictionary<string, byte[]> addListingFiles);// -- ]]
+
+        //Task<Result> EditListingFiles(int listingId, List<string> deleteFileNames, List<string> addListingFiles);
+
+        Task<Result> EditListingFiles(int listingId, List<string> deleteFileNames, List<Tuple<string, string>> addListingFiles);
 
         Task<Result> DeleteListing(int listingId);// -- ]]
 
