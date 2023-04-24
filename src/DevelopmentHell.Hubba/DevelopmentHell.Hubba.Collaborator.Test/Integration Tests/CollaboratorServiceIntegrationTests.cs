@@ -46,9 +46,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
 
         private readonly IUserAccountDataAccess _userAccountDataAccess;
         private readonly IRegistrationService _registrationService;
-        private readonly IAuthorizationService _authorizationService;
         private readonly IAuthenticationService _authenticationService;
-        private readonly ICollaboratorManager _collaboratorManager;
         private readonly ICollaboratorService _collaboratorService;
         private readonly ICollaboratorsDataAccess _collaboratorsDataAccess;
         private readonly ICollaboratorFileDataAccess _collaboratorFileDataAccess;
@@ -74,11 +72,6 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             );
             ILoggerService loggerService = new LoggerService(
                 new LoggerDataAccess(_logsConnectionString, _logsTable)
-            );
-            _authorizationService = new AuthorizationService(
-                _userAccountDataAccess,
-                jwtHandlerService,
-                loggerService
             );
             _testingService = new TestingService(
                 _jwtKey,
@@ -114,8 +107,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
                 _validationService,
                 loggerService
             );
-            _authenticationManager = new AuthenticationManager(
-                new AuthenticationService
+            _authenticationService = new AuthenticationService
                 (
                     new UserAccountDataAccess
                     (
@@ -137,7 +129,9 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
                     ),
                     new ValidationService(),
                     loggerService
-                ),
+                );
+            _authenticationManager = new AuthenticationManager(
+                _authenticationService,
                 new OTPService
                 (
                     new OTPDataAccess(
@@ -190,7 +184,8 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
         [TestInitialize]
         public async Task Setup()
         {
-            await _testingService.DeleteAllRecords().ConfigureAwait(false);
+            await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.COLLABORATOR_PROFILES).ConfigureAwait(false);
+            await _fileService.DeleteDir("/Collaborators").ConfigureAwait(false);
         }
 
 
@@ -350,10 +345,264 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
 
             // Act
             var deleteCollaborator = await _collaboratorService.DeleteCollaborator((int)getCollaboratorId.Payload!).ConfigureAwait(false);
-
+            var getCollaboratorAfterDeletion = await _collaboratorService.GetCollaborator(accountId).ConfigureAwait(false); 
             // Assert
             Assert.IsTrue(deleteCollaborator.IsSuccessful);
+            Assert.IsFalse(getCollaboratorAfterDeletion.IsSuccessful);
+            Assert.IsNull(getCollaboratorAfterDeletion.Payload);
             
+        }
+
+        [TestMethod]
+        public async Task RemoveCollaborator()
+        {
+            // register as user
+            await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+            //log in as user
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            }
+
+            // Arrange
+            CollaboratorProfile collab = CreateMockCollaboratorProfile();
+            IFormFile[] collabFiles = new IFormFile[]
+            {
+                CreateMockFormFile(),
+                CreateMockFormFile()
+            };
+            IFormFile collabFile = CreateMockFormFile();
+            var createCollaboratorResult = await _collaboratorService.CreateCollaborator(collab, collabFiles, collabFile);
+            var getCollaboratorId = await _collaboratorService.GetCollaboratorId(accountId).ConfigureAwait(false);
+
+            // Act
+            var removeCollaborator = await _collaboratorService.RemoveCollaborator((int)getCollaboratorId.Payload!).ConfigureAwait(false);
+            var getCollaboratorAfterRemoval = await _collaboratorService.GetCollaborator(accountId).ConfigureAwait(false);
+            var hasCollaboratorResult = await _collaboratorService.HasCollaborator(accountId).ConfigureAwait(false);
+
+            // Assert
+            Assert.IsTrue(removeCollaborator.IsSuccessful);
+            Assert.IsFalse(getCollaboratorAfterRemoval.IsSuccessful);
+            Assert.IsNull(getCollaboratorAfterRemoval.Payload);
+            Assert.IsTrue(hasCollaboratorResult.Payload);
+        }
+
+        [TestMethod]
+        public async Task UpdatePublished()
+        {
+            // register as user
+            await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+            //log in as user
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            }
+
+            // Arrange
+            CollaboratorProfile collab = CreateMockCollaboratorProfile();
+            IFormFile[] collabFiles = new IFormFile[]
+            {
+                CreateMockFormFile(),
+                CreateMockFormFile()
+            };
+            IFormFile collabFile = CreateMockFormFile();
+            var createCollaboratorResult = await _collaboratorService.CreateCollaborator(collab, collabFiles, collabFile);
+            var getCollaboratorId = await _collaboratorService.GetCollaboratorId(accountId).ConfigureAwait(false);
+            var ownerGetCollaboratorBeforePrivate = await _collaboratorService.GetCollaborator((int)getCollaboratorId.Payload!).ConfigureAwait(false);
+
+            // Act
+            var updatePublishedResult = await _collaboratorService.UpdatePublished((int)getCollaboratorId.Payload!, false).ConfigureAwait(false);
+            var ownerGetCollaboratorAfterPrivate = await _collaboratorService.GetCollaborator((int)getCollaboratorId.Payload!).ConfigureAwait(false);
+            var hasCollaboratorResult = await _collaboratorService.HasCollaborator(accountId).ConfigureAwait(false);
+
+            // Logging out of user
+            var authenticationResult = _authenticationService.Logout();
+            if (authenticationResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(authenticationResult.Payload!, null);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            }
+
+            await _registrationService.RegisterAccount("noreply.hubba@gmail.com", password).ConfigureAwait(false);
+            accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            accountId = accountIdResult.Payload;
+            //log in as user
+            loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
+            otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            }
+            var otherGetCollaboratorAfterPrivate = await _collaboratorService.GetCollaborator((int)getCollaboratorId.Payload!).ConfigureAwait(false);
+
+
+            // Assert
+            Assert.IsTrue(updatePublishedResult.IsSuccessful);
+            Assert.IsTrue(ownerGetCollaboratorBeforePrivate.IsSuccessful);
+            Assert.IsNotNull(ownerGetCollaboratorBeforePrivate.Payload);
+            Assert.IsTrue(ownerGetCollaboratorAfterPrivate.IsSuccessful);
+            Assert.IsNotNull(ownerGetCollaboratorAfterPrivate.Payload);
+            Assert.IsTrue(otherGetCollaboratorAfterPrivate.IsSuccessful);
+            Assert.IsNotNull(otherGetCollaboratorAfterPrivate.Payload);
+            Assert.IsTrue(hasCollaboratorResult.Payload);
+        }
+
+
+        [TestMethod]
+        public async Task GetOwnerId()
+        {
+            // register as user
+            await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+            //log in as user
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            }
+
+            // Arrange
+            CollaboratorProfile collab = CreateMockCollaboratorProfile();
+            IFormFile[] collabFiles = new IFormFile[]
+            {
+                CreateMockFormFile(),
+                CreateMockFormFile()
+            };
+            IFormFile collabFile = CreateMockFormFile();
+            await _collaboratorService.CreateCollaborator(collab, collabFiles, collabFile);
+            
+
+            // Act
+            var getCollaboratorIdResult = await _collaboratorService.GetCollaboratorId(accountId).ConfigureAwait(false);
+            var getBeforeDelete = await _collaboratorService.GetCollaborator((int)getCollaboratorIdResult.Payload!).ConfigureAwait(false);
+            await _collaboratorService.DeleteCollaborator((int)getCollaboratorIdResult.Payload!).ConfigureAwait(false);
+            var getAfterDelete = await _collaboratorService.GetCollaborator((int)getCollaboratorIdResult.Payload!).ConfigureAwait(false);
+
+
+
+            // Assert
+            Assert.IsTrue(getCollaboratorIdResult.IsSuccessful);
+            Assert.IsTrue(getBeforeDelete.IsSuccessful);
+            Assert.IsFalse(getAfterDelete.IsSuccessful);
+
+        }
+
+        [TestMethod]
+        public async Task GetFileIds()
+        {
+            // register as user
+            await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+            //log in as user
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            }
+
+            // Arrange
+            CollaboratorProfile collab = CreateMockCollaboratorProfile();
+            IFormFile[] collabFiles = new IFormFile[]
+            {
+                CreateMockFormFile(),
+                CreateMockFormFile()
+            };
+            IFormFile collabFile = CreateMockFormFile();
+            var actualResult = await _collaboratorService.CreateCollaborator(collab, collabFiles, collabFile);
+            var actual = actualResult.IsSuccessful;
+            var getCollaboratorIdResult = await _collaboratorService.GetCollaboratorId(accountId).ConfigureAwait(false);
+            int expected = 2;
+
+            // Act
+            var getFileUrls = await _collaboratorService.GetFileUrls((int)getCollaboratorIdResult.Payload!).ConfigureAwait(false);
+
+
+            // Assert
+            Assert.IsTrue(actual);
+            Assert.IsTrue(getFileUrls.IsSuccessful);
+            Assert.AreEqual(expected, getFileUrls.Payload!.Length);
+
+        }
+
+        [TestMethod]
+        public async Task CountFilesWithoutPfp()
+        {
+            // register as user
+            await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+            //log in as user
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            }
+
+            // Arrange
+            CollaboratorProfile collab = CreateMockCollaboratorProfile();
+            IFormFile[] collabFiles = new IFormFile[]
+            {
+                CreateMockFormFile(),
+                CreateMockFormFile()
+            };
+            IFormFile collabFile = CreateMockFormFile();
+            var actualResult = await _collaboratorService.CreateCollaborator(collab, collabFiles, collabFile);
+            var actual = actualResult.IsSuccessful;
+            var getCollaboratorIdResult = await _collaboratorService.GetCollaboratorId(accountId).ConfigureAwait(false);
+            int expected = 2;
+
+            // Act
+            var getFileCount = await _collaboratorService.CountFilesWithoutPfp(accountId).ConfigureAwait(false);
+
+
+            // Assert
+            Assert.IsTrue(actual);
+            Assert.IsTrue(getFileCount.IsSuccessful);
+            Assert.AreEqual(expected, getFileCount.Payload!);
+
         }
 
 
@@ -370,7 +619,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
         [TestCleanup]
         public async Task Cleanup()
         {
-            await _testingService.DeleteAllRecords().ConfigureAwait(false);
+            await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.COLLABORATOR_PROFILES).ConfigureAwait(false);
             await _fileService.DeleteDir("/Collaborators").ConfigureAwait(false);
         }
 
