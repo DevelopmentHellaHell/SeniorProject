@@ -294,6 +294,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                     <p className={commentCount == 10 ? "selected-comment-count" : "unselected-comment-count"}
                                     onClick={() => {
                                         if (commentCount != 10) {
+                                            setCommentPage(1);
                                             setCommentCount(10);
                                             getComments();
                                         }
@@ -301,6 +302,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                     <p className={commentCount == 20 ? "selected-comment-count" : "unselected-comment-count"}
                                     onClick={() => {
                                         if (commentCount != 20) {
+                                            setCommentPage(1);
                                             setCommentCount(20);
                                             getComments();
                                         }
@@ -308,6 +310,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                     <p className={commentCount == 50 ? "selected-comment-count" : "unselected-comment-count"}
                                     onClick={() => {
                                         if (commentCount != 50) {
+                                            setCommentPage(1);
                                             setCommentCount(50);
                                             getComments();
                                         }
@@ -326,7 +329,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                     <p>{commentPage}</p>
                                     {comments.length == commentCount &&
                                         <p className="next-page" onClick={() => {
-                                            setCommentPage(commentPage - 1);
+                                            setCommentPage(commentPage + 1);
                                             getComments();
                                         }}>&gt;</p>
                                     }

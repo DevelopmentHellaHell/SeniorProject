@@ -96,12 +96,12 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
                 _showcaseReportsTable,
                 _showcaseCommentReportsTable);
             _userAccountDataAccess = new UserAccountDataAccess(
-                _showcaseConnectionString,
-                _showcasesTable);
+                _usersConnectionString,
+                _userAccountsTable);
             _validationService = new ValidationService();
             _loggerDataAccess = new LoggerDataAccess(
-                _showcaseConnectionString,
-                _showcasesTable);
+                _logsConnectionString,
+                _logsTable);
             _loggerService = new LoggerService(
                 _loggerDataAccess);
             _projectShowcaseService = new ProjectShowcaseService(
@@ -161,7 +161,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
         {
             //add timer
             var regResult = await _registrationService.RegisterAccount(email1, password);
-            Assert.IsTrue(regResult.IsSuccessful);
+            Assert.IsTrue(regResult.IsSuccessful, regResult.ErrorMessage);
 
             await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
             var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
@@ -206,10 +206,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
             var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
             int accountId = accountIdResult.Payload;
-
-            var insertResult = await _projectShowcaseManager.CreateShowcase(3, "title", "description", new() { new( file1Name, file1 ) });
-            Assert.IsTrue(insertResult.IsSuccessful);
-
             // log in as user
             var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
             var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
@@ -217,8 +213,10 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             {
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
+            var insertResult = await _projectShowcaseManager.CreateShowcase(3, "title", "description", new() { new(file1Name, file1) });
+            Assert.IsTrue(insertResult.IsSuccessful);
 
-            var getResult = await _projectShowcaseDataAccess.GetShowcase(showcaseId1).ConfigureAwait(false);
+            var getResult = await _projectShowcaseDataAccess.GetShowcase(insertResult.Payload!).ConfigureAwait(false);
             Assert.IsTrue(getResult.IsSuccessful);
 
             Assert.IsTrue((string)getResult.Payload!["Title"] == "title");
@@ -235,9 +233,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
             int accountId = accountIdResult.Payload;
 
-            var insertResult = await _projectShowcaseManager.CreateShowcase(3, "title", "description", new() { new(file1Name, file1) });
-            Assert.IsTrue(insertResult.IsSuccessful);
-
             // log in as user
             var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
             var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
@@ -245,6 +240,11 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             {
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
+            var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult.IsSuccessful);
+            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
+            Assert.IsTrue(fileResult.IsSuccessful);
+
 
             var addResult = await _projectShowcaseDataAccess.AddComment(showcaseId1, accountId, "new comment", DateTime.UtcNow).ConfigureAwait(false);
             Assert.IsTrue(addResult.IsSuccessful);
@@ -274,17 +274,18 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
             int accountId = accountIdResult.Payload;
 
-            var insertResult = await _projectShowcaseManager.CreateShowcase(3, "title", "description", new() { new(file1Name, file1) });
-            Assert.IsTrue(insertResult.IsSuccessful);
-
             var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
             var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
             if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
             {
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
+            var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult.IsSuccessful);
+            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
+            Assert.IsTrue(fileResult.IsSuccessful);
 
-            var deleteResult = await _projectShowcaseManager.DeleteShowcase(insertResult.Payload!).ConfigureAwait(false);
+            var deleteResult = await _projectShowcaseManager.DeleteShowcase(showcaseId1).ConfigureAwait(false);
             Assert.IsTrue(deleteResult.IsSuccessful);
 
             var getResult = await _projectShowcaseManager.GetUserShowcases(accountId).ConfigureAwait(false);
@@ -304,8 +305,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
             var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
             int accountId = accountIdResult.Payload;
-            var insertResult = await _projectShowcaseManager.CreateShowcase(3, "title", "description", new() { new(file1Name, file1) });
-            Assert.IsTrue(insertResult.IsSuccessful);
             // log in as user
             var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
             var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
@@ -313,6 +312,10 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             {
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
+            var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult.IsSuccessful);
+            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
+            Assert.IsTrue(fileResult.IsSuccessful);
             var addResult = await _projectShowcaseDataAccess.AddComment(showcaseId1, accountId, "new comment", DateTime.UtcNow).ConfigureAwait(false);
             Assert.IsTrue(addResult.IsSuccessful);
             var commentResult = await _projectShowcaseDataAccess.GetComments(showcaseId1, 10, 1).ConfigureAwait(false);
@@ -335,8 +338,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
             var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
             int accountId = accountIdResult.Payload;
-            var insertResult = await _projectShowcaseManager.CreateShowcase(3, "title", "description", new() { new(file1Name, file1) });
-            Assert.IsTrue(insertResult.IsSuccessful);
             // log in as user
             var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
             var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
@@ -344,11 +345,15 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             {
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
+            var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult.IsSuccessful);
+            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
+            Assert.IsTrue(fileResult.IsSuccessful);
 
-            var editResult = await _projectShowcaseManager.EditShowcase(insertResult.Payload!, null, "New Title", null, null);
+            var editResult = await _projectShowcaseManager.EditShowcase(showcaseId1, null, "New Title", null, null);
             Assert.IsTrue(editResult.IsSuccessful);
 
-            var getResult = await _projectShowcaseDataAccess.GetShowcase(insertResult.Payload!);
+            var getResult = await _projectShowcaseDataAccess.GetShowcase(showcaseId1);
             Assert.IsTrue(getResult.IsSuccessful);
             Assert.IsTrue((string)getResult.Payload!["Title"] == "New Title");
             var timeElapsed = DateTime.UtcNow - start;
@@ -364,8 +369,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
             var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
             int accountId = accountIdResult.Payload;
-            var insertResult = await _projectShowcaseManager.CreateShowcase(3, "title", "description", new() { new(file1Name, file1) });
-            Assert.IsTrue(insertResult.IsSuccessful);
             // log in as user
             var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
             var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
@@ -373,18 +376,589 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             {
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
+            var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult.IsSuccessful);
+            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
+            Assert.IsTrue(fileResult.IsSuccessful);
 
-            var insertCommentResult = await _projectShowcaseDataAccess.AddComment(insertResult.Payload!, accountId, "Test Comment 1", DateTime.UtcNow);
+            var insertCommentResult = await _projectShowcaseDataAccess.AddComment(showcaseId1, accountId, "Test Comment 1", DateTime.UtcNow);
             Assert.IsTrue(insertCommentResult.IsSuccessful);
-            insertCommentResult = await _projectShowcaseDataAccess.AddComment(insertResult.Payload!, accountId, "Test Comment 2", DateTime.UtcNow.AddSeconds(2));
+            insertCommentResult = await _projectShowcaseDataAccess.AddComment(showcaseId1, accountId, "Test Comment 2", DateTime.UtcNow.AddSeconds(2));
             Assert.IsTrue(insertCommentResult.IsSuccessful);
 
-            var getComments = await _projectShowcaseManager.GetComments(insertResult.Payload!);
+            var getComments = await _projectShowcaseManager.GetComments(showcaseId1).ConfigureAwait(false);
             Assert.IsTrue(getComments.IsSuccessful);
-            foreach ( var comment in getComments.Payload!)
-            {
 
+            bool passed1 = false;
+            bool passed2 = false;
+            foreach (var comment in getComments.Payload!)
+            {
+                if ((string)comment.Text! == "Test Comment 1")
+                {
+                    passed1 = true;
+                }
+                if ((string)comment.Text! == "Test Comment 2")
+                {
+                    passed2 = true;
+                }
+                if (passed1 && passed2)
+                {
+                    Assert.IsTrue(passed1 && passed2);
+                    break;
+                }
             }
+            var timeElapsed = DateTime.UtcNow - start;
+            Assert.IsTrue(timeElapsed.Seconds <= 3);
+        }
+
+        [TestMethod]
+        public async Task GetCommentSuccess()
+        {
+            var start = DateTime.UtcNow;
+            var regResult = await _registrationService.RegisterAccount(email1, password);
+            Assert.IsTrue(regResult.IsSuccessful);
+            await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+            var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult.IsSuccessful);
+            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
+            Assert.IsTrue(fileResult.IsSuccessful);
+
+            var insertCommentResult = await _projectShowcaseDataAccess.AddComment(showcaseId1, accountId, "Test Comment 1", DateTime.UtcNow);
+            Assert.IsTrue(insertCommentResult.IsSuccessful);
+            insertCommentResult = await _projectShowcaseDataAccess.AddComment(showcaseId1, accountId, "Test Comment 2", DateTime.UtcNow.AddSeconds(2));
+            Assert.IsTrue(insertCommentResult.IsSuccessful);
+
+            var commentResult = await _projectShowcaseDataAccess.GetComments(showcaseId1, 10, 1).ConfigureAwait(false);
+            Assert.IsTrue(commentResult.IsSuccessful);
+            var commentId = Convert.ToInt32(commentResult.Payload![0]["Id"]);
+
+            var getComment = await _projectShowcaseManager.GetComment(commentId).ConfigureAwait(false);
+            Assert.IsTrue(getComment.IsSuccessful);
+
+            Assert.IsTrue((string)getComment.Payload!.Text! == "Test Comment 1");
+            var timeElapsed = DateTime.UtcNow - start;
+            Assert.IsTrue(timeElapsed.Seconds <= 3);
+        }
+
+        [TestMethod]
+        public async Task GetAllCommentReportsSuccess()
+        {
+            var start = DateTime.UtcNow;
+            var regResult = await _registrationService.RegisterAccount(email1, password);
+            Assert.IsTrue(regResult.IsSuccessful);
+            await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+            var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult.IsSuccessful);
+            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
+            Assert.IsTrue(fileResult.IsSuccessful);
+
+            var insertCommentResult = await _projectShowcaseDataAccess.AddComment(showcaseId1, accountId, "Test Comment 1", DateTime.UtcNow);
+            Assert.IsTrue(insertCommentResult.IsSuccessful);
+            insertCommentResult = await _projectShowcaseDataAccess.AddComment(showcaseId1, accountId, "Test Comment 2", DateTime.UtcNow.AddSeconds(2));
+            Assert.IsTrue(insertCommentResult.IsSuccessful);
+
+            var commentResult = await _projectShowcaseDataAccess.GetComments(showcaseId1, 10, 1).ConfigureAwait(false);
+            Assert.IsTrue(commentResult.IsSuccessful);
+            var commentId = Convert.ToInt32(commentResult.Payload![0]["Id"]);
+            var commentId2 = Convert.ToInt32(commentResult.Payload![1]["Id"]);
+
+
+            var addCommentReportResult = await _projectShowcaseDataAccess.AddCommentReport(commentId, accountId, "reason", DateTime.UtcNow).ConfigureAwait(false);
+            Assert.IsTrue(addCommentReportResult.IsSuccessful);
+            var addCommentReportResult2 = await _projectShowcaseDataAccess.AddCommentReport(commentId2, accountId, "reason2", DateTime.UtcNow.AddSeconds(2)).ConfigureAwait(false);
+            Assert.IsTrue(addCommentReportResult.IsSuccessful);
+
+            var getResult = await _projectShowcaseManager.GetAllCommentReports().ConfigureAwait(false);
+            Assert.IsTrue(getResult.IsSuccessful);
+
+            bool passed1 = false;
+            bool passed2 = false;
+            foreach (var comment in getResult.Payload!)
+            {
+                if ((string)comment.Reason! == "reason")
+                {
+                    passed1 = true;
+                }
+                if ((string)comment.Reason! == "reason2")
+                {
+                    passed2 = true;
+                }
+                if (passed1 && passed2)
+                {
+                    Assert.IsTrue(passed1 && passed2);
+                    break;
+                }
+            }
+            var timeElapsed = DateTime.UtcNow - start;
+            Assert.IsTrue(timeElapsed.Seconds <= 3);
+        }
+
+        [TestMethod]
+        public async Task GetCommentReportsSuccess()
+        {
+            var start = DateTime.UtcNow;
+            var regResult = await _registrationService.RegisterAccount(email1, password);
+            Assert.IsTrue(regResult.IsSuccessful);
+            await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+            var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult.IsSuccessful);
+            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
+            Assert.IsTrue(fileResult.IsSuccessful);
+
+            var insertCommentResult = await _projectShowcaseDataAccess.AddComment(showcaseId1, accountId, "Test Comment 1", DateTime.UtcNow);
+            Assert.IsTrue(insertCommentResult.IsSuccessful);
+            insertCommentResult = await _projectShowcaseDataAccess.AddComment(showcaseId1, accountId, "Test Comment 2", DateTime.UtcNow.AddSeconds(2));
+            Assert.IsTrue(insertCommentResult.IsSuccessful);
+
+            var commentResult = await _projectShowcaseDataAccess.GetComments(showcaseId1, 10, 1).ConfigureAwait(false);
+            Assert.IsTrue(commentResult.IsSuccessful);
+            var commentId = Convert.ToInt32(commentResult.Payload![0]["Id"]);
+            var commentId2 = Convert.ToInt32(commentResult.Payload![1]["Id"]);
+
+
+            var addCommentReportResult = await _projectShowcaseDataAccess.AddCommentReport(commentId, accountId, "reason", DateTime.UtcNow).ConfigureAwait(false);
+            Assert.IsTrue(addCommentReportResult.IsSuccessful);
+            var addCommentReportResult2 = await _projectShowcaseDataAccess.AddCommentReport(commentId2, accountId, "reason2", DateTime.UtcNow.AddSeconds(2)).ConfigureAwait(false);
+            Assert.IsTrue(addCommentReportResult.IsSuccessful);
+
+            var getResult = await _projectShowcaseManager.GetCommentReports(commentId).ConfigureAwait(false);
+            Assert.IsTrue(getResult.IsSuccessful);
+
+            bool passed1 = false;
+            foreach (var comment in getResult.Payload!)
+            {
+                if ((string)comment.Reason! == "reason")
+                {
+                    passed1 = true;
+                    Assert.IsTrue(passed1);
+                    break;
+                }
+            }
+            var timeElapsed = DateTime.UtcNow - start;
+            Assert.IsTrue(timeElapsed.Seconds <= 3);
+        }
+
+        [TestMethod]
+        public async Task GetShowcaseSuccess()
+        {
+            var start = DateTime.UtcNow;
+            var regResult = await _registrationService.RegisterAccount(email1, password);
+            Assert.IsTrue(regResult.IsSuccessful);
+            await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+            var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult.IsSuccessful);
+            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
+            Assert.IsTrue(fileResult.IsSuccessful);
+
+            var getResult = await _projectShowcaseManager.GetShowcase(showcaseId1);
+            Assert.IsTrue(getResult.IsSuccessful);
+            //Assert.IsTrue((string)getResult.Payload!.Showcase!.Title == "title");
+            var timeElapsed = DateTime.UtcNow - start;
+            Assert.IsTrue(timeElapsed.Seconds <= 3);
+
+            //also test if it got comments?
+        }
+
+        [TestMethod]
+        public async Task GetUserShowcasesSuccess()
+        {
+            var start = DateTime.UtcNow;
+            var regResult = await _registrationService.RegisterAccount(email1, password);
+            Assert.IsTrue(regResult.IsSuccessful);
+            await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+            var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult.IsSuccessful);
+            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
+            Assert.IsTrue(fileResult.IsSuccessful);
+            var insertResult2 = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId2, 3, "title", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult.IsSuccessful);
+            var fileResult2 = await _fileService.UploadFile($"/showcases/{showcaseId2}", file2Name, Convert.FromBase64String(file1));
+            Assert.IsTrue(fileResult.IsSuccessful);
+
+            var getResult = await _projectShowcaseManager.GetUserShowcases(accountId).ConfigureAwait(false);
+            Assert.IsTrue(getResult.IsSuccessful);
+            Assert.IsTrue((string)getResult.Payload![0].Title! == "title");
+            Assert.IsTrue((string)getResult.Payload![1].Title! == "title2");
+
+            var timeElapsed = DateTime.UtcNow - start;
+            Assert.IsTrue(timeElapsed.Seconds <= 3);
+        }
+
+        [TestMethod]
+        public async Task GetAllShowcaseReportsSuccess()
+        {
+            var start = DateTime.UtcNow;
+            var regResult = await _registrationService.RegisterAccount(email1, password);
+            Assert.IsTrue(regResult.IsSuccessful);
+            await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+            var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult.IsSuccessful);
+            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
+            Assert.IsTrue(fileResult.IsSuccessful);
+            var insertResult2 = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId2, 3, "title", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult.IsSuccessful);
+            var fileResult2 = await _fileService.UploadFile($"/showcases/{showcaseId2}", file2Name, Convert.FromBase64String(file1));
+            Assert.IsTrue(fileResult.IsSuccessful);
+
+            var reportResult1 = await _projectShowcaseDataAccess.AddShowcaseReport(showcaseId1, accountId, "reason", DateTime.UtcNow).ConfigureAwait(false);
+            Assert.IsTrue(reportResult1.IsSuccessful);
+            var reportResult2 = await _projectShowcaseDataAccess.AddShowcaseReport(showcaseId2, accountId, "reason2", DateTime.UtcNow).ConfigureAwait(false);
+            Assert.IsTrue(reportResult2.IsSuccessful);
+
+            var getResult = await _projectShowcaseManager.GetAllShowcaseReports().ConfigureAwait(false);
+            Assert.IsTrue(getResult.IsSuccessful);
+            Assert.IsTrue((string)getResult.Payload![0].Reason! == "reason");
+            Assert.IsTrue((string)getResult.Payload![1].Reason! == "reason2");
+
+            var timeElapsed = DateTime.UtcNow - start;
+            Assert.IsTrue(timeElapsed.Seconds <= 3);
+        }
+
+        [TestMethod]
+        public async Task GetShowcaseReportsSuccess()
+        {
+            var start = DateTime.UtcNow;
+            var regResult = await _registrationService.RegisterAccount(email1, password);
+            Assert.IsTrue(regResult.IsSuccessful);
+            await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+            var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult.IsSuccessful);
+            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
+            Assert.IsTrue(fileResult.IsSuccessful);
+            var insertResult2 = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId2, 3, "title", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult.IsSuccessful);
+            var fileResult2 = await _fileService.UploadFile($"/showcases/{showcaseId2}", file2Name, Convert.FromBase64String(file1));
+            Assert.IsTrue(fileResult.IsSuccessful);
+            var reportResult1 = await _projectShowcaseDataAccess.AddShowcaseReport(showcaseId1, accountId, "reason", DateTime.UtcNow).ConfigureAwait(false);
+            Assert.IsTrue(reportResult1.IsSuccessful);
+            var reportResult2 = await _projectShowcaseDataAccess.AddShowcaseReport(showcaseId2, accountId, "reason2", DateTime.UtcNow).ConfigureAwait(false);
+            Assert.IsTrue(reportResult2.IsSuccessful);
+
+            var getResult = await _projectShowcaseManager.GetShowcaseReports(showcaseId1).ConfigureAwait(false);
+            Assert.IsTrue(getResult.IsSuccessful);
+            Assert.IsTrue((string)getResult.Payload![0].Reason! == "reason");
+
+            var timeElapsed = DateTime.UtcNow - start;
+            Assert.IsTrue(timeElapsed.Seconds <= 3);
+        }
+
+        [TestMethod]
+        public async Task LikeShowcaseSuccess()
+        {
+            var start = DateTime.UtcNow;
+            var regResult = await _registrationService.RegisterAccount(email1, password);
+            Assert.IsTrue(regResult.IsSuccessful);
+            await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+            var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult.IsSuccessful);
+            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
+            Assert.IsTrue(fileResult.IsSuccessful);
+
+            var likeResult = await _projectShowcaseManager.LikeShowcase(showcaseId1).ConfigureAwait(false);
+            Assert.IsTrue(likeResult.IsSuccessful);
+
+            var getResult = await _projectShowcaseDataAccess.GetDetails(showcaseId1).ConfigureAwait(false);
+            Assert.IsTrue(getResult.IsSuccessful);
+
+            Assert.IsTrue((double)getResult.Payload!["Rating"] == 1);
+            var timeElapsed = DateTime.UtcNow - start;
+            Assert.IsTrue(timeElapsed.Seconds <= 3);
+        }
+
+        [TestMethod]
+
+        public async Task PublishSuccess()
+        {
+            var start = DateTime.UtcNow;
+            var regResult = await _registrationService.RegisterAccount(email1, password);
+            Assert.IsTrue(regResult.IsSuccessful);
+            await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+            var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult.IsSuccessful);
+            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
+            Assert.IsTrue(fileResult.IsSuccessful);
+
+            var publishResult = await _projectShowcaseManager.Publish(showcaseId1, 3).ConfigureAwait(false);
+            Assert.IsTrue(publishResult.IsSuccessful);
+
+            var getResult = await _projectShowcaseDataAccess.GetDetails(showcaseId1).ConfigureAwait(false);
+            Assert.IsTrue(getResult.IsSuccessful);
+
+            Assert.IsTrue((bool)getResult.Payload!["IsPublished"] == true);
+            var timeElapsed = DateTime.UtcNow - start;
+            Assert.IsTrue(timeElapsed.Seconds <= 3);
+        }
+
+        [TestMethod]
+
+        public async Task RateCommentSuccess()
+        {
+            var start = DateTime.UtcNow;
+            var regResult = await _registrationService.RegisterAccount(email1, password);
+            Assert.IsTrue(regResult.IsSuccessful);
+            await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+            var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult.IsSuccessful);
+            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
+            Assert.IsTrue(fileResult.IsSuccessful);
+
+            var insertCommentResult = await _projectShowcaseDataAccess.AddComment(showcaseId1, accountId, "Test Comment 1", DateTime.UtcNow);
+            Assert.IsTrue(insertCommentResult.IsSuccessful);
+            insertCommentResult = await _projectShowcaseDataAccess.AddComment(showcaseId1, accountId, "Test Comment 2", DateTime.UtcNow.AddSeconds(2));
+            Assert.IsTrue(insertCommentResult.IsSuccessful);
+
+            var commentResult = await _projectShowcaseDataAccess.GetComments(showcaseId1, 10, 1).ConfigureAwait(false);
+            Assert.IsTrue(commentResult.IsSuccessful);
+            var commentId = Convert.ToInt32(commentResult.Payload![0]["Id"]);
+
+            var rateResult = await _projectShowcaseManager.RateComment(commentId, true).ConfigureAwait(false);
+            Assert.IsTrue(rateResult.IsSuccessful);
+
+            var getResult = await _projectShowcaseDataAccess.GetCommentDetails(commentId).ConfigureAwait(false);
+            Assert.IsTrue(getResult.IsSuccessful);
+
+            Assert.IsTrue((int)getResult.Payload!["Rating"] == 1);
+            var timeElapsed = DateTime.UtcNow - start;
+            Assert.IsTrue(timeElapsed.Seconds <= 3);
+        }
+
+        [TestMethod]
+        public async Task ReportCommentSuccess()
+        {
+            var start = DateTime.UtcNow;
+            var regResult = await _registrationService.RegisterAccount(email1, password);
+            Assert.IsTrue(regResult.IsSuccessful);
+            await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+            var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult.IsSuccessful);
+            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
+            Assert.IsTrue(fileResult.IsSuccessful);
+
+            var insertCommentResult = await _projectShowcaseDataAccess.AddComment(showcaseId1, accountId, "Test Comment 1", DateTime.UtcNow);
+            Assert.IsTrue(insertCommentResult.IsSuccessful);
+
+            var commentResult = await _projectShowcaseDataAccess.GetComments(showcaseId1, 10, 1).ConfigureAwait(false);
+            Assert.IsTrue(commentResult.IsSuccessful);
+            var commentId = Convert.ToInt32(commentResult.Payload![0]["Id"]);
+
+
+            var reportResult = await _projectShowcaseManager.ReportComment(commentId, "reason").ConfigureAwait(false);
+            Assert.IsTrue(reportResult.IsSuccessful);
+
+            var getResult = await _projectShowcaseDataAccess.GetCommentReports(commentId).ConfigureAwait(false);
+            Assert.IsTrue(getResult.IsSuccessful);
+
+            bool passed1 = false;
+            foreach (var comment in getResult.Payload!)
+            {
+                if ((string)comment["Reason"]! == "reason")
+                {
+                    passed1 = true;
+                    Assert.IsTrue(passed1);
+                    break;
+                }
+            }
+            var timeElapsed = DateTime.UtcNow - start;
+            Assert.IsTrue(timeElapsed.Seconds <= 3);
+        }
+
+        [TestMethod]
+        public async Task ReportShowcaseSuccess()
+        {
+            var start = DateTime.UtcNow;
+            var regResult = await _registrationService.RegisterAccount(email1, password);
+            Assert.IsTrue(regResult.IsSuccessful);
+            await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+            var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult.IsSuccessful);
+            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
+            Assert.IsTrue(fileResult.IsSuccessful);
+
+            var reportResult1 = await _projectShowcaseManager.ReportShowcase(showcaseId1, "reason").ConfigureAwait(false);
+            Assert.IsTrue(reportResult1.IsSuccessful);
+
+            var getResult = await _projectShowcaseDataAccess.GetShowcaseReports(showcaseId1).ConfigureAwait(false);
+            Assert.IsTrue(getResult.IsSuccessful);
+            Assert.IsTrue((string)getResult.Payload![0]["Reason"] == "reason");
+
+            var timeElapsed = DateTime.UtcNow - start;
+            Assert.IsTrue(timeElapsed.Seconds <= 3);
+        }
+
+        [TestMethod]
+        public async Task UnlinkSuccess()
+        {
+            var start = DateTime.UtcNow;
+            var regResult = await _registrationService.RegisterAccount(email1, password);
+            Assert.IsTrue(regResult.IsSuccessful);
+            await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+            var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult.IsSuccessful);
+            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
+            Assert.IsTrue(fileResult.IsSuccessful);
+
+            var unlinkResult = await _projectShowcaseManager.Unlink(showcaseId1).ConfigureAwait(false);
+            Assert.IsTrue(unlinkResult.IsSuccessful);
+
+            var getResult = await _projectShowcaseDataAccess.GetDetails(showcaseId1).ConfigureAwait(false);
+            Assert.IsTrue(getResult.IsSuccessful);
+
+            Assert.IsTrue((int)getResult.Payload!["ListingId"] == null);
+            var timeElapsed = DateTime.UtcNow - start;
+            Assert.IsTrue(timeElapsed.Seconds <= 3);
+        }
+
+        [TestMethod]
+        public async Task UnpublishSuccess()
+        {
+            var start = DateTime.UtcNow;
+            var regResult = await _registrationService.RegisterAccount(email1, password);
+            Assert.IsTrue(regResult.IsSuccessful);
+            await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+            var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult.IsSuccessful);
+            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
+            Assert.IsTrue(fileResult.IsSuccessful);
+
+            var unpublishResult = await _projectShowcaseManager.Unpublish(showcaseId1).ConfigureAwait(false);
+            Assert.IsTrue(unpublishResult.IsSuccessful);
+
+            var getResult = await _projectShowcaseDataAccess.GetDetails(showcaseId1).ConfigureAwait(false);
+            Assert.IsTrue(getResult.IsSuccessful);
+
+            Assert.IsTrue((bool)getResult.Payload!["IsPublished"] == false);
+            var timeElapsed = DateTime.UtcNow - start;
+            Assert.IsTrue(timeElapsed.Seconds <= 3);
         }
     }
 }

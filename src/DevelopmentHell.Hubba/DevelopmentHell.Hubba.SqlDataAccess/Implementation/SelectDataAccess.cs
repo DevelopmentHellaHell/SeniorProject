@@ -97,19 +97,13 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                     orderBy = $"ORDER BY {order}";
                 }
 
-                string top = "";
-                if (count != -1)
-                {
-                    top = $"TOP {count}";
-                }
-
                 string offsetString = "";
                 if (offset > 0)
                 {
                     offsetString = $"OFFSET {offset} ROWS";
                 }
 
-                insertQuery.CommandText = $"SELECT {top} {sbColumn.ToString()} FROM {source} WHERE {sbFilter.ToString()} {groupBy} {orderBy} {offsetString}";
+                insertQuery.CommandText = $"SELECT {sbColumn.ToString()} FROM {source} WHERE {sbFilter.ToString()} {groupBy} {orderBy} {offsetString}";
                 return await SendQuery(insertQuery).ConfigureAwait(false);
             }
         }

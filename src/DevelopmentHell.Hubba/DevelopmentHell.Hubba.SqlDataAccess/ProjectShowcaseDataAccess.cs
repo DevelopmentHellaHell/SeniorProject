@@ -213,6 +213,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             {
                 return new(Result.Failure($"Error in getting showcase comments from Db: {result.ErrorMessage}"));
             }
+            result.Payload = result.Payload!.Take(commentCount).ToList< Dictionary<string, object>>();
             return result;
         }
         public async Task<Result<Dictionary<string, object>>> GetComment(long commentId)

@@ -7,6 +7,7 @@ declare global {
             LoginViaUI(email: string, password: string): Chainable<void>;
             LoginViaApi(email: string, password: string): Chainable<void>;
             LogInandOut(): Chainable<void>;
+            CreateShowcase(showcaseId, title, description, files:File[]): Chainable<void>;
         }
     }
 }
@@ -92,3 +93,26 @@ Cypress.Commands.add("LogInandOut", () => {
             });
     });
 });
+
+
+Cypress.Commands.add("CreateShowcase", (showcaseId, title, description, files:File[]) => {
+    const fileDataList: { Item1: string; Item2: string; }[] = [];
+    Promise.all(files.map(file => new Promise<void>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          // convert data URL to base64 encoded string
+          const dataUrl = reader.result as string;
+          const base64String = dataUrl.split(',')[1];
+  
+          // add the new object with file name and base64-encoded data to the fileDataList
+          const fileData = { Item1: file.name, Item2: base64String };
+          fileDataList.push(fileData);
+          resolve();
+        };
+  
+        reader.onerror = reject;
+      })));
+    cy.request('POST', Cypress.env('serverUrl') + "/showcases/new", { showcaseId: showcaseId, title: title, description: description, files: fileDataList })
+        .its('status').should('eq', 200);
+})

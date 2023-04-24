@@ -161,7 +161,6 @@ const CreateProjectShowcasePage: React.FC<ICreateProjectShowcasePageProps> = (pr
                                         </li>
                                     ))}
                                 </div>
-                            
                             </ul>
                             }
                         <button type="submit" >Create Project Showcase</button>
