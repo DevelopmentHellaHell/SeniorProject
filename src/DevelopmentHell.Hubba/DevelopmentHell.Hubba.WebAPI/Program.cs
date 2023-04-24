@@ -161,18 +161,13 @@ builder.Services.AddTransient<ICollaboratorsDataAccess, CollaboratorsDataAccess>
         HubbaConfig.ConfigurationManager.AppSettings["CollaboratorsTable"]!
     )
 );
-builder.Services.AddTransient<IProjectShowcasesDataAccess, ProjectShowcasesDataAccess>(s =>
-    new ProjectShowcasesDataAccess(
-		HubbaConfig.ConfigurationManager.AppSettings["ProjectShowcasesConnectionString"]!
-    )
-);
 builder.Services.AddTransient<IDiscoveryManager, DiscoveryManager>(s =>
     new DiscoveryManager(
         new DiscoveryService(
             s.GetService<IListingsDataAccess>()!,
             s.GetService<ICollaboratorsDataAccess>()!,
-            s.GetService<IProjectShowcasesDataAccess>()!,
-            s.GetService<ILoggerService>()!
+			s.GetService<IProjectShowcaseDataAccess>()!,
+			s.GetService<ILoggerService>()!
         ),
 		s.GetService<ILoggerService>()!
 	)
@@ -388,17 +383,20 @@ builder.Services.AddTransient<IListingProfileManager, ListingProfileManager>(s =
         s.GetService<ICryptographyService>()!
     )
 );
+builder.Services.AddTransient<IProjectShowcaseDataAccess, ProjectShowcaseDataAccess>(s =>
+	new ProjectShowcaseDataAccess(
+		HubbaConfig.ConfigurationManager.AppSettings["ProjectShowcasesConnectionString"]!,
+		HubbaConfig.ConfigurationManager.AppSettings["ShowcasesTable"]!,
+		HubbaConfig.ConfigurationManager.AppSettings["ShowcaseCommentsTable"]!,
+		HubbaConfig.ConfigurationManager.AppSettings["ShowcaseVotesTable"]!,
+		HubbaConfig.ConfigurationManager.AppSettings["ShowcaseCommentVotesTable"]!,
+		HubbaConfig.ConfigurationManager.AppSettings["ShowcaseReportsTable"]!,
+		HubbaConfig.ConfigurationManager.AppSettings["ShowcaseCommentReportsTable"]!
+	)
+);
 builder.Services.AddTransient<IProjectShowcaseService, ProjectShowcaseService>(s =>
     new ProjectShowcaseService(
-        new ProjectShowcaseDataAccess(
-            HubbaConfig.ConfigurationManager.AppSettings["ProjectShowcasesConnectionString"]!,
-            HubbaConfig.ConfigurationManager.AppSettings["ShowcasesTable"]!,
-            HubbaConfig.ConfigurationManager.AppSettings["ShowcaseCommentsTable"]!,
-            HubbaConfig.ConfigurationManager.AppSettings["ShowcaseVotesTable"]!,
-            HubbaConfig.ConfigurationManager.AppSettings["ShowcaseCommentVotesTable"]!,
-            HubbaConfig.ConfigurationManager.AppSettings["ShowcaseReportsTable"]!,
-            HubbaConfig.ConfigurationManager.AppSettings["ShowcaseCommentReportsTable"]!
-        ),
+        s.GetService<IProjectShowcaseDataAccess>()!,
         new UserAccountDataAccess(
             HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
             HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!

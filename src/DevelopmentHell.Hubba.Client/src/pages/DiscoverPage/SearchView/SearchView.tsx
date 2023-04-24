@@ -35,7 +35,7 @@ const CuratedView: React.FC<ISearchViewProps> = (props) => {
     }, [props.searchQuery]);
 
     return (
-        <div className="search-view-wrapper">
+        <div id="search-view-wrapper" className="search-view-wrapper">
             <p>Results: {data ? data.length : 0}</p>
             {data &&
                 <div>

@@ -1,6 +1,7 @@
 ﻿using Azure;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
+using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 using System;
 using System.Collections.Generic;
@@ -20,7 +21,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         private readonly string _showcaseReportTableName;
         private readonly string _commentReportTableName;
 
-        private readonly InsertDataAccess _insertDataAccess;
+		private readonly ExecuteDataAccess _executeDataAccess;
+		private readonly InsertDataAccess _insertDataAccess;
         private readonly UpdateDataAccess _updateDataAccess;
         private readonly SelectDataAccess _selectDataAccess;
         private readonly DeleteDataAccess _deleteDataAccess;
@@ -42,14 +44,36 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             _showcaseReportTableName = showcaseReportTableName;
             _commentReportTableName = commentReportTableName;
 
-
-            _insertDataAccess = new InsertDataAccess(connectionString);
+			_executeDataAccess = new ExecuteDataAccess(connectionString);
+			_insertDataAccess = new InsertDataAccess(connectionString);
             _updateDataAccess = new UpdateDataAccess(connectionString);
             _selectDataAccess = new SelectDataAccess(connectionString);
             _deleteDataAccess = new DeleteDataAccess(connectionString);
         }
 
-        public async Task<Result> AddComment(string showcaseId, int accountId, string commentText, DateTime time)
+		public async Task<Result<List<Dictionary<string, object>>>> Curate(int offset = 0)
+		{
+			var result = await _executeDataAccess.Execute("CurateShowcases", new Dictionary<string, object>() {
+				{ "Offset", offset },
+			}).ConfigureAwait(false);
+
+			return result;
+		}
+
+		public async Task<Result<List<Dictionary<string, object>>>> Search(string query, int offset = 0, double FTTWeight = 0.5, double RWeight = 0.5)
+		{
+			var result = await _executeDataAccess.Execute("SearchShowcases", new Dictionary<string, object>()
+			{
+				{ "Query", query },
+				{ "Offset", offset },
+				{ "FTTableRankWeight", FTTWeight },
+				{ "RatingsRankWeight", RWeight },
+			}).ConfigureAwait(false);
+
+			return result;
+		}
+
+		public async Task<Result> AddComment(string showcaseId, int accountId, string commentText, DateTime time)
         {
             if (showcaseId == null || showcaseId.Length == 0)
             {
