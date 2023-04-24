@@ -2,9 +2,6 @@
 using DevelopmentHell.Hubba.Files.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
-using System.Net.Http.Headers;
-using Azure;
-using Azure.Core;
 using FluentFTP;
 using FluentFTP.Exceptions;
 using FluentFTP.Helpers;
@@ -15,7 +12,8 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
 {
     public class FTPFileService : IFileService
     {
-        private static FtpWebRequest? _request;
+        // removed for warning
+        //private static FtpWebRequest? _request;
         private readonly string _ftpServer;
         private readonly string _httpServer;
         private readonly string _ftpUsername;

@@ -28,7 +28,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                         first = false;
                         if (filter.Op.ToLower() == "in" && filter.Value is string inValues)
                         {
-
                             string[] valueArray = inValues.Split(',');
                             string[] paramNames = new string[valueArray.Length];
                             for (int i = 0; i < valueArray.Length; i++)
@@ -55,8 +54,28 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                 //    logMessage += string.Format("{0} = {1}\n", param.ParameterName, param.Value);
                 //}
                 //Console.WriteLine(logMessage);
-
                 return await SendQuery(deleteCommand).ConfigureAwait(false);
+            }
+        }
+
+        public async Task<Result> DeleteWhereIn(string source, string key, List<string> inValues)
+        {
+            using (SqlCommand insertQuery = new SqlCommand())
+            {
+                bool first = true;
+                StringBuilder sbInValues = new();
+                foreach (string value in inValues)
+                {
+                    if (!first)
+                    {
+                        sbInValues.Append(", ");
+                    }
+                    first = false;
+                    sbInValues.Append($"'{value}'");
+                }
+
+                insertQuery.CommandText = $"DELETE FROM {source} WHERE {key} IN ({sbInValues})";
+                return await SendQuery(insertQuery).ConfigureAwait(false);
             }
         }
     }

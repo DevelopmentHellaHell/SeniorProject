@@ -1,0 +1,17 @@
+
+.listing-ratings-container table {
+    width: 100%;
+}
+
+.listing-ratings-container, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+.listing-ratings-container, th {
+    text-align: center;
+}
+
+.listing-ratings-container, td {
+    text-align: left;
+}

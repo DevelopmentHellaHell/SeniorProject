@@ -15,6 +15,10 @@ using DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Implementations;
 using DevelopmentHell.Hubba.CellPhoneProvider.Service.Implementations;
+using DevelopmentHell.Hubba.Collaborator.Manager.Abstractions;
+using DevelopmentHell.Hubba.Collaborator.Manager.Implementations;
+using DevelopmentHell.Hubba.Collaborator.Service.Abstractions;
+using DevelopmentHell.Hubba.Collaborator.Service.Implementations;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
 using DevelopmentHell.Hubba.Discovery.Manager.Abstractions;
@@ -22,6 +26,10 @@ using DevelopmentHell.Hubba.Discovery.Manager.Implementations;
 using DevelopmentHell.Hubba.Discovery.Service.Implemenatations;
 using DevelopmentHell.Hubba.Email.Service.Abstractions;
 using DevelopmentHell.Hubba.Email.Service.Implementations;
+using DevelopmentHell.Hubba.Files.Service.Abstractions;
+using DevelopmentHell.Hubba.Files.Service.Implementations;
+using DevelopmentHell.Hubba.ListingProfile.Manager.Implementations;
+using DevelopmentHell.Hubba.ListingProfile.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Notification.Manager.Abstractions;
@@ -48,6 +56,8 @@ using DevelopmentHell.Hubba.UserManagement.Service.Abstractions;
 using DevelopmentHell.Hubba.UserManagement.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
+using DevelopmentHell.ListingProfile.Manager.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 using System.Security.Claims;
 using HubbaAuthenticationManager = DevelopmentHell.Hubba.Authentication.Manager.Implementations;
@@ -138,12 +148,14 @@ builder.Services.AddTransient<INotificationManager, NotificationManager>(s =>
 builder.Services.AddTransient<IListingsDataAccess, ListingsDataAccess>(s =>
     new ListingsDataAccess(
         HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
-        HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesTable"]!
+        HubbaConfig.ConfigurationManager.AppSettings["ListingsTable"]!
     )
 );
+
 builder.Services.AddTransient<ICollaboratorsDataAccess, CollaboratorsDataAccess>(s =>
 	new CollaboratorsDataAccess(
-		HubbaConfig.ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!
+		HubbaConfig.ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!,
+        HubbaConfig.ConfigurationManager.AppSettings["CollaboratorsTable"]!
     )
 );
 builder.Services.AddTransient<IProjectShowcasesDataAccess, ProjectShowcasesDataAccess>(s =>
@@ -193,6 +205,16 @@ builder.Services.AddTransient<IOTPService, OTPService>(s =>
         s.GetService<ICryptographyService>()!
     );
 });
+
+builder.Services.AddTransient<IFileService, FTPFileService>(s =>
+    new FTPFileService
+            (
+                HubbaConfig.ConfigurationManager.AppSettings["FTPServer"]!,
+                HubbaConfig.ConfigurationManager.AppSettings["FTPUsername"]!,
+                HubbaConfig.ConfigurationManager.AppSettings["FTPPassword"]!,
+                s.GetService<ILoggerService>()!
+            )
+);
 builder.Services.AddTransient<IAuthorizationService, AuthorizationService>(s =>
     new AuthorizationService(
         new UserAccountDataAccess(
@@ -295,6 +317,72 @@ builder.Services.AddTransient<IUserManagementManager, UserManagementManager>(s =
             HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
             HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
         )
+    )
+);
+builder.Services.AddTransient<ICollaboratorService, CollaboratorService>(s =>
+    new CollaboratorService(
+        new CollaboratorsDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["CollaboratorsTable"]!),
+        new CollaboratorFileDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["CollaboratorFilesTable"]!),
+        new CollaboratorFileJunctionDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["CollaboratorFileJunctionTable"]!),
+        new CollaboratorUserVoteDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["CollaboratorUserVotesTable"]!),
+        s.GetService<IFileService>()!,
+        s.GetService<ILoggerService>()!,
+        s.GetService<IValidationService>()!
+    )
+);
+builder.Services.AddTransient<ICollaboratorManager, CollaboratorManager>(s =>
+    new CollaboratorManager(
+        s.GetService<ICollaboratorService>()!,
+        s.GetService<IAuthorizationService>()!,
+        s.GetService<ILoggerService>()!,
+        s.GetService<IValidationService>()!
+    )
+);
+builder.Services.AddTransient<IListingProfileManager, ListingProfileManager>(s =>
+    new ListingProfileManager
+    (
+        new ListingProfileService
+        (
+            new ListingsDataAccess
+            (
+                HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+                HubbaConfig.ConfigurationManager.AppSettings["ListingsTable"]!
+            ),
+            new ListingAvailabilitiesDataAccess
+            (
+                HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+                HubbaConfig.ConfigurationManager.AppSettings["ListingAvailabilitiesTable"]!
+            ),
+            new ListingHistoryDataAccess
+            (
+                HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+                HubbaConfig.ConfigurationManager.AppSettings["ListingHistoryTable"]!
+            ),
+            new RatingDataAccess
+            (
+                HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+                HubbaConfig.ConfigurationManager.AppSettings["ListingRatingsTable"]!
+            ),
+            new UserAccountDataAccess
+            (
+                HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+                HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
+            ),
+            s.GetService<ILoggerService>()!
+        ),
+        s.GetService<IFileService>()!,
+        s.GetService<IAuthorizationService>()!,
+        s.GetService<ILoggerService>()!,
+        s.GetService<IValidationService>()!,
+        s.GetService<ICryptographyService>()!
     )
 );
 

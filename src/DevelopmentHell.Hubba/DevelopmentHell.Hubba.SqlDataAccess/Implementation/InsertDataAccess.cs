@@ -1,6 +1,7 @@
 using DevelopmentHell.Hubba.Models;
 using Microsoft.Data.SqlClient;
 using System.Windows.Markup;
+using System.Runtime.CompilerServices;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 {
@@ -67,6 +68,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                 bool first = true;
                 foreach (KeyValuePair<string, object> pair in values)
                 {
+                    if (pair.Value == null)
+                    {
+                        continue;
+                    }
                     if (!first)
                     {
                         columnString += ", ";

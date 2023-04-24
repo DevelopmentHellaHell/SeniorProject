@@ -47,14 +47,30 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 )
             },
             {
+                Databases.COLLABORATOR_PROFILES,
+                new (
+                    "DevelopmentHell.Hubba.CollaboratorProfiles",
+                    ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!,
+                    new ()
+                    {
+                        { Tables.COLLABORATOR_FILE_JUNCTION, ConfigurationManager.AppSettings["CollaboratorFileJunctionTable"]! },
+                        { Tables.COLLABORATORS, ConfigurationManager.AppSettings["CollaboratorsTable"]! },
+                        { Tables.COLLABORATOR_FILES, ConfigurationManager.AppSettings["CollaboratorFilesTable"]! },
+                        { Tables.USER_VOTES, ConfigurationManager.AppSettings["CollaboratorUserVotesTable"]! }
+                    }
+                )
+            },
+            {
                 Databases.LISTING_PROFILES,
                 new (
                     "DevelopmentHell.Hubba.ListingProfiles",
                     ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
                     new ()
                     {
+                        { Tables.LISTING_RATINGS, ConfigurationManager.AppSettings["ListingRatingsTable"]! },
+                        { Tables.LISTING_HISTORY, ConfigurationManager.AppSettings["ListingHistoryTable"]! },
                         { Tables.LISTINGS, ConfigurationManager.AppSettings["ListingsTable"]! },
-                        { Tables.LISTING_AVAILABILITIES, ConfigurationManager.AppSettings["ListingAvailabilitiesTable"]! },
+                        { Tables.LISTING_AVAILABILITIES, ConfigurationManager.AppSettings["ListingAvailabilitiesTable"]! }
                         { Tables.BOOKINGS, ConfigurationManager.AppSettings["BookingsTable"]! },
                         { Tables.BOOKEDTIMEFRAMES, ConfigurationManager.AppSettings["BookedTimeFramesTable"]! },
                     }

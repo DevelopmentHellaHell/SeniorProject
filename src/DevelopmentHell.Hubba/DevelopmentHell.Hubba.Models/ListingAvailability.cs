@@ -12,4 +12,3 @@ namespace DevelopmentHell.Hubba.Models
     // { [null: 1, 2], [4: 6, 8], [7: -1, -1] }
     // { [add], [update], [delete] } 
 }
-

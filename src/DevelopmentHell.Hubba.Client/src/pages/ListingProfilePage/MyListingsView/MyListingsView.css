@@ -1,0 +1,36 @@
+.my-listing-view-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+
+  
+.my-listing-view-container .listings-found table {
+    width: 100%;
+}
+
+.my-listing-view-container .listings-found table , th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+.my-listing-view-container .listings-found table, th {
+    text-align: center;
+}
+
+.my-listing-view-container .listings-found table, td {
+    text-align: left;
+}
+
+  
+/* .no-listings {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+  
+  .no-listings h2 {
+    margin-bottom: 10px;
+} */

@@ -1,0 +1,40 @@
+.listingprofile-container {
+    position: relative;
+    display: flex;
+    flex-flow: column;
+    flex-grow: 1;
+}
+
+.listingprofile-container .listingprofile-content {
+    display: flex;
+    padding-bottom: 2.5rem;
+    flex-grow: 1;
+    
+
+}
+.listingprofile-container .listingprofile-container .listingprofile-wrapper {
+    color: rgb(var(--primary-text-dark));
+    text-align: center;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+
+.listingprofile-container .selection-bar {
+    width: 5px;
+    height: 20px;
+    border-radius: 3px;
+    background-color: rgb(var(--primary-text-dark));
+}
+.no-listings {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+  }
+  
+  .no-listings h2 {
+    margin-bottom: 10px;
+  }
+
