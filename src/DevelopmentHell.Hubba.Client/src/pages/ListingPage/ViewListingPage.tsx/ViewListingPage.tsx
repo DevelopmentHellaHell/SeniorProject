@@ -42,24 +42,28 @@ interface IViewListingData {
 
 const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
     const { state } = useLocation();
-    const [error, setError] = useState<string>("Error");
+    const [error, setError] = useState<string | undefined>(undefined);
     const [loaded, setLoaded] = useState<boolean>(false);
     const [data, setData] = useState<IViewListingData | null>(null);
     const navigate = useNavigate();
     const authData = Auth.getAccessData();
-    const isPublished = data?.Listing.published;
+    const [isPublished, setIsPublished] = useState<boolean>(false);
     const [currentImage, setCurrentImage] = useState<number>(0);
-
 
     useEffect(() => {
     const getData = async () => {
         const response = await Ajax.post<IViewListingData>('/listingprofile/viewListing', { listingId: state.listingId });
         console.log(response.data);
-        setData(response.data);
-        setError(response.error);
+        if (response.data) {
+            setData(response.data);
+            setIsPublished(response.data.Listing.published!);
+        }
+        if (response.error) {
+            setError(response.error);
+        }
+        
         setLoaded(response.loaded);
-    };
-
+        };
     getData();
     }, []);
 
@@ -75,6 +79,14 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
         );
       };
 
+      useEffect(() => {
+        if (error !== undefined) {
+          alert(error);
+          setError(undefined);
+        }
+        
+      }, [error]);
+
     return (
         <div className="listing-container">
             <NavbarUser /> 
@@ -85,7 +97,14 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                             <div className="listing-page-status"> { isPublished ? 'Public' : 'Draft'  } </div> 
                             <p> { isPublished && authData?.sub==data.Listing.ownerId.toString() && <div>
                                     <Button theme={ButtonTheme.DARK} onClick={() => { navigate("/editlisting", { state: { listingId: data.Listing.listingId }})} } title={"Edit Listing"} />
-                                    <Button theme={ButtonTheme.DARK} onClick={async () => { await Ajax.post("/listingprofile/unpublishListing", { state: { listingId: data.Listing.listingId }})} } title={"Unpublish Listing"} />
+                                    <Button theme={ButtonTheme.DARK} onClick={async () => { 
+                                        const response = await Ajax.post("/listingprofile/unpublishListing", { listingId: data.Listing.listingId })
+                                        if (response.error) {
+                                            setError(response.error);
+                                            return;
+                                        }
+                                        setIsPublished(false);
+                                    }} title={"Unpublish Listing"} />
                                 </div>}
                                 { !isPublished && authData?.sub==data.Listing.ownerId.toString() && <div>
                                     <Button theme={ButtonTheme.DARK} onClick={() => { navigate("/editlisting", { state: { listingId: data.Listing.listingId }})} } title={"Edit Listing"} />
@@ -94,6 +113,7 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                             <h2 className="listing-page__title">{data.Listing.title}</h2>
                             {data.Files && data.Files.length > 0 && (
                                 <div className="listing-page__image-wrapper">
+                                    { data!.Files![currentImage].toString().substring(data!.Files![currentImage].toString().lastIndexOf('/') + 1) } {currentImage + 1} / {data!.Files!.length}
                                 <img
                                     className="listing-page__picture"
                                     src={data.Files[currentImage]?.toString()}

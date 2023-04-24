@@ -201,7 +201,11 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
     
     const handlePublishSubmit = async () =>  {
         const response = await Ajax.post<null>("/listingprofile/publishListing", { ListingId: data?.Listing.listingId});
-        setError(response.error);
+        if (response.error) {
+            setError(response.error);
+            return;
+        }
+        return navigate("/viewlisting", { state: {listingId: state.listingId}});
     }
 
     return (
@@ -240,6 +244,7 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
                         <h2 className="listing-page__title">{data.Listing.title}</h2>
                         {data.Files && data.Files.length > 0 && (
                           <div className="listing-page__image-wrapper">
+                            { data!.Files![currentImage].toString().substring(data!.Files![currentImage].toString().lastIndexOf('/') + 1) } {currentImage + 1} / {data!.Files!.length}
                           <img
                             className="listing-page__picture"
                             src={data.Files[currentImage]?.toString()}
@@ -275,16 +280,24 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
                         </div>
                           
                         )}
-                        { deletedFileNames.map(fileName => {
-                            return(
-                                <li>{fileName}</li>
-                             )}) 
+                        { deletedFileNames.length > 0 &&
+                            <div>File(s) to delete:
+                            { deletedFileNames.map(fileName => {
+                                return(
+                                    
+                                        <li>{fileName}</li>
+                                    
+                                )}) 
+                            }
+                            </div>
                         }
+                        
                        <form onSubmit={handleFileSubmit}>
-                            <input type="file" accept=".jpg,.jpeg,.png" multiple onChange={handleFileSelect} />
+                            <input type="file" accept=".jpg,.jpeg,.png,.mp4" multiple onChange={handleFileSelect} />
                             {files.length > 0 && (
                                 <ul>
-                                {files.map((file, index) => (
+                                    <div>File(s) to add:
+                                    {files.map((file, index) => (
                                     <li key={file.name}>
                                     <input
                                         type="text"
@@ -293,6 +306,8 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
                                     />
                                     </li>
                                 ))}
+                                    </div>
+                                
                                 </ul>
                             )}
                             <button type="submit">Submit file changes</button>

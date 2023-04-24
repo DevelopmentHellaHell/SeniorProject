@@ -706,7 +706,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             return Result<List<string>>.Success(getFiles.Payload);
         }
 
-        public async Task<Result> EditListingFiles(int listingId, List<string>? deleteListingNames, List<Tuple<string, string>> addListingFiles)
+        public async Task<Result> EditListingFiles(int listingId, List<string>? deleteListingNames, List<Tuple<string, string>>? addListingFiles)
         {
             //authorize
             if (!_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
@@ -745,6 +745,18 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 }
                 await _fileService.CreateDir(dir + "Pictures/").ConfigureAwait(false);
                 await _fileService.CreateDir(dir + "Videos/").ConfigureAwait(false);
+
+                picturesStored = _fileService.GetFilesInDir(dir + "Pictures/").Result.Payload.Count();
+                if (picturesStored + pictureFiles.Count > 10)
+                {
+                    return new(Result.Failure("Maximum of 10 pictures per listing.", StatusCodes.Status400BadRequest));
+                }
+
+                var videosStored = _fileService.GetFilesInDir(dir + "Videos/").Result.Payload.Count();
+                if (videosStored + videoFiles.Count > 2)
+                {
+                    return new(Result.Failure("Maximum of 2 videos per listing.", StatusCodes.Status400BadRequest));
+                }
 
                 Result fileUploadResults = new Result();
                 bool uploadErrorFound = false;
