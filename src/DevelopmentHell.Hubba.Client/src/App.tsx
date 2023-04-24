@@ -13,8 +13,10 @@ import NotificationPage from "./pages/NotificationPage/NotificationPage";
 import RegistrationPage from "./pages/RegistrationPage/RegistrationPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage/AdminDashboardPage";
 import AccountRecoveryPage from "./pages/AccountRecoveryPage/AccountRecoveryPage";
-import "./App.css";
 import NotificationStateProvider from "./NotificationStateProvider";
+import OpenTimeSlotsView from "./pages/SchedulingPage/OpenSlotsView";
+import "./App.css";
+import OpenSlotsView from "./pages/SchedulingPage/OpenSlotsView";
 
 interface IAppProps {
 
@@ -30,6 +32,7 @@ const App: React.FC<IAppProps> = (props) => {
 						<Route index element={<HomePage />} />
 						<Route path="*" element={<Navigate to='/' replace />} />
 						<Route path="/unauthorized" element={<Unauthorized />} />
+						
 						
 						{/* Public routes - no auth */}
 						<Route path="/registration" element={
@@ -47,7 +50,11 @@ const App: React.FC<IAppProps> = (props) => {
 								<AccountRecoveryPage />
 							</PublicOutlet>
 						} />
-						
+						<Route path="/scheduling" element={
+							<PublicOutlet redirectPath="/">
+								<OpenSlotsView listingId={0} />
+							</PublicOutlet>
+						} />
 						
 						{/* Protect/private routes - with auth */}
 						<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.VERIFIED_USER, Auth.Roles.ADMIN_USER]} />}>

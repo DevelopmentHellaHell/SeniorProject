@@ -1,0 +1,63 @@
+.opentimeslots-view-container {
+    position: relative;
+    display: flex;
+    flex-flow: column;
+    flex-grow: 1;
+  }
+  
+  .opentimeslots-view-container .opentimeslots-view-content {
+    display: flex;
+    padding-bottom: 2.5rem;
+    flex-grow: 1;
+  }
+  
+  .opentimeslots-view-container .opentimeslots-view-container .opentimeslots-view-wrapper {
+    color: rgb(var(--primary-text-dark));
+    text-align: center;
+  }
+  
+  .opentimeslots-view-card {
+    background-color: rgb(var(--primary-background-light));
+    padding: 20px 20px;
+    border: none;
+    border-radius: 10px;
+    width: 300px;
+    text-align: left;
+  }
+  
+  .opentimeslots-view-card .input-field {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    text-align: left;
+  }
+  
+  .opentimeslots-view-card .input-field label {
+    width: 150px;
+    margin-right: 10px;
+  }
+  
+  .opentimeslots-view-card .input-field input {
+    width: 40%;
+    padding: 5px 5px;
+    border: 1px solid rgb(var(--primary-text-dark));
+    border-radius: 3px;
+    row-gap: 5px;
+  }
+  
+  .opentimeslots-view-card .buttons {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .opentimeslots-view-card .info {
+    color: rgb(var(--secondary-text-dark));
+  }
+  
+  .opentimeslots-view-card .info:hover {
+    color: rgb(var(--primary-text-dark));
+  }
+  
+  .opentimeslots-view-card .error {
+    color: rgb(var(--error-text));
+  }
