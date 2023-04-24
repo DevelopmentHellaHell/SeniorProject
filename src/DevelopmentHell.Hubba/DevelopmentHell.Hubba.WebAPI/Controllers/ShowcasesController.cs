@@ -71,7 +71,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 
         }
         [HttpGet]
-        [Route("showcases/files")]
+        [Route("files")]
         public async Task<IActionResult> GetShowcaseFiles([FromQuery(Name="s")] string? showcaseId = null)
         {
             try
