@@ -46,6 +46,22 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     }
                 )
             },
+            {
+                Databases.PROJECTSHOWCASES,
+                new (
+                    "DevelopmentHell.Hubba.ProjectShowcases",
+                    ConfigurationManager.AppSettings["ProjectShowcasesConnectionString"]!,
+                    new ()
+                    {
+                        { Tables.SHOWCASES, ConfigurationManager.AppSettings["ShowcasesTable"]! },
+                        { Tables.SHOWCASEVOTES, ConfigurationManager.AppSettings["ShowcaseVotesTable"]! },
+                        { Tables.SHOWCASECOMMENTS, ConfigurationManager.AppSettings["ShowcaseCommentsTable"]! },
+                        { Tables.SHOWCASEREPORTS, ConfigurationManager.AppSettings["ShowcaseReportsTable"]! },
+                        { Tables.SHOWCASECOMMENTVOTES, ConfigurationManager.AppSettings["ShowcaseCommentVotesTable"]! },
+                        { Tables.SHOWCASECOMMENTREPORTS, ConfigurationManager.AppSettings["ShowcaseCommentReportsTable"]! }
+                    }
+                )
+            }
         };
 
         public TestsDataAccess() { }

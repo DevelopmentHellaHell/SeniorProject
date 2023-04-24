@@ -448,7 +448,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 new("Id","=",showcaseId)
             },
             new() {
-                { "ListingId", null }
+                { "ListingId", DBNull.Value }
             }).ConfigureAwait(false);
             return updateResult;
         }
@@ -466,18 +466,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         public async Task<Result<int>> UpdateCommentRating(int commentId, int difference)
         {
-
-            var updateResult = await _updateDataAccess.Update(_commentTableName, new()
-            { new Comparator("Id","=",commentId) },
-            new()
-            {
-                { "Rating", $"Rating + {difference}" }
-            });
-            if (!updateResult.IsSuccessful)
-            {
-                return new(Result.Failure("Unable to update Comment Rating"));
-            }
-
             var selectResult = await _selectDataAccess.Select(_commentTableName, new()
             { "Rating" },
             new()
@@ -497,7 +485,18 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 return new(Result.Failure($"Comment Id Does not exist: {selectResult.ErrorMessage}"));
             }
 
-            return Result<int>.Success((int)selectResult.Payload![0]["Rating"]);
+            var updateResult = await _updateDataAccess.Update(_commentTableName, new()
+            { new Comparator("Id","=",commentId) },
+            new()
+            {
+                { "Rating", (int)selectResult.Payload![0]["Rating"] + difference }
+            });
+            if (!updateResult.IsSuccessful)
+            {
+                return new(Result.Failure("Unable to update Comment Rating"));
+            }
+
+            return Result<int>.Success((int)selectResult.Payload![0]["Rating"] + difference);
         }
 
         public async Task<Result> UpdateUserCommentRating(int commentId, int voterId, bool isUpvote)
@@ -514,3 +513,5 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         }
     }
 }
+
+

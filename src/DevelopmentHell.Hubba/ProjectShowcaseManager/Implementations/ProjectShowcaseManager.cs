@@ -81,7 +81,8 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                         bytes = stream.ToArray();
                         stream.Read(bytes, 0, (int)stream.Length);
                     }
-                    var uploadResult = await _fileService.UploadFile($"showcases/{createResult.Payload!}",$"0{i}_{files[i].Name}", bytes);
+                    var uploadResult = await _fileService.UploadFile($"ProjectShowcases/{createResult.Payload!}",$"0{i}_{files[i].Name}", bytes);
+                    await _fileService.Disconnect();
                     if (!uploadResult.IsSuccessful)
                     {
                         return new(Result.Failure("Unable to upload file."));
@@ -190,7 +191,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
 
                 if (files != null && files.Count > 0)
                 {
-                    await _fileService.DeleteDir($"showcases/{showcaseId}");
+                    await _fileService.DeleteDir($"ProjectShowcases/{showcaseId}");
                     for (int i = 0; i < files.Count; i++)
                     {
                         byte[] bytes;
@@ -200,7 +201,8 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                             bytes = stream.ToArray();
                             stream.Read(bytes, 0, (int)stream.Length);
                         }
-                        var uploadResult = await _fileService.UploadFile($"showcases/{showcaseId}",$"0{i}_{files[i].Name}", bytes);
+                        var uploadResult = await _fileService.UploadFile($"ProjectShowcases/{showcaseId}",$"0{i}_{files[i].Name}", bytes);
+                        await _fileService.Disconnect();
                         if (!uploadResult.IsSuccessful)
                         {
                             return Result.Failure("Unable to upload new showcase files");
@@ -208,10 +210,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                     }
                 }
 
-                return new()
-                {
-                    IsSuccessful = true
-                };
+                return Result.Success();
             }
             catch (Exception ex)
             {
@@ -306,7 +305,8 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                     return new(Result.Failure(errorMessage));
                 }
 
-                Result<List<string>> getFilesResult = await _fileService.GetFilesInDir($"showcases/{showcaseId}");
+                Result<List<string>> getFilesResult = await _fileService.GetFilesInDir($"ProjectShowcases/{showcaseId}");
+                await _fileService.Disconnect();
                 if (!getFilesResult.IsSuccessful)
                 {
                     var errorMessage = $"Error in getting files for Showcase {showcaseId}: {getFilesResult.ErrorMessage}";

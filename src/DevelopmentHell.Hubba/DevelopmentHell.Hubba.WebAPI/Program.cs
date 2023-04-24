@@ -54,6 +54,7 @@ using DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions;
 using DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions;
 using DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations;
 using DevelopmentHell.Hubba.Files.Service.Abstractions;
+using DevelopmentHell.Hubba.Files.Service.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -298,6 +299,14 @@ builder.Services.AddTransient<IUserManagementManager, UserManagementManager>(s =
         )
     )
 );
+builder.Services.AddTransient<IFileService, IFileService>(s =>
+    new FTPFileService(
+        HubbaConfig.ConfigurationManager.AppSettings["FTPServer"]!,
+        HubbaConfig.ConfigurationManager.AppSettings["FTPUserName"]!,
+        HubbaConfig.ConfigurationManager.AppSettings["FTPPassword"]!,
+        s.GetService<ILoggerService>()!
+    )
+); ;
 builder.Services.AddTransient<IProjectShowcaseService, ProjectShowcaseService>(s =>
     new ProjectShowcaseService(
         new ProjectShowcaseDataAccess(

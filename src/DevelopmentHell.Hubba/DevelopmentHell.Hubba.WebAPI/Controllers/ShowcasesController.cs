@@ -70,6 +70,11 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 var showcaseResult = await _projectShowcaseManager.GetShowcase(showcaseId);
                 if (!showcaseResult.IsSuccessful)
                 {
+                    showcaseResult = await _projectShowcaseManager.GetShowcase(showcaseId);
+                    if (!showcaseResult.IsSuccessful)
+                    {
+                        return GetFuncCode((int)showcaseResult.StatusCode!)(showcaseResult.ErrorMessage!);
+                    }
                     return GetFuncCode((int)showcaseResult.StatusCode!)(showcaseResult.ErrorMessage!);
                 }
                 return Ok(showcaseResult.Payload);

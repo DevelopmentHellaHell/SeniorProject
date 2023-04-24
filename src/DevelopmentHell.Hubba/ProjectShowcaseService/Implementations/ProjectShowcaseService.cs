@@ -256,14 +256,14 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
                     ShowcaseComment nextComment = new();
                     nextComment.CommenterId = valDict["CommenterId"].GetType() == typeof(DBNull) ? null : (int)valDict["CommenterId"];
                     nextComment.ShowcaseId = valDict["ShowcaseId"].GetType() == typeof(DBNull) ? null : (string)valDict["ShowcaseId"];
-                    nextComment.Id = valDict["Id"].GetType() == typeof(DBNull) ? null : (int)valDict["Id"];
+                    nextComment.Id = valDict["Id"].GetType() == typeof(DBNull) ? null : (long)valDict["Id"];
                     nextComment.Text = valDict["Text"].GetType() == typeof(DBNull) ? null : (string)valDict["Text"];
                     nextComment.Rating = valDict["Rating"].GetType() == typeof(DBNull) ? null : (int)valDict["Rating"];
                     nextComment.Timestamp = valDict["Timestamp"].GetType() == typeof(DBNull) ? null : (DateTime)valDict["Timestamp"];
                     nextComment.EditTimestamp = valDict["EditTimestamp"].GetType() == typeof(DBNull) ? null : (DateTime?)valDict["EditTimestamp"];
 
 
-                    var userResult = await _userAccountDataAccess.GetUser((int)nextComment.Id!).ConfigureAwait(false);
+                    var userResult = await _userAccountDataAccess.GetUser((int)nextComment.CommenterId!).ConfigureAwait(false);
                     if (!userResult.IsSuccessful)
                     {
                         return new(Result.Failure($"Unable to get user email: {userResult.ErrorMessage}"));

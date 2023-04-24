@@ -10,8 +10,8 @@ namespace DevelopmentHell.Hubba.ProjectShowcase
 {
     public struct ShowcaseComment
     {
-        public int? Id { get; set; }
-        public long? CommenterId { get; set; }
+        public long? Id { get; set; }
+        public int? CommenterId { get; set; }
         public string? CommenterEmail { get; set; }
         public string? ShowcaseId { get; set; }
         public string? Text { get; set; }

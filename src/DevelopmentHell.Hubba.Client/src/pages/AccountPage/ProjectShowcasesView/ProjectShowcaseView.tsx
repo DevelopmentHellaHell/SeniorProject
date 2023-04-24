@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { redirect } from "react-router-dom";
+import { redirect, Link } from "react-router-dom";
 import { Ajax } from "../../../Ajax";
 import { Auth } from "../../../Auth";
 import Button, { ButtonTheme } from "../../../components/Button/Button";
@@ -56,6 +56,14 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
         Ajax.post(`/showcases/unpublish?s=${showcaseId}`, {}).then((response) => {
             if (response.error) {
                 setError("Error unpublishing showcase");
+            } else {
+                setData((prevData) =>
+                    prevData.map((showcaseData) =>
+                            showcaseData.id === showcaseId
+                            ? { ...showcaseData, isPublished: false}
+                            : showcaseData
+                        )
+                    );
             }
         });
     }
@@ -64,6 +72,14 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
         Ajax.post(`/showcases/publish?s=${showcaseId}`, {}).then((response) => {
             if (response.error) {
                 setError("Error publishing showcase");
+            } else {
+                setData((prevData) =>
+                    prevData.map((showcaseData) =>
+                            showcaseData.id === showcaseId
+                            ? { ...showcaseData, isPublished: true}
+                            : showcaseData
+                        )
+                    );
             }
         });
     }
@@ -146,15 +162,17 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
                         )
                     );
                 }} title={"Delete"}/>
-                <Button theme={ButtonTheme.DARK} onClick={() => {
-                    setData((prevData) =>
-                    prevData.map((showcaseData) =>
-                            showcaseData.id === showcaseDatam.id
-                            ? { ...showcaseData, confirmShowing: true, confirmAction: UnlinkShowcase }
-                            : showcaseData
-                        )
-                    );
-                }} title={"Unlink"}/>
+                {showcaseDatam.linkedListingId!=null&&
+                    <Button theme={ButtonTheme.DARK} onClick={() => {
+                        setData((prevData) =>
+                        prevData.map((showcaseData) =>
+                                showcaseData.id === showcaseDatam.id
+                                ? { ...showcaseData, confirmShowing: true, confirmAction: UnlinkShowcase }
+                                : showcaseData
+                            )
+                        );
+                    }} title={"Unlink"}/>
+                }
                 <Button theme={ButtonTheme.HOLLOW_DARK} onClick={() => {
                     EditShowcase(showcaseDatam.id);
                 }} title={"Edit"}/>
@@ -163,7 +181,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
     }
 
     useEffect(() => {
-        getData();
+        if (!loaded) getData();
     }, []);
 
 
@@ -176,9 +194,9 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
                 <td className="table-listing" onClick={() => {
                     redirect(`/listing/view?l=${showcaseData.linkedListingId}`)
                 }}>{showcaseData.linkedListingTitle}</td>
-                <td className="table-title" onClick={() => {
-                    redirect(`/showcases/view?s=${showcaseData.id}`);
-                }}>{showcaseData.title}</td>
+                <td className="table-title">
+                    <Link to={`/showcases/view?s=${showcaseData.id}`}>{showcaseData.title}</Link>
+                </td>
                 <td className="table-pubstatus">{
                     <svg className =  "vector-circle" width = "25" height = "25">
                         <circle cx = "12.5" cy = "12.5" r = "10" className = {IsPublishedClass} onClick={() => {

@@ -21,10 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Integration Tests\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\DevelopmentHell.Hubba.Authentication\DevelopmentHell.Hubba.Authentication.Service.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.Registration\DevelopmentHell.Hubba.Registration.Service.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.Testing.Service\DevelopmentHell.Hubba.Testing.Service.csproj" />
     <ProjectReference Include="..\ProjectShowcaseManager\DevelopmentHell.Hubba.ProjectShowcase.Manager.csproj" />
