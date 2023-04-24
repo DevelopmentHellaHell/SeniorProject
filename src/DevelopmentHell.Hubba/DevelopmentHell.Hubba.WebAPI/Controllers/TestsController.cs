@@ -47,6 +47,15 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         }
 
         [HttpPost]
+        [Route("createUser")]
+        public async Task<IActionResult> CreateUser(CreateAdminDTO createAdminDTO)
+        {
+
+            await _registrationService.RegisterAccount(createAdminDTO.Email!, createAdminDTO.Password!, "VerifiedUser").ConfigureAwait(false);
+            return Ok();
+        }
+
+        [HttpPost]
         [Route("deleteDatabaseRecords")]
         public async Task<IActionResult> DeleteDatabaseRecords(DBRecordsToDeleteDTO dbRecordsToDeleteDTO)
         {

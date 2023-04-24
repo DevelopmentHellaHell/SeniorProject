@@ -6,7 +6,8 @@
         LOGS,
         NOTIFICATIONS,
         COLLABORATOR_PROFILES,
-        LISTING_PROFILES
+        LISTING_PROFILES,
+        PROJECTSHOWCASES
     }
 
     public enum Tables

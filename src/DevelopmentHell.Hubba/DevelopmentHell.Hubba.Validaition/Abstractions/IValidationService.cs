@@ -16,13 +16,9 @@ namespace DevelopmentHell.Hubba.Validation.Service.Abstractions
         Result ValidateModel(Object obj);
         Result ValidateBodyText(string input);
         Result ValidateTitle(string title);
-
         Result ValidateRating(int rating);
-
         Result ValidateAvailability(ListingAvailabilityDTO listingAvailability);
-
         Result ValidateFiles(List<Tuple<string, string>> files);
-
         Result ValidateFile(IFormFile file);
     }
 }

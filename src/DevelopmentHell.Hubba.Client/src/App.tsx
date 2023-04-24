@@ -20,6 +20,11 @@ import ListingProfilePage from "./pages/ListingProfilePage/ListingProfilePage";
 import ViewListingPage from "./pages/ListingPage/ViewListingPage.tsx/ViewListingPage";
 import EditListingPage from "./pages/ListingPage/EditListingPage.tsx/EditListingPage";
 import ViewListingRatingsPage from "./pages/ListingPage/ViewListingPage.tsx/ViewListingRatingsPage/ViewListingRatingsPage";
+import DiscoverPage from "./pages/DiscoverPage/DiscoverPage";
+import ViewProjectShowcasePage from "./pages/ViewProjectShowcasePage/ViewProjectShowcasePage";
+import CreateProjectShowcasePage from "./pages/CreateProjectShowcasePage/CreateProjectShowcasePage";
+import EditProjectShowcasePage from "./pages/EditProjectShowcasePage/EditProjectShowcasePage";
+import EditProjectShowcaseCommentPage from "./pages/EditProjectShowcaseCommentPage/EditProjectShowcaseCommentPage";
 
 interface IAppProps {
 
@@ -33,11 +38,12 @@ const App: React.FC<IAppProps> = (props) => {
 					<Routes>
 						{/* Anyone can access */}
 						<Route index element={<HomePage />} />
-						<Route path="*" element={<Navigate to='/' replace />} />
+						<Route path="*" element={<Navigate to="/" replace />} />
+						<Route path="/discover" element={<DiscoverPage />} />
 						<Route path="/unauthorized" element={<Unauthorized />} />
 						<Route path="/viewlisting" element={<ViewListingPage />} />
 						<Route path="/viewlistingratings" element={<ViewListingRatingsPage /> } />
-						
+						<Route path="/showcases/view" element={<ViewProjectShowcasePage />}/>
 						
 						{/* Public routes - no auth */}
 						<Route path="/registration" element={
@@ -56,8 +62,6 @@ const App: React.FC<IAppProps> = (props) => {
 							</PublicOutlet>
 						} />
 						
-						
-						
 						{/* Protect/private routes - with auth */}
 						<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.VERIFIED_USER, Auth.Roles.ADMIN_USER]} />}>
 							<Route path="/account" element={<AccountPage />} />
@@ -66,10 +70,14 @@ const App: React.FC<IAppProps> = (props) => {
 							<Route path="/collaborator" element={<CollaboratorPage/>}/>
 							<Route path="/listingprofile" element={<ListingProfilePage />} />
 							<Route path="/editlisting" element={<EditListingPage />} />
+							<Route path="/showcases/new" element={<CreateProjectShowcasePage />}/>
+							<Route path="/showcases/edit" element={<EditProjectShowcasePage />}/>
+							<Route path="/showcases/comments/edit" element={<EditProjectShowcaseCommentPage />}/>
 						</Route>
 						<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.ADMIN_USER]}/>}>
 							<Route path="/admin-dashboard" element={<AdminDashboardPage />} />
 						</Route>
+						
 					</Routes>
 				</BrowserRouter>
 			</div>

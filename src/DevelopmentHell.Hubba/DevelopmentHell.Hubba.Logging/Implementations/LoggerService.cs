@@ -45,5 +45,10 @@ namespace DevelopmentHell.Hubba.Logging.Service.Implementations
             result.IsSuccessful = true;
             return result;
         }
+
+        public Result Error(Category category, string message, string? userName = null) => Log(LogLevel.ERROR, category, message, userName);
+        public Result Warning(Category category, string message, string? userName = null) => Log(LogLevel.WARNING, category, message, userName);
+        public Result Info(Category category, string message, string? userName = null) => Log(LogLevel.INFO, category, message, userName);
+        public Result Debug(Category category, string message, string? userName = null) => Log(LogLevel.DEBUG, category, message, userName);
     }
 }

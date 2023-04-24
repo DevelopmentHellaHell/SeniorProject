@@ -39,7 +39,6 @@ namespace DevelopmentHell.Hubba.Analytics.Test
 		private string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
 		private string _userOTPsTable = ConfigurationManager.AppSettings["UserOTPsTable"]!;
 		private string _userLoginsTable = ConfigurationManager.AppSettings["UserLoginsTable"]!;
-		private string _recoveryRequestsTable = ConfigurationManager.AppSettings["RecoveryRequestsTable"]!;
 
 		private string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
 		private string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;

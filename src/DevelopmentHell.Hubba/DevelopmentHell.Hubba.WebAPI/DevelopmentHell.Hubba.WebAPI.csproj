@@ -37,6 +37,7 @@
     <ProjectReference Include="..\DevelopmentHell.Hubba.Scheduling.Service\DevelopmentHell.Hubba.Scheduling.Service.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.Testing.Service\DevelopmentHell.Hubba.Testing.Service.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.UserManagement.Manager\DevelopmentHell.Hubba.UserManagement.Manager.csproj" />
+    <ProjectReference Include="..\ProjectShowcaseManager\DevelopmentHell.Hubba.ProjectShowcase.Manager.csproj" />
   </ItemGroup>
 
 </Project>
