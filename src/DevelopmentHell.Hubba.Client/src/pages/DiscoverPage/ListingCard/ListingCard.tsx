@@ -15,8 +15,7 @@ const ListingCard: React.FC<IListingCardProps> = (props) => {
 
     useEffect(() => {
         const getFile = async () => {
-            const response = await Ajax.post<string[]>("/listingprofile/getListingFiles", { "ListingId": props.data.ListingId });
-
+            const response = await Ajax.post<string[]>("/listingprofile/getListingFiles", { ListingId: props.data.ListingId });
             setError(response.error);
             setLoaded(response.loaded);
 
@@ -27,12 +26,12 @@ const ListingCard: React.FC<IListingCardProps> = (props) => {
 
         getFile();
     }, [props.data]);
-
+    
     return (
         <div className="listing-card" onClick={() => { alert(props.data.ListingId) }}>
             {!error &&
                 <div>
-                    <img className="thumbnail" src={thumbnail} alt="alternatetext" />
+                    <img className="thumbnail" src={thumbnail} />
                     <div className="info-block">
                         <p className="title">{props.data.Title}</p>
                         <div className="rating-block">

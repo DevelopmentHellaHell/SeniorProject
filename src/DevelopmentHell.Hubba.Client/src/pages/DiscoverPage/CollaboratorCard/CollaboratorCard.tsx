@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { IDiscoveryCollaborator } from "../DiscoverPage";
 import "./CollaboratorCard.css";
+import { Ajax } from "../../../Ajax";
 
 interface ICollaboratorCardProps {
     data: IDiscoveryCollaborator;
@@ -8,18 +9,46 @@ interface ICollaboratorCardProps {
 }
 
 const CollaboratorCard: React.FC<ICollaboratorCardProps> = (props) => {
+    const [thumbnail, setThumbnail] = useState<string | undefined>(undefined);
+    const [error, setError] = useState("");
+    const [loaded, setLoaded] = useState(false);
+    
+    useEffect(() => {
+        const getFile = async () => {
+            const response = await Ajax.post<string[]>("/collaborator/getFiles", { CollaboratorId: props.data.CollaboratorId });
+
+            setError(response.error);
+            setLoaded(response.loaded);
+
+            if (response.data) {
+                setThumbnail(response.data[0]);
+            }
+        }
+
+        getFile();
+    }, [props.data]);
+
     return (
         <div className="collaborator-card" onClick={() => { alert(props.data.CollaboratorId) }}>
-            <img className="thumbnail" src={`http://104.187.196.233/CollaboratorProfile/${props.data.CollaboratorId}/1.png`} />
-            <div className="info-block">
-                <p className="title">{props.data.Name}</p>
-                <div className="rating-block">
-                    <span className="star">★</span><p className="count">{props.data.TotalVotes}</p>
+            {!error && 
+                <div>
+                    <img className="thumbnail" src={thumbnail} />
+                    <div className="info-block">
+                        <p className="title">{props.data.Name}</p>
+                        <div className="rating-block">
+                            <span className="star">★</span><p className="count">{props.data.TotalVotes}</p>
+                        </div>
+                        <div className="description">
+
+                        </div>
+                    </div>
                 </div>
-                <div className="description">
-                    {/*<p>{props.data.Description + "test test test test test 123q42r fa a asfasd aaaaaaaaaaaaaaaaaaaaa"}</p>*/}
+            }
+            {error && 
+                <div className="error">
+                    <p>{error}</p>
                 </div>
-            </div>
+            }
         </div> 
     );
 }

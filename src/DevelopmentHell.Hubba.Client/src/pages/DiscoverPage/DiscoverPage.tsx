@@ -93,7 +93,7 @@ const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
             } 
 
             if (response.data) {
-                fill(response.data!.listings, {
+                fill(response.data.listings, {
                     AvgRatings: 0,
                     ListingId: -1,
                     Location: "Empty",
@@ -102,12 +102,13 @@ const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
                     Title: "Empty",
                     TotalRatings: 0,
                 }, 5);
-                fill(response.data!.collaborators, {
+                console.log(response.data);
+                fill(response.data.collaborators, {
                     CollaboratorId: -1,
                     Name: "Empty",
                     TotalVotes: 0,
                 }, 5);
-                fill(response.data!.showcases, {
+                fill(response.data.showcases, {
                     Id: -1,
                     Title: "Empty",
                     Rating: 0,

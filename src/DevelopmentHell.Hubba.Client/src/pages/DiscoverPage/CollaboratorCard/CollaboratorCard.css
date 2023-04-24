@@ -45,3 +45,8 @@
     max-height: 60px;
     line-height: 1.1em;
 }
+
+.collaborator-card .error {
+    color: rgb(var(--error-text));
+    padding: 20px;
+}

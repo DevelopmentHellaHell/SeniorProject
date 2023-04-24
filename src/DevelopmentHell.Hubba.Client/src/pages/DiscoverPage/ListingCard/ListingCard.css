@@ -64,3 +64,8 @@
 .listing-card .description {
     margin-top: -10px;
 }
+
+.listing-card .error {
+    color: rgb(var(--error-text));
+    padding: 20px;
+}
