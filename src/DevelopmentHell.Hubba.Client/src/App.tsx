@@ -16,6 +16,7 @@ import AccountRecoveryPage from "./pages/AccountRecoveryPage/AccountRecoveryPage
 import "./App.css";
 import NotificationStateProvider from "./NotificationStateProvider";
 import ViewProjectShowcasePage from "./pages/ViewProjectShowcasePage/ViewProjectShowcasePage";
+import CreateProjectShowcasePage from "./pages/CreateProjectShowcasePage/CreateProjectShowcasePage";
 
 interface IAppProps {
 
@@ -48,6 +49,7 @@ const App: React.FC<IAppProps> = (props) => {
 								<AccountRecoveryPage />
 							</PublicOutlet>
 						} />
+						<Route path="/showcases/view" element={<ViewProjectShowcasePage />}/>
 
 
 						{/* Protect/private routes - with auth */}
@@ -55,11 +57,12 @@ const App: React.FC<IAppProps> = (props) => {
 							<Route path="/account" element={<AccountPage />} />
 							<Route path="/logout" element={<LogoutPage />} />
 							<Route path="/notification" element={<NotificationPage />} />
-							<Route path="/showcases/view" element={<ViewProjectShowcasePage />}/>
+							<Route path="/showcases/new" element={<CreateProjectShowcasePage />}/>
 						</Route>
 						<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.ADMIN_USER]}/>}>
 							<Route path="/admin-dashboard" element={<AdminDashboardPage />} />
 						</Route>
+						
 					</Routes>
 				</BrowserRouter>
 			</div>

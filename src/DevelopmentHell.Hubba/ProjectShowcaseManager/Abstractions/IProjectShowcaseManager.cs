@@ -30,8 +30,8 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions
         Task<Result<List<CommentReport>>> GetAllCommentReports();
         Task<Result<List<CommentReport>>> GetCommentReports(int commentId);
         Task<Result<double>> LikeShowcase(string showcaseId);
-        Task<Result<string>> CreateShowcase(int listingId, string title, string description, List<IFormFile> files);
-        Task<Result> EditShowcase(string showcaseId, int? listingId, string? title, string? description, List<IFormFile>? files);
+        Task<Result<string>> CreateShowcase(int listingId, string title, string description, List<Tuple<string,string>> files);
+        Task<Result> EditShowcase(string showcaseId, int? listingId, string? title, string? description, List<Tuple<string,string>>? files);
         Task<Result> DeleteShowcase(string showcaseId);
         Task<Result> Publish(string showcaseId, int? listingId);
         Task<Result> Unpublish(string showcaseId);

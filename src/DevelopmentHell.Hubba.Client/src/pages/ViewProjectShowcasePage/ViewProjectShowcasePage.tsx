@@ -1,5 +1,5 @@
 import React, {  useEffect, useState } from "react";
-import { redirect, useLocation } from "react-router-dom";
+import { redirect, useLocation, useNavigate } from "react-router-dom";
 import { Auth } from "../../Auth";
 import { Ajax } from "../../Ajax";
 import Footer from "../../components/Footer/Footer";
@@ -7,6 +7,7 @@ import NavbarUser from "../../components/NavbarUser/NavbarUser";
 import "./ViewProjectShowcasePage.css";
 import LikeButton from "../../components/Heart/Heart";
 import Button, { ButtonTheme } from "../../components/Button/Button";
+import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
 
 interface IViewProjectShowcasePageProps {
 
@@ -24,6 +25,7 @@ interface IProjectShowcase {
     rating: number;
     editTimestamp: Date;
     publishTimestamp: Date;
+    liked: boolean;
 }
 
 interface IShowcaseComment {
@@ -52,6 +54,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
     const [loaded, setLoaded] = useState(false);
     const [commentPage, setCommentPage] = useState(1);
     const [commentCount, setCommentCount] = useState(10);
+    const [shared, setShared] = useState(false);
 
 
     const authData = Auth.getAccessData();
@@ -59,10 +62,9 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
     const searchParams = new URLSearchParams(search);
     const showcaseId = searchParams.get("s");
 
-    if (!authData) {
-        redirect("/login");
-        return null;
-    }
+    
+
+    const navigate = useNavigate();
     
 
     const getData = async () => {
@@ -87,7 +89,8 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
     }
 
     useEffect(() => {
-        getData();
+        if (!loaded)
+            getData();
     }, []);
 
     interface ImageSliderProps {
@@ -120,30 +123,51 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
 
     return (
         <div className="view-project-showcase-container">
+            {!authData && <NavbarGuest />}
             <NavbarUser />
 
-            <div className="hubba-content">
+            <div className="view-project-showcase-content">
+                {error
+                            ? <p className='error-output'>{error}</p>
+                            : ( !(loaded && images && images.length > 0) ?  <h1>Loading...</h1> :
                 <div className="view-project-showcase-wrapper">
                     <div className="showcase-header">
-                        <h1>Project Title</h1>
-                        <h2>Listing Title: "Listing Title"</h2>
+                        <div className="h-stack"> 
+                            <h1>{showcase?.title}</h1>
+                            <div>
+                                <button className="report-button">report</button>
+                            </div>
+                        </div>
+                        <Button theme={ButtonTheme.DARK} title="Go To Listing" onClick={() => {
+                            navigate('/viewListing', { state: { listingId: showcase?.listingId} })
+                        }}/>
                         <div className="h-stack">
-                            <LikeButton size="100" enabled={true} defaultOn={false} 
+                            <LikeButton size="50" enabled={true} defaultOn={false} 
                             OnLike={ () => {
-                                console.log("Liked");
+                                Ajax.post(`/showcases/like?s=${showcaseId}`, { }).then((response) => {
+                                    if (!response.error){
+                                        console.log("Liked");
+                                        alert("Liked Showcase");
+                                    }
+                                    else {
+                                        alert("Unable to like at this time.");
+                                    }
+                                });
                             }} 
                             OnUnlike={ () => {
                                 console.log("Unliked");
                             }}/>
-                            <h3>(XX Likes)</h3>
-                            <h3>Share This Project</h3>
+                            <h3 className="showcase-rating-text">{showcase?.rating} Likes</h3>
+                            <Button theme={ButtonTheme.DARK} title="Share This Showcase" onClick={() => { 
+                                navigator.clipboard.writeText(`${window.location.href}`);
+                                setShared(true);
+                                alert(`Link Copied! : ${window.location.href}`)
+                            }}/>
+                            {shared && <p>Link Copied!</p>}
                         </div>
                     </div>
                     <div className="showcase-images">
-                        {error
-                            ? <p className='error-output'>{error}</p>
-                            : (loaded && images && images.length > 0 ? <ImageSlider images={images} /> : <h1>Loading...</h1>)
-                        }
+                        <ImageSlider images={images} />
                     </div>
                     <div className="showcase-description">
                         <h3>Description</h3>
@@ -161,9 +185,17 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                 return (
                                     <div className="comment" >
                                         <hr></hr>
-                                        <rect>
+                                        <div className="h-stack">
                                             <h4>{comment.commenterEmail.split("@")[0]}</h4>
-                                            <p>{comment.text}</p>
+                                            {authData && comment.commenterId.toString() == authData.sub &&
+                                                <div className="owned-comment">
+                                                    <button>edit</button>
+                                                    <button>delete</button>
+                                                </div>
+                                            }
+                                        </div>
+                                        <p>{comment.text}</p>
+                                        <div className="vote-control">
                                             <div className="h-stack">
                                                 <p className="down-vote" onClick={() => {
                                                     console.log("downvoted");
@@ -173,12 +205,12 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                                     console.log("upvoted");
                                                 }}>+</p>
                                             </div>
-                                        </rect>
+                                        </div>
                                     </div>
                                 );
                             })}
                         </div>
-                        <div className="comment-page-control">
+                        <div className="comment-control">
                             <div className="comment-count-control">
                                 <text>comments per page:</text>
                                 <div className="h-stack"> 
@@ -226,6 +258,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                         </div>
                     </div>
                 </div>
+                )}
             </div>
             <p className='error-output'>{error ? error + " please try again later" : ""}</p>
             <Footer />

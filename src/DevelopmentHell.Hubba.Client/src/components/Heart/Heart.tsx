@@ -36,7 +36,7 @@ class LikeButton extends React.Component<IHeartProps, IHeartState> {
       <div className="icon-heart">
         <label>
           <input type="checkbox" className="check-heart" disabled={!this.props.enabled} onChange={this.state.liked ? this.props.OnUnlike : this.props.OnLike} checked={this.state.liked} />
-          <svg width="20px" height="20px" viewBox="0 -20 100 100" xmlns="http://www.w3.org/2000/svg" className="svg-heart">
+          <svg width={`${this.props.size}px`} height={`${this.props.size}px`} viewBox="0 -20 100 100" xmlns="http://www.w3.org/2000/svg" className="svg-heart">
             <path className="heart"
               d="M 50,20
                 C 30,-10, -10,30, 50,70

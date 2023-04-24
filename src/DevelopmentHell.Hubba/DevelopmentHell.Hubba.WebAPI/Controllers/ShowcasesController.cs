@@ -15,7 +15,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             public int? ListingId { get; set; }
             public string? Title { get; set; }
             public string? Description { get; set; }
-            public List<IFormFile>? Files { get; set; }
+            public List<Tuple<string,string>>? Files { get; set; }
         }
         public struct CommentDTO
         {

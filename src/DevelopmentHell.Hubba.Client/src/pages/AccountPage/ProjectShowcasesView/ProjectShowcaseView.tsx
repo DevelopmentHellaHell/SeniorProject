@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { redirect, Link } from "react-router-dom";
+import { redirect, Link, useNavigate } from "react-router-dom";
 import { Ajax } from "../../../Ajax";
 import { Auth } from "../../../Auth";
 import Button, { ButtonTheme } from "../../../components/Button/Button";
@@ -180,6 +180,8 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
         );
     }
 
+    const navigate = useNavigate();
+
     useEffect(() => {
         if (!loaded) getData();
     }, []);
@@ -192,7 +194,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
             <tr key={`showcase-${showcaseData.id}`}>
                 <td className="table-rating"> {showcaseData.rating}</td>
                 <td className="table-listing" onClick={() => {
-                    redirect(`/listing/view?l=${showcaseData.linkedListingId}`)
+                    navigate('/viewListing', { state: { listingId: showcaseData.linkedListingId} })
                 }}>{showcaseData.linkedListingTitle}</td>
                 <td className="table-title">
                     <Link to={`/showcases/view?s=${showcaseData.id}`}>{showcaseData.title}</Link>

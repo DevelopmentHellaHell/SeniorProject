@@ -54,7 +54,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
         }
 
-        public async Task<Result<string>> CreateShowcase(int listingId, string title, string description, List<IFormFile> files)
+        public async Task<Result<string>> CreateShowcase(int listingId, string title, string description, List<Tuple<string,string>> files)
         {
             try
             {
@@ -74,20 +74,16 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
 
                 for (int i = 0; i < files.Count; i++)
                 {
-                    byte[] bytes;
-                    using (var stream = new MemoryStream())
-                    {
-                        await files[i].CopyToAsync(stream);
-                        bytes = stream.ToArray();
-                        stream.Read(bytes, 0, (int)stream.Length);
-                    }
-                    var uploadResult = await _fileService.UploadFile($"ProjectShowcases/{createResult.Payload!}",$"0{i}_{files[i].Name}", bytes);
-                    await _fileService.Disconnect();
+                    byte[] bytes = Convert.FromBase64String(files[i].Item2);
+                    var crateDir = await _fileService.CreateDir($"ProjectShowcases/{createResult.Payload!}");
+                    var uploadResult = await _fileService.UploadFile($"ProjectShowcases/{createResult.Payload!}",$"0{i}_{files[i].Item1}", bytes);
                     if (!uploadResult.IsSuccessful)
                     {
+                        await _fileService.Disconnect();
                         return new(Result.Failure("Unable to upload file."));
                     }
                 }
+                await _fileService.Disconnect();
 
                 return Result<string>.Success(createResult.Payload!);
             }
@@ -173,7 +169,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
         }
 
-        public async Task<Result> EditShowcase(string showcaseId, int? listingId, string? title, string? description, List<IFormFile>? files)
+        public async Task<Result> EditShowcase(string showcaseId, int? listingId, string? title, string? description, List<Tuple<string,string>>? files)
         {
             try
             {
@@ -194,14 +190,8 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                     await _fileService.DeleteDir($"ProjectShowcases/{showcaseId}");
                     for (int i = 0; i < files.Count; i++)
                     {
-                        byte[] bytes;
-                        using (var stream = new MemoryStream())
-                        {
-                            await files[i].CopyToAsync(stream);
-                            bytes = stream.ToArray();
-                            stream.Read(bytes, 0, (int)stream.Length);
-                        }
-                        var uploadResult = await _fileService.UploadFile($"ProjectShowcases/{showcaseId}",$"0{i}_{files[i].Name}", bytes);
+                        byte[] bytes = files[i].Item2.Select(c => (byte)c).ToArray();
+                        var uploadResult = await _fileService.UploadFile($"ProjectShowcases/{showcaseId}", $"0{i}_{files[i].Item1}", bytes);
                         await _fileService.Disconnect();
                         if (!uploadResult.IsSuccessful)
                         {
@@ -313,11 +303,15 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                     return new(Result.Failure(errorMessage));
                 }
 
-                var checkResult = await IsAdminOrOwnerOf(showcaseId).ConfigureAwait(false);
-                if (!checkResult.IsSuccessful || !checkResult.Payload)
+                if (!(bool)getShowcaseResult.Payload!.IsPublished!)
                 {
-                    return new(checkResult);
+                    var checkResult = await IsAdminOrOwnerOf(showcaseId).ConfigureAwait(false);
+                    if (!checkResult.IsSuccessful || !checkResult.Payload)
+                    {
+                        return new(checkResult);
+                    }
                 }
+                
 
                 var getCommentsResult = await _projectShowcaseService.GetComments(showcaseId, 10, 1).ConfigureAwait(false);
                 if (!getCommentsResult.IsSuccessful)
