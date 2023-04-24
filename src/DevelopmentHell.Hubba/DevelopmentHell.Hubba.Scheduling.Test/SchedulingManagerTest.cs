@@ -28,6 +28,7 @@ using DevelopmentHell.Hubba.Validation.Service.Implementations;
 using DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using Microsoft.IdentityModel.Tokens;
+using DevelopmentHell.Hubba.Scheduling.Manager.Abstraction;
 
 namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
 {

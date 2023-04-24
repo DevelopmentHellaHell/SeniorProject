@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DevelopmentHell.Hubba.Scheduling.Manager
+namespace DevelopmentHell.Hubba.Scheduling.Manager.Abstraction
 {
     public interface ISchedulingManager
     {
