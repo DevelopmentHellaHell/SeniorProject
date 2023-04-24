@@ -8,12 +8,13 @@ import "./ViewListingPage.css";
 import Button, { ButtonTheme } from "../../../components/Button/Button";
 import { Auth } from "../../../Auth";
 import ViewListingRatingsPage from "./ViewListingRatingsPage/ViewListingRatingsPage";
+import ListingAvailabilityCard from "./ViewListingRatingsPage/ListingAvailabilityCard/ListingAvailabilityCard";
 
 interface IViewListingPageProps {
 
 }
 
-interface IAvailability {
+export interface IAvailability {
     availabilityId: number,
     startTime: Date,
     endTime: Date,
@@ -159,6 +160,22 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                             <p className="listing-page__description">
                                 {"Description: " + (data.Listing.description ?? "")}
                             </p>
+                            <div>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>StartTime</th>
+                                            <th>EndTime</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        { data && data.Availabilities && data.Availabilities.map((value: IAvailability) => {
+                                            return <ListingAvailabilityCard key={`${value.listingId}-listing-card`} availability={value}/>
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+
                             <Button theme={ButtonTheme.DARK} onClick={() => 
                             { 
                                 console.log(state.listingId, data.Listing, data.Ratings);

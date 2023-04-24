@@ -14,7 +14,7 @@ namespace DevelopmentHell.ListingProfile.Manager.Abstractions
 
         Task<Result> EditListing(ListingEditorDTO listing);// -- ]]
 
-        Task<Result> EditListingAvailabilities(List<ListingAvailabilityDTO> listingAvailabilities);// -- ]]
+        Task<Result> EditListingAvailabilities(ListingAvailabilitiesReactDTO listingAvailabilities);// -- ]]
 
         Task<Result> EditListingFiles(int listingId, List<string> deleteFileNames, List<Tuple<string, string>> addListingFiles);
 

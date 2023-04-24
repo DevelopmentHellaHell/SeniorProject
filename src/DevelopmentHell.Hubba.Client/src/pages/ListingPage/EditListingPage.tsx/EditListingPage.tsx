@@ -7,6 +7,7 @@ import NavbarUser from "../../../components/NavbarUser/NavbarUser"
 import { IListing } from "../../ListingProfilePage/MyListingsView/MyListingsView"
 import { Auth } from "../../../Auth"
 import "./EditListingPage.css";
+import EditListingAvailabilityCard from "./EditListingAvailabilityCard/EditListingAvailabilityCard"
 
 interface IListingPageProps {
 
@@ -39,6 +40,15 @@ interface IViewListingData {
     Availabilities?: IAvailability[],
     Files?: IListingFile[],
     Ratings?: IRating[]
+}
+
+interface IAvailabilityReact {
+    ListingId: number,
+    AvailabilityId?: number,
+    Date: string,
+    StartTime: string,
+    EndTime: string,
+    Action: number
 }
 
   
@@ -207,6 +217,27 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
         return navigate("/viewlisting", { state: {listingId: state.listingId}});
     }
 
+    const handleSaveAllAvailabilities = async () =>  {
+        const availabilities = timeList.map(time => {
+          return {
+            ListingId: state.listingId,
+            Date: time.date,
+            OwnerId: data?.Listing.ownerId,
+            StartTime: time.startTime,
+            EndTime: time.endTime,
+            Action: 1
+          };
+        });
+        console.log(availabilities)
+        const response = await Ajax.post<null>("/listingprofile/editListingAvailabilities", { reactAvailabilities: availabilities });
+        console.log(response.error)
+        if (response.error) {
+          setError(response.error);
+          return;
+        }
+        return navigate("/viewlisting", { state: {listingId: state.listingId}});
+      }
+
 
     const handleDeleteClick = async () => {
         const response = await Ajax.post<null>('/listingprofile/deleteListing', { ListingId: data?.Listing.listingId })
@@ -222,9 +253,8 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
     const [timeList, setTimeList] = useState<{ date: string; startTime: string; endTime: string; }[]>([]);
-
     
-    const handleSubmit = (e: { preventDefault: () => void }) => {
+    const handleSaveOneAvailability = (e: { preventDefault: () => void }) => {
         e.preventDefault();
         setTimeList([...timeList, { date, startTime, endTime }]);
         setDate('');
@@ -367,7 +397,7 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
 
                         <div>
                         <h2>Time Tracker</h2>
-                            <form onSubmit={handleSubmit}>
+                            <form onSubmit={handleSaveOneAvailability}>
                                 <label htmlFor="date">Date:</label>
                                 <input type="date" id="date" value={date} onChange={(e) => setDate(e.target.value)} />
 
@@ -389,7 +419,28 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
                                 ))}
                             </ul>
                             </div>
-     
+                        <Button theme={ButtonTheme.DARK} title={"Save Availabilities"} onClick={ handleSaveAllAvailabilities } />
+                    </div>
+                    <div>
+                    <div>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>StartTime</th>
+                                            <th>EndTime</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        { data && data.Availabilities && data.Availabilities.map((value: IAvailability) => {
+                                            return <EditListingAvailabilityCard ownerId={data.Listing.ownerId} availability={value} key={`${value.listingId}-listing-card`}/>
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                    </div>
+
+
                         <Button theme={ButtonTheme.DARK} title={"Publish"} onClick={ handlePublishSubmit } />
                     </div>                    
                     {error && loaded &&
@@ -397,7 +448,6 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
                     }
                 </div>
 
-            </div>
             }
             <Footer />
         </div>

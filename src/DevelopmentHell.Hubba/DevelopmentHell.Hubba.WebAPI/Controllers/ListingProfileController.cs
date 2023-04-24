@@ -229,7 +229,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 
         [HttpPost]
         [Route("editListingAvailabilities")]
-        public async Task<IActionResult> EditListingAvailabilties(List<ListingAvailabilityDTO> editAvailabiltiiesDTO)
+        public async Task<IActionResult> EditListingAvailabilties(ListingAvailabilitiesReactDTO editAvailabiltiiesDTO)
         {
             return await GuardedWorkload(async () =>
             {

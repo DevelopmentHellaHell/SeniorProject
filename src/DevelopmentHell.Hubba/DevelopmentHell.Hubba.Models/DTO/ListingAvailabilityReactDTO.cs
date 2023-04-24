@@ -1,4 +1,4 @@
-﻿namespace DevelopmentHell.Hubba.WebAPI.DTO.ListingProfile
+﻿namespace DevelopmentHell.Hubba.Models.DTO
 {
     public class ListingAvailabilityReactDTO
     {

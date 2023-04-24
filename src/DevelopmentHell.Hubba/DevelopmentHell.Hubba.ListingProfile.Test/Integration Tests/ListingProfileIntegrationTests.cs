@@ -1016,138 +1016,101 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Integration_Tests
             int listingId = getListingId.Payload;
             DateTime now = DateTime.Now.AddMinutes(30 - DateTime.Now.Minute % 30).AddSeconds(-DateTime.Now.Second).AddMilliseconds(-DateTime.Now.Millisecond);
 
-            List<ListingAvailabilityDTO> temp = new List<ListingAvailabilityDTO>();
-            ListingAvailabilityDTO temp1 = new ListingAvailabilityDTO()
-            {
-                ListingId = listingId,
-                OwnerId = newAccountId,
-                StartTime = now.AddMinutes(30),
-                EndTime = now.AddHours(1),
-                Action = AvailabilityAction.Add,
-            };
-            ListingAvailabilityDTO temp2 = new ListingAvailabilityDTO()
-            {
-                ListingId = listingId,
-                OwnerId = newAccountId,
-                StartTime = now.AddMinutes(30),
-                EndTime = now.AddHours(1),
-                Action = AvailabilityAction.Add,
-            };
-            temp.Add(temp1);
-            temp.Add(temp2);
+            List<ListingAvailabilityReactDTO> tempList = new List<ListingAvailabilityReactDTO>();
 
-            await _listingAvailabilitiesDataAccess.AddListingAvailabilities(temp).ConfigureAwait(false);
+            ListingAvailabilityReactDTO temp1 = new ListingAvailabilityReactDTO()
+            {
+                ListingId = listingId,
+                OwnerId = newAccountId,
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(3)).ToString(),
+                StartTime = "10:00",
+                EndTime = "13:00",
+                Action = AvailabilityAction.Add
+            };
+
+            ListingAvailabilityReactDTO temp2 = new ListingAvailabilityReactDTO()
+            {
+                ListingId = listingId,
+                OwnerId = newAccountId,
+                StartTime = "11:30",
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(3)).ToString(),
+                EndTime = "12:30",
+                Action = AvailabilityAction.Add,
+            };
+            tempList.Add(temp1);
+            tempList.Add(temp2); 
+
+            ListingAvailabilitiesReactDTO tempAddList = new ListingAvailabilitiesReactDTO()
+            {
+                reactAvailabilities = tempList
+            };
+
+            await _listingProfileManager.EditListingAvailabilities(tempAddList).ConfigureAwait(false);
             var getTempIds = await _listingAvailabilitiesDataAccess.GetListingAvailabilities(listingId);
 
+            List<ListingAvailabilityReactDTO> listingAvailabilityReactDTOs= new List<ListingAvailabilityReactDTO>();
 
-            List<ListingAvailabilityDTO> listingAvailabilityDTOs = new List<ListingAvailabilityDTO>();
-            ListingAvailabilityDTO avail1 = new ListingAvailabilityDTO()
+            ListingAvailabilityReactDTO avail1 = new ListingAvailabilityReactDTO()
             {
                 ListingId = listingId,
                 OwnerId = newAccountId,
-                StartTime = now.AddMinutes(30),
-                EndTime = now.AddHours(1),
-                Action = AvailabilityAction.Add,
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)).ToString(),
+                StartTime = "09:00",
+                EndTime = "12:00",
+                Action = AvailabilityAction.Add
             };
 
-            ListingAvailabilityDTO avail2 = new ListingAvailabilityDTO()
+            ListingAvailabilityReactDTO avail2 = new ListingAvailabilityReactDTO()
             {
                 ListingId = listingId,
                 OwnerId = newAccountId,
-                StartTime = now.AddMinutes(30),
-                EndTime = now.AddHours(1),
+                StartTime = "13:30",
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)).ToString(),
+                EndTime = "16:30",
                 Action = AvailabilityAction.Add,
             };
 
-            ListingAvailabilityDTO avail3 = new ListingAvailabilityDTO()
+            ListingAvailabilityReactDTO avail3 = new ListingAvailabilityReactDTO()
             {
                 ListingId = listingId,
                 OwnerId = newAccountId,
                 AvailabilityId = getTempIds.Payload[0].AvailabilityId,
-                StartTime = now.AddMinutes(30),
-                EndTime = now.AddHours(1),
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(5)).ToString(),
+                StartTime = "10:00",
+                EndTime = "13:30",
                 Action = AvailabilityAction.Update,
             };
 
-            ListingAvailabilityDTO avail4 = new ListingAvailabilityDTO()
+            ListingAvailabilityReactDTO avail4 = new ListingAvailabilityReactDTO()
             {
                 ListingId = listingId,
                 OwnerId = newAccountId,
                 AvailabilityId = getTempIds.Payload[1].AvailabilityId,
-                StartTime = now.AddMinutes(30),
-                EndTime = now.AddHours(1),
+                StartTime = "11:30",
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(3)).ToString(),
+                EndTime = "12:30",
                 Action = AvailabilityAction.Delete,
             };
 
-            listingAvailabilityDTOs.Add(avail1);
-            listingAvailabilityDTOs.Add(avail2);
-            listingAvailabilityDTOs.Add(avail3);
-            listingAvailabilityDTOs.Add(avail4);
+            listingAvailabilityReactDTOs.Add(avail1);
+            listingAvailabilityReactDTOs.Add(avail2);
+            listingAvailabilityReactDTOs.Add(avail3);
+            listingAvailabilityReactDTOs.Add(avail4);
+
+            ListingAvailabilitiesReactDTO listingAvailabilityDTOs = new ListingAvailabilitiesReactDTO()
+            {
+                reactAvailabilities = listingAvailabilityReactDTOs
+            };
 
 
             //Act
             var actual = await _listingProfileManager.EditListingAvailabilities(listingAvailabilityDTOs).ConfigureAwait(false);
-            Console.WriteLine(actual.ErrorMessage);
+            
             var getAvailabilities = await _listingAvailabilitiesDataAccess.GetListingAvailabilities(listingId).ConfigureAwait(false);
 
             //Assert
             Assert.IsTrue(actual.IsSuccessful == expected);
             Assert.IsTrue(getAvailabilities.Payload.Count == expectedCount);
-        }
-
-        [TestMethod]
-        public async Task EditListingAvailabilitiesFailureInvalidDays()
-        {
-            //Arrange
-            var email = "jeffreyjones@gmail.com";
-            var password = "12345678";
-            var dummyIp = "192.0.2.0";
-            var title = "Its 5am and I hate myself";
-
-            var expected = false;
-            var expectedErrorMessage = "Start time and end time may not be on different days.";
-
-            await _registrationManager.Register(email, password).ConfigureAwait(false);
-            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
-            Result<int> getNewAccountId = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
-            int newAccountId = getNewAccountId.Payload;
-            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(newAccountId).ConfigureAwait(false);
-            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
-            _testingService.DecodeJWT(loginResult.Payload!);
-            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
-
-            ClaimsPrincipal? actualPrincipal = null;
-            if (authenticatedResult.IsSuccessful)
-            {
-                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
-                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
-            }
-
-            await _listingProfileManager.CreateListing(title).ConfigureAwait(false);
-            var getListingId = await _listingsDataAccess.GetListingId(newAccountId, title).ConfigureAwait(false);
-            int listingId = getListingId.Payload;
-
-            DateTime now = DateTime.Now.AddMinutes(30 - DateTime.Now.Minute % 30).AddSeconds(-DateTime.Now.Second).AddMilliseconds(-DateTime.Now.Millisecond);
-
-            List<ListingAvailabilityDTO> listingAvailabilityDTOs = new List<ListingAvailabilityDTO>();
-
-            ListingAvailabilityDTO avail = new ListingAvailabilityDTO()
-            {
-                ListingId = listingId,
-                OwnerId = newAccountId,
-                StartTime = now.AddDays(3),
-                EndTime = now.AddHours(5),
-                Action = AvailabilityAction.Add,
-            };
-
-            listingAvailabilityDTOs.Add(avail);
-
-            //Act
-            var actual = await _listingProfileManager.EditListingAvailabilities(listingAvailabilityDTOs).ConfigureAwait(false);
-
-            //Assert
-            Assert.IsTrue(actual.IsSuccessful == expected);
-            Assert.IsTrue(actual.ErrorMessage.Trim() == expectedErrorMessage);
         }
 
         [TestMethod]
@@ -1183,20 +1146,25 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Integration_Tests
             int listingId = getListingId.Payload;
 
             DateTime now = DateTime.Now.AddMinutes(30 - DateTime.Now.Minute % 30).AddSeconds(-DateTime.Now.Second).AddMilliseconds(-DateTime.Now.Millisecond);
-            
 
-            List<ListingAvailabilityDTO> listingAvailabilityDTOs = new List<ListingAvailabilityDTO>();
+            List<ListingAvailabilityReactDTO> listingAvailabilityReactDTOs = new List<ListingAvailabilityReactDTO>();
 
-            ListingAvailabilityDTO avail = new ListingAvailabilityDTO()
+            ListingAvailabilityReactDTO avail1 = new ListingAvailabilityReactDTO()
             {
                 ListingId = listingId,
                 OwnerId = newAccountId,
-                StartTime = now.AddMinutes(1),
-                EndTime = now.AddHours(1),
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)).ToString(),
+                StartTime = "09:01",
+                EndTime = "12:00",
                 Action = AvailabilityAction.Add,
             };
 
-            listingAvailabilityDTOs.Add(avail);
+            listingAvailabilityReactDTOs.Add(avail1);
+
+            ListingAvailabilitiesReactDTO listingAvailabilityDTOs = new ListingAvailabilitiesReactDTO()
+            {
+                reactAvailabilities = listingAvailabilityReactDTOs
+            };
 
             //Act
             var actual = await _listingProfileManager.EditListingAvailabilities(listingAvailabilityDTOs).ConfigureAwait(false);
@@ -1239,19 +1207,26 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Integration_Tests
             int listingId = getListingId.Payload;
 
             DateTime now = DateTime.Now.AddMinutes(30 - DateTime.Now.Minute % 30).AddSeconds(-DateTime.Now.Second).AddMilliseconds(-DateTime.Now.Millisecond);
+            
 
-            List<ListingAvailabilityDTO> listingAvailabilityDTOs = new List<ListingAvailabilityDTO>();
+            List<ListingAvailabilityReactDTO> listingAvailabilityReactDTOs = new List<ListingAvailabilityReactDTO>();
 
-            ListingAvailabilityDTO avail = new ListingAvailabilityDTO()
+            ListingAvailabilityReactDTO avail1 = new ListingAvailabilityReactDTO()
             {
                 ListingId = listingId,
                 OwnerId = newAccountId,
-                StartTime = now.AddHours(-1), 
-                EndTime = now.AddHours(1),
+                Date = DateOnly.FromDateTime(DateTime.Now).ToString(),
+                StartTime = TimeOnly.FromDateTime(now.AddMinutes(-30)).ToString(),
+                EndTime = "12:00",
                 Action = AvailabilityAction.Add,
             };
 
-            listingAvailabilityDTOs.Add(avail);
+            listingAvailabilityReactDTOs.Add(avail1);
+
+            ListingAvailabilitiesReactDTO listingAvailabilityDTOs = new ListingAvailabilitiesReactDTO()
+            {
+                reactAvailabilities = listingAvailabilityReactDTOs
+            };
 
             //Act
             var actual = await _listingProfileManager.EditListingAvailabilities(listingAvailabilityDTOs).ConfigureAwait(false);
@@ -1295,19 +1270,24 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Integration_Tests
 
             DateTime now = DateTime.Now.AddMinutes(30 - DateTime.Now.Minute % 30).AddSeconds(-DateTime.Now.Second).AddMilliseconds(-DateTime.Now.Millisecond);
 
+            List<ListingAvailabilityReactDTO> listingAvailabilityReactDTOs = new List<ListingAvailabilityReactDTO>();
 
-            List<ListingAvailabilityDTO> listingAvailabilityDTOs = new List<ListingAvailabilityDTO>();
-
-            ListingAvailabilityDTO avail = new ListingAvailabilityDTO()
+            ListingAvailabilityReactDTO avail1 = new ListingAvailabilityReactDTO()
             {
                 ListingId = listingId,
                 OwnerId = newAccountId,
-                StartTime = now,
-                EndTime = now.AddMinutes(1),
+                Date = DateOnly.FromDateTime(DateTime.Now).ToString(),
+                StartTime = "09:00",
+                EndTime = "12:20",
                 Action = AvailabilityAction.Add,
             };
 
-            listingAvailabilityDTOs.Add(avail);
+            listingAvailabilityReactDTOs.Add(avail1);
+
+            ListingAvailabilitiesReactDTO listingAvailabilityDTOs = new ListingAvailabilitiesReactDTO()
+            {
+                reactAvailabilities = listingAvailabilityReactDTOs
+            };
 
             //Act
             var actual = await _listingProfileManager.EditListingAvailabilities(listingAvailabilityDTOs).ConfigureAwait(false);
@@ -1315,61 +1295,6 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Integration_Tests
             //Assert
             Assert.IsTrue(actual.IsSuccessful == expected);
             Assert.IsTrue(actual.ErrorMessage.Trim() == expectedErrorMessage);
-        }
-
-        [TestMethod]
-        public async Task EditListingAvailabilitiesFailureInvalidEndTime2()
-        {
-            //Arrange
-            var email = "jeffreyjones@gmail.com";
-            var password = "12345678";
-            var dummyIp = "192.0.2.0";
-            var title = "Its 5am and I hate myself";
-
-            var expected = false;
-            var expectedErrorMessage = "End time must be at least 30 mins past start time.";
-
-            await _registrationManager.Register(email, password).ConfigureAwait(false);
-            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
-            Result<int> getNewAccountId = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
-            int newAccountId = getNewAccountId.Payload;
-            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(newAccountId).ConfigureAwait(false);
-            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
-            _testingService.DecodeJWT(loginResult.Payload!);
-            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
-
-            ClaimsPrincipal? actualPrincipal = null;
-            if (authenticatedResult.IsSuccessful)
-            {
-                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
-                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
-            }
-
-            await _listingProfileManager.CreateListing(title).ConfigureAwait(false);
-            var getListingId = await _listingsDataAccess.GetListingId(newAccountId, title).ConfigureAwait(false);
-            int listingId = getListingId.Payload;
-
-            DateTime now = DateTime.Now.AddMinutes(30 - DateTime.Now.Minute % 30).AddSeconds(-DateTime.Now.Second).AddMilliseconds(-DateTime.Now.Millisecond);
-
-            List<ListingAvailabilityDTO> listingAvailabilityDTOs = new List<ListingAvailabilityDTO>();
-
-            ListingAvailabilityDTO avail = new ListingAvailabilityDTO()
-            {
-                ListingId = listingId,
-                OwnerId = newAccountId,
-                StartTime = now,
-                EndTime = now,
-                Action = AvailabilityAction.Add,
-            };
-
-            listingAvailabilityDTOs.Add(avail);
-
-            //Act
-            var actual = await _listingProfileManager.EditListingAvailabilities(listingAvailabilityDTOs).ConfigureAwait(false);
-
-            //Assert
-            Assert.IsTrue(actual.IsSuccessful == expected);
-            Assert.IsTrue(actual.ErrorMessage == expectedErrorMessage);
         }
 
         [TestMethod]

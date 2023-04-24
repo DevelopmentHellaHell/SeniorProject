@@ -274,7 +274,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             return Result.Success();
         }
 
-        public async Task<Result> EditListingAvailabilities(List<ListingAvailabilityReactDTO> listingAvailabilities)
+        public async Task<Result> EditListingAvailabilities(ListingAvailabilitiesReactDTO listingAvailabilities)
         {
             //authorize
             if (!_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
@@ -292,18 +292,51 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             int userId = int.Parse(stringAccountId);
 
             //validate user is owner
-            if (userId != listingAvailabilities[0].OwnerId)
+            if (userId != listingAvailabilities.reactAvailabilities[0].OwnerId)
             {
                 return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
             }
+            int listingId = listingAvailabilities.reactAvailabilities[0].ListingId;
 
-            int listingId = listingAvailabilities[0].ListingId;
+            List<ListingAvailabilityDTO> goodList = new();
+
+            foreach (ListingAvailabilityReactDTO listingAvailabilityDTO in listingAvailabilities.reactAvailabilities)
+            {
+                DateTime? startTime = null;
+                DateTime? endTime = null;
+
+                // Convert the date, start time, and end time strings to DateTime objects, if the values are not null
+                if (!string.IsNullOrEmpty(listingAvailabilityDTO.Date) && !string.IsNullOrEmpty(listingAvailabilityDTO.StartTime))
+                {
+                    startTime = DateTime.Parse(listingAvailabilityDTO.Date + " " + listingAvailabilityDTO.StartTime);
+                }
+
+                if (!string.IsNullOrEmpty(listingAvailabilityDTO.Date) && !string.IsNullOrEmpty(listingAvailabilityDTO.EndTime))
+                {
+                    endTime = DateTime.Parse(listingAvailabilityDTO.Date + " " + listingAvailabilityDTO.EndTime);
+                }
+
+                // Create a new ListingAvailabilityDTO object with the converted properties
+                ListingAvailabilityDTO newListingAvailability = new ListingAvailabilityDTO
+                {
+                    ListingId = listingAvailabilityDTO.ListingId,
+                    OwnerId = listingAvailabilityDTO.OwnerId,
+                    AvailabilityId = listingAvailabilityDTO.AvailabilityId,
+                    StartTime = startTime,
+                    EndTime = endTime,
+                    Action = listingAvailabilityDTO.Action
+                };
+
+                // Add the new object to the goodList
+                goodList.Add(newListingAvailability);
+            }
+
             //split listingavailabilities into 3 groups
             List<ListingAvailabilityDTO> addListingAvailabilities = new();
             List<ListingAvailabilityDTO> updateListingAvailabilities = new();
             List<ListingAvailabilityDTO> deleteListingAvailabilities = new();
 
-            foreach (ListingAvailabilityDTO listingAvailability in listingAvailabilities)
+            foreach (ListingAvailabilityDTO listingAvailability in goodList)
             {
                 if (listingAvailability.Action == AvailabilityAction.Add)
                 {
