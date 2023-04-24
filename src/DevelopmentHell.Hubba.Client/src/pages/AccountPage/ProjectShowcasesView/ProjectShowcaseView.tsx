@@ -230,6 +230,9 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
             <h1>My Project Showcases</h1>
 
             <div className="my-showcases-container">
+                <Button theme={ButtonTheme.DARK} onClick={() => {
+                    navigate('/showcases/new');
+                }} title={"Create New Showcase"}/>
                 <table className="my-showcases-table">
                     <thead className="my-showcases-table-header">
                         <tr>
