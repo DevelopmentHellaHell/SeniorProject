@@ -318,21 +318,21 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
                                 <form onSubmit={handleListingSubmit}>
                                     <div>
                                         <label> Price:
-                                            <input type="number" name="price" value={data.Listing.price} onChange={handleInputChange} />
+                                            <input id="price-input" type="number" name="price" value={data.Listing.price} onChange={handleInputChange} />
                                         </label>
                                     </div>
                                 <div>
                                     <label> Description:
-                                        <textarea name="description" value={data.Listing.description} onChange={handleInputChange} />
+                                        <textarea id="description-input" name="description" value={data.Listing.description} onChange={handleInputChange} />
                                     </label>
                                 </div>
                                 <div>
                                     <label> Location:
-                                        <input type="text" name="location" value={data.Listing.location} onChange={handleInputChange} />
+                                        <input id="location-input" type="text" name="location" value={data.Listing.location} onChange={handleInputChange} />
                                     </label>
                                 </div>
                                 <div className="buttons">
-                                    <Button theme={ButtonTheme.DARK} title={'Save Changes'} />
+                                    <Button theme={ButtonTheme.DARK} title={"Save Changes"} />
                                 </div>
                                 {error && (
                                     <p className="error">{error}</p>
