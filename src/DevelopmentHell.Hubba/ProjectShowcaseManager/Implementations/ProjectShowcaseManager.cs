@@ -209,7 +209,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
         }
 
-        public async Task<Result<List<ShowcaseComment>>> GetComments(string showcaseId, int? commentCount, int? page)
+        public async Task<Result<List<ShowcaseComment>>> GetComments(string showcaseId, int? commentCount = 10, int? page = 1)
         {
             try
             {
