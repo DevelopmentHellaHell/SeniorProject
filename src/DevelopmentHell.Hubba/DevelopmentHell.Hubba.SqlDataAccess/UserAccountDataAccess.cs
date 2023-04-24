@@ -343,5 +343,198 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
             return setResult;
         }
+
+        //Saves new password entered by user
+        public async Task<Result> SavePassword(string newHashPassword, string email)
+        {
+            Result result = new Result();
+
+            Result updateResult = await _updateDataAccess.Update(
+                _tableName,
+                new List<Comparator>()
+                {
+                    new Comparator("Email", "=", email)
+                },
+                new Dictionary<string, object>()
+                {
+                    {"PasswordHash", newHashPassword}
+                }
+            ).ConfigureAwait(false);
+            if (!updateResult.IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = updateResult.ErrorMessage;
+                return updateResult;
+            }
+
+            result.IsSuccessful = true;
+            return result;
+        }
+
+        //Saves new email and salt after verification
+        public async Task<Result> SaveEmailAlterations(int userId, string newEmail)
+        {
+            Result result = new Result();
+
+            Result updateResult = await _updateDataAccess.Update(
+                _tableName,
+                new List<Comparator>()
+                {
+                    new Comparator("Id", "=", userId)
+                },
+                new Dictionary<string, object>()
+                {
+                    {"Email", newEmail}
+                }
+            ).ConfigureAwait(false);
+            if (!updateResult.IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = updateResult.ErrorMessage;
+                return updateResult;
+            }
+
+            result.IsSuccessful = true;
+            return result;
+        }
+
+        //Helper function to get credentials for email alterations
+        public async Task<Result<PasswordInformation>> GetPasswordData(int userId)
+        {
+            Result<PasswordInformation> result = new Result<PasswordInformation>();
+
+            Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
+                _tableName,
+                new List<string>() { "PasswordHash", "PasswordSalt" },
+                new List<Comparator>()
+                {
+                    new Comparator("Id", "=", userId),
+                }
+            ).ConfigureAwait(false);
+            if (!selectResult.IsSuccessful || selectResult.Payload is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = selectResult.ErrorMessage;
+                return result;
+            }
+
+            //check payload
+            List<Dictionary<string, object>> payload = selectResult.Payload;
+            if (payload is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "An Error has ocurred retrieving data. ";
+                return result;
+            }
+            if (payload.Count > 1)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Invalid number of Account Data selected.";
+                return result;
+            }
+
+            result.IsSuccessful = true;
+
+            result.Payload = new PasswordInformation()
+            {
+                PasswordHash = (string)payload.First()["PasswordHash"],
+                PasswordSalt = (string)payload.First()["PasswordSalt"]
+            };
+
+            return result;
+
+        }
+
+        public async Task<Result> UpdateUserName(int userId, string? firstName, string? lastName)
+        {
+            Result updateResult = new Result();
+
+            if (firstName == null) 
+            {
+                updateResult = await _updateDataAccess.Update(
+                    _tableName,
+                    new List<Comparator>()
+                    {
+                        new Comparator("Id", "=", userId),
+                    },
+                    new Dictionary<string, object>
+                    {
+                        {"LastName", lastName!}
+                    }
+                ).ConfigureAwait(false);
+
+                return updateResult;
+            }
+            else if (lastName == null)
+            {
+                updateResult = await _updateDataAccess.Update(
+                    _tableName,
+                    new List<Comparator>()
+                    {
+                    new Comparator("Id", "=", userId),
+                    },
+                    new Dictionary<string, object>
+                    {
+                    {"FirstName", firstName!}
+                    }
+                ).ConfigureAwait(false);
+
+                return updateResult;
+            }
+
+            updateResult = await _updateDataAccess.Update(
+                _tableName,
+                new List<Comparator>()
+                {
+                    new Comparator("Id", "=", userId),
+                },
+                new Dictionary<string, object>
+                {
+                    {"FirstName", firstName!},
+                    {"LastName", lastName!}
+                }
+            ).ConfigureAwait(false);
+
+            return updateResult;
+        }
+
+        public async Task<Result<AccountSystemSettings>> GetAccountSettings(int userId)
+        {
+            Result<AccountSystemSettings> result = new Result<AccountSystemSettings>();
+
+            Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
+                _tableName,
+                new List<string>() { "FirstName", "LastName" },
+                new List<Comparator>()
+                {
+                    new Comparator("Id", "=", userId)
+                }
+            ).ConfigureAwait(false);
+
+            List<Dictionary<string, object>> payload = selectResult.Payload!;
+            if (payload is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "An Error has ocurred retrieving data. ";
+                return result;
+            }
+            if (payload.Count > 1)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Invalid number of Account Settings selected.";
+                return result;
+            }
+
+            result.IsSuccessful = true;
+            result.Payload = new AccountSystemSettings()
+            {
+                FirstName = payload.First()["FirstName"] == DBNull.Value ? null : (string)payload.First()["FirstName"],
+                LastName = payload.First()["LastName"] == DBNull.Value ? null : (string)payload.First()["LastName"]
+            };
+
+
+            return result;
+        }
     }
 }
+

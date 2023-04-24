@@ -7,6 +7,9 @@ using DevelopmentHell.Hubba.AccountDeletion.Service.Implementations;
 using DevelopmentHell.Hubba.AccountRecovery.Manager.Abstractions;
 using DevelopmentHell.Hubba.AccountRecovery.Manager.Implementations;
 using DevelopmentHell.Hubba.AccountRecovery.Service.Implementations;
+using DevelopmentHell.Hubba.AccountSystem.Implementations;
+using DevelopmentHell.Hubba.AccountSystem.Manager.Abstractions;
+using DevelopmentHell.Hubba.AccountSystem.Manager.Implementations;
 using DevelopmentHell.Hubba.Analytics.Service.Abstractions;
 using DevelopmentHell.Hubba.Analytics.Service.Implementations;
 using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
@@ -119,6 +122,20 @@ builder.Services.AddTransient<INotificationService, NotificationService>(s =>
             HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
             HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
         ),
+        s.GetService<ILoggerService>()!
+    )
+);
+builder.Services.AddTransient<IAccountSystemManager, AccountSystemManager>(s =>
+    new AccountSystemManager(
+        new AccountSystemService(
+            s.GetService<IUserAccountDataAccess>()!,
+            s.GetService<ILoggerService>()!
+        ),
+        s.GetService<IOTPService>()!,
+        s.GetService<IAuthorizationService>()!,
+        s.GetService<ICryptographyService>()!,
+        s.GetService<INotificationManager>()!,
+        s.GetService<IValidationService>()!,
         s.GetService<ILoggerService>()!
     )
 );

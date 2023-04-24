@@ -7,6 +7,8 @@ using System.Security.Claims;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using Microsoft.Identity.Client;
 using DevelopmentHell.Hubba.Notification.Manager.Abstractions;
+using DevelopmentHell.Hubba.Logging.Service.Abstractions;
+using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 
 namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
 {
@@ -17,13 +19,17 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
         private IAuthorizationService _authorizationService;
         private ICryptographyService _cryptographyService;
         private INotificationManager _notificationManager;
-        public AccountSystemManager(IAccountSystemService accountSystemService, IOTPService otpService, IAuthorizationService authorizationService, ICryptographyService cryptographyService, INotificationManager notificationManager)
+        private IValidationService _validationService;
+        private ILoggerService _loggerService;
+        public AccountSystemManager(IAccountSystemService accountSystemService, IOTPService otpService, IAuthorizationService authorizationService, ICryptographyService cryptographyService, INotificationManager notificationManager, IValidationService validationService, ILoggerService loggerService)
         {
             _accountSystemService = accountSystemService;
             _otpService = otpService;
             _authorizationService = authorizationService;
             _cryptographyService = cryptographyService;
             _notificationManager = notificationManager;
+            _validationService = validationService;
+            _loggerService = loggerService;
         }
         //TODO: Check this function
         public async Task<Result> VerifyAccount()
@@ -59,7 +65,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             }
 
             //extract user ID from JWT Token
-            var accountId = int.Parse(stringAccountId); //TODO: do I need parser for email
+            var accountId = int.Parse(stringAccountId); 
 
             Result<string> generateOTPResult = await _otpService.NewOTP(accountId).ConfigureAwait(false);
             if (!generateOTPResult.IsSuccessful)
@@ -87,6 +93,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
         {
             Result result = new Result();
 
+
             //Check prinicpal of user
             if (!_authorizationService.Authorize(new string[] { "AdminUser", "VerifiedUser" }).IsSuccessful)
             {
@@ -97,6 +104,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
 
             var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
+            var stringAccountEmail = claimsPrincipal?.FindFirstValue("azp");
 
             //Check to ensure strings are taken from token
             if (stringAccountId is null)
@@ -106,6 +114,22 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
                 return result;
             }
 
+            //Check if email is associated with another account
+            Result<int> checkEmailResult = await _accountSystemService.CheckNewEmail(newEmail).ConfigureAwait(false);
+            if (checkEmailResult.IsSuccessful && (checkEmailResult.Payload != 0)) 
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "An email is already registered with this account. ";
+                return result;
+            }
+
+            //check to see if email is different
+            if (newEmail == stringAccountEmail)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Your new email is the same as the already registered email. Please enter a new email or exit view. ";
+                return result;
+            }
             //extract user ID from JWT Token
             var accountId = int.Parse(stringAccountId); 
 
@@ -182,14 +206,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             //extract user ID from JWT Token
             var accountId = int.Parse(stringAccountId);
 
-            //check to see if email is different
-            if (newEmail == stringAccountEmail)     
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Your new email is the same as the already registered email. Please enter a new email or exit view. ";
-                return result;
-            }
-
+            //MOVE
             Result checkResult = await CheckPassword(accountId, stringAccountEmail, password).ConfigureAwait(false);
             if (!checkResult.IsSuccessful) 
             {
@@ -198,7 +215,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
                 return result;
             }
 
-            Result updateResult = await _accountSystemService.UpdateEmailInformation(stringAccountEmail, newEmail);
+            Result updateResult = await _accountSystemService.UpdateEmailInformation(accountId, newEmail);
             if(!updateResult.IsSuccessful) 
             {
                 result.IsSuccessful = false;
@@ -214,6 +231,15 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
         public async Task<Result> UpdatePassword(string oldPassword, string newPassword, string newPasswordDupe)
         {
             Result result = new Result();
+
+            //Validating new password
+            Result validationResult = _validationService.ValidatePassword(newPassword); 
+            if (!validationResult.IsSuccessful) 
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = validationResult.ErrorMessage;
+                return result;
+            }
 
             var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
@@ -234,15 +260,22 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             }
             var accountId = int.Parse(stringAccountId);
 
+            if (newPassword == oldPassword || newPasswordDupe == oldPassword) 
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "You have entered the same password. Please try again. ";
+                return result;
+            }
+
             //Check if new passwords are matching
-            if (newPassword != newPasswordDupe)
+            if (newPassword != newPasswordDupe) 
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Your passwords do not match. Please try again. ";
+                return result;
             }
-            
-            //TODO: validation check for password
 
+            //MOVE
             Result checkResult = await CheckPassword(accountId, stringAccountEmail, oldPassword).ConfigureAwait(false);
             if (!checkResult.IsSuccessful)
             {
@@ -251,9 +284,9 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
                 return result;
             }
 
-            Result<List<Dictionary<string, object>>> getCredResult = await _accountSystemService.GetPasswordData(accountId).ConfigureAwait(false);
+            Result<PasswordInformation> getCredResult = await _accountSystemService.GetPasswordData(accountId).ConfigureAwait(false);
             var credentials = getCredResult.Payload;
-            Result<HashData> hashPassword = _cryptographyService.HashString(newPassword, (string)credentials![0]["PasswordSalt"]);
+            Result<HashData> hashPassword = _cryptographyService.HashString(newPassword, credentials!.PasswordSalt!);
             string newHashPassword = Convert.ToBase64String(hashPassword.Payload!.Hash!);
 
             Result updatePasswordResult = await _accountSystemService.UpdatePassword(newHashPassword, stringAccountEmail).ConfigureAwait(false);
@@ -265,11 +298,11 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             }
 
             result.IsSuccessful = true;
-            await _notificationManager.CreateNewNotification(accountId, "You've successfully chaned your password. ", 0, true);
+            await _notificationManager.CreateNewNotification(accountId, "You've successfully changed your password. ", 0, true);
             return result;
         }
 
-        public async Task<Result> UpdateUserName(string firstName, string lastName)
+        public async Task<Result> UpdateUserName(string? firstName, string? lastName)
         {
             Result result = new Result();
 
@@ -292,7 +325,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
 
             var accountId = int.Parse(stringAccountId);
 
-            Result updateResult = await _accountSystemService.UpdateUserName(accountId, firstName, lastName).ConfigureAwait(false);
+            Result updateResult = await _accountSystemService.UpdateUserName(accountId, firstName!, lastName!).ConfigureAwait(false);
             if (!updateResult.IsSuccessful) 
             {
                 result.IsSuccessful = false;
@@ -306,9 +339,9 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             return result;
         }
 
-        public async Task<Result<List<Dictionary<string, object>>>> GetAccountSettings()
+        public async Task<Result<AccountSystemSettings>> GetAccountSettings()
         {
-            Result<List<Dictionary<string, object>>> result = new Result<List<Dictionary<string, object>>>();
+            Result<AccountSystemSettings> result = new Result<AccountSystemSettings>();
 
             if (!_authorizationService.Authorize(new string[] { "AdminUser", "VerifiedUser" }).IsSuccessful)
             {
@@ -329,7 +362,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
 
             var accountId = int.Parse(stringAccountId);
 
-            Result<List<Dictionary<string, object>>> getResult = await _accountSystemService.GetAccountSetting(accountId).ConfigureAwait(false);
+            Result<AccountSystemSettings> getResult = await _accountSystemService.GetAccountSettings(accountId).ConfigureAwait(false);
             if (!getResult.IsSuccessful) 
             {
                 result.IsSuccessful = false;
@@ -348,23 +381,26 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
         }
 
         //Check proper credentials of user
-        private async Task<Result> CheckPassword(int accountId, string email, string password)
+        private async Task<Result> CheckPassword(int accountId, string email, string password) //MOVE
         {
             Result result = new Result();
 
-            Result<List<Dictionary<string, object>>> getCredResult = await _accountSystemService.GetPasswordData(accountId).ConfigureAwait(false);
+            Result<PasswordInformation> getCredResult = await _accountSystemService.GetPasswordData(accountId).ConfigureAwait(false);
             var credentials = getCredResult.Payload;
-            Result<HashData> hashData = _cryptographyService.HashString(password, (string)credentials![0]["PasswordSalt"]);
+            Result<HashData> hashData = _cryptographyService.HashString(password, credentials!.PasswordSalt!);
             var newHash = Convert.ToBase64String(hashData.Payload!.Hash!);
-            var oldHash = credentials![0]["PasswordHash"];
+            var oldHash = credentials.PasswordHash;
             if (oldHash != newHash)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Incorrect Password. ";
+                return result;
             }
 
             result.IsSuccessful = true;
             return result;
         }
+
+
     }
 }

@@ -16,6 +16,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         Task<Result> Delete(string email);
         Task<Result<int>> CountAdmin();
         Task<Result> SetEnabledStatus(int id, bool enabled);
-
+        Task<Result> SavePassword(string newHashPassword, string email);
+        Task<Result> SaveEmailAlterations(int userId, string newEmail);
+        Task<Result<PasswordInformation>> GetPasswordData(int userId);
+        Task<Result> UpdateUserName(int userId, string firstName, string lastName);
+        Task<Result<AccountSystemSettings>> GetAccountSettings(int userId);
     }
+
 }
