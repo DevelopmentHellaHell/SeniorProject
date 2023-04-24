@@ -70,7 +70,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                         { Tables.LISTING_RATINGS, ConfigurationManager.AppSettings["ListingRatingsTable"]! },
                         { Tables.LISTING_HISTORY, ConfigurationManager.AppSettings["ListingHistoryTable"]! },
                         { Tables.LISTINGS, ConfigurationManager.AppSettings["ListingsTable"]! },
-                        { Tables.LISTING_AVAILABILITIES, ConfigurationManager.AppSettings["ListingAvailabilitiesTable"]! }
+                        { Tables.LISTING_AVAILABILITIES, ConfigurationManager.AppSettings["ListingAvailabilitiesTable"]! },
                         { Tables.BOOKINGS, ConfigurationManager.AppSettings["BookingsTable"]! },
                         { Tables.BOOKEDTIMEFRAMES, ConfigurationManager.AppSettings["BookedTimeFramesTable"]! },
                     }
@@ -84,8 +84,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             Result result = new Result();
             var dbT = _databaseStructure[db];
-            foreach (string tValue in dbT.Item3.Values)
+            foreach (var tValue in dbT.Item3.Values)
             {
+                if (tValue == null) continue;
                 DeleteDataAccess deleteDataAccess = new DeleteDataAccess(_databaseStructure[db].Item2);
                 Result deleteResult = await deleteDataAccess.Delete(tValue, null).ConfigureAwait(false);
                 if (!deleteResult.IsSuccessful)
