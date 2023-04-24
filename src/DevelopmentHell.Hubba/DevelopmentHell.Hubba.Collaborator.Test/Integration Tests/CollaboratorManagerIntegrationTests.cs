@@ -1,6 +1,8 @@
 
 using Development.Hubba.JWTHandler.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
+using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
+using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
 using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
@@ -11,11 +13,13 @@ using DevelopmentHell.Hubba.Collaborator.Service.Abstractions;
 using DevelopmentHell.Hubba.Collaborator.Service.Implementations;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
+using DevelopmentHell.Hubba.Email.Service.Implementations;
 using DevelopmentHell.Hubba.Files.Service.Abstractions;
 using DevelopmentHell.Hubba.Files.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
@@ -25,12 +29,14 @@ using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
 using DevelopmentHell.Hubba.WebAPI.DTO.Collaborator;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Identity.Client;
 using System.Configuration;
+using System.Security.Claims;
 using System.Security.Policy;
-
+using AuthenticationService = DevelopmentHell.Hubba.Authentication.Service.Implementations.AuthenticationService;
 
 namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
 {
@@ -46,7 +52,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
         private readonly IUserAccountDataAccess _userAccountDataAccess;
         private readonly IRegistrationService _registrationService;
         private readonly IAuthorizationService _authorizationService;
-        private readonly IAuthenticationService _authenticationService;
+        private readonly Authentication.Service.Abstractions.IAuthenticationService _authenticationService;
         private readonly ICollaboratorManager _collaboratorManager;
         private readonly ICollaboratorService _collaboratorService;
         private readonly ICollaboratorsDataAccess _collaboratorsDataAccess;
@@ -54,12 +60,20 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
         private readonly ITestingService _testingService;
         private readonly IValidationService _validationService;
         private readonly IFileService _fileService;
+        private readonly ICryptographyService _cryptographyService;
+        private readonly IAuthenticationManager _authenticationManager;
+        private readonly IOTPDataAccess _otpDataAccess;
+        private readonly string realEmail = "dkoroni@gmail.com";
+        private readonly string dummyIp = "127.0.0.1";
+
+          
+
 
         public CollaboratorManagerIntegrationTests()
         {
             _userAccountDataAccess = new UserAccountDataAccess(_usersConnectionString, _userAccountsTable);
             _validationService = new ValidationService();
-            ICryptographyService cryptographyService = new CryptographyService(ConfigurationManager.AppSettings["CryptographyKey"]!);
+            _cryptographyService = new CryptographyService(ConfigurationManager.AppSettings["CryptographyKey"]!);
             IJWTHandlerService jwtHandlerService = new JWTHandlerService(
                 _jwtKey
             );
@@ -106,14 +120,14 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
                     _usersConnectionString,
                     ConfigurationManager.AppSettings["UserLoginsTable"]!
                 ),
-                cryptographyService,
+                _cryptographyService,
                 jwtHandlerService,
                 _validationService,
                 loggerService
             );
             _registrationService = new RegistrationService(
                 _userAccountDataAccess,
-               cryptographyService,
+               _cryptographyService,
                _validationService,
                loggerService
             );
@@ -122,6 +136,67 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
                 ConfigurationManager.AppSettings["FTPUsername"]!,
                 ConfigurationManager.AppSettings["FTPPassword"]!,
                 loggerService);
+            _authenticationManager = new AuthenticationManager(
+                new AuthenticationService
+                (
+                    new UserAccountDataAccess
+                    (
+                        ConfigurationManager.AppSettings["UsersConnectionString"]!,
+                        _userAccountsTable
+                    ),
+                    new UserLoginDataAccess
+                    (
+                        ConfigurationManager.AppSettings["UsersConnectionString"]!,
+                        ConfigurationManager.AppSettings["UserLoginsTable"]!
+                    ),
+                    new CryptographyService
+                    (
+                        ConfigurationManager.AppSettings["CryptographyKey"]!
+                    ),
+                    new JWTHandlerService
+                    (
+                        _jwtKey
+                    ),
+                    new ValidationService(),
+                    loggerService
+                ),
+                new OTPService
+                (
+                    new OTPDataAccess(
+                        ConfigurationManager.AppSettings["UsersConnectionString"]!,
+                        ConfigurationManager.AppSettings["UserOTPsTable"]!
+                    ),
+                    new EmailService
+                    (
+                        ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!,
+                        ConfigurationManager.AppSettings["SENDGRID_API_KEY"]!,
+                        ConfigurationManager.AppSettings["COMPANY_EMAIL"]!,
+                        true
+                    ),
+                    new CryptographyService
+                    (
+                        ConfigurationManager.AppSettings["CryptographyKey"]!
+                    )
+                ),
+                new AuthorizationService
+                (
+                     new UserAccountDataAccess
+                    (
+                        ConfigurationManager.AppSettings["UsersConnectionString"]!,
+                        _userAccountsTable
+                    ),
+                      new JWTHandlerService(
+                        _jwtKey
+                    ),
+                    loggerService
+                ),
+                new CryptographyService
+                (
+                    ConfigurationManager.AppSettings["CryptographyKey"]!
+                ),
+                loggerService
+            );
+            _otpDataAccess = new OTPDataAccess(ConfigurationManager.AppSettings["UsersConnectionString"]!, ConfigurationManager.AppSettings["UserOTPsTable"]!);
 
         }
         [TestInitialize]
@@ -147,11 +222,17 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             int accountId = accountIdResult.Payload;
 
             // log in as user
-            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
-            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
-            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             }
 
             CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
@@ -178,11 +259,17 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             int accountId = accountIdResult.Payload;
 
             // log in as user
-            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
-            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
-            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             }
 
             var collab = MockCreateCollaboratorDTO();
@@ -209,11 +296,17 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             int accountId = accountIdResult.Payload;
 
             // log in as user
-            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
-            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
-            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             }
 
             CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
@@ -244,11 +337,17 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             int accountId = accountIdResult.Payload;
 
             // log in as user
-            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
-            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
-            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             }
 
             CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
@@ -282,11 +381,17 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             int accountId = accountIdResult.Payload;
 
             // log in as user
-            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
-            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
-            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             }
 
             // create new collaborator
@@ -313,9 +418,8 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             var actualPfpUrl = getCollabResult.Payload?.PfpUrl;
 
             //Assert
-            Assert.IsNotNull(getCollabResult.Payload!.PfpUrl);
-            Assert.IsNull(actualPfpUrl);
             Assert.IsTrue(actual.IsSuccessful);
+            Assert.IsNull(actualPfpUrl);
         }
 
         [TestMethod]
@@ -329,11 +433,17 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             int accountId = accountIdResult.Payload;
 
             // log in as user
-            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
-            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
-            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             }
 
             CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
@@ -377,12 +487,18 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
             int accountId = accountIdResult.Payload;
 
-            // log in as user
-            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
-            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
-            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            /// log in as user
+
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             }
 
 
@@ -420,12 +536,18 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             var accountIdResult2 = await _userAccountDataAccess.GetId(email2).ConfigureAwait(false);
             int accountId2 = accountIdResult2.Payload;
 
-            // log in as user 1
-            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
-            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
-            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            // log in as user
+
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             }
 
             CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
@@ -483,11 +605,17 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             int accountId2 = accountIdResult2.Payload;
 
             // log in as user
-            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
-            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
-            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             }
 
             CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
@@ -495,14 +623,26 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
             var collabIdResult = await _collaboratorsDataAccess.GetCollaboratorId(accountId).ConfigureAwait(false);
             int collabId = (int)collabIdResult.Payload!;
-            _authenticationService.Logout();
+            // Logging out of user
+            var authenticationResult = _authenticationService.Logout();
+            if (authenticationResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(authenticationResult.Payload!, null);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            }
 
             // log in as user 2
-            var accessTokenResult2 = await _authorizationService.GenerateAccessToken(accountId2, false).ConfigureAwait(false);
-            var idTokenResult2 = _authenticationService.GenerateIdToken(accountId2, accessTokenResult2.Payload!);
-            if (accessTokenResult2.IsSuccessful && idTokenResult2.IsSuccessful)
+
+            loginResult = await _authenticationManager.Login(email2, password, dummyIp).ConfigureAwait(false);
+            getOtp = await _otpDataAccess.GetOTP(accountId2).ConfigureAwait(false);
+            otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(accessTokenResult2.Payload!, idTokenResult2.Payload!);
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             }
 
 
@@ -540,11 +680,17 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             int accountId = accountIdResult.Payload;
 
             // log in as user
-            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
-            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
-            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             }
 
             CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
@@ -586,11 +732,17 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             int accountId = accountIdResult.Payload;
 
             // log in as user
-            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
-            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
-            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             }
 
             CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
@@ -632,12 +784,18 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             var accountIdResult2 = await _userAccountDataAccess.GetId(email2).ConfigureAwait(false);
             int accountId2 = accountIdResult2.Payload;
 
-            // log in as user 1
-            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
-            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
-            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            // log in as user
+
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             }
 
             IFormFile file = CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza6.png");
@@ -647,14 +805,26 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             collab.PfpFile = CreateMockFormFile();
             // creating first collaborator profile
             await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
-            _authenticationService.Logout();
-
-            // log in as user 2
-            var accessTokenResult2 = await _authorizationService.GenerateAccessToken(accountId2, false).ConfigureAwait(false);
-            var idTokenResult2 = _authenticationService.GenerateIdToken(accountId2, accessTokenResult2.Payload!);
-            if (accessTokenResult2.IsSuccessful && idTokenResult2.IsSuccessful)
+            // Logging out of user
+            var authenticationResult = _authenticationService.Logout();
+            if (authenticationResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(accessTokenResult2.Payload!, idTokenResult2.Payload!);
+                _testingService.DecodeJWT(authenticationResult.Payload!, null);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            }
+
+            // log in as user
+
+            loginResult = await _authenticationManager.Login(email2, password, dummyIp).ConfigureAwait(false);
+            getOtp = await _otpDataAccess.GetOTP(accountId2).ConfigureAwait(false);
+             otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             }
 
             //creating second collaborator profile
@@ -693,11 +863,17 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             int accountId = accountIdResult.Payload;
 
             // log in as user
-            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
-            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
-            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             }
 
             CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
@@ -739,11 +915,17 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             int accountId = accountIdResult.Payload;
 
             // log in as user
-            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
-            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
-            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             }
 
             CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
@@ -782,11 +964,17 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             int accountId = accountIdResult.Payload;
 
             // log in as user
-            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
-            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
-            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
             {
-                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             }
 
             CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
@@ -800,7 +988,16 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
             var collabIdResult = await _collaboratorsDataAccess.GetCollaboratorId(accountId).ConfigureAwait(false);
             int collabId = (int)collabIdResult.Payload!;
-            _authenticationService.Logout();
+
+
+            // Logging out of user
+            var authenticationResult = _authenticationService.Logout();
+            if (authenticationResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(authenticationResult.Payload!, null);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            }
+
 
 
 
