@@ -152,6 +152,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.Files
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevelopmentHell.Hubba.FTPFileService.Test", "DevelopmentHell.Hubba.FTPFileService.Test\DevelopmentHell.Hubba.FTPFileService.Test.csproj", "{AAAB789A-60E2-4C2B-B4F4-27ACBB02794B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentHell.Hubba.Discovery.Test", "DevelopmentHell.Hubba.Discovery.Test\DevelopmentHell.Hubba.Discovery.Test.csproj", "{38BE8179-C523-4DB4-A14B-1C75707302DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -354,6 +356,10 @@ Global
 		{AAAB789A-60E2-4C2B-B4F4-27ACBB02794B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AAAB789A-60E2-4C2B-B4F4-27ACBB02794B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AAAB789A-60E2-4C2B-B4F4-27ACBB02794B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38BE8179-C523-4DB4-A14B-1C75707302DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38BE8179-C523-4DB4-A14B-1C75707302DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38BE8179-C523-4DB4-A14B-1C75707302DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38BE8179-C523-4DB4-A14B-1C75707302DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -413,6 +419,7 @@ Global
 		{0C6C9F09-B242-4F5B-A1EE-89FC3E90F7B5} = {629C2E91-06B4-4B72-9BCF-7BA00EB8CBED}
 		{138C17F1-CCF5-4979-A4D8-B39E9B533B45} = {33222376-EAA6-4A44-A1D7-B6DB5BE1E13B}
 		{AAAB789A-60E2-4C2B-B4F4-27ACBB02794B} = {5A528968-95F9-4E5A-98CB-501EE0759FDC}
+		{38BE8179-C523-4DB4-A14B-1C75707302DF} = {5A528968-95F9-4E5A-98CB-501EE0759FDC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E49330E5-F92F-4990-A904-E75E376A2656}

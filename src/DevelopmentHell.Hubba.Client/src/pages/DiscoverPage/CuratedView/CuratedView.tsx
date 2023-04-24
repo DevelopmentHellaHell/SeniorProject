@@ -9,7 +9,7 @@ interface ICuratedViewProps {
 
 const CuratedView: React.FC<ICuratedViewProps> = (props) => {
     return (
-        <div className="curated-view-wrapper">
+        <div id="curated-view-wrapper" className="curated-view-wrapper">
             <h3 className="category">Listings</h3>
             <div className="catalogue">
                 {props.data && 

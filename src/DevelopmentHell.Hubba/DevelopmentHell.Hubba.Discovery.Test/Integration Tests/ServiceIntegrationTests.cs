@@ -1,19 +1,19 @@
-using Development.Hubba.JWTHandler.Service.Abstractions;
+﻿using Development.Hubba.JWTHandler.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
-using DevelopmentHell.Hubba.Analytics.Service.Abstractions;
-using DevelopmentHell.Hubba.Analytics.Service.Implementations;
 using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
-using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
 using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Implementations;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
+using DevelopmentHell.Hubba.Discovery.Manager.Abstractions;
+using DevelopmentHell.Hubba.Discovery.Manager.Implementations;
+using DevelopmentHell.Hubba.Discovery.Service.Abstractions;
+using DevelopmentHell.Hubba.Discovery.Service.Implemenatations;
 using DevelopmentHell.Hubba.Email.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
-using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Notification.Service.Abstractions;
 using DevelopmentHell.Hubba.Notification.Service.Implementations;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
@@ -30,10 +30,10 @@ using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
 using System.Configuration;
 
-namespace DevelopmentHell.Hubba.Analytics.Test
+namespace DevelopmentHell.Hubba.Discovery.Test
 {
 	[TestClass]
-	public class IntegrationTests
+	public class ServiceIntegrationTests
 	{
 		private string _usersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
 		private string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
@@ -46,26 +46,34 @@ namespace DevelopmentHell.Hubba.Analytics.Test
 		private string _jwtKey = ConfigurationManager.AppSettings["JwtKey"]!;
 		private string _cryptographyKey = ConfigurationManager.AppSettings["CryptographyKey"]!;
 
+		private readonly string _listingProfileConnectionString = ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!;
+		private readonly string _listingsTable = ConfigurationManager.AppSettings["ListingsTable"]!;
+
+		private readonly string _showcaseConnectionString = ConfigurationManager.AppSettings["ProjectShowcasesConnectionString"]!;
+		private readonly string _showcasesTable = ConfigurationManager.AppSettings["ShowcasesTable"]!;
+		private readonly string _showcaseCommentsTable = ConfigurationManager.AppSettings["ShowcaseCommentsTable"]!;
+		private readonly string _showcaseVotesTable = ConfigurationManager.AppSettings["ShowcaseVotesTable"]!;
+		private readonly string _showcaseCommentVotesTable = ConfigurationManager.AppSettings["ShowcaseCommentVotesTable"]!;
+		private readonly string _showcaseReportsTable = ConfigurationManager.AppSettings["ShowcaseReportsTable"]!;
+		private readonly string _showcaseCommentReportsTable = ConfigurationManager.AppSettings["ShowcaseCommentReportsTable"]!;
+
 		// Class to test
-		private readonly IAnalyticsService _analyticsService;
+		private readonly IDiscoveryService _discoveryService;
 
 		// Helper Classes
 		private readonly IRegistrationManager _registrationManager;
-		private readonly IAuthenticationManager _authenticationManager;
-		private readonly IAuthenticationService _authenticationService;
 		private readonly IAuthorizationService _authorizationService;
 		private readonly INotificationService _notificationService;
 		private readonly IOTPDataAccess _otpDataAccess;
 		private readonly IUserAccountDataAccess _userAccountDataAccess;
 		private readonly IUserLoginDataAccess _userLoginDataAccess;
 		private readonly IRegistrationService _registrationService;
-		private readonly IOTPService _otpService;
 		private readonly ITestingService _testingService;
 		private readonly ILoggerService _loggerService;
 		private readonly ICryptographyService _cryptographyService;
 		private readonly IValidationService _validationService;
 
-		public IntegrationTests()
+		public ServiceIntegrationTests()
 		{
 			_loggerService = new LoggerService(
 				new LoggerDataAccess(
@@ -93,16 +101,6 @@ namespace DevelopmentHell.Hubba.Analytics.Test
 			);
 
 			_validationService = new ValidationService();
-			_otpService = new OTPService(
-				_otpDataAccess,
-				new EmailService(
-					ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!,
-					ConfigurationManager.AppSettings["SENDGRID_API_KEY"]!,
-					ConfigurationManager.AppSettings["COMPANY_EMAIL"]!,
-					true
-				),
-				_cryptographyService
-			);
 			IJWTHandlerService jwtHandlerService = new JWTHandlerService(
 				_jwtKey
 			);
@@ -110,19 +108,6 @@ namespace DevelopmentHell.Hubba.Analytics.Test
 			_authorizationService = new AuthorizationService(
 				_userAccountDataAccess,
 				jwtHandlerService,
-				_loggerService
-			);
-			_authenticationService = new AuthenticationService(
-				_userAccountDataAccess,
-				_userLoginDataAccess,
-				_cryptographyService,
-				jwtHandlerService,
-				_validationService,
-				_loggerService
-			);
-			_analyticsService = new AnalyticsService(
-				new AnalyticsDataAccess(_logsConnectionString, _logsTable),
-				_authorizationService,
 				_loggerService
 			);
 
@@ -151,11 +136,21 @@ namespace DevelopmentHell.Hubba.Analytics.Test
 				_notificationService,
 				_loggerService
 			);
-			_authenticationManager = new AuthenticationManager(
-				_authenticationService,
-				_otpService,
-				_authorizationService,
-				_cryptographyService,
+			_discoveryService = new DiscoveryService(
+				new ListingsDataAccess(_listingProfileConnectionString, _listingsTable),
+				new CollaboratorsDataAccess(
+					ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!,
+					ConfigurationManager.AppSettings["CollaboratorsTable"]!
+				),
+				new ProjectShowcaseDataAccess(
+					_showcaseConnectionString,
+					_showcasesTable,
+					_showcaseCommentsTable,
+					_showcaseVotesTable,
+					_showcaseCommentVotesTable,
+					_showcaseReportsTable,
+					_showcaseCommentReportsTable
+				),
 				_loggerService
 			);
 			_testingService = new TestingService(
@@ -164,49 +159,105 @@ namespace DevelopmentHell.Hubba.Analytics.Test
 			);
 		}
 
-		[TestInitialize]
-		public async Task Setup()
+		[TestMethod]
+		public void ShouldInstansiateCtor()
 		{
-			await _testingService.DeleteAllRecords().ConfigureAwait(false);
+			Assert.IsNotNull(_discoveryService);
 		}
 
-		[TestMethod]
-		public async Task AttemptToAccessWithoutAdmin()
+		[DataTestMethod]
+		[DataRow(0)]
+		[DataRow(1)]
+		[DataRow(100)]
+		public async Task GetCuratedWithValidOffset(int offset)
 		{
 			// Arrange
-			string email = "test@gmail.com";
-			string password = "12345678";
-			string dummyIp = "192.0.2.0";
-
-			bool expected = false;
-
-			await _registrationManager.Register(email, password).ConfigureAwait(false);
-			var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
-			Result<int> getNewAccountId = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
-			int newAccountId = getNewAccountId.Payload;
-			Result<byte[]> getOtp = await _otpDataAccess.GetOTP(newAccountId).ConfigureAwait(false);
-			string otp = _cryptographyService.Decrypt(getOtp.Payload!);
-			_testingService.DecodeJWT(loginResult.Payload!);
-			await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+			var expectedSuccess = true;
 
 			// Act
-			var result = await _analyticsService.GetData(DateTime.Now).ConfigureAwait(false);
-
+			var result = await _discoveryService.GetCurated(offset);
+			Console.WriteLine(result.ErrorMessage);
 			// Assert
-			Assert.IsTrue(result.IsSuccessful == expected);
+			Assert.IsTrue(result.IsSuccessful == expectedSuccess);
+			Assert.IsNotNull(result.Payload);
 		}
 
-		[TestMethod]
-		public async Task AttemptToAccessWithoutAuth()
+		[DataTestMethod]
+		[DataRow("woodworking")]
+		[DataRow("pottery")]
+		public async Task GetSearchWithValidQuery(string query)
 		{
 			// Arrange
-			bool expected = false;
+			var category = "listings";
+			var filter = "none";
+			var offset = 0;
+			var expectedSuccess = true;
 
 			// Act
-			var result = await _analyticsService.GetData(DateTime.Now).ConfigureAwait(false);
+			var result = await _discoveryService.GetSearch(query, category, filter, offset).ConfigureAwait(false);
 
 			// Assert
-			Assert.IsTrue(result.IsSuccessful == expected);
+			Assert.IsTrue(result.IsSuccessful == expectedSuccess);
+			Assert.IsNotNull(result.Payload);
+		}
+
+		[DataTestMethod]
+		[DataRow("listings")]
+		[DataRow("collaborators")]
+		[DataRow("showcases")]
+		public async Task GetSearchWithValidCategory(string category)
+		{
+			var filter = "none";
+			var query = "woodworking";
+			var offset = 0;
+
+			var expectedSuccess = true;
+
+			// Act
+			var result = await _discoveryService.GetSearch(query, category, filter, offset).ConfigureAwait(false);
+
+			// Assert
+			Assert.IsTrue(result.IsSuccessful == expectedSuccess);
+			Assert.IsNotNull(result.Payload);
+		}
+
+		[DataTestMethod]
+		[DataRow("none")]
+		[DataRow("popular")]
+		public async Task GetSearchWithValidFilter(string filter)
+		{
+			var category = "listings";
+			var query = "woodworking";
+			var offset = 0;
+
+			var expectedSuccess = true;
+
+			// Act
+			var result = await _discoveryService.GetSearch(query, category, filter, offset).ConfigureAwait(false);
+
+			// Assert
+			Assert.IsTrue(result.IsSuccessful == expectedSuccess);
+			Assert.IsNotNull(result.Payload);
+		}
+
+		[DataTestMethod]
+		[DataRow(0)]
+		[DataRow(1)]
+		[DataRow(100)]
+		public async Task GetSearchWithValidOffset(int offset)
+		{
+			var category = "listings";
+			var filter = "none";
+			var query = "woodworking";
+
+			var expectedSuccess = true;
+
+			// Act
+			var result = await _discoveryService.GetSearch(query, category, filter, offset).ConfigureAwait(false);
+
+			// Assert
+			Assert.IsTrue(result.IsSuccessful == expectedSuccess);
+			Assert.IsNotNull(result.Payload);
 		}
 	}
 }
