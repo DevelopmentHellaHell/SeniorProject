@@ -375,14 +375,7 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
                                 ))}
                                 </ul>
                             )}
-                            <button type="submit">Convert to Base64</button>
-                            {/* {fileData.length > 0 && (
-                                <ul>
-                                {fileData.map((data) => (
-                                    <li key={data}>{data}</li>
-                                ))}
-                                </ul>
-                            )} */}
+                            <button type="submit">Save images</button>
                             </form>
                         <form onSubmit={handleListingSubmit}>
                             <div>
