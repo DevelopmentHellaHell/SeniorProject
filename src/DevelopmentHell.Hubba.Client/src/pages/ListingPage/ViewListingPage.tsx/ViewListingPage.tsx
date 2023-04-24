@@ -82,9 +82,15 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                 <div className="listing-wrapper">
                     { data && !error && loaded &&
                         <div className="listing-page">
-                            <div className="listing-page-status"> { isPublished ? '' : 'Draft'  } </div> 
-                            <p> { isPublished && authData?.sub==data.Listing.ownerId.toString() ? <Button theme={ButtonTheme.DARK} onClick={() => { navigate("/editlisting", { state: { listingId: data.Listing.listingId }})} } title={"Edit Listing"} />:
-                             <Button theme={ButtonTheme.DARK} onClick={() => { navigate("/editlisting", { state: { listingId: data.Listing.listingId }})} } title={"Edit Listing"} />}</p>
+                            <div className="listing-page-status"> { isPublished ? 'Public' : 'Draft'  } </div> 
+                            <p> { isPublished && authData?.sub==data.Listing.ownerId.toString() && <div>
+                                    <Button theme={ButtonTheme.DARK} onClick={() => { navigate("/editlisting", { state: { listingId: data.Listing.listingId }})} } title={"Edit Listing"} />
+                                    <Button theme={ButtonTheme.DARK} onClick={async () => { await Ajax.post("/listingprofile/unpublishListing", { state: { listingId: data.Listing.listingId }})} } title={"Unpublish Listing"} />
+                                </div>}
+                                { !isPublished && authData?.sub==data.Listing.ownerId.toString() && <div>
+                                    <Button theme={ButtonTheme.DARK} onClick={() => { navigate("/editlisting", { state: { listingId: data.Listing.listingId }})} } title={"Edit Listing"} />
+                                </div>} 
+                             </p>
                             <h2 className="listing-page__title">{data.Listing.title}</h2>
                             {data.Files && data.Files.length > 0 && (
                                 <div className="listing-page__image-wrapper">

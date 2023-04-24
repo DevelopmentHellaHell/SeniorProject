@@ -255,41 +255,41 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
             return result;
         }
 
-        public Result ValidateFiles(Dictionary<string, byte[]> files)
+        public Result ValidateFiles(List<Tuple<string, string>> files)
         {
             Result result = new Result();
 
-            foreach (KeyValuePair<string, byte[]> file in files)
+            foreach (Tuple<string, string> file in files)
             {
-                if (!Regex.IsMatch(file.Key, @"^[a-zA-Z0-9_\.]+$"))
-                {
-                    result.IsSuccessful = false;
-                    result.ErrorMessage = "File names must consist of only letters, numbers, underscores, and periods.";
-                    return result;
-                }
+                //if (!Regex.IsMatch(file.Item1, @"^[a-zA-Z0-9_\.]+$"))
+                //{
+                //    result.IsSuccessful = false;
+                //    result.ErrorMessage = "File names must consist of only letters, numbers, underscores, and periods.";
+                //    return result;
+                //}
 
-                string extension = Path.GetExtension(file.Key).ToLower();
+                string extension = Path.GetExtension(file.Item1).ToLower();
 
                 if (extension == ".jpg" || extension == ".jpeg" || extension == ".png")
                 {
-                    using (var stream = new MemoryStream(file.Value))
+                    using (var stream = new MemoryStream(Convert.FromBase64String(file.Item2)))
                     using (var image = System.Drawing.Image.FromStream(stream))
                     {
                         if (image.RawFormat.Equals(System.Drawing.Imaging.ImageFormat.Jpeg) ||
                             image.RawFormat.Equals(System.Drawing.Imaging.ImageFormat.Png))
                         {
                             // Check if the image size is less than or equal to 25 MB
-                            if (file.Value.Length > 25 * 1024 * 1024)
+                            if (Convert.FromBase64String(file.Item2).Length > 25 * 1024 * 1024)
                             {
                                 result.IsSuccessful = false;
-                                result.ErrorMessage = file.Key + " is too large.";
+                                result.ErrorMessage = file.Item1 + " is too large.";
                                 return result;
                             }
                         }
                         else
                         {
                             result.IsSuccessful = false;
-                            result.ErrorMessage = file.Key + " is an invalid image file type.";
+                            result.ErrorMessage = file.Item1 + " is an invalid image file type.";
                             return result;
                         }
                     }
@@ -297,17 +297,17 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
                 else if (extension == ".mp4")
                 {
                     // Check if the video size is less than or equal to 300 MB
-                    if (file.Value.Length > 300 * 1024 * 1024)
+                    if (Convert.FromBase64String(file.Item2).Length > 300 * 1024 * 1024)
                     {
                         result.IsSuccessful = false;
-                        result.ErrorMessage = file.Key + " is too large.";
+                        result.ErrorMessage = file.Item1 + " is too large.";
                         return result;
                     }
                 }
                 else
                 {
                     result.IsSuccessful = false;
-                    result.ErrorMessage = file.Key + " is an invalid file type.";
+                    result.ErrorMessage = file.Item1 + " is an invalid file type.";
                     return result;
                 }
             }

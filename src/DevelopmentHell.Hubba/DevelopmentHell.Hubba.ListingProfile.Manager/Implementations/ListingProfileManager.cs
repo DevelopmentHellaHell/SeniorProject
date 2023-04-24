@@ -385,161 +385,6 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             return Result.Success();
         }
 
-        //public async Task<Result> EditListingFiles(int listingId, List<string>? deleteListingNames, Dictionary<string, byte[]> addListingFiles)
-        //{
-        //    //authorize
-        //    if (!_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
-        //    {
-        //        return new(Result.Failure("Unauthorized user.", StatusCodes.Status401Unauthorized));
-        //    }
-        //    int picturesStored;
-        //    string dir = "ListingProfiles/" + listingId + "/";
-        //    //for each file, validate model and validate file (name, type, size)
-        //    if (addListingFiles is not null && addListingFiles.Count > 0)
-        //    {
-        //        Result validationResult = _validationService.ValidateFiles(addListingFiles);
-        //        if (!validationResult.IsSuccessful)
-        //        {
-        //            return new(Result.Failure(validationResult.ErrorMessage!, StatusCodes.Status400BadRequest));
-        //        }
-
-        //        Dictionary<string, byte[]> pictureFiles= new Dictionary<string, byte[]>();
-        //        Dictionary<string, byte[]> videoFiles = new Dictionary<string, byte[]>();
-        //        foreach (KeyValuePair<string, byte[]> file in addListingFiles)
-        //        {
-        //            if (Path.GetExtension(file.Key) == ".mp4")
-        //            {
-        //                videoFiles.Add("Videos/"+file.Key, file.Value);
-
-        //            }
-        //            else if (Path.GetExtension(file.Key) == ".jpg" || Path.GetExtension(file.Key) == ".jpeg" || Path.GetExtension(file.Key) == ".png")
-        //            {
-        //                pictureFiles.Add("Pictures/" + file.Key, file.Value);
-        //            }
-        //            else
-        //            {
-        //                return new(Result.Failure("Invalid file type for " + file.Key, StatusCodes.Status400BadRequest));
-        //            }
-        //        }
-
-        //        await _fileService.CreateDir(dir + "Pictures/").ConfigureAwait(false);
-        //        await _fileService.CreateDir(dir + "Videos/").ConfigureAwait(false);
-
-        //        picturesStored = _fileService.GetFilesInDir(dir+"Pictures/").Result.Payload.Count();
-        //        if (picturesStored + pictureFiles.Count > 10)
-        //        {
-        //            return new(Result.Failure("Maximum of 10 pictures per listing.", StatusCodes.Status400BadRequest));
-        //        }
-
-        //        var videosStored = _fileService.GetFilesInDir(dir + "Videos/").Result.Payload.Count();
-        //        if (videosStored + videoFiles.Count > 2)
-        //        {
-        //            return new(Result.Failure("Maximum of 2 videos per listing.", StatusCodes.Status400BadRequest));
-        //        }
-
-        //        Result fileUploadResults = new Result();
-        //        bool uploadErrorFound = false;
-        //        foreach (KeyValuePair<string, byte[]> file in pictureFiles)
-        //        {
-        //            try
-        //            {
-        //                Result uploadResult = await _fileService.UploadFile(dir, file.Key, file.Value).ConfigureAwait(false);
-        //                if (!uploadResult.IsSuccessful)
-        //                {
-        //                    fileUploadResults.ErrorMessage += "Failed to upload " + file.Key + "\n";
-        //                    uploadErrorFound = true;
-        //                }
-        //            }
-        //            catch (FluentFTP.Exceptions.FtpException ex)
-        //            {
-        //                // handle FluentFTP exceptions
-        //                fileUploadResults.ErrorMessage += "Failed to upload " + file.Key + Path.GetExtension(file.Key) + "\n";
-        //                uploadErrorFound = true;
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                // handle other exceptions
-        //                fileUploadResults.ErrorMessage += "Failed to upload " + file.Key + Path.GetExtension(file.Key) + "\n";
-        //                uploadErrorFound = true;
-        //            }
-        //        }
-
-        //        foreach (KeyValuePair<string, byte[]> file in videoFiles)
-        //        {
-        //            try
-        //            {
-        //                Result uploadResult = await _fileService.UploadFile(dir, file.Key, file.Value).ConfigureAwait(false);
-        //                if (!uploadResult.IsSuccessful)
-        //                {
-        //                    fileUploadResults.ErrorMessage += "Failed to upload " + file.Key + "\n";
-        //                    uploadErrorFound = true;
-        //                }
-        //            }
-        //            catch (FluentFTP.Exceptions.FtpException ex)
-        //            {
-        //                // handle FluentFTP exceptions
-        //                fileUploadResults.ErrorMessage += "Failed to upload " + file.Key + Path.GetExtension(file.Key) + "\n";
-        //                uploadErrorFound = true;
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                // handle other exceptions
-        //                fileUploadResults.ErrorMessage += "Failed to upload " + file.Key + Path.GetExtension(file.Key) + "\n";
-        //                uploadErrorFound = true;
-        //            }
-        //        }
-
-        //        if (uploadErrorFound)
-        //        {
-        //            return new(Result.Failure(fileUploadResults.ErrorMessage!, StatusCodes.Status400BadRequest));
-        //        }
-        //    }
-
-        //    if (deleteListingNames is not null && deleteListingNames.Count > 0)
-        //    {
-        //        Result fileDeleteResults = new Result();
-        //        bool deleteErrorFound = false;
-        //        foreach (string filename in deleteListingNames)
-        //        {
-        //            if (Path.GetExtension(filename) == ".png" || Path.GetExtension(filename) == ".jpeg" || Path.GetExtension(filename) == ".jpg")
-        //            {
-        //                Result deleteResult = await _fileService.DeleteFile(dir +"/Pictures/"+ filename).ConfigureAwait(false);
-        //                if (!deleteResult.IsSuccessful)
-        //                {
-        //                    fileDeleteResults.ErrorMessage += "Failed to delete " + filename + "\n";
-        //                    deleteErrorFound = true;
-        //                }
-        //            }
-
-        //            if (Path.GetExtension(filename) == ".mp4")
-        //            {
-        //                Result deleteResult = await _fileService.DeleteFile(dir + "/Videos/" + filename).ConfigureAwait(false);
-        //                if (!deleteResult.IsSuccessful)
-        //                {
-        //                    fileDeleteResults.ErrorMessage += "Failed to delete " + filename + "\n";
-        //                    deleteErrorFound = true;
-        //                }
-        //            }
-
-        //        }
-        //        if (deleteErrorFound)
-        //        {
-        //            return new(Result.Failure(fileDeleteResults.ErrorMessage, StatusCodes.Status400BadRequest));
-        //        }
-
-        //        picturesStored = _fileService.GetFilesInDir(dir + "Pictures/").Result.Payload.Count();
-        //        if (picturesStored == 0)
-        //        {
-        //            Result unpublish = await _listingsService.UnpublishListing(listingId).ConfigureAwait(false);
-        //        }
-        //    }
-            
-
-
-        //    return Result.Success();
-
-        //}
-
         public async Task<Result> DeleteListing(int listingId)
         {
             //authorize
@@ -728,6 +573,22 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             return Result.Success();
         }
 
+        public async Task<Result> UnpublishListing(int listingId)
+        {
+            //authorize
+            if (!_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
+            {
+                return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
+            }
+
+            Result unpublish = await _listingsService.UnpublishListing(listingId).ConfigureAwait(false);
+            if (!unpublish.IsSuccessful)
+            {
+                return new(Result.Failure(unpublish.ErrorMessage!, StatusCodes.Status400BadRequest));
+            }
+            return Result.Success();
+        }
+
         public async Task<Result> EditRating(ListingRatingEditorDTO listingRating)
         {
             //authorize
@@ -845,111 +706,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             return Result<List<string>>.Success(getFiles.Payload);
         }
 
-        //public async Task<Result> EditListingFiles(int listingId, List<string>? deleteListingNames, List<string> addPicturesFiles)
-        //{
-        //    //authorize
-        //    if (!_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
-        //    {
-        //        return new(Result.Failure("Unauthorized user.", StatusCodes.Status401Unauthorized));
-        //    }
-        //    int picturesStored;
-        //    string dir = "ListingProfiles/" + listingId + "/";
-        //    //for each file, validate model and validate file (name, type, size)
-        //    if (addPicturesFiles is not null && addPicturesFiles.Count > 0)
-        //    {
-
-        //        await _fileService.CreateDir(dir + "Pictures/").ConfigureAwait(false);
-        //        await _fileService.CreateDir(dir + "Videos/").ConfigureAwait(false);
-
-        //        Result fileUploadResults = new Result();
-        //        bool uploadErrorFound = false;
-        //        var count = 0;
-        //        foreach (string file in addPicturesFiles)
-        //        {
-        //            try
-        //            {
-        //                count++;
-                        
-        //                byte[] file1bytes = Convert.FromBase64String(file);
-        //                Result uploadResult = await _fileService.UploadFile(dir+ "Pictures/", "1.png", file1bytes).ConfigureAwait(false);
-
-        //                if (!uploadResult.IsSuccessful)
-        //                {
-        //                    //fileUploadResults.ErrorMessage += "Failed to upload " + file.Key + "\n";
-        //                    fileUploadResults.ErrorMessage += "Failed to upload";
-        //                    uploadErrorFound = true;
-        //                }
-        //            }
-        //            catch (FluentFTP.Exceptions.FtpException ex)
-        //            {
-        //                // handle FluentFTP exceptions
-        //                //fileUploadResults.ErrorMessage += "Failed to upload " + file.Key + Path.GetExtension(file.Key) + "\n";
-        //                fileUploadResults.ErrorMessage += "Failed to upload";
-        //                uploadErrorFound = true;
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                // handle other exceptions
-        //                //fileUploadResults.ErrorMessage += "Failed to upload " + file.Key + Path.GetExtension(file.Key) + "\n";
-        //                fileUploadResults.ErrorMessage += "Failed to upload";
-        //                uploadErrorFound = true;
-        //            }
-        //        }
-
-                
-
-        //        if (uploadErrorFound)
-        //        {
-        //            return new(Result.Failure(fileUploadResults.ErrorMessage!, StatusCodes.Status400BadRequest));
-        //        }
-        //    }
-
-        //    //if (deleteListingNames is not null && deleteListingNames.Count > 0)
-        //    //{
-        //    //    Result fileDeleteResults = new Result();
-        //    //    bool deleteErrorFound = false;
-        //    //    foreach (string filename in deleteListingNames)
-        //    //    {
-        //    //        if (Path.GetExtension(filename) == ".png" || Path.GetExtension(filename) == ".jpeg" || Path.GetExtension(filename) == ".jpg")
-        //    //        {
-        //    //            Result deleteResult = await _fileService.DeleteFile(dir + "/Pictures/" + filename).ConfigureAwait(false);
-        //    //            if (!deleteResult.IsSuccessful)
-        //    //            {
-        //    //                fileDeleteResults.ErrorMessage += "Failed to delete " + filename + "\n";
-        //    //                deleteErrorFound = true;
-        //    //            }
-        //    //        }
-
-        //    //        if (Path.GetExtension(filename) == ".mp4")
-        //    //        {
-        //    //            Result deleteResult = await _fileService.DeleteFile(dir + "/Videos/" + filename).ConfigureAwait(false);
-        //    //            if (!deleteResult.IsSuccessful)
-        //    //            {
-        //    //                fileDeleteResults.ErrorMessage += "Failed to delete " + filename + "\n";
-        //    //                deleteErrorFound = true;
-        //    //            }
-        //    //        }
-
-        //    //    }
-        //    //    if (deleteErrorFound)
-        //    //    {
-        //    //        return new(Result.Failure(fileDeleteResults.ErrorMessage, StatusCodes.Status400BadRequest));
-        //    //    }
-
-        //    //    picturesStored = _fileService.GetFilesInDir(dir + "Pictures/").Result.Payload.Count();
-        //    //    if (picturesStored == 0)
-        //    //    {
-        //    //        Result unpublish = await _listingsService.UnpublishListing(listingId).ConfigureAwait(false);
-        //    //    }
-        //    //}
-
-
-
-        //    return Result.Success();
-
-        //}
-
-        public async Task<Result> EditListingFiles(int listingId, List<string>? deleteListingNames, List<Tuple<string, string>> addPicturesFiles)
+        public async Task<Result> EditListingFiles(int listingId, List<string>? deleteListingNames, List<Tuple<string, string>> addListingFiles)
         {
             //authorize
             if (!_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
@@ -959,23 +716,43 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             int picturesStored;
             string dir = "ListingProfiles/" + listingId + "/";
             //for each file, validate model and validate file (name, type, size)
-            if (addPicturesFiles is not null && addPicturesFiles.Count > 0)
+            if (addListingFiles is not null && addListingFiles.Count > 0)
             {
+                Result validationResult = _validationService.ValidateFiles(addListingFiles);
+                if (!validationResult.IsSuccessful)
+                {
+                    return new(Result.Failure(validationResult.ErrorMessage!, StatusCodes.Status400BadRequest));
+                }
 
+                Dictionary<string, byte[]> pictureFiles = new Dictionary<string, byte[]>();
+                Dictionary<string, byte[]> videoFiles = new Dictionary<string, byte[]>();
+                foreach (Tuple<string, string> file in addListingFiles)
+                {
+                    if (Path.GetExtension(file.Item1) == ".mp4")
+                    {
+                        videoFiles.Add(file.Item1, Convert.FromBase64String(file.Item2));
+
+                    }
+                    else if (Path.GetExtension(file.Item1) == ".jpg" || Path.GetExtension(file.Item1) == ".jpeg" || Path.GetExtension(file.Item1) == ".png")
+                    {
+                        pictureFiles.Add(file.Item1, Convert.FromBase64String(file.Item2));
+                        Console.WriteLine(file.Item2);
+                    }
+                    else
+                    {
+                        return new(Result.Failure("Invalid file type for " + file.Item1, StatusCodes.Status400BadRequest));
+                    }
+                }
                 await _fileService.CreateDir(dir + "Pictures/").ConfigureAwait(false);
                 await _fileService.CreateDir(dir + "Videos/").ConfigureAwait(false);
 
                 Result fileUploadResults = new Result();
                 bool uploadErrorFound = false;
-                var count = 0;
-                foreach (Tuple<string, string> file in addPicturesFiles)
+                foreach (KeyValuePair<string, byte[]> file in pictureFiles)
                 {
                     try
                     {
-                        count++;
-                        
-                        byte[] file1bytes = Convert.FromBase64String(file.Item2);
-                        Result uploadResult = await _fileService.UploadFile(dir + "Pictures/", file.Item1, file1bytes).ConfigureAwait(false);
+                        Result uploadResult = await _fileService.UploadFile(dir + "Pictures/", file.Key, file.Value).ConfigureAwait(false);
 
                         if (!uploadResult.IsSuccessful)
                         {
@@ -1000,7 +777,34 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                     }
                 }
 
+                foreach (KeyValuePair<string, byte[]> file in videoFiles)
+                {
+                    try
+                    {
+                        Result uploadResult = await _fileService.UploadFile(dir + "Vieos/", file.Key, file.Value).ConfigureAwait(false);
 
+                        if (!uploadResult.IsSuccessful)
+                        {
+                            //fileUploadResults.ErrorMessage += "Failed to upload " + file.Key + "\n";
+                            fileUploadResults.ErrorMessage += "Failed to upload";
+                            uploadErrorFound = true;
+                        }
+                    }
+                    catch (FluentFTP.Exceptions.FtpException ex)
+                    {
+                        // handle FluentFTP exceptions
+                        //fileUploadResults.ErrorMessage += "Failed to upload " + file.Key + Path.GetExtension(file.Key) + "\n";
+                        fileUploadResults.ErrorMessage += "Failed to upload";
+                        uploadErrorFound = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        // handle other exceptions
+                        //fileUploadResults.ErrorMessage += "Failed to upload " + file.Key + Path.GetExtension(file.Key) + "\n";
+                        fileUploadResults.ErrorMessage += "Failed to upload";
+                        uploadErrorFound = true;
+                    }
+                }
 
                 if (uploadErrorFound)
                 {
@@ -1008,44 +812,44 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 }
             }
 
-            //if (deleteListingNames is not null && deleteListingNames.Count > 0)
-            //{
-            //    Result fileDeleteResults = new Result();
-            //    bool deleteErrorFound = false;
-            //    foreach (string filename in deleteListingNames)
-            //    {
-            //        if (Path.GetExtension(filename) == ".png" || Path.GetExtension(filename) == ".jpeg" || Path.GetExtension(filename) == ".jpg")
-            //        {
-            //            Result deleteResult = await _fileService.DeleteFile(dir + "/Pictures/" + filename).ConfigureAwait(false);
-            //            if (!deleteResult.IsSuccessful)
-            //            {
-            //                fileDeleteResults.ErrorMessage += "Failed to delete " + filename + "\n";
-            //                deleteErrorFound = true;
-            //            }
-            //        }
+            if (deleteListingNames is not null && deleteListingNames.Count > 0)
+            {
+                Result fileDeleteResults = new Result();
+                bool deleteErrorFound = false;
+                foreach (string filename in deleteListingNames)
+                {
+                    if (Path.GetExtension(filename) == ".png" || Path.GetExtension(filename) == ".jpeg" || Path.GetExtension(filename) == ".jpg")
+                    {
+                        Result deleteResult = await _fileService.DeleteFile(dir + "/Pictures/" + filename).ConfigureAwait(false);
+                        if (!deleteResult.IsSuccessful)
+                        {
+                            fileDeleteResults.ErrorMessage += "Failed to delete " + filename + "\n";
+                            deleteErrorFound = true;
+                        }
+                    }
 
-            //        if (Path.GetExtension(filename) == ".mp4")
-            //        {
-            //            Result deleteResult = await _fileService.DeleteFile(dir + "/Videos/" + filename).ConfigureAwait(false);
-            //            if (!deleteResult.IsSuccessful)
-            //            {
-            //                fileDeleteResults.ErrorMessage += "Failed to delete " + filename + "\n";
-            //                deleteErrorFound = true;
-            //            }
-            //        }
+                    if (Path.GetExtension(filename) == ".mp4")
+                    {
+                        Result deleteResult = await _fileService.DeleteFile(dir + "/Videos/" + filename).ConfigureAwait(false);
+                        if (!deleteResult.IsSuccessful)
+                        {
+                            fileDeleteResults.ErrorMessage += "Failed to delete " + filename + "\n";
+                            deleteErrorFound = true;
+                        }
+                    }
 
-            //    }
-            //    if (deleteErrorFound)
-            //    {
-            //        return new(Result.Failure(fileDeleteResults.ErrorMessage, StatusCodes.Status400BadRequest));
-            //    }
+                }
+                if (deleteErrorFound)
+                {
+                    return new(Result.Failure(fileDeleteResults.ErrorMessage, StatusCodes.Status400BadRequest));
+                }
 
-            //    picturesStored = _fileService.GetFilesInDir(dir + "Pictures/").Result.Payload.Count();
-            //    if (picturesStored == 0)
-            //    {
-            //        Result unpublish = await _listingsService.UnpublishListing(listingId).ConfigureAwait(false);
-            //    }
-            //}
+                picturesStored = _fileService.GetFilesInDir(dir + "Pictures/").Result.Payload.Count();
+                if (picturesStored == 0)
+                {
+                    Result unpublish = await _listingsService.UnpublishListing(listingId).ConfigureAwait(false);
+                }
+            }
 
 
 

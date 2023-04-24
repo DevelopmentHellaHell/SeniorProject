@@ -25,6 +25,7 @@ namespace DevelopmentHell.ListingProfile.Manager.Abstractions
         Task<Result> DeleteListing(int listingId);// -- ]]
 
         Task<Result> PublishListing(int listingId);// ]]
+        Task<Result> UnpublishListing(int listingId);
 
         Task<Result> AddRating(int listingId, int rating, string? comment, bool anonymous);// -- ]]
 

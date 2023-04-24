@@ -6,7 +6,7 @@ import Footer from "../../../components/Footer/Footer"
 import NavbarUser from "../../../components/NavbarUser/NavbarUser"
 import { IListing } from "../../ListingProfilePage/MyListingsView/MyListingsView"
 import { Auth } from "../../../Auth"
-import { Buffer } from 'buffer';
+import "./EditListingPage.css";
 
 interface IListingPageProps {
 
@@ -52,9 +52,10 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
     const [isListingEdited, setIsListingEdited] = useState(false);
     const [showPublish, setShowPublish] = useState(false);
     const [files, setFiles] = useState<File[]>([]);
-    //const [fileData, setFileData] = useState<{ [key: string]: ArrayBuffer }>({});
-    //const [fileData, setFileData] = useState<string[]>([]);
+    const [deletedImageName, setDeletedImageName] = useState("");
     const [fileData, setFileData] = useState<{ Item1: string, Item2: string} []>([]);
+    const [deletedFileNames, setDeletedFileNames] = useState<string[]>([]);
+
 
 
 
@@ -89,6 +90,14 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
         setCurrentImage((prevImage) =>
           prevImage === (data?.Files?.length ?? 0) - 1 ? 0 : prevImage + 1
         );
+      };
+
+      const handleDeleteImage = async (index: number) => {
+        const imageName = data!.Files![index].toString().substring(data!.Files![index].toString().lastIndexOf('/') + 1);
+        console.log(imageName)
+        setDeletedFileNames(prevNames => [...prevNames, imageName]);
+        setCurrentImage(index+1); // show the first image after deletion
+        
       };
 
       const handleInputChange = (e: { target: any }) => {
@@ -135,117 +144,8 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
         }
       };
 
-    //   const handleFileSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    //     event.preventDefault();
-      
-    //     const fileDataList: { name: string, data: string }[] = [];
-      
-    //     // loop through each selected file and read as data URL
-    //     // files.forEach((file) => {
-    //     //   const reader = new FileReader();
-    //     await Promise.all(files.map(file => new Promise((resolve, reject) => {
-    //         const reader = new FileReader();
-      
-    //       reader.readAsDataURL(file);
-    //       reader.onload = () => {
-    //         // convert data URL to base64 encoded string
-    //         const dataUrl = reader.result as string;
-    //         const base64String = dataUrl.split(',')[1];
-      
-    //         // create a new object with file name and base64-encoded data
-    //         const fileData = {
-    //           name: file.name,
-    //           data: base64String,
-    //         };
-      
-    //         // add the new object to the fileDataList
-    //         fileDataList.push(fileData);
-      
-    //         // set state with updated file data list
-    //         if (fileDataList.length === files.length) {
-    //             // create the dictionary from the fileDataList using reduce
-    //             const fileDataDict = fileDataList.reduce((acc, curr) => {
-    //                 // //const binaryString = atob(curr.data)
-    //                 // const buffer = Buffer.from(base64String, 'base64');
-    //                 // const bytes = new Uint8Array(buffer);
-    //                 // // for (let i = 0; i < binaryString.length; i++) {
-    //                 // // bytes[i] = binaryString.charCodeAt(i);
-    //                 // // }
 
-    //                 const buffer = Buffer.from(curr.data, 'base64');
-    //                 const bytes = new Uint8Array(buffer);
-    //                 acc[curr.name] = bytes.buffer;
-    //                 acc[curr.name] = bytes.buffer;
-    //                 return acc;
-    //             }, {} as { [key: string]: ArrayBuffer });
-      
-    //             // set state with the file data dictionary
-    //             //setFileData((previous)=>{ return {...previous, ...fileDataDict} });
-    //             setFileData(previous => ({ ...previous, ...fileDataDict }));
-    //             console.log(fileDataDict)
-    //         }
-    //       };
-    //     })));
-    //     //console.log({ ListingId: data?.Listing.listingId, DeleteNames: null,  AddFiles: fileData});
-    //     console.log("file data: " + fileData)
-        
-    //     const response = await Ajax.post<null>("/listingprofile/editListingFiles", { ListingId: data?.Listing.listingId, DeleteNames: null,  AddFiles: fileData});
-    //     if (response.error) {
-    //         setError(response.error);
-    //         console.log(response.error)
-    //         console.log(response)
-    //     } else {
-    //         navigate("/viewlisting", { state: { listingId: data?.Listing.listingId } });
-    //     }
-
-    //   };
-
-    // const handleFileSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    //     event.preventDefault();
-      
-    //     const fileDataList: string[] = [];
-      
-    //     try {
-    //       await Promise.all(files.map(file => new Promise<void>((resolve, reject) => {
-    //         const reader = new FileReader();
-    //         reader.readAsDataURL(file);
-    //         reader.onload = () => {
-    //           // convert data URL to base64 encoded string
-    //           const dataUrl = reader.result as string;
-    //           const base64String = dataUrl.split(',')[1];
-      
-    //           // add the base64-encoded data to the fileDataList
-    //           fileDataList.push(base64String);
-      
-    //           // set state with updated file data list
-    //           if (fileDataList.length === files.length) {
-    //             // set state with the file data list
-    //             setFileData(fileDataList);
-    //             console.log("file data: ", fileDataList);
-    //           }
-      
-    //           resolve();
-    //         };
-      
-    //         reader.onerror = reject;
-    //       })));
-      
-    //       console.log("file data: ", fileDataList);
-    //       const response = await Ajax.post<null>("/listingprofile/editListingFiles", { ListingId: data?.Listing.listingId, DeleteNames: null,  AddFiles: fileDataList });
-      
-    //       if (response.error) {
-    //         setError(response.error);
-    //         console.log(response.error)
-    //         console.log(response)
-    //       } else {
-    //         navigate("/viewlisting", { state: { listingId: data?.Listing.listingId } });
-    //       }
-    //     } catch (error) {
-    //       //setError(error);
-    //       console.log(error);
-    //     }
-    //   };
-      
+    
     const handleFileSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
       
@@ -278,7 +178,7 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
           })));
       
           console.log("file data: ", fileDataList);
-          const response = await Ajax.post<null>("/listingprofile/editListingFiles", { ListingId: data?.Listing.listingId, DeleteNames: null,  AddFiles: fileDataList });
+          const response = await Ajax.post<null>("/listingprofile/editListingFiles", { ListingId: data?.Listing.listingId, DeleteNames: deletedFileNames,  AddFiles: fileDataList });
       
           if (response.error) {
             setError(response.error);
@@ -299,6 +199,11 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
         setFiles(newFiles);
       };
     
+    const handlePublishSubmit = async () =>  {
+        const response = await Ajax.post<null>("/listingprofile/publishListing", { ListingId: data?.Listing.listingId});
+        setError(response.error);
+    }
+
     return (
         <div className="listing-container">
             <NavbarUser />
@@ -335,31 +240,46 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
                         <h2 className="listing-page__title">{data.Listing.title}</h2>
                         {data.Files && data.Files.length > 0 && (
                           <div className="listing-page__image-wrapper">
-                            <img
-                              className="listing-page__picture"
-                              src={data.Files[currentImage]?.toString()}
-                              alt={data.Listing.title}
-                            />
-                            {data.Files.length > 1 && (
-                              <>
-                                <button
-                                  className="listing-page__image-nav listing-page__image-nav--prev"
-                                  onClick={handlePrevImage}
-                                >
-                                  &#10094;
-                                </button>
-                                <button
-                                  className="listing-page__image-nav listing-page__image-nav--next"
-                                  onClick={handleNextImage}
-                                >
-                                  &#10095;
-                                </button>
-                              </>
-                            )}
-                            
-                          </div>
+                          <img
+                            className="listing-page__picture"
+                            src={data.Files[currentImage]?.toString()}
+                            alt={data.Listing.title}
+                          />
+                          {data.Files.length > 1 && (
+                            <>
+                              <button
+                                className="listing-page__image-nav listing-page__image-nav--prev"
+                                onClick={handlePrevImage}
+                              >
+                                &#10094;
+                              </button>
+                              <button
+                                className="listing-page__image-nav listing-page__image-nav--next"
+                                onClick={handleNextImage}
+                              >
+                                &#10095;
+                              </button>
+                            </>
+                          )}
+                          {deletedImageName && (
+                            <div className="listing-page__deleted-image">
+                              {`Deleted image: ${deletedImageName}`}
+                            </div>
+                          )}
+                          <button
+                            className="listing-page__delete-image"
+                            onClick={() => handleDeleteImage(currentImage)}
+                          >
+                            Delete Image
+                          </button>
+                        </div>
                           
                         )}
+                        { deletedFileNames.map(fileName => {
+                            return(
+                                <li>{fileName}</li>
+                             )}) 
+                        }
                        <form onSubmit={handleFileSubmit}>
                             <input type="file" accept=".jpg,.jpeg,.png" multiple onChange={handleFileSelect} />
                             {files.length > 0 && (
@@ -375,7 +295,7 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
                                 ))}
                                 </ul>
                             )}
-                            <button type="submit">Save images</button>
+                            <button type="submit">Submit file changes</button>
                             </form>
                         <form onSubmit={handleListingSubmit}>
                             <div>
@@ -387,7 +307,7 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
                             <div className="detailItem">
                                 <label>
                                 Description:
-                                <input type="text" name="description" value={data.Listing.description} onChange={handleInputChange} />
+                                <textarea name="description" value={data.Listing.description} onChange={handleInputChange} />
                                 </label>
                             </div>
                             <div className="detailItem">
@@ -404,7 +324,7 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
                             )}
                             </form>
                             
-
+                        <Button theme={ButtonTheme.DARK} title={"Publish"} onClick={ handlePublishSubmit } />
                     </div>
                       
                     

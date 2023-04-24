@@ -16,7 +16,6 @@ const ListingCard: React.FC<IListingCardProps> = (props) => {
         </td>
         <td> { props.listing.title} </td>
         <td> { props.listing.averageRating }</td>
-        <td> { props.listing.price } </td>
         <td> { props.listing.published ? 'Published' : 'Draft' }</td>
     </tr>
     </>

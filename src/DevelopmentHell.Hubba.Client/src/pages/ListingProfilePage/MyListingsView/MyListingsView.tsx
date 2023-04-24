@@ -46,7 +46,6 @@ const MyListingsView: React.FC<IMyListingsViewProps> = (props) => {
                         <th></th>
                         <th>Listing Title</th>
                         <th>Ratings</th>
-                        <th>Price</th>
                         <th>Status</th>
                     </tr>
                 </thead>
