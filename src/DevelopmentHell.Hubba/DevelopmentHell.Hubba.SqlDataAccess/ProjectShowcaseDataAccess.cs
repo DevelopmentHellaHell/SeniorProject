@@ -1,4 +1,5 @@
-﻿using DevelopmentHell.Hubba.Models;
+﻿using Azure;
+using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 using System;
@@ -68,7 +69,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }).ConfigureAwait(false);
         }
 
-        public async Task<Result> AddCommentReport(int commentId, int reporterId, string reason, DateTime time)
+        public async Task<Result> AddCommentReport(long commentId, int reporterId, string reason, DateTime time)
         {
             if (commentId < 0)
             {
@@ -130,7 +131,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return Result.Success();
         }
 
-        public async Task<Result> DeleteComment(int commentId)
+        public async Task<Result> DeleteComment(long commentId)
         {
             var deleteResult = await _deleteDataAccess.Delete(_commentTableName, new() { new Comparator("Id", "=", commentId) });
             if (!deleteResult.IsSuccessful)
@@ -154,6 +155,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         public async Task<Result> EditShowcase(string showcaseId, string? title, string? description, DateTime time)
         {
+            if (title == null && description == null)
+            {
+                return Result.Success();
+            }
             Dictionary<string, object> updateDict = new();
             if (title != null)
             {
@@ -167,7 +172,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return await _updateDataAccess.Update(_showcaseTableName, new List<Comparator>() { new("Id", "=", showcaseId!) }, updateDict);
         }
 
-        public async Task<Result<Dictionary<string, object>>> GetCommentDetails(int commentId)
+        public async Task<Result<Dictionary<string, object>>> GetCommentDetails(long commentId)
         {
             var result = await _selectDataAccess.Select
             (
@@ -210,8 +215,32 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
             return result;
         }
+        public async Task<Result<Dictionary<string, object>>> GetComment(long commentId)
+        {
+            var result = await _selectDataAccess.Select
+            (
+                _commentTableName,
+                new() { $"Id", "CommenterId", "ShowcaseId", "Text", "Rating", "Timestamp", "EditTimestamp" },
+                new() { new("Id", "=", commentId) }
+            ).ConfigureAwait(false);
 
-        public async Task<Result<string>> GetCommentShowcase(int commentId)
+            if (!result.IsSuccessful)
+            {
+                return new(Result.Failure($"Error in getting showcase comments from Db: {result.ErrorMessage}"));
+            }
+            if (result.Payload!.Count > 1)
+            {
+                return new(Result.Failure("More than one row with CommentId"));
+            }
+            if (result.Payload!.Count == 0)
+            {
+                return new(Result.Failure("Unable to find comment with Id"));
+            }
+
+            return Result<Dictionary<string,object>>.Success(result.Payload![0]);
+        }
+
+        public async Task<Result<string>> GetCommentShowcase(long commentId)
         {
             var result = await _selectDataAccess.Select(
                 TableManip.InnerJoinTables(_showcaseTableName, _commentTableName, "Id", "ShowcaseId"),
@@ -236,7 +265,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return Result<string>.Success((string)result.Payload![0]["Id"]);
         }
 
-        public async Task<Result<bool?>> GetCommentUserRating(int commentId, int voterId)
+        public async Task<Result<bool?>> GetCommentUserRating(long commentId, int voterId)
         {
             var result = await _selectDataAccess.Select(
                 _commentLikeTableName,
@@ -367,7 +396,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return Result<List<Dictionary<string, object>>>.Success(result.Payload!);
         }
 
-        public async Task<Result<List<Dictionary<string, object>>>> GetCommentReports(int commentId)
+        public async Task<Result<List<Dictionary<string, object>>>> GetCommentReports(long commentId)
         {
             List<string> selectList = new() { "Timestamp", "CommentId", "ReporterId", "IsResolved", "Reason" };
             var result = await _selectDataAccess.Select
@@ -421,7 +450,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }).ConfigureAwait(false);
         }
 
-        public async Task<Result> InsertUserCommentRating(int commentId, int voterId, bool isUpvote)
+        public async Task<Result> InsertUserCommentRating(long commentId, int voterId, bool isUpvote)
         {
             return await _insertDataAccess.Insert(_commentLikeTableName, new()
             {
@@ -453,7 +482,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return updateResult;
         }
 
-        public async Task<Result> UpdateComment(int commentId, string commentText, DateTime time)
+        public async Task<Result> UpdateComment(long commentId, string commentText, DateTime time)
         {
             return await _updateDataAccess.Update(_commentTableName, new()
             { new Comparator("Id","=",commentId) },
@@ -464,7 +493,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }).ConfigureAwait(false);
         }
 
-        public async Task<Result<int>> UpdateCommentRating(int commentId, int difference)
+        public async Task<Result<int>> UpdateCommentRating(long commentId, int difference)
         {
             var selectResult = await _selectDataAccess.Select(_commentTableName, new()
             { "Rating" },
@@ -499,7 +528,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return Result<int>.Success((int)selectResult.Payload![0]["Rating"] + difference);
         }
 
-        public async Task<Result> UpdateUserCommentRating(int commentId, int voterId, bool isUpvote)
+        public async Task<Result> UpdateUserCommentRating(long commentId, int voterId, bool isUpvote)
         {
             return await _updateDataAccess.Update(_commentLikeTableName, new()
             {

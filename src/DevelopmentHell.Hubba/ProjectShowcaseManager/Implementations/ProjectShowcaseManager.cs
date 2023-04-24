@@ -94,7 +94,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
         }
 
-        public async Task<Result> DeleteComment(int commentId)
+        public async Task<Result> DeleteComment(long commentId)
         {
             try
             {
@@ -144,7 +144,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
         }
 
-        public async Task<Result> EditComment(int commentId, string commentText)
+        public async Task<Result> EditComment(long commentId, string commentText)
         {
             try
             {
@@ -227,7 +227,8 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 {
                     return new(Result.Failure(testResult.ErrorMessage!));
                 }
-                if (!(bool)testResult.Payload!["IsPublished"])
+                var checkResult = await VerifyOwnership(showcaseId);
+                if (!checkResult.IsSuccessful && !(bool)testResult.Payload!["IsPublished"])
                 {
                     return new(Result.Failure("Unauthorized access.",401));
                 }
@@ -238,6 +239,29 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             {
                 _logger.Warning(Category.BUSINESS, $"Unable to Fetch Comments: {ex.Message}", "ShowcaseManager");
                 return new(Result.Failure("Error in fetching comments."));
+            }
+        }
+
+        public async Task<Result<ShowcaseComment>> GetComment(long commentId)
+        {
+            try
+            {
+                var checkResult = await IsAdminOrOwnerOfComment(commentId).ConfigureAwait(false);
+                if (!checkResult.IsSuccessful)
+                {
+                    return new(Result.Failure("Unexpected error when getting comment"));
+                }
+                if (!checkResult.Payload!)
+                {
+                    return new(Result.Failure("Unauthorized attempt to get comment", 401));
+                }
+
+                return await _projectShowcaseService.GetComment(commentId);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Unable to Fetch Comment: {ex.Message}", "ShowcaseManager");
+                return new(Result.Failure("Error in fetching comment."));
             }
         }
 
@@ -265,7 +289,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
         }
 
-        public async Task<Result<List<CommentReport>>> GetCommentReports(int commentId)
+        public async Task<Result<List<CommentReport>>> GetCommentReports(long commentId)
         {
             try
             {
@@ -425,7 +449,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
         }
 
-        public async Task<Result<int>> RateComment(int commentId, bool isUpvote)
+        public async Task<Result<int>> RateComment(long commentId, bool isUpvote)
         {
             try
             {
@@ -444,7 +468,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
         }
 
-        public async Task<Result> ReportComment(int commentId, string reasonText)
+        public async Task<Result> ReportComment(long commentId, string reasonText)
         {
             try
             {
@@ -524,10 +548,10 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
         }
 
-        public async Task<Result<bool>> VerifyCommentOwnership(int commentId)
+        public async Task<Result<bool>> VerifyCommentOwnership(long commentId)
         {
-            var authResult = _authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" });
-            if (!authResult.IsSuccessful)
+            var authResult = _authorizationService.Authorize(new string[] { "AdminUser" });
+            if (authResult.IsSuccessful)
             {
                 return Result<bool>.Success(false);
             }
@@ -603,7 +627,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             return Result<bool>.Success(true);
         }
 
-        public async Task<Result<bool>> IsAdminOrOwnerOfComment(int commentId)
+        public async Task<Result<bool>> IsAdminOrOwnerOfComment(long commentId)
         {
             var authResult = _authorizationService.Authorize(new string[] { "AdminUser" });
             if (!authResult.IsSuccessful)

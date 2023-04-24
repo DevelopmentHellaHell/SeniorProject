@@ -48,6 +48,7 @@ interface IPackagedProjectShowcase {
 
 const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props) => {
     const [comments, setComments] = useState<IShowcaseComment[]>([]);
+    const [commentsLoaded, setCommentsLoaded] = useState(false);
     const [showcase, setShowcase] = useState<IProjectShowcase>();
     const [images, setImages] = useState<string[]>([]);
     const [error , setError] = useState("");
@@ -55,6 +56,10 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
     const [commentPage, setCommentPage] = useState(1);
     const [commentCount, setCommentCount] = useState(10);
     const [shared, setShared] = useState(false);
+    const [reportShowing, setReportShowing] = useState(false);
+    const [reportText, setReportText] = useState("");
+    const [commentText, setCommentText] = useState("");
+    const [showcaseLikes, setShowcaseLikes] = useState(0);
 
 
     const authData = Auth.getAccessData();
@@ -73,6 +78,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                 setComments(response.data.comments);
                 setShowcase(response.data.showcase);
                 setImages(response.data.filePaths);
+                setShowcaseLikes(response.data.showcase.rating);
             }
             setError(response.error);
             setLoaded(response.loaded);
@@ -83,8 +89,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
     const getComments = async() => {
         await Ajax.get<IShowcaseComment[]>(`/showcases/comments?s=${showcaseId}&c=${commentCount}&p=${commentPage}`).then((response) => {
             setComments(response.data && response.data.length ? response.data : []);
-            setError(response.error);
-            setLoaded(response.loaded);
+            alert(response.error);
         });
     }
 
@@ -134,8 +139,39 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                     <div className="showcase-header">
                         <div className="h-stack"> 
                             <h1>{showcase?.title}</h1>
-                            <div>
-                                <button className="report-button">report</button>
+                            <div className="v-stack">
+                                {reportShowing ? 
+                                    <div className="report-container">
+                                        <div className="v-stack">
+                                            <textarea className="report-input" onChange={() =>{
+                                                setReportText((document.getElementsByClassName("report-input")[0] as HTMLInputElement).value)
+                                            }}/>
+                                            <div className="h-stack">
+                                                <button className="report-submission-button" onClick={() => {
+                                                    Ajax.post(`/showcases/report?s=${showcaseId}`, { reasonText: reportText }).then((response) => {
+                                                        if (response.error){
+                                                            alert(response.error);
+                                                        }
+                                                        if(response.data) {
+                                                            alert("Report submitted successfully");
+                                                        }
+                                                    });
+                                                    setReportText("");
+                                                    setReportShowing(false);
+                                                }}>submit</button>
+                                                <button className="report-cancel-button" onClick={() => {
+                                                    setReportText("");
+                                                    setReportShowing(false);
+                                                }}>cancel</button>
+                                                <p>{`${reportText.length}/250`}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    : <button className="report-button" onClick={() => {
+                                        setReportShowing(true);
+                                    }}>report</button>
+                                }
+                                
                             </div>
                         </div>
                         <Button theme={ButtonTheme.DARK} title="Go To Listing" onClick={() => {
@@ -147,7 +183,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                 Ajax.post(`/showcases/like?s=${showcaseId}`, { }).then((response) => {
                                     if (!response.error){
                                         console.log("Liked");
-                                        alert("Liked Showcase");
+                                        setShowcaseLikes(showcaseLikes + 1);
                                     }
                                     else {
                                         alert("Unable to like at this time.");
@@ -157,7 +193,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                             OnUnlike={ () => {
                                 console.log("Unliked");
                             }}/>
-                            <h3 className="showcase-rating-text">{showcase?.rating} Likes</h3>
+                            <h3 className="showcase-rating-text">{showcaseLikes} Likes</h3>
                             <Button theme={ButtonTheme.DARK} title="Share This Showcase" onClick={() => { 
                                 navigator.clipboard.writeText(`${window.location.href}`);
                                 setShared(true);
@@ -176,8 +212,21 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                     <div className="showcase-comments">
                         <div className="comment-input">
                             <h3>Leave a comment</h3>
-                            <textarea></textarea>
-                            <button>Submit</button>
+                            <textarea className="comment-input-box" onChange={() => {
+                                setCommentText((document.getElementsByClassName("comment-input-box")[0] as HTMLInputElement).value)
+                            }}></textarea>
+                            <button onClick={() => {
+                                console.log(commentText);
+                                Ajax.post(`/showcases/comments?s=${showcaseId}`, { commentText: commentText } ).then((response) => {
+                                    if (response.error){
+                                        alert(response.error);
+                                    }
+                                    if(response.data) {
+                                        alert("Comment submitted successfully");
+                                        getComments();
+                                    }
+                                });
+                            }}>Submit Comment</button>
                         </div>
                         <h3>Comments</h3>
                         <div className="comments">
@@ -189,8 +238,20 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                             <h4>{comment.commenterEmail.split("@")[0]}</h4>
                                             {authData && comment.commenterId.toString() == authData.sub &&
                                                 <div className="owned-comment">
-                                                    <button>edit</button>
-                                                    <button>delete</button>
+                                                    <button onClick={() => {
+                                                        navigate(`/showcases/comments/edit?cid=${comment.id}`);
+                                                    }}>edit</button>
+                                                    <button onClick={() => {
+                                                        Ajax.post(`/showcases/comments/delete?cid=${comment.id}`,{}).then((response) => {
+                                                            if (response.error){
+                                                                alert(response.error);
+                                                            }
+                                                            if(response.data) {
+                                                                alert("Comment deleted successfully");
+                                                                getComments();
+                                                            }
+                                                        });
+                                                    }}>delete</button>
                                                 </div>
                                             }
                                         </div>
@@ -198,11 +259,27 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                         <div className="vote-control">
                                             <div className="h-stack">
                                                 <p className="down-vote" onClick={() => {
-                                                    console.log("downvoted");
+                                                    Ajax.post(`/showcases/comments/rate?s=${showcaseId}&cid=${comment.id}&r=false`, { commentText: commentText } ).then((response) => {
+                                                        if (response.error){
+                                                            alert(response.error);
+                                                        }
+                                                        if(response.data) {
+                                                            alert("Comment submitted successfully");
+                                                            getComments();
+                                                        }
+                                                    });
                                                 }}>-</p> 
                                                 <p className="comment-rating-text">{comment.rating}</p>
                                                 <p className="up-vote" onClick={() => {
-                                                    console.log("upvoted");
+                                                    Ajax.post(`/showcases/comments/rate?s=${showcaseId}&cid=${comment.id}&r=true`, { commentText: commentText } ).then((response) => {
+                                                        if (response.error){
+                                                            alert(response.error);
+                                                        }
+                                                        if(response.data) {
+                                                            alert("Comment submitted successfully");
+                                                            getComments();
+                                                        }
+                                                    });
                                                 }}>+</p>
                                             </div>
                                         </div>
@@ -212,7 +289,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                         </div>
                         <div className="comment-control">
                             <div className="comment-count-control">
-                                <text>comments per page:</text>
+                                <p>comments per page:</p>
                                 <div className="h-stack"> 
                                     <p className={commentCount == 10 ? "selected-comment-count" : "unselected-comment-count"}
                                     onClick={() => {
@@ -238,7 +315,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                 </div>
                             </div>
                             <div className="comment-page-control">
-                                <text>page #:</text>
+                                <p>page #:</p>
                                 <div className="h-stack"> 
                                     {commentPage > 1 &&
                                         <p className="prev-page"  onClick={() => {

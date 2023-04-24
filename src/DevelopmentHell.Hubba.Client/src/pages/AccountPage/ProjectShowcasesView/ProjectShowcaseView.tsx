@@ -37,9 +37,7 @@ const ShowConfirmButtons = () =>{
     </div>
 }
 
-function EditShowcase(showcaseId: string) {
-    redirect(`/showcase/edit?s=${showcaseId}`);
-}
+
 
 const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
     const [data, setData] = useState<IShowcaseData[]>([]);
@@ -50,6 +48,10 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
     if(!authData) {
         redirect("/login");
         return null;
+    }
+
+    function EditShowcase(showcaseId: string) {
+        navigate(`/showcases/edit?s=${showcaseId}`);
     }
     
     function Unpublish(showcaseId: string) {

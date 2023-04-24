@@ -43,6 +43,9 @@ const EditProjectShowcasePage: React.FC<IEditProjectShowcasePageProps> = (props)
     const [data, setData] = useState<IShowcaseDTO | null>(null);
     const [fileData, setFileData] = useState<{ Item1: string, Item2: string} []>([]);
     const [listingId, setListingId] = useState<number>(0);
+    const { search } = useLocation();
+    const searchParams = new URLSearchParams(search);
+    const showcaseId = searchParams.get("s");
 
     const authData = Auth.getAccessData();
     const navigate = useNavigate();
@@ -96,14 +99,14 @@ const EditProjectShowcasePage: React.FC<IEditProjectShowcasePageProps> = (props)
           })));
       
           console.log("file data: ", fileDataList);
-          const response = await Ajax.post<string>("/showcases/edit", { files: fileDataList,  title: title, description: description, listingId:  listingId });
+          const response = await Ajax.post<string>(`/showcases/edit?s=${showcaseId}`, { files: fileDataList,  title: title, description: description, listingId:  listingId });
       
           if (response.error) {
             setError(response.error);
             console.log(response.error)
             console.log(response)
           } else {
-            navigate(`/showcases/view?s=${response.data}`);
+            navigate(`/showcases/view?s=${showcaseId}`);
           }
         } catch (error) {
           //setError(error);

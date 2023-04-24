@@ -1,0 +1,34 @@
+.edit-project-showcase-comment-container {
+    position: relative;
+    display: flex;
+    flex-flow: column;
+    flex-grow: 1
+}
+
+.edit-project-showcase-comment-container .edit-project-showcase-comment-content {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 2.5rem;
+    flex-grow: 1;
+}
+
+.edit-project-showcase-comment-container .edit-project-showcase-comment-content .edit-project-showcase-comment-wrapper {
+    display: flex;
+    margin-top: 10vh;
+    width: 70%;
+    flex-direction: column;
+}
+
+.edit-project-showcase-comment-wrapper .h-stack{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-project-showcase-comment-wrapper .v-stack{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}

@@ -17,6 +17,8 @@ import "./App.css";
 import NotificationStateProvider from "./NotificationStateProvider";
 import ViewProjectShowcasePage from "./pages/ViewProjectShowcasePage/ViewProjectShowcasePage";
 import CreateProjectShowcasePage from "./pages/CreateProjectShowcasePage/CreateProjectShowcasePage";
+import EditProjectShowcasePage from "./pages/EditProjectShowcasePage/EditProjectShowcasePage";
+import EditProjectShowcaseCommentPage from "./pages/EditProjectShowcaseCommentPage/EditProjectShowcaseCommentPage";
 
 interface IAppProps {
 
@@ -58,6 +60,8 @@ const App: React.FC<IAppProps> = (props) => {
 							<Route path="/logout" element={<LogoutPage />} />
 							<Route path="/notification" element={<NotificationPage />} />
 							<Route path="/showcases/new" element={<CreateProjectShowcasePage />}/>
+							<Route path="/showcases/edit" element={<EditProjectShowcasePage />}/>
+							<Route path="/showcases/comments/edit" element={<EditProjectShowcaseCommentPage />}/>
 						</Route>
 						<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.ADMIN_USER]}/>}>
 							<Route path="/admin-dashboard" element={<AdminDashboardPage />} />

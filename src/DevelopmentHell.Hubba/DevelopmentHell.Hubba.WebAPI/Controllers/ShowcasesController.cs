@@ -3,6 +3,7 @@ using DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions;
 using Microsoft.AspNetCore.Authentication;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using System.Security.Claims;
+using Microsoft.Net.Http.Headers;
 
 namespace DevelopmentHell.Hubba.WebAPI.Controllers
 {
@@ -56,6 +57,19 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                     return NotFound;
             }
         }
+        private string GetErrorMessage(int code)
+        {
+            switch (code)
+            {
+                case 400:
+                    return "Invalid request. Please try again with valid request.";
+                case 401:
+                    return "Unauthorized access. Please log in or register to continue.";
+                default:
+                    return "Unknown exception occured while processing your request. Please try again later";
+            }
+
+        }
 
         [HttpGet]
         [Route("view")]
@@ -73,9 +87,9 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                     showcaseResult = await _projectShowcaseManager.GetShowcase(showcaseId);
                     if (!showcaseResult.IsSuccessful)
                     {
-                        return GetFuncCode((int)showcaseResult.StatusCode!)(showcaseResult.ErrorMessage!);
+                        return GetFuncCode((int)showcaseResult.StatusCode!)(GetErrorMessage(showcaseResult.StatusCode));
                     }
-                    return GetFuncCode((int)showcaseResult.StatusCode!)(showcaseResult.ErrorMessage!);
+                    return GetFuncCode((int)showcaseResult.StatusCode!)(GetErrorMessage(showcaseResult.StatusCode));
                 }
                 return Ok(showcaseResult.Payload);
 
@@ -99,7 +113,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 var showcaseResult = await _projectShowcaseManager.GetUserShowcases((int)accountId);
                 if (!showcaseResult.IsSuccessful)
                 {
-                    return GetFuncCode((int)showcaseResult.StatusCode!)(showcaseResult.ErrorMessage!);
+                    return GetFuncCode((int)showcaseResult.StatusCode!)(GetErrorMessage(showcaseResult.StatusCode));
                 }
                 return Ok(showcaseResult.Payload);
             }
@@ -123,7 +137,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 var detailResult = await _projectShowcaseManager.GetUserShowcases((int)accountId, false);
                 if (!detailResult.IsSuccessful)
                 {
-                    return GetFuncCode((int)detailResult.StatusCode!)(detailResult.ErrorMessage!);
+                    return GetFuncCode((int)detailResult.StatusCode!)(GetErrorMessage(detailResult.StatusCode));
                 }
                 return Ok(detailResult.Payload!);
             }
@@ -145,7 +159,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                     var getResult = await _projectShowcaseManager.GetAllShowcaseReports();
                     if (!getResult.IsSuccessful)
                     {
-                        return GetFuncCode(getResult.StatusCode!)(getResult.ErrorMessage!);
+                        return GetFuncCode(getResult.StatusCode!)(GetErrorMessage(getResult.StatusCode));
                     }
                     return Ok(getResult.Payload!);
                 }
@@ -154,7 +168,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                     var getResult = await _projectShowcaseManager.GetShowcaseReports(showcaseId);
                     if (!getResult.IsSuccessful)
                     {
-                        return GetFuncCode(getResult.StatusCode!)(getResult.ErrorMessage!);
+                        return GetFuncCode(getResult.StatusCode!)(GetErrorMessage(getResult.StatusCode));
                     }
                     return Ok(getResult.Payload!);
                 }
@@ -177,7 +191,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                     var getResult = await _projectShowcaseManager.GetAllCommentReports();
                     if (!getResult.IsSuccessful)
                     {
-                        return GetFuncCode(getResult.StatusCode!)(getResult.ErrorMessage!);
+                        return GetFuncCode(getResult.StatusCode!)(GetErrorMessage(getResult.StatusCode));
                     }
                     return Ok(getResult.Payload!);
                 }
@@ -186,7 +200,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                     var getResult = await _projectShowcaseManager.GetCommentReports((int)commentId);
                     if (!getResult.IsSuccessful)
                     {
-                        return GetFuncCode(getResult.StatusCode!)(getResult.ErrorMessage!);
+                        return GetFuncCode(getResult.StatusCode!)(GetErrorMessage(getResult.StatusCode));
                     }
                     return Ok(getResult.Payload!);
                 }
@@ -212,7 +226,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 var commentResult = await _projectShowcaseManager.GetComments(showcaseId, commentCount, page);
                 if (!commentResult.IsSuccessful)
                 {
-                    return GetFuncCode((int)commentResult.StatusCode!)(commentResult.ErrorMessage!);
+                    return GetFuncCode((int)commentResult.StatusCode!)(GetErrorMessage(commentResult.StatusCode));
                 }
 
                 return Ok(commentResult.Payload);
@@ -220,6 +234,32 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             catch (Exception ex)
             {
                 _logger.Warning(Models.Category.SERVER, $"Error in GetComments: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
+            }
+        }
+
+        [HttpGet]
+        [Route("comment")]
+        public async Task<IActionResult> GetComment([FromQuery(Name  = "cid")] long? commentId)
+        {
+            try
+            {
+                if (commentId == null)
+                {
+                    return BadRequest("Comment Id missing from request");
+                }
+
+                var commentResult = await _projectShowcaseManager.GetComment((long)commentId);
+                if (!commentResult.IsSuccessful)
+                {
+                    return GetFuncCode((int)commentResult.StatusCode!)(GetErrorMessage(commentResult.StatusCode));
+                }
+
+                return Ok(commentResult.Payload);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Models.Category.SERVER, $"Error in GetComment: {ex.Message}", "ShowcaseController");
                 return StatusCode(500, "Unknown exception occured when attempting to complete your request");
             }
         }
@@ -240,12 +280,12 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     if (likeResult.StatusCode != 500)
                     {
-                        return GetFuncCode((int)likeResult.StatusCode!)(likeResult.ErrorMessage!);
+                        return GetFuncCode((int)likeResult.StatusCode!)(GetErrorMessage(likeResult.StatusCode));
                     }
                     likeResult = await _projectShowcaseManager.LikeShowcase(showcaseId);
                     if (!likeResult.IsSuccessful)
                     {
-                        return GetFuncCode((int)likeResult.StatusCode!)(likeResult.ErrorMessage!);
+                        return GetFuncCode((int)likeResult.StatusCode!)(GetErrorMessage(likeResult.StatusCode));
                     }
                 }
 
@@ -276,12 +316,12 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     if (createResult.StatusCode != 500)
                     {
-                        return GetFuncCode((int)createResult.StatusCode!)(createResult.ErrorMessage!);
+                        return GetFuncCode((int)createResult.StatusCode!)(GetErrorMessage(createResult.StatusCode));
                     }
                     createResult = await _projectShowcaseManager.CreateShowcase((int)uploadedShowcase.ListingId, uploadedShowcase.Title, uploadedShowcase.Description, uploadedShowcase.Files);
                     if (!createResult.IsSuccessful)
                     {
-                        return GetFuncCode((int)createResult.StatusCode!)(createResult.ErrorMessage!);
+                        return GetFuncCode((int)createResult.StatusCode!)(GetErrorMessage(createResult.StatusCode));
                     }
                 }
 
@@ -309,12 +349,12 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     if (editResult.StatusCode != 500)
                     {
-                        return GetFuncCode((int)editResult.StatusCode!)(editResult.ErrorMessage!);
+                        return GetFuncCode((int)editResult.StatusCode!)(GetErrorMessage(editResult.StatusCode));
                     }
                     editResult = await _projectShowcaseManager.EditShowcase(showcaseId, editedShowcase.ListingId, editedShowcase.Title, editedShowcase.Description, editedShowcase.Files);
                     if (!editResult.IsSuccessful)
                     {
-                        return GetFuncCode((int)editResult!.StatusCode!)(editResult.ErrorMessage!);
+                        return GetFuncCode((int)editResult!.StatusCode!)(GetErrorMessage(editResult.StatusCode));
                     }
                 }
 
@@ -342,12 +382,12 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     if (deleteResult.StatusCode != 500)
                     {
-                        return GetFuncCode((int)deleteResult.StatusCode!)(deleteResult.ErrorMessage!);
+                        return GetFuncCode((int)deleteResult.StatusCode!)(GetErrorMessage(deleteResult.StatusCode));
                     }
                     deleteResult = await _projectShowcaseManager.DeleteShowcase(showcaseId);
                     if (!deleteResult.IsSuccessful)
                     {
-                        return GetFuncCode((int)deleteResult!.StatusCode!)(deleteResult.ErrorMessage!);
+                        return GetFuncCode((int)deleteResult!.StatusCode!)(GetErrorMessage(deleteResult.StatusCode));
                     }
                 }
 
@@ -375,12 +415,12 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     if (publishResult.StatusCode != 500)
                     {
-                        return GetFuncCode((int)publishResult.StatusCode!)(publishResult.ErrorMessage!);
+                        return GetFuncCode((int)publishResult.StatusCode!)(GetErrorMessage(publishResult.StatusCode));
                     }
                     publishResult = await _projectShowcaseManager.Publish(showcaseId, listingId);
                     if (!publishResult.IsSuccessful)
                     {
-                        return GetFuncCode((int)publishResult!.StatusCode!)(publishResult.ErrorMessage!);
+                        return GetFuncCode((int)publishResult!.StatusCode!)(GetErrorMessage(publishResult.StatusCode));
                     }
                 }
 
@@ -408,12 +448,12 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     if(unpublishResult.StatusCode != 500)
                     {
-                        return GetFuncCode((int)unpublishResult.StatusCode!)(unpublishResult.ErrorMessage!);
+                        return GetFuncCode((int)unpublishResult.StatusCode!)(GetErrorMessage(unpublishResult.StatusCode));
                     }
                     unpublishResult = await _projectShowcaseManager.Unpublish(showcaseId);
                     if (!unpublishResult.IsSuccessful)
                     {
-                        return GetFuncCode((int)unpublishResult!.StatusCode!)(unpublishResult.ErrorMessage!);
+                        return GetFuncCode((int)unpublishResult!.StatusCode!)(GetErrorMessage(unpublishResult.StatusCode));
                     }
                 }
                 return Ok();
@@ -444,12 +484,12 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     if(addResult.StatusCode != 500)
                     {
-                        return GetFuncCode((int)addResult.StatusCode!)(addResult.ErrorMessage!);
+                        return GetFuncCode((int)addResult.StatusCode!)(GetErrorMessage(addResult.StatusCode));
                     }
                     addResult = await _projectShowcaseManager.AddComment(showcaseId,comment.CommentText!).ConfigureAwait(false);
                     if (!addResult.IsSuccessful)
                     {
-                        return GetFuncCode((int)addResult!.StatusCode!)(addResult.ErrorMessage!);
+                        return GetFuncCode((int)addResult!.StatusCode!)(GetErrorMessage(addResult.StatusCode));
                     }
                 }
 
@@ -480,12 +520,12 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     if(editResult.StatusCode != 500)
                     {
-                        return GetFuncCode((int)editResult.StatusCode!)(editResult.ErrorMessage!);
+                        return GetFuncCode((int)editResult.StatusCode!)(GetErrorMessage(editResult.StatusCode));
                     }
                     editResult = await _projectShowcaseManager.EditComment((int)commentId!, comment.CommentText);
                     if (!editResult.IsSuccessful)
                     {
-                        return GetFuncCode((int)editResult.StatusCode!)(editResult.ErrorMessage!);
+                        return GetFuncCode((int)editResult.StatusCode!)(GetErrorMessage(editResult.StatusCode));
                     }
                 }
 
@@ -513,12 +553,12 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     if(deleteResult.StatusCode != 500)
                     {
-                        return GetFuncCode((int)deleteResult.StatusCode!)(deleteResult.ErrorMessage!);
+                        return GetFuncCode((int)deleteResult.StatusCode!)(GetErrorMessage(deleteResult.StatusCode));
                     }
                     deleteResult = await _projectShowcaseManager.DeleteComment((int)commentId!);
                     if (!deleteResult.IsSuccessful)
                     {
-                        return GetFuncCode((int)deleteResult.StatusCode!)(deleteResult.ErrorMessage!);
+                        return GetFuncCode((int)deleteResult.StatusCode!)(GetErrorMessage(deleteResult.StatusCode));
                     }
                 }
                 return Ok();
@@ -549,12 +589,12 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     if (rateResult.StatusCode != 500)
                     {
-                        return GetFuncCode((int)rateResult.StatusCode!)(rateResult.ErrorMessage!);
+                        return GetFuncCode((int)rateResult.StatusCode!)(GetErrorMessage(rateResult.StatusCode));
                     }
                     rateResult = await _projectShowcaseManager.RateComment((int)commentId, (bool)isUpvote!);
                     if (!rateResult.IsSuccessful)
                     {
-                        return GetFuncCode((int)rateResult.StatusCode!)(rateResult.ErrorMessage!);
+                        return GetFuncCode((int)rateResult.StatusCode!)(GetErrorMessage(rateResult.StatusCode));
                     }
                 }
 
@@ -586,12 +626,12 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     if (reportResult.StatusCode != 500)
                     {
-                        return GetFuncCode((int)reportResult.StatusCode!)(reportResult.ErrorMessage!);
+                        return GetFuncCode((int)reportResult.StatusCode!)(GetErrorMessage(reportResult.StatusCode));
                     }
                     reportResult = await _projectShowcaseManager.ReportComment((int)commentId, reason.ReasonText);
                     if (!reportResult.IsSuccessful)
                     {
-                        return GetFuncCode((int)reportResult?.StatusCode!)(reportResult.ErrorMessage!);
+                        return GetFuncCode((int)reportResult?.StatusCode!)(GetErrorMessage(reportResult.StatusCode));
                     }
                 }
 
@@ -622,12 +662,17 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     if (reportResult.StatusCode != 500)
                     {
-                        return GetFuncCode((int)reportResult.StatusCode!)(reportResult.ErrorMessage!);
+                        string message = GetErrorMessage(reportResult.StatusCode);
+                        if (reportResult.StatusCode == 400)
+                        {
+                            message = "Unable to submit showcase. Can only submit one report per showcase";
+                        }
+                        return GetFuncCode((int)reportResult.StatusCode!)(message);
                     }
                     reportResult = await _projectShowcaseManager.ReportShowcase(showcaseId, reason.ReasonText);
                     if (!reportResult.IsSuccessful)
                     {
-                        return GetFuncCode((int)reportResult.StatusCode!)(reportResult.ErrorMessage!);
+                        return GetFuncCode((int)reportResult.StatusCode!)(GetErrorMessage(reportResult.StatusCode));
                     }
                 }
                 return Ok();
@@ -651,7 +696,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 var unlinkResult = await _projectShowcaseManager.Unlink(showcaseId);
                 if (!unlinkResult.IsSuccessful)
                 {
-                    return GetFuncCode((int)unlinkResult.StatusCode!)(unlinkResult.ErrorMessage!);
+                    return GetFuncCode((int)unlinkResult.StatusCode!)(GetErrorMessage(unlinkResult.StatusCode));
                 }
 
                 return Ok();

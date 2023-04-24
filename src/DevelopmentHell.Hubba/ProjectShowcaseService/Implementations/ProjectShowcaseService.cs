@@ -16,6 +16,7 @@ using Microsoft.Identity.Client;
 using System.Drawing.Printing;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using System.Collections;
+using Azure;
 
 namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
 {
@@ -109,7 +110,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             }
         }
 
-        public async Task<Result> DeleteComment(int commentId)
+        public async Task<Result> DeleteComment(long commentId)
         {
             try
             {
@@ -155,7 +156,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             }
         }
 
-        public async Task<Result> EditComment(int commentId, string commentText)
+        public async Task<Result> EditComment(long commentId, string commentText)
         {
             try
             {
@@ -210,7 +211,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             }
         }
 
-        public async Task<Result<Dictionary<string, object>>> GetCommentDetails(int commentId)
+        public async Task<Result<Dictionary<string, object>>> GetCommentDetails(long commentId)
         {
             try
             {
@@ -273,6 +274,53 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
                 }
 
                 return Result<List<ShowcaseComment>>.Success(output);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in getting comments: {ex.Message}", "ShowcaseService");
+                return new(Result.Failure("Error in getting comments"));
+            }
+        }
+
+        public async Task<Result<ShowcaseComment>> GetComment(long commentId)
+        {
+            try
+            {
+                var getResult = await _projectShowcaseDataAccess.GetComment(commentId);
+                if (!getResult.IsSuccessful)
+                {
+                    return new(Result.Failure("Unable to get comment from DAC"));
+                }
+
+                Dictionary<string, string> varSqlVarMap = new()
+                {
+                    { "CommenterId", "CommenterId" },
+                    { "ShowcaseId", "ShowcaseId" },
+                    { "Id", "Id" },
+                    { "Text", "Text" },
+                    { "Rating", "Rating" },
+                    { "Timestamp", "Timestamp" },
+                    { "EditTimestamp", "EditTimestamp" }
+                };
+
+                var valDict = MapToAttDict(varSqlVarMap, getResult.Payload!);
+                ShowcaseComment nextComment = new();
+                nextComment.CommenterId = valDict["CommenterId"].GetType() == typeof(DBNull) ? null : (int)valDict["CommenterId"];
+                nextComment.ShowcaseId = valDict["ShowcaseId"].GetType() == typeof(DBNull) ? null : (string)valDict["ShowcaseId"];
+                nextComment.Id = valDict["Id"].GetType() == typeof(DBNull) ? null : (long)valDict["Id"];
+                nextComment.Text = valDict["Text"].GetType() == typeof(DBNull) ? null : (string)valDict["Text"];
+                nextComment.Rating = valDict["Rating"].GetType() == typeof(DBNull) ? null : (int)valDict["Rating"];
+                nextComment.Timestamp = valDict["Timestamp"].GetType() == typeof(DBNull) ? null : (DateTime)valDict["Timestamp"];
+                nextComment.EditTimestamp = valDict["EditTimestamp"].GetType() == typeof(DBNull) ? null : (DateTime?)valDict["EditTimestamp"];
+
+                var userResult = await _userAccountDataAccess.GetUser((int)nextComment.CommenterId!).ConfigureAwait(false);
+                if (!userResult.IsSuccessful)
+                {
+                    return new(Result.Failure($"Unable to get user email: {userResult.ErrorMessage}"));
+                }
+                nextComment.CommenterEmail = userResult.Payload!.Email;
+
+                return Result<ShowcaseComment>.Success(nextComment);
             }
             catch (Exception ex)
             {
@@ -468,7 +516,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             }
         }
 
-        public async Task<Result<int>> RateComment(int commentId, bool isUpvote)
+        public async Task<Result<int>> RateComment(long commentId, bool isUpvote)
         {
             try
             {
@@ -517,7 +565,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             }
         }
 
-        public async Task<Result> ReportComment(int commentId, string reasonText)
+        public async Task<Result> ReportComment(long commentId, string reasonText)
         {
             try
             {
@@ -545,7 +593,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
                 var reportResult = await _projectShowcaseDataAccess.AddShowcaseReport(showcaseId, accountId, reasonText, DateTime.Now);
                 if (! reportResult.IsSuccessful)
                 {
-                    return Result.Failure("Error in reporting showcase");
+                    return Result.Failure("Error in reporting showcase",400);
                 }
 
                 return Result.Success();
@@ -711,7 +759,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             }
         }
 
-        public async Task<Result<List<CommentReport>>> GetCommentReports(int commentId)
+        public async Task<Result<List<CommentReport>>> GetCommentReports(long commentId)
         {
             try
             {
