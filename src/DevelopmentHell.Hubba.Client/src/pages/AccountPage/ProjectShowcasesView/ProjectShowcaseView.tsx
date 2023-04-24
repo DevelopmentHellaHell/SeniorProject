@@ -86,32 +86,34 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
 
     function DeleteShowcase(showcaseId: string) {
         Ajax.post(`/showcases/delete?s=${showcaseId}`, {}).then((response) => {
-          if (response.error) {
-            setError("Error deleting showcase");
-          } else {
-            setData((prevData) =>
-              prevData.map((showcaseData) =>
-                showcaseData.id === showcaseId
-                  ? { ...showcaseData, confirmShowing: false }
-                  : showcaseData
-                )
-            );
-          }
+            if (response.error) {
+                setError("Error deleting showcase");
+            } else {
+                setData((prevData) =>
+                    prevData.map((showcaseData) =>
+                        showcaseData.id === showcaseId
+                            ? { ...showcaseData, confirmShowing: false }
+                            : showcaseData
+                    )
+                );
+                getData();
+            }
         });
-      }
+    }
 
     function UnlinkShowcase(showcaseId: string) {
         Ajax.post(`/showcase/unlink?s=${showcaseId}`, {}).then((response) => {
             if (response.error) {
                 setError("Error deleting showcase");
-              } else {
+            } else {
                 setData((prevData) =>
-                  prevData.map((showcaseData) =>
-                    showcaseData.id === showcaseId
-                      ? { ...showcaseData, confirmShowing: false }
-                      : showcaseData
+                    prevData.map((showcaseData) =>
+                        showcaseData.id === showcaseId
+                            ? { ...showcaseData, confirmShowing: false }
+                            : showcaseData
                     )
                 );
+                getData();
             }
         });
     }
