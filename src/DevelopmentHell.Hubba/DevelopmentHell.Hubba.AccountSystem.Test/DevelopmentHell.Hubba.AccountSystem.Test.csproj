@@ -35,8 +35,4 @@
     <ProjectReference Include="..\OneTimePass\DevelopmentHell.Hubba.OneTimePassword.Service.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Unit Tests\" />
-  </ItemGroup>
-
 </Project>

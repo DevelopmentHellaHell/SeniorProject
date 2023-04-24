@@ -9,6 +9,6 @@ namespace DevelopmentHell.Hubba.AccountSystem.Abstractions
         Task<Result> UpdatePassword(string newHashPassword, string email);
         Task<Result> UpdateUserName(int userId, string firstName, string lastName);
         Task<Result<AccountSystemSettings>> GetAccountSettings(int userId);
-        Task<Result<int>> CheckNewEmail(string newEmail);
+        Task<Result> CheckNewEmail(string newEmail);
     }
 }

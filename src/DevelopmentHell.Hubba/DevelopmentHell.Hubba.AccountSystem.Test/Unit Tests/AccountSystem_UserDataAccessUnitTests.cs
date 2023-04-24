@@ -1,6 +1,5 @@
 ﻿using Development.Hubba.JWTHandler.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
-using DevelopmentHell.Hubba.AccountSystem.Implementations;
 using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
 using DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Implementations;
@@ -8,7 +7,6 @@ using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
 using DevelopmentHell.Hubba.Email.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.Notification.Service.Abstractions;
 using DevelopmentHell.Hubba.Notification.Service.Implementations;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Manager.Implementations;
@@ -18,29 +16,34 @@ using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
+namespace DevelopmentHell.Hubba.AccountSystem.Test.Unit_Tests
 {
     [TestClass]
-    public class ServiceIntegrationTests
+    public class AccountSystem_UserDataAccessUnitTests
     {
         private readonly UserAccountDataAccess _userAccountDataAccess;
-        private readonly AccountSystemService _accountSystemService;
         private readonly CryptographyService _cryptographyService;
         private readonly AuthorizationService _authorizationService;
         private readonly RegistrationService _registrationService;
         private readonly NotificationService _notificationService;
-        private readonly RegistrationManager _registrationManager;
-        private readonly TestingService _testingService;
         private readonly OTPDataAccess _otpDataAccess;
-        private readonly AuthenticationService _authenticationService;
         private readonly OTPService _otpService;
+        private readonly RegistrationManager _registrationManager;
+        private readonly AuthenticationService _authenticationService;
         private readonly AuthenticationManager _authenticationManager;
+        private readonly TestingService _testingService;
 
-        public ServiceIntegrationTests() 
+        public AccountSystem_UserDataAccessUnitTests() 
         {
             LoggerService loggerService = new LoggerService(
                 new LoggerDataAccess(
@@ -51,10 +54,6 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
             _userAccountDataAccess = new UserAccountDataAccess(
                 ConfigurationManager.AppSettings["UsersConnectionString"]!,
                 ConfigurationManager.AppSettings["UserAccountsTable"]!
-            );
-            _accountSystemService = new AccountSystemService(
-                _userAccountDataAccess,
-                loggerService
             );
             _cryptographyService = new CryptographyService(
                  ConfigurationManager.AppSettings["CryptographyKey"]!
@@ -91,21 +90,26 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
                  ),
                  loggerService
             );
+            _otpDataAccess = new OTPDataAccess(
+                    ConfigurationManager.AppSettings["UsersConnectionString"]!,
+                    ConfigurationManager.AppSettings["UserOTPsTable"]!
+            );
+            _otpService = new OTPService(
+                _otpDataAccess,
+                new EmailService(
+                    ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!,
+                    ConfigurationManager.AppSettings["SENDGRID_API_KEY"]!,
+                    ConfigurationManager.AppSettings["COMPANY_EMAIL"]!,
+                    true
+                ),
+                _cryptographyService
+            );
             _registrationManager = new RegistrationManager(
                 _registrationService,
                 _authorizationService,
                 _cryptographyService,
                 _notificationService,
                 loggerService
-            );
-
-            _testingService = new TestingService(
-                ConfigurationManager.AppSettings["JwtKey"]!,
-                new TestsDataAccess()
-            );
-            _otpDataAccess = new OTPDataAccess(
-                    ConfigurationManager.AppSettings["UsersConnectionString"]!,
-                    ConfigurationManager.AppSettings["UserOTPsTable"]!
             );
             _authenticationService = new AuthenticationService(
                 _userAccountDataAccess,
@@ -118,16 +122,6 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
                 validationService,
                 loggerService
             );
-            _otpService = new OTPService(
-                _otpDataAccess,
-                new EmailService(
-                    ConfigurationManager.AppSettings["SENDGRID_USERNAME"]!,
-                    ConfigurationManager.AppSettings["SENDGRID_API_KEY"]!,
-                    ConfigurationManager.AppSettings["COMPANY_EMAIL"]!,
-                    true
-                ),
-                _cryptographyService
-            );
             _authenticationManager = new AuthenticationManager(
                 _authenticationService,
                 _otpService,
@@ -135,8 +129,11 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
                 _cryptographyService,
                 loggerService
             );
+            _testingService = new TestingService(
+                ConfigurationManager.AppSettings["JwtKey"]!,
+                new TestsDataAccess()
+            );
         }
-
         [TestInitialize]
         public async Task Setup()
         {
@@ -146,11 +143,11 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
         [TestMethod]
         public void ShouldInstansiateCtor()
         {
-            Assert.IsNotNull(_accountSystemService);
+            Assert.IsNotNull(_userAccountDataAccess);
         }
 
         [TestMethod]
-        public async Task CheckingEmail()
+        public async Task ChangeEmail()
         {
             // Arrange
             string email = "test@gmail.com";
@@ -165,6 +162,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
             string otp = _cryptographyService.Decrypt(getOtp.Payload!);
             _testingService.DecodeJWT(loginResult.Payload!);
             var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            string newEmail = "test1@gmail.com";
 
             ClaimsPrincipal? actualPrincipal = null;
             if (authenticatedResult.IsSuccessful)
@@ -174,83 +172,14 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
             }
             actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 
-            string newEmail = "test1@gmail.com";
-
-            // Actual 
-            var checkResult = await _accountSystemService.CheckNewEmail(newEmail).ConfigureAwait(false);
-
-            // Assert
-            Assert.IsTrue(checkResult.IsSuccessful);
-        }
-
-
-        [TestMethod]
-        public async Task CheckingEmailFailure()
-        {
-            // Arrange
-            string email = "test@gmail.com";
-            string password = "12345678";
-            string dummyIp = "192.0.2.0";
-            string newEmail = "test1@gmail.com";
-
-            await _registrationManager.Register(email, password).ConfigureAwait(false);
-            await _registrationManager.Register(newEmail, password).ConfigureAwait(false);
-            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
-            Result<int> getNewAccountId = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
-            int newAccountId = getNewAccountId.Payload;
-            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(newAccountId).ConfigureAwait(false);
-            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
-            _testingService.DecodeJWT(loginResult.Payload!);
-            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
-
-            ClaimsPrincipal? actualPrincipal = null;
-            if (authenticatedResult.IsSuccessful)
-            {
-                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
-
-            }
-            actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
-
-            // Actual 
-            var checkResult = await _accountSystemService.CheckNewEmail(newEmail).ConfigureAwait(false);
-
-            // Assert
-            Assert.IsFalse(checkResult.IsSuccessful);
-        }
-
-        [TestMethod]
-        public async Task UpdateEmail()
-        {
-            // Arrange
-            string email = "test@gmail.com";
-            string password = "12345678";
-            string dummyIp = "192.0.2.0";
-
-            await _registrationManager.Register(email, password).ConfigureAwait(false);
-            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
-            Result<int> getNewAccountId = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
-            int newAccountId = getNewAccountId.Payload;
-            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(newAccountId).ConfigureAwait(false);
-            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
-            _testingService.DecodeJWT(loginResult.Payload!);
-            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
-
-            ClaimsPrincipal? actualPrincipal = null;
-            if (authenticatedResult.IsSuccessful)
-            {
-                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
-
-            }
-            actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
-
-            string newEmail = "test1@gmail.com";
-            await _accountSystemService.CheckNewEmail(newEmail).ConfigureAwait(false);
+            // Actual
+            var updateResult = await _userAccountDataAccess.SaveEmailAlterations(newAccountId, newEmail);
+            var getResult = await _userAccountDataAccess.GetId(newEmail).ConfigureAwait(false);
+            int userId = getResult.Payload;
             
-            // Actual 
-            var updateResult = await _accountSystemService.UpdateEmailInformation(newAccountId, newEmail).ConfigureAwait(false);
-
             // Assert
             Assert.IsTrue(updateResult.IsSuccessful);
+            Assert.AreEqual(userId, newAccountId);
         }
 
         [TestMethod]
@@ -279,21 +208,22 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
             actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 
             // Actual
-            var getResult = await _accountSystemService.GetPasswordData(newAccountId).ConfigureAwait(false);
-            PasswordInformation passwordInfo = getResult.Payload!;
-            string salt = passwordInfo.PasswordSalt!;
-            string hash = passwordInfo.PasswordHash!;
+            var getResult = await _userAccountDataAccess.GetPasswordData(newAccountId).ConfigureAwait(false);
+            PasswordInformation info = getResult.Payload!;
+            string getHash = info.PasswordHash!;
+            string salt = info.PasswordSalt!;
+
             Result<HashData> hashData = _cryptographyService.HashString(password, salt);
-            var newHash = Convert.ToBase64String(hashData.Payload!.Hash!);
+            var passwordHash = Convert.ToBase64String(hashData.Payload!.Hash!);
 
             // Assert
             Assert.IsTrue(getResult.IsSuccessful);
-            Assert.IsNotNull(getResult.Payload);
-            Assert.AreEqual(newHash, hash);
+            Assert.AreEqual(getHash, passwordHash);
+
         }
 
         [TestMethod]
-        public async Task UpdatePassword()
+        public async Task SavePassword()
         {
             // Arrange
             string email = "test@gmail.com";
@@ -317,27 +247,24 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
             }
             actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 
-            var getResult = await _accountSystemService.GetPasswordData(newAccountId).ConfigureAwait(false);
-            PasswordInformation passwordInfo = getResult.Payload!;
-            string salt = passwordInfo.PasswordSalt!;
-            string originalHash = passwordInfo.PasswordHash!;
+            string newPassword = "abvdefghi";
 
             // Actual
-            string newPassword = "abcdefghi";
-            Result<HashData> hashData = _cryptographyService.HashString(newPassword, salt);
-            var newHash = Convert.ToBase64String(hashData.Payload!.Hash!);
+            var getResult = await _userAccountDataAccess.GetPasswordData(newAccountId).ConfigureAwait(false);
+            PasswordInformation info = getResult.Payload!;
+            string getHash = info.PasswordHash!;
+            string salt = info.PasswordSalt!;
+            Result<HashData> hashData1 = _cryptographyService.HashString(newPassword, salt);
+            var newHashPassword = Convert.ToBase64String(hashData1.Payload!.Hash!);
+            var updateResult = await _userAccountDataAccess.SavePassword(newHashPassword, email).ConfigureAwait(false);
 
-            var updateResult = await _accountSystemService.UpdatePassword(newHash, email).ConfigureAwait(false);
-            var getNewResult = await _accountSystemService.GetPasswordData(newAccountId).ConfigureAwait(false);
-            PasswordInformation passwordNewInfo = getNewResult.Payload!;
-            string saltDupe = passwordNewInfo.PasswordSalt!;
-            string retrieveNewHash = passwordNewInfo.PasswordHash!;
+            Result<HashData> hashData = _cryptographyService.HashString(password, salt);
+            var passwordHash = Convert.ToBase64String(hashData.Payload!.Hash!);
 
+            
             // Assert 
-            Assert.AreEqual(newHash, retrieveNewHash);
-            Assert.AreNotEqual(retrieveNewHash, originalHash);
-            Assert.AreEqual(salt, saltDupe);
             Assert.IsTrue(updateResult.IsSuccessful);
+            Assert.AreNotEqual(newHashPassword, getHash);
         }
 
         [TestMethod]
@@ -366,52 +293,13 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
             actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 
             // Actual
-            var getResult = await _accountSystemService.GetAccountSettings(newAccountId);
+            var getResult = await _userAccountDataAccess.GetAccountSettings(newAccountId);
             AccountSystemSettings setting = getResult.Payload!;
 
             // Assert
             Assert.IsNull(setting.FirstName);
             Assert.IsNull(setting.LastName);
             Assert.IsTrue(getResult.IsSuccessful);
-        }
-
-        [TestMethod]
-        public async Task ChangeName()
-        {
-
-            // Arrange
-            string email = "test@gmail.com";
-            string password = "12345678";
-            string dummyIp = "192.0.2.0";
-
-            await _registrationManager.Register(email, password).ConfigureAwait(false);
-            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
-            Result<int> getNewAccountId = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
-            int newAccountId = getNewAccountId.Payload;
-            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(newAccountId).ConfigureAwait(false);
-            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
-            _testingService.DecodeJWT(loginResult.Payload!);
-            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
-
-            ClaimsPrincipal? actualPrincipal = null;
-            if (authenticatedResult.IsSuccessful)
-            {
-                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
-
-            }
-            actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
-
-            // Actual 
-            var updateResult = await _accountSystemService.UpdateUserName(newAccountId, "Kevin", "Dinh").ConfigureAwait(false);
-            var getName = await _accountSystemService.GetAccountSettings(newAccountId);
-            AccountSystemSettings settings = getName.Payload!;
-            string firstName = settings.FirstName!;
-            string lastName = settings.LastName!;
-
-            // Assert
-            Assert.IsTrue(updateResult.IsSuccessful);
-            Assert.AreEqual(firstName, "Kevin");
-            Assert.AreEqual(lastName, "Dinh");
         }
 
         [TestMethod]
@@ -441,9 +329,9 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
             actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 
             // Actual 
-            var updateResult1 = await _accountSystemService.UpdateUserName(newAccountId, null, "Dinh").ConfigureAwait(false);
-            var updateResult2 = await _accountSystemService.UpdateUserName(newAccountId, "Kevin", null).ConfigureAwait(false);
-            var getName = await _accountSystemService.GetAccountSettings(newAccountId);
+            var updateResult1 = await _userAccountDataAccess.UpdateUserName(newAccountId, null, "Dinh").ConfigureAwait(false);
+            var updateResult2 = await _userAccountDataAccess.UpdateUserName(newAccountId, "Kevin", null).ConfigureAwait(false);
+            var getName = await _userAccountDataAccess.GetAccountSettings(newAccountId);
             AccountSystemSettings settings = getName.Payload!;
             string firstName = settings.FirstName!;
             string lastName = settings.LastName!;
@@ -456,7 +344,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
         }
 
         [TestMethod]
-        public async Task nullNameFailure()
+        public async Task ChangeName()
         {
             // Arrange
             string email = "test@gmail.com";
@@ -481,10 +369,16 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
             actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 
             // Actual 
-            var updateResult = await _accountSystemService.UpdateUserName(newAccountId, null, null).ConfigureAwait(false);
+            var updateResult = await _userAccountDataAccess.UpdateUserName(newAccountId, "Kevin", "Dinh").ConfigureAwait(false);
+            var getName = await _userAccountDataAccess.GetAccountSettings(newAccountId);
+            AccountSystemSettings settings = getName.Payload!;
+            string firstName = settings.FirstName!;
+            string lastName = settings.LastName!;
 
             // Assert
-            Assert.IsFalse(updateResult.IsSuccessful);
+            Assert.IsTrue(updateResult.IsSuccessful);
+            Assert.AreEqual(firstName, "Kevin");
+            Assert.AreEqual(lastName, "Dinh");
         }
 
         [TestCleanup]

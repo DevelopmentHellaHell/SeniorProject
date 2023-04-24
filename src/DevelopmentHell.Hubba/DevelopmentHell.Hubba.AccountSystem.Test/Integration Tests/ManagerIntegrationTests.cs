@@ -585,7 +585,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
             if (authenticatedResult.IsSuccessful)
             {
                 _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
-
+ 
             }
             actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 
@@ -670,9 +670,15 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
 
             // Actual 
             var updateResult = await _accountSystemManager.UpdateUserName("Kevin", "Dinh").ConfigureAwait(false);
+            var getName = await _accountSystemManager.GetAccountSettings();
+            AccountSystemSettings settings = getName.Payload!;
+            string firstName = settings.FirstName!;
+            string lastName = settings.LastName!;
 
             // Assert
             Assert.IsTrue(updateResult.IsSuccessful);
+            Assert.AreEqual(firstName, "Kevin");
+            Assert.AreEqual(lastName, "Dinh");
         }
 
         [TestMethod]
@@ -704,10 +710,16 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
             // Actual 
             var updateResult1 = await _accountSystemManager.UpdateUserName(null, "Dinh").ConfigureAwait(false);
             var updateResult2 = await _accountSystemManager.UpdateUserName("Kevin", null).ConfigureAwait(false);
+            var getName = await _accountSystemManager.GetAccountSettings();
+            AccountSystemSettings settings = getName.Payload!;
+            string firstName = settings.FirstName!;
+            string lastName = settings.LastName!;
 
             // Assert
             Assert.IsTrue(updateResult1.IsSuccessful);
             Assert.IsTrue(updateResult2.IsSuccessful);
+            Assert.AreEqual(firstName, "Kevin");
+            Assert.AreEqual(lastName, "Dinh");
         }
 
         [TestMethod]

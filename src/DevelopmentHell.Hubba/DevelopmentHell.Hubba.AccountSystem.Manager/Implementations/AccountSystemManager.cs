@@ -93,6 +93,13 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
         {
             Result result = new Result();
 
+            Result checkerResult =  _validationService.ValidateEmail(newEmail);
+            if (!checkerResult.IsSuccessful) 
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = checkerResult.ErrorMessage;
+                return result;
+            }
 
             //Check prinicpal of user
             if (!_authorizationService.Authorize(new string[] { "AdminUser", "VerifiedUser" }).IsSuccessful)
@@ -115,11 +122,11 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             }
 
             //Check if email is associated with another account
-            Result<int> checkEmailResult = await _accountSystemService.CheckNewEmail(newEmail).ConfigureAwait(false);
-            if (checkEmailResult.IsSuccessful && (checkEmailResult.Payload != 0)) 
+            Result checkEmailResult = await _accountSystemService.CheckNewEmail(newEmail).ConfigureAwait(false);
+            if (!checkEmailResult.IsSuccessful) 
             {
                 result.IsSuccessful = false;
-                result.ErrorMessage = "An email is already registered with this account. ";
+                result.ErrorMessage = checkEmailResult.ErrorMessage;
                 return result;
             }
 
@@ -127,7 +134,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             if (newEmail == stringAccountEmail)
             {
                 result.IsSuccessful = false;
-                result.ErrorMessage = "Your new email is the same as the already registered email. Please enter a new email or exit view. ";
+                result.ErrorMessage = "This email is already registered as your account email. Please enter a new email or exit view. ";
                 return result;
             }
             //extract user ID from JWT Token

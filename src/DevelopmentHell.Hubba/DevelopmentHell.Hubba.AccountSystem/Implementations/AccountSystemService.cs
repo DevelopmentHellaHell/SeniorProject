@@ -20,18 +20,18 @@ namespace DevelopmentHell.Hubba.AccountSystem.Implementations
         public async Task<Result> UpdateEmailInformation(int userId, string newEmail)
         {
             Result result = new Result();
-            return await _userAccountDataAccess.SaveEmailAlterations(userId, newEmail);
+            return await _userAccountDataAccess.SaveEmailAlterations(userId, newEmail).ConfigureAwait(false);
         }
 
         public async Task<Result<PasswordInformation>> GetPasswordData(int userId)
         {
-            return await _userAccountDataAccess.GetPasswordData(userId);
+            return await _userAccountDataAccess.GetPasswordData(userId).ConfigureAwait(false);
         }
 
         public async Task<Result> UpdatePassword(string newHashPassword, string email)
         {
             Result result = new Result();
-            return await _userAccountDataAccess.SavePassword(newHashPassword, email);
+            return await _userAccountDataAccess.SavePassword(newHashPassword, email).ConfigureAwait(false);
         }
 
         public async Task<Result> UpdateUserName(int userId, string? firstName, string? lastName)
@@ -43,7 +43,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Implementations
                 result.ErrorMessage = "Please enter a valid name for First Name and/or Last Name. ";
                 return result;
             }
-            Result updateResult = await _userAccountDataAccess.UpdateUserName(userId, firstName!, lastName!);
+            Result updateResult = await _userAccountDataAccess.UpdateUserName(userId, firstName!, lastName!).ConfigureAwait(false);
             if (!updateResult.IsSuccessful) 
             {
                 result.IsSuccessful = false;
@@ -59,9 +59,18 @@ namespace DevelopmentHell.Hubba.AccountSystem.Implementations
             return await _userAccountDataAccess.GetAccountSettings(userId).ConfigureAwait(false);
         }
 
-        public async Task<Result<int>> CheckNewEmail(string newEmail)
+        public async Task<Result> CheckNewEmail(string newEmail)
         {
-            return await _userAccountDataAccess.GetId(newEmail).ConfigureAwait(false);
+            Result<int> result = new Result<int>();
+            Result<int> checkEmailResult = await _userAccountDataAccess.GetId(newEmail).ConfigureAwait(false);
+            if (checkEmailResult.IsSuccessful && (checkEmailResult.Payload != 0))
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "An email is already registered with this account. ";
+                return result;
+            }
+            result.IsSuccessful = true;
+            return result;
         }
 
     }
