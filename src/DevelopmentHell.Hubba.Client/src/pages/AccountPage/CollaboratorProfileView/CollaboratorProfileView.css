@@ -1,0 +1,15 @@
+.collaborator-wrapper {
+    color: rgb(var(--primary-text-dark));
+    padding-bottom: 2.5rem;
+    padding-left: 20px;
+}
+
+.collaborator-wrapper .inline-text {
+    display: inline-block;
+    width: 400px;
+    margin-right: 50px;
+}
+
+.collaborator-wrapper .buttons {
+    display: inline-block;
+}

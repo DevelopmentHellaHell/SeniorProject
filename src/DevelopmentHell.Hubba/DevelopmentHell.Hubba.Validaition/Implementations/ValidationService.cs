@@ -1,6 +1,8 @@
 ﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
+using Microsoft.AspNetCore.Http;
 using System.Globalization;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace DevelopmentHell.Hubba.Validation.Service.Implementations
@@ -113,6 +115,200 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
                 result.ErrorMessage = "Phone number provided is invalid. Retry or contact admin.";
                 return result;
             }
+            result.IsSuccessful = true;
+            return result;
+        }
+
+        public Result ValidateCollaboratorAllowEmptyFiles(CollaboratorProfile collab)
+        {
+            Result result = new Result();
+            result.IsSuccessful = false;
+
+            // checking for null
+            if (collab == null)
+            {
+                result.ErrorMessage = "Collaborator profile is null.";
+                return result;
+            }
+
+            // checking Name requirements
+            if (string.IsNullOrEmpty(collab.Name))
+            {
+                result.ErrorMessage = "Name does not meet system requirements.";
+                return result;
+            }
+            if (collab.Name.Length > 70)
+            {
+                result.ErrorMessage = "Name length does not meet system requirements.";
+                return result;
+            }
+
+            // checking contact information requirements
+            if (string.IsNullOrEmpty(collab.ContactInfo))
+            {
+                result.ErrorMessage = "Contact Info does not meet system requirements.";
+                return result;
+            }
+            if (collab.ContactInfo.Length > 1000)
+            {
+                result.ErrorMessage = "Contact information length does not meet system requirements.";
+                return result;
+            }
+
+            // checking Tag requirements
+            // tags are optional
+            if (collab.Tags != null && collab.Tags.Length > 2000)
+            {
+                result.ErrorMessage = "Cumulative Tag length does not meet system requirements.";
+                return result;
+            }
+            if (collab.Tags != null)
+            {
+                string[] TagSplit = collab.Tags.Split(',');
+                if (TagSplit.Length > 20)
+                {
+                    result.ErrorMessage = "Tag count does not meet system requirements.";
+                    return result;
+                }
+                foreach (string Tag in TagSplit)
+                {
+                    if (Tag.Length > 100)
+                    {
+                        result.ErrorMessage = "Individual Tag length does not meet system requirements.";
+                        return result;
+                    }
+                }
+            }
+
+            // checking Description requirements
+            if (string.IsNullOrEmpty(collab.Description))
+            {
+                result.ErrorMessage = "Description does not meet system requirements.";
+                return result;
+            }
+            if (collab.Description.Length > 10000)
+            {
+                result.ErrorMessage = "Description length does not meet system requirements.";
+                return result;
+            }
+
+            // checking Availability requirements
+            // availability is optional
+            if (collab.Availability != null && collab.Availability.Length > 10000)
+            {
+                result.ErrorMessage = "Availability length does not meet system requirements.";
+                return result;
+            }
+
+            result.IsSuccessful = true;
+            return result;
+        }
+
+        public Result ValidateCollaborator(CollaboratorProfile collab)
+        {
+            Result result = new Result();
+            result.IsSuccessful = false;
+
+            // Regex made to match urls
+            // may or may not have https, www, subdomain, directory path
+            // must have domain
+
+            Result generalValidation = ValidateCollaboratorAllowEmptyFiles(collab);
+            if (!generalValidation.IsSuccessful)
+            {
+                result.ErrorMessage = generalValidation.ErrorMessage;
+                return result;
+            }
+
+            Regex regex = new(@"^((https?)://)?((www.)?[a-z0-9]+(.[a-z]+)|(([0-9]{1,3}.){3}([0-9]{1,3})))(/[a-zA-Z0-9#.]+/?)*/?$");
+
+            // checking profile picture requirements
+            // pfp is optional
+            if (collab.PfpUrl != null && !regex.IsMatch(collab.PfpUrl))
+            {
+                result.ErrorMessage = "Profile picture url provided does not meet expected format.";
+                return result;
+            }
+
+            // checking uploaded file requirements
+            if (collab.CollabUrls == null)
+            {
+                result.ErrorMessage = "Uploaded file urls do not meet system requirements.";
+                return result;
+            }
+
+            if (collab.CollabUrls.Count > 10 || collab.CollabUrls.Count == 0)
+            {
+                result.ErrorMessage = "Collaborator must contain within 1-10 uploaded files.";
+                return result;
+            }
+
+            foreach (string collabUrl in collab.CollabUrls)
+            {
+                if (string.IsNullOrEmpty(collabUrl))
+                {
+                    result.ErrorMessage = "An uploaded file url does not meet system requirements.";
+                    return result;
+                }
+                if (!regex.IsMatch(collabUrl))
+                {
+                    result.ErrorMessage = "An uploaded file url does not meet expected format.";
+                    return result;
+                }
+            }
+
+            result.IsSuccessful = true;
+            return result;
+        }
+
+        public Result ValidateImageFile(IFormFile file)
+        {
+            Result result = new Result();
+            if (!Regex.IsMatch(file.FileName, @"^[a-zA-Z0-9_. ]*$"))
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "File names must consist of only letters, numbers, spaces, and underscores.";
+                result.StatusCode = StatusCodes.Status412PreconditionFailed;
+                return result;
+            }
+            if (file == null || file.Length == 0)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = $"File {file!.FileName} is empty";
+                result.StatusCode = StatusCodes.Status412PreconditionFailed;
+                return result;
+            }
+            if (file.ContentType.StartsWith("image/"))
+            {
+                string fileExtension = Path.GetExtension(file.FileName);
+                if (fileExtension == ".jpeg" || fileExtension == ".jpg" || fileExtension == ".png")
+                {
+                    // Check if the image size is less than or equal to 25 MB
+                    if (file.Length > 25 * 1024 * 1024)
+                    {
+                        result.IsSuccessful = false;
+                        result.ErrorMessage = file.FileName + " is too large.";
+                        result.StatusCode = StatusCodes.Status412PreconditionFailed;
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.IsSuccessful = false;
+                    result.ErrorMessage = file.FileName + " is an invalid image file type.";
+                    result.StatusCode = StatusCodes.Status412PreconditionFailed;
+                    return result;
+                }
+            }
+            else
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = file.FileName + " is an invalid file type.";
+                result.StatusCode = StatusCodes.Status412PreconditionFailed;
+                return result;
+            }
+
+
             result.IsSuccessful = true;
             return result;
         }

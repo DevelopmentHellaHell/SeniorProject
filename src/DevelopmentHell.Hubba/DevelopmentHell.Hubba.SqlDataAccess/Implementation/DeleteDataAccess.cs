@@ -40,5 +40,26 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                 return await SendQuery(insertQuery).ConfigureAwait(false);
             }
         }
+
+        public async Task<Result> DeleteWhereIn(string source, string key, List<string> inValues)
+        {
+            using (SqlCommand insertQuery = new SqlCommand())
+            {
+                bool first = true;
+                StringBuilder sbInValues = new();
+                foreach (string value in inValues)
+                {
+                    if (!first)
+                    {
+                        sbInValues.Append(", ");
+                    }
+                    first = false;
+                    sbInValues.Append($"'{value}'");
+                }
+
+                insertQuery.CommandText = $"DELETE FROM {source} WHERE {key} IN ({sbInValues})";
+                return await SendQuery(insertQuery).ConfigureAwait(false);
+            }
+        }
     }
 }
