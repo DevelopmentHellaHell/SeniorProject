@@ -16,12 +16,21 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
     public class ListingsDataAccess : IListingsDataAccess
     {
         
-        private InsertDataAccess _insertDataAccess;
-        private UpdateDataAccess _updateDataAccess;
-        private SelectDataAccess _selectDataAccess;
-        private DeleteDataAccess _deleteDataAccess;
+        private readonly InsertDataAccess _insertDataAccess;
+        private readonly UpdateDataAccess _updateDataAccess;
+        private readonly SelectDataAccess _selectDataAccess;
+        private readonly DeleteDataAccess _deleteDataAccess;
         private readonly ExecuteDataAccess _executeDataAccess;
-        private string _tableName;
+        private readonly string _ownerIdColumn = "OwnerId";
+        private readonly string _titleColumn = "Title";
+        private readonly string _descriptionColumn = "Description";
+        private readonly string _publishedColumn = "Published";
+        private readonly string _creationDateColumn = "CreationDate";
+        private readonly string _lastEditedColumn = "LastEdited";
+        private readonly string _locationColumn = "Location";
+        private readonly string _listingIdColumn = "ListingId";
+        private readonly string _priceColumn = "Price";
+        private readonly string _tableName;
 
         public ListingsDataAccess(string connectionString, string tableName)
         {
@@ -39,11 +48,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 _tableName,
                 new Dictionary<string, object>()
                 {
-                    { "OwnerId", ownerId },
-                    { "Title", title },
-                    { "Published", 0 },
-                    { "CreationDate", DateTime.Now },
-                    { "LastEdited", DateTime.Now }
+                    { _ownerIdColumn, ownerId },
+                    { _titleColumn, title },
+                    { _publishedColumn, 0 },
+                    { _creationDateColumn, DateTime.Now },
+                    { _lastEditedColumn, DateTime.Now }
                 }
             ).ConfigureAwait(false);
 
@@ -68,10 +77,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
-                new List<string>() { "ListingId", "OwnerId", "Title", "Description", "Location", "Price", "LastEdited", "CreationDate", "Published" },
+                new List<string>() { _listingIdColumn, _ownerIdColumn, _titleColumn, _descriptionColumn, _locationColumn, _priceColumn, _lastEditedColumn, _creationDateColumn, _publishedColumn },
                 new List<Comparator>()
                 {
-                    new Comparator("ListingId", "=", listingId),
+                    new Comparator(_listingIdColumn, "=", listingId),
                 }
             ).ConfigureAwait(false);
 
@@ -86,14 +95,14 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             result.IsSuccessful = true;
             result.Payload = new Listing()
             {
-                OwnerId = (int)payload.First()["OwnerId"],
-                ListingId = (int)payload.First()["ListingId"],
-                Title = (string)payload.First()["Title"],
-                Description = payload.First()["Description"] == DBNull.Value ? null : (string)payload.First()["Description"],
-                Location = payload.First()["Location"] == DBNull.Value ? null : (string)payload.First()["Location"],
-                Price = payload.First()["Price"] == DBNull.Value ? null : (double?)Convert.ToDouble((payload.First()["Price"])),
-                LastEdited = (DateTime)payload.First()["LastEdited"],
-                Published = (bool)payload.First()["Published"]
+                OwnerId = (int)payload.First()[_ownerIdColumn],
+                ListingId = (int)payload.First()[_listingIdColumn],
+                Title = (string)payload.First()[_titleColumn],
+                Description = payload.First()[_descriptionColumn] == DBNull.Value ? null : (string)payload.First()[_descriptionColumn],
+                Location = payload.First()[_locationColumn] == DBNull.Value ? null : (string)payload.First()[_locationColumn],
+                Price = payload.First()[_priceColumn] == DBNull.Value ? null : (double?)Convert.ToDouble((payload.First()[_priceColumn])),
+                LastEdited = (DateTime)payload.First()[_lastEditedColumn],
+                Published = (bool)payload.First()[_publishedColumn]
             };
 
             return result;
@@ -105,10 +114,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
-                new List<string>() { "OwnerId" },
+                new List<string>() { _ownerIdColumn },
                 new List<Comparator>()
                 {
-                    new Comparator("ListingId", "=", listingId),
+                    new Comparator(_listingIdColumn, "=", listingId),
                 }
             ).ConfigureAwait(false);
 
@@ -120,7 +129,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
 
             result.IsSuccessful = true;
-            result.Payload = (int)selectResult.Payload[0]["OwnerId"];
+            result.Payload = (int)selectResult.Payload[0][_ownerIdColumn];
             return result;
         }
 
@@ -132,21 +141,21 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             foreach (var column in listing.GetType().GetProperties())
             {
                 var value = column.GetValue(listing);
-                if ((column.Name == "Description" || column.Name == "Price" || column.Name == "Location") && value is null)
+                if ((column.Name == _descriptionColumn || column.Name == _priceColumn || column.Name == _locationColumn) && value is null)
                 {
                     values[column.Name] = DBNull.Value;
                 }
-                if (value is null || column.Name == "ListingId" || column.Name == "OwnerId" || column.Name == "Title") continue;
+                if (value is null || column.Name == _listingIdColumn || column.Name == _ownerIdColumn || column.Name == _titleColumn) continue;
                 values[column.Name] = value;
             }
 
-            values["LastEdited"] = DateTime.Now;
+            values[_lastEditedColumn] = DateTime.Now;
 
             Result updateResult = await _updateDataAccess.Update(
                 _tableName,
                 new List<Comparator>()
                 {
-                    new Comparator("ListingId", "=", listing.ListingId!),
+                    new Comparator(_listingIdColumn, "=", listing.ListingId!),
                 },
                 values
             ).ConfigureAwait(false);
@@ -167,10 +176,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
-                new List<string>() { "ListingId", "OwnerId", "Title", "Description", "Location", "Price", "LastEdited", "CreationDate", "Published" },
+                new List<string>() { _listingIdColumn, _ownerIdColumn, _titleColumn, _descriptionColumn, _locationColumn, _priceColumn, _lastEditedColumn, _creationDateColumn, _publishedColumn },
                 new List<Comparator>()
                 {
-                    new Comparator("OwnerId", "=", ownerId),
+                    new Comparator(_ownerIdColumn, "=", ownerId),
                 }
             ).ConfigureAwait(false);
 
@@ -198,7 +207,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     {
                         prop.SetValue(listing, null);
                     }
-                    else if (prop.Name == "Price")
+                    else if (prop.Name == _priceColumn)
                     {
                         prop.SetValue(listing, Convert.ToDouble(item.Value));
                     }
@@ -231,7 +240,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 _tableName,
                 new List<Comparator>()
                 {
-                    new Comparator("ListingId", "=", listingId),
+                    new Comparator(_listingIdColumn, "=", listingId),
                 }
             ).ConfigureAwait(false);
 
@@ -241,13 +250,13 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         public async Task<Result> PublishListing(int listingId)
         {
             var values = new Dictionary<string, object>();
-            values["Published"] = true;
+            values[_publishedColumn] = true;
 
             Result updateResult = await _updateDataAccess.Update(
                 _tableName,
                 new List<Comparator>()
                 {
-                    new Comparator("ListingId", "=", listingId),
+                    new Comparator(_listingIdColumn, "=", listingId),
                 },
                 values
             ).ConfigureAwait(false);
@@ -261,11 +270,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
-                new List<string>() { "ListingId" },
+                new List<string>() { _listingIdColumn },
                 new List<Comparator>()
                 {
-                    new Comparator("OwnerId", "=", ownerId),
-                    new Comparator("Title", "=", title),
+                    new Comparator(_ownerIdColumn, "=", ownerId),
+                    new Comparator(_titleColumn, "=", title),
                 }
             ).ConfigureAwait(false);
 
@@ -277,7 +286,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
 
             result.IsSuccessful = true;
-            result.Payload = (int)selectResult.Payload[0]["ListingId"];
+            result.Payload = (int)selectResult.Payload[0][_listingIdColumn];
             return result;
         }
 
@@ -306,13 +315,13 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         public async Task<Result> UnpublishListing(int listingId)
         {
             var values = new Dictionary<string, object>();
-            values["Published"] = false;
+            values[_publishedColumn] = false;
 
             Result updateResult = await _updateDataAccess.Update(
                 _tableName,
                 new List<Comparator>()
                 {
-                    new Comparator("ListingId", "=", listingId),
+                    new Comparator(_listingIdColumn, "=", listingId),
                 },
                 values
             ).ConfigureAwait(false);

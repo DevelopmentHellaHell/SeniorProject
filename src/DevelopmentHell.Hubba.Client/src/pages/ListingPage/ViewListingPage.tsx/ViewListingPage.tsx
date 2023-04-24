@@ -51,6 +51,7 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
     const authData = Auth.getAccessData();
     const [isPublished, setIsPublished] = useState<boolean>(false);
     const [currentImage, setCurrentImage] = useState<number>(0);
+    const [defaultError] = useState<string>("Listings failed to load. Refresh page or try again later.")
 
     useEffect(() => {
     const getData = async () => {
@@ -61,13 +62,13 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
             setIsPublished(response.data.Listing.published!);
         }
         if (response.error) {
-            setError(response.error);
+            setError("Listing failed to load. Refresh page or try again later.\n" +response.error);
         }
         
         setLoaded(response.loaded);
         };
-    getData();
-    }, []);
+        getData();
+        }, []);
 
     const handlePrevImage = () => {
         setCurrentImage((prevImage) =>
@@ -93,7 +94,7 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
         const response = await Ajax.post<null>('/listingprofile/deleteListing', { ListingId: data?.Listing.listingId })
         console.log(response)
         if (response.error) {
-            setError(response.error);
+            setError("Listing deletion error. Refresh page or try again later.\n" + response.error);
             return;
         }
         navigate("/listingprofile");
@@ -112,7 +113,7 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                     <Button theme={ButtonTheme.DARK} onClick={async () => { 
                                         const response = await Ajax.post("/listingprofile/unpublishListing", { listingId: data.Listing.listingId })
                                         if (response.error) {
-                                            setError(response.error);
+                                            setError("Publishing listing error. Refresh page or try again later.\n" + response.error);
                                             return;
                                         }
                                         setIsPublished(false);
@@ -125,6 +126,7 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                 </div>} 
                              </p>
                             <h2 className="listing-page__title">{data.Listing.title}</h2>
+                            <h3 className="listing-username">{data.Listing.ownerUsername}</h3>
                             {data.Files && data.Files.length > 0 && (
                                 <div className="listing-page__image-wrapper">
                                     { data!.Files![currentImage].toString().substring(data!.Files![currentImage].toString().lastIndexOf('/') + 1) } {currentImage + 1} / {data!.Files!.length}
@@ -135,31 +137,19 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                 />
                                 {data.Files.length > 1 && (
                                     <>
-                                    <button
-                                        className="listing-page__image-nav listing-page__image-nav--prev"
-                                        onClick={handlePrevImage}
-                                    >
+                                    <button onClick={handlePrevImage}>
                                         &#10094;
                                     </button>
-                                    <button
-                                        className="listing-page__image-nav listing-page__image-nav--next"
-                                        onClick={handleNextImage}
-                                    >
+                                    <button onClick={handleNextImage}>
                                         &#10095;
                                     </button>
                                     </>
                                 )}
                                 </div>
                             )}
-                            <p className="listing-page__location">
-                                {"Location: " + (data.Listing.location ?? "")}
-                            </p>
-                            <p className="listing-page__price">
-                                {"Price: " + (data.Listing.price ?? "")}
-                            </p>
-                            <p className="listing-page__description">
-                                {"Description: " + (data.Listing.description ?? "")}
-                            </p>
+                            <p>{"Location: " + (data.Listing.location ?? "")}</p> 
+                            <p>{"Price: " + (data.Listing.price ?? "")}</p>
+                            <p>{"Description: " + (data.Listing.description ?? "")}</p>
                             <div>
                                 <table>
                                     <thead>
@@ -176,9 +166,7 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                 </table>
                             </div>
 
-                            <Button theme={ButtonTheme.DARK} onClick={() => 
-                            { 
-                                console.log(state.listingId, data.Listing, data.Ratings);
+                            <Button theme={ButtonTheme.DARK} onClick={() => { 
                                 navigate("/viewlistingratings", 
                                 {
                                     state : 
@@ -186,16 +174,15 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                         listingId: state.listingId, 
                                     }
                                 });
-                            }} title={"View Ratings"} />
+                                }} title={"View Ratings"} />
                         </div>
                     }
                     {error && loaded &&
                         <p className="error">{error}</p>
                     }   
                 </div>
-            
             </div>
-            <Footer />
+        <Footer />
         </div>
     );
 }

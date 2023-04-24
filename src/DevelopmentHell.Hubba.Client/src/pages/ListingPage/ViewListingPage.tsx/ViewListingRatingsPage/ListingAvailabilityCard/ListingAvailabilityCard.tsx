@@ -1,4 +1,4 @@
-import { IAvailability } from '../../ViewListingPage';
+import { IAvailability } from '../../ViewListingPage'
 
 
 interface IListingAvailabilityCardProps {

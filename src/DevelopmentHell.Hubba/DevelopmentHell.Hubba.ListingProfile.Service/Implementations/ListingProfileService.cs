@@ -14,13 +14,13 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
 {
     public class ListingProfileService : IListingProfileService
     {
-        private IListingsDataAccess _listingDataAccess;
-        private IListingAvailabilitiesDataAccess _listingAvailabilitiesDataAccess;
-        private IListingHistoryDataAccess _listingHistoryDataAccess;
-        private IRatingDataAccess _ratingDataAccess;
-        private IUserAccountDataAccess _userAccountDataAccess;
+        private readonly IListingsDataAccess _listingDataAccess;
+        private readonly IListingAvailabilitiesDataAccess _listingAvailabilitiesDataAccess;
+        private readonly IListingHistoryDataAccess _listingHistoryDataAccess;
+        private readonly IRatingDataAccess _ratingDataAccess;
+        private readonly IUserAccountDataAccess _userAccountDataAccess;
 
-        private ILoggerService _loggerService;
+        private readonly ILoggerService _loggerService;
 
         public ListingProfileService(IListingsDataAccess listingDataAccess, IListingAvailabilitiesDataAccess listingAvailabilitiesDataAccess, IListingHistoryDataAccess listingHistoryDataAccess, IRatingDataAccess ratingDataAccess, IUserAccountDataAccess userAccountDataAccess, ILoggerService loggerService)
         {

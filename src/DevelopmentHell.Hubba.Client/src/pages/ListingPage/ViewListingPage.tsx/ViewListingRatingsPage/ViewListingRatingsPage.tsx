@@ -9,6 +9,7 @@ import Button, { ButtonTheme } from "../../../../components/Button/Button";
 import { IRating, IViewListingData } from "../ViewListingPage";
 import { Ajax } from "../../../../Ajax";
 import './ViewListingRatingsPage.css';
+import Footer from "../../../../components/Footer/Footer";
 
 interface IViewListingRatingsProps {
 
@@ -40,7 +41,8 @@ const ViewListingRatingsPage: React.FC<IViewListingRatingsProps> = (props) => {
                 setData(response.data)
             }
             if (response.error) {
-                setError(response.error)
+                setError("Listing failed to load. Refresh page or try again later.\n" + response.error)
+                return;
             }
             const userHistory = await Ajax.post<string>('/listingprofile/hasListingHistory',  { listingId: state.listingId } );
             if (userHistory.data) {
@@ -60,17 +62,13 @@ const ViewListingRatingsPage: React.FC<IViewListingRatingsProps> = (props) => {
                 }
             }
             if (response.error) {
-                setError(response.error);
+                setError("Listing ratings failed to load. Refresh page or try again later.\n" + response.error);
             }
             setLoaded(response.loaded);
             };
 
         getData();
         }, []);
-
-    const handleButtonClick = () => {
-        setIsInputOpen(true);
-    };
 
     useEffect(() => {
         if (error !== undefined) {
@@ -84,7 +82,7 @@ const ViewListingRatingsPage: React.FC<IViewListingRatingsProps> = (props) => {
         setIsInputOpen(false);
         const response = await Ajax.post<null>("/listingprofile/addRating", { ListingId: state.listingId, Rating: rating.rating, Comment: rating.comment, Anonymous: rating.anonymous });
         if (response.error) {
-            setError(response.error);
+            setError("Listing rating and comment error. Ratings failed to upload. Refresh page or try again later.\n" +response.error);
             return;
         }
         window.location.reload();
@@ -95,7 +93,7 @@ const ViewListingRatingsPage: React.FC<IViewListingRatingsProps> = (props) => {
         const response = await Ajax.post<null>('/listingprofile/editRating', { ListingId: rating.listingId, Rating: rating.rating, Comment: rating.comment, Anonymous: rating.anonymous })
         console.log(response)
         if (response.error) {
-            setError(response.error);
+            setError("Listing review editing error. Refresh page or try again later.\n" + response.error);
             return;
         }
         window.location.reload();
@@ -105,7 +103,7 @@ const ViewListingRatingsPage: React.FC<IViewListingRatingsProps> = (props) => {
         const response = await Ajax.post<null>('/listingprofile/deleteRating', { ListingId: rating.listingId })
         console.log(response)
         if (response.error) {
-            setError(response.error);
+            setError("Review deletion error. Refresh page or try again later.\n" + response.error);
             return;
         }
         window.location.reload();
@@ -220,6 +218,7 @@ const ViewListingRatingsPage: React.FC<IViewListingRatingsProps> = (props) => {
                     </tbody>
                 </table>
             </div>
+            <Footer />
         </div>
     )
 }

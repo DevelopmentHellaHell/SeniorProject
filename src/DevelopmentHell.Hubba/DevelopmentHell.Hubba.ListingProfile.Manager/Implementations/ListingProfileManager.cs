@@ -19,12 +19,12 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
 {
     public class ListingProfileManager : IListingProfileManager
     {
-        private IListingProfileService _listingsService;
-        private IFileService _fileService;
-        private IAuthorizationService _authorizationService;
-        private ILoggerService _loggerService;
-        private IValidationService _validationService;
-        private ICryptographyService _cryptographyService;
+        private readonly IListingProfileService _listingsService;
+        private readonly IFileService _fileService;
+        private readonly IAuthorizationService _authorizationService;
+        private readonly ILoggerService _loggerService;
+        private readonly IValidationService _validationService;
+        private readonly ICryptographyService _cryptographyService;
 
 
         public ListingProfileManager(IListingProfileService listingsService, IFileService fileService, IAuthorizationService authorizationService, ILoggerService loggerService, IValidationService validationService, ICryptographyService cryptographyService)

@@ -21,7 +21,6 @@ const EditListingAvailability: React.FC<IEditListingAvailabilityCardProps> = (pr
       
 
     const handleDeleteClick = async () => {
-        // const { listingId, availability: { startTime, endTime }, ownerId } = props;
         const availability = [{ ListingId: props.availability.listingId, AvailabilityId: props.availability.availabilityId, OwnerId: props.ownerId, StartTime: props.availability.startTime, EndTime: props.availability.endTime, Action: 3 }];
 
         console.log(availability)
@@ -37,12 +36,13 @@ const EditListingAvailability: React.FC<IEditListingAvailabilityCardProps> = (pr
     };
     return (
         <div>
-            
+            <tbody>
             <tr>
                 <td><Button theme={ButtonTheme.DARK} onClick={() => {handleDeleteClick() } } title={"Delete"} /></td>
                 <td>{props.availability.startTime ? new Date(props.availability.startTime ).toLocaleString(): '-'}</td>
                 <td>{props.availability.endTime ? new Date(props.availability.endTime ).toLocaleString() : '-'}</td>
-                </tr>
+            </tr>
+            </tbody>
 
         </div>
     );

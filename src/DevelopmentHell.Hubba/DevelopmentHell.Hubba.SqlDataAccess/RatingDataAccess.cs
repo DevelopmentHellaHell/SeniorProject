@@ -16,12 +16,19 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
     }
     public class RatingDataAccess : IRatingDataAccess
     {
-        private InsertDataAccess _insertDataAccess;
-        private UpdateDataAccess _updateDataAccess;
-        private SelectDataAccess _selectDataAccess;
-        private DeleteDataAccess _deleteDataAccess;
-        private ExecuteDataAccess _executeDataAccess;
-        private string _tableName;
+        private readonly InsertDataAccess _insertDataAccess;
+        private readonly UpdateDataAccess _updateDataAccess;
+        private readonly SelectDataAccess _selectDataAccess;
+        private readonly DeleteDataAccess _deleteDataAccess;
+        private readonly ExecuteDataAccess _executeDataAccess;
+        private readonly string _tableName;
+        private readonly string _userIdColumn = "UserId";
+        private readonly string _ratingColumn = "Rating";
+        private readonly string _commentColumn = "Comment";
+        private readonly string _anonymousColumn = "Anonymous";
+        private readonly string _lastEditedColumn = "LastEdited";
+        private readonly string _creationDateColumn = "CreationDate";
+        private readonly string _listingIdColumn = "ListingId";
 
 
 
@@ -47,12 +54,12 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 new Dictionary<string, object>()
                 {
                     { feature.ToString() + "Id", id },
-                    { "UserId", userId },
-                    { "Rating", rating },
-                    { "Comment", comment },
-                    { "Anonymous", anonymous },
-                    { "LastEdited", DateTime.Now },
-                    { "CreationDate", DateTime.Now }
+                    { _userIdColumn, userId },
+                    { _ratingColumn, rating },
+                    { _commentColumn, comment },
+                    { _anonymousColumn, anonymous },
+                    { _lastEditedColumn, DateTime.Now },
+                    { _creationDateColumn, DateTime.Now }
                 }
             ).ConfigureAwait(false);
 
@@ -130,10 +137,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
-                new List<string>() { "ListingId", "UserId", "Rating", "Comment", "Anonymous", "LastEdited", "CreationDate" },
+                new List<string>() { _listingIdColumn, _userIdColumn, _ratingColumn, _commentColumn, _anonymousColumn, _lastEditedColumn, _creationDateColumn },
                 new List<Comparator>()
                 {
-                    new Comparator("ListingId", "=", listingId),
+                    new Comparator(_listingIdColumn, "=", listingId),
                 }
             ).ConfigureAwait(false);
 
@@ -151,13 +158,13 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             {
                 var listingRating = new ListingRating()
                 {
-                    ListingId = (int)listItem["ListingId"],
-                    UserId = (int)listItem["UserId"],
-                    Comment = listItem["Comment"] == DBNull.Value ? null : (string)listItem["Comment"],
-                    Rating = (int)listItem["Rating"],
-                    CreationDate = (DateTime)listItem["CreationDate"],
-                    LastEdited = (DateTime)listItem["LastEdited"],
-                    Anonymous = (bool)listItem["Anonymous"]
+                    ListingId = (int)listItem[_listingIdColumn],
+                    UserId = (int)listItem[_userIdColumn],
+                    Comment = listItem[_commentColumn] == DBNull.Value ? null : (string)listItem[_commentColumn],
+                    Rating = (int)listItem[_ratingColumn],
+                    CreationDate = (DateTime)listItem[_creationDateColumn],
+                    LastEdited = (DateTime)listItem[_lastEditedColumn],
+                    Anonymous = (bool)listItem[_anonymousColumn]
                 };
                 listingRatings.Add(listingRating);
             }
@@ -176,7 +183,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 new List<string>() { "COUNT(*) as Ratings" },
                 new List<Comparator> {
                     new Comparator(feature.ToString() + "Id", "=", id),
-                    new Comparator("UserId", "=", userId),
+                    new Comparator(_userIdColumn, "=", userId),
                 }
             ).ConfigureAwait(false);
             if (!selectResult.IsSuccessful || selectResult.Payload is null)
@@ -199,7 +206,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                  new List<Comparator>()
                  {
                     new Comparator(feature.ToString() + "Id", "=", id),
-                    new Comparator("UserId", "=", userId),
+                    new Comparator(_userIdColumn, "=", userId),
                  }
              ).ConfigureAwait(false);
 
@@ -212,22 +219,22 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             foreach (var column in listingRating.GetType().GetProperties())
             {
                 var value = column.GetValue(listingRating);
-                if (column.Name == "Comment" && value is null)
+                if (column.Name == _commentColumn && value is null)
                 {
                     values[column.Name] = DBNull.Value;
                 }
-                if (value is null || column.Name == "ListingId" || column.Name == "UserId") continue;
+                if (value is null || column.Name == _listingIdColumn || column.Name == _userIdColumn) continue;
                 values[column.Name] = value;
             }
 
-            values["LastEdited"] = DateTime.Now;
+            values[_lastEditedColumn] = DateTime.Now;
 
             Result updateResult = await _updateDataAccess.Update(
                 _tableName,
                 new List<Comparator>()
                 {
-                    new Comparator("ListingId", "=", listingRating.ListingId!),
-                    new Comparator("UserId", "=", listingRating.UserId!),
+                    new Comparator(_listingIdColumn, "=", listingRating.ListingId!),
+                    new Comparator(_userIdColumn, "=", listingRating.UserId!),
                 },
                 values
             ).ConfigureAwait(false);
@@ -241,11 +248,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
-                new List<string>() { "ListingId", "UserId", "Rating", "Comment", "Anonymous", "LastEdited", "CreationDate" },
+                new List<string>() { _listingIdColumn, _userIdColumn, _ratingColumn, _commentColumn, _anonymousColumn, _lastEditedColumn, _creationDateColumn },
                 new List<Comparator>()
                 {
                     new Comparator(feature.ToString() + "Id", "=", id),
-                    new Comparator("UserId", "=", userId),
+                    new Comparator(_userIdColumn, "=", userId),
                 }
             ).ConfigureAwait(false);
             if (!selectResult.IsSuccessful)

@@ -12,11 +12,14 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 {
     public class ListingHistoryDataAccess : IListingHistoryDataAccess
     {
-        private InsertDataAccess _insertDataAccess;
-        private UpdateDataAccess _updateDataAccess;
-        private SelectDataAccess _selectDataAccess;
-        private DeleteDataAccess _deleteDataAccess;
-        private string _tableName;
+        private readonly InsertDataAccess _insertDataAccess;
+        private readonly UpdateDataAccess _updateDataAccess;
+        private readonly SelectDataAccess _selectDataAccess;
+        private readonly DeleteDataAccess _deleteDataAccess;
+        private readonly string _listingIdColumm = "ListingId";
+        private readonly string _userIdColumn = "UserId";
+        private readonly string _tableName;
+        
 
         public ListingHistoryDataAccess(string connectionString, string tableName)
         {
@@ -34,8 +37,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 _tableName,
                 new List<string>() { "COUNT(*) as Users" },
                 new List<Comparator> {
-                    new Comparator("ListingId", "=", listingId),
-                    new Comparator("UserId", "=", userId),
+                    new Comparator(_listingIdColumm, "=", listingId),
+                    new Comparator(_userIdColumn, "=", userId),
                 }
             ).ConfigureAwait(false);
             if (!selectResult.IsSuccessful || selectResult.Payload is null)
@@ -58,8 +61,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 _tableName,
                 new Dictionary<string, object>()
                 {
-                    { "ListingId", listingId },
-                    { "UserId", userId }
+                    { _listingIdColumm, listingId },
+                    { _userIdColumn, userId }
                 }
             ).ConfigureAwait(false);
 
@@ -84,8 +87,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 _tableName,
                 new List<Comparator>()
                 {
-                    new Comparator("ListingId", "=", listingId),
-                    new Comparator("UserId", "=", userId),
+                    new Comparator(_listingIdColumm, "=", listingId),
+                    new Comparator(_userIdColumn, "=", userId),
                 }
             ).ConfigureAwait(false);
 

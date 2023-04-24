@@ -59,16 +59,16 @@ const MyListingsView: React.FC<IMyListingsViewProps> = (props) => {
       }, [error]);
 
     return (
-        <div className="my-listing-view">
-
+        <div className="my-listing-view-container">
+            <div className="listings-found">
             {data && data.length > 0 && 
              <table>
                 <thead>
                     <tr>
                         <th></th>
-                        <th>Listing Title</th>
-                        <th>Ratings</th>
-                        <th>Status</th>
+                        <th className="Listing Title">Listing Title</th>
+                        <th className="Rating">Average Rating</th>
+                        <th className="Status">Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -78,23 +78,16 @@ const MyListingsView: React.FC<IMyListingsViewProps> = (props) => {
                 </tbody>
             </table>
             }
+            </div>
             <div className = "no-listings"> 
                 { data && data.length == 0  &&
                     <h2>You have no listings</h2>
                 }
                 {(title==undefined || title=='') && !showSubmitButton &&
                 <Button theme={ButtonTheme.DARK} onClick={() => { setShowTitleField(true) }} title={"Create Listing"} />
-                    }       
-                { showTitleField && 
-                    <div className="input-field">
-                        <label>Title</label>
-                        <input id="title" type="text" maxLength={50} placeholder="Title" onChange={
-                            (event: React.ChangeEvent<HTMLInputElement>) => {
-                            setTitle(event.target.value);
-                            setShowSubmitButton(true);
-                            }
-                        }/>
-                        {
+                
+                    }
+                    {
                             title!==undefined && showSubmitButton && title!== '' &&
                             <Button theme={ButtonTheme.DARK} onClick={async () => { 
                                 title!==undefined;
@@ -106,11 +99,22 @@ const MyListingsView: React.FC<IMyListingsViewProps> = (props) => {
                                 window.location.reload();
                                 return;
                             }} title={"Submit"} />
-                        }
+                        }       
+                { showTitleField && 
+                    <div className="input-field">
+                        <label>Title</label>
+                        <input id="title" type="text" maxLength={50} placeholder="Title" onChange={
+                            (event: React.ChangeEvent<HTMLInputElement>) => {
+                            setTitle(event.target.value);
+                            setShowSubmitButton(true);
+                            }
+                        }/>
+                        
                     </div>
                 }
             </div>
         </div>
+
     )
 }
 
