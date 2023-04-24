@@ -199,7 +199,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
                 <td className="table-rating"> {showcaseData.rating}</td>
                 <td className="table-listing" onClick={() => {
                     navigate('/viewListing', { state: { listingId: showcaseData.linkedListingId} })
-                }}>{showcaseData.linkedListingTitle}</td>
+                }}>{showcaseData.linkedListingId!=null && `Click to go to listing: ${showcaseData.linkedListingId}`}</td>
                 <td className="table-title">
                     <Link to={`/showcases/view?s=${showcaseData.id}`}>{showcaseData.title}</Link>
                 </td>
@@ -230,6 +230,9 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
             <h1>My Project Showcases</h1>
 
             <div className="my-showcases-container">
+                <Button theme={ButtonTheme.DARK} onClick={() => {
+                    navigate('/showcases/new');
+                }} title={"Create New Showcase"}/>
                 <table className="my-showcases-table">
                     <thead className="my-showcases-table-header">
                         <tr>

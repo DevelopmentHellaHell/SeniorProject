@@ -120,7 +120,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
             Assert.IsTrue((int)getResult.Payload![0]["CommenterId"] == accountId);
             Assert.IsTrue((string)getResult.Payload![0]["Text"] == commentText);
             Assert.IsTrue(((DateTime)getResult.Payload![0]["Timestamp"]).Second == time.Second);
-            Assert.IsTrue((double)getResult.Payload![0]["Rating"] == 0);
+            Assert.IsTrue((int)getResult.Payload![0]["Rating"] == 0);
         }
 
         [TestMethod]
@@ -447,7 +447,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
             Assert.IsTrue((string)getResult.Payload!["ShowcaseId"] == showcaseId);
             Assert.IsTrue((int)getResult.Payload!["CommenterId"] == accountId);
             Assert.IsTrue(((DateTime)getResult.Payload!["Timestamp"]).Second == time.Second);
-            Assert.IsTrue((double)getResult.Payload!["Rating"] == 0);
+            Assert.IsTrue((int)getResult.Payload!["Rating"] == 0);
         }
 
         [TestMethod]
@@ -487,7 +487,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Unit_Tests
 
             Assert.IsTrue(Convert.ToInt32(getResult.Payload![0]["Id"]) == commentId);
             Assert.IsTrue((string)getResult.Payload![0]["Text"] == commentText);
-            Assert.IsTrue((double)getResult.Payload![0]["Rating"] == 0);
+            Assert.IsTrue((int)getResult.Payload![0]["Rating"] == 0);
             Assert.IsTrue(((DateTime)getResult.Payload![0]["Timestamp"]).Second == time.Second);
             Assert.IsTrue((string)getResult.Payload![0]["ShowcaseId"] == showcaseId);
         }

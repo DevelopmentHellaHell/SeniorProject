@@ -70,6 +70,29 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             }
 
         }
+        [HttpGet]
+        [Route("files")]
+        public async Task<IActionResult> GetShowcaseFiles([FromQuery(Name="s")] string? showcaseId = null)
+        {
+            try
+            {
+                if (showcaseId == null)
+                {
+                    return BadRequest("Invalid request.");
+                }
+                var showcaseResult = await _projectShowcaseManager.GetShowcaseFiles(showcaseId);
+                if (!showcaseResult.IsSuccessful)
+                {
+                    return GetFuncCode((int)showcaseResult.StatusCode!)(GetErrorMessage(showcaseResult.StatusCode));
+                }
+                return Ok(showcaseResult.Payload);  
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Models.Category.SERVER, $"Error in GetShowcaseFiles: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
+            }
+        }
 
         [HttpGet]
         [Route("view")]

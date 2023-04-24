@@ -28,6 +28,18 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             _logger = loggerService;
             _authorizationService = authorizationService;
         }
+
+        public async Task<Result<List<string>>> GetShowcaseFiles(string showcaseId)
+        {
+            Result<List<string>> getFilesResult = await _fileService.GetFilesInDir($"ProjectShowcases/{showcaseId}");
+            await _fileService.Disconnect();
+            if (!getFilesResult.IsSuccessful)
+            {
+                var errorMessage = $"Error in getting files for Showcase {showcaseId}: {getFilesResult.ErrorMessage}";
+                return new(Result.Failure(errorMessage));
+            }
+            return Result<List<string>>.Success(getFilesResult.Payload!);
+        }
         public async Task<Result> AddComment(string showcaseId, string commentText)
         {
 
