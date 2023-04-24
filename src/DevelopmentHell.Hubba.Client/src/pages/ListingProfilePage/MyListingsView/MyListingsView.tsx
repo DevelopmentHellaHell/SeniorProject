@@ -60,8 +60,9 @@ const MyListingsView: React.FC<IMyListingsViewProps> = (props) => {
 
     return (
         <div className="my-listing-view-container">
-            <div className="listings-found">
+            
             {data && data.length > 0 && 
+            <div className="listings-found">
              <table>
                 <thead>
                     <tr>
@@ -77,8 +78,9 @@ const MyListingsView: React.FC<IMyListingsViewProps> = (props) => {
                     })}
                 </tbody>
             </table>
-            }
             </div>
+            }
+            
             <div className = "no-listings"> 
                 { data && data.length == 0  &&
                     <h2>You have no listings</h2>
@@ -101,7 +103,7 @@ const MyListingsView: React.FC<IMyListingsViewProps> = (props) => {
                             }} title={"Submit"} />
                         }       
                 { showTitleField && 
-                    <div className="input-field">
+                    <div className="title-input-field">
                         <label>Title</label>
                         <input id="title" type="text" maxLength={50} placeholder="Title" onChange={
                             (event: React.ChangeEvent<HTMLInputElement>) => {
