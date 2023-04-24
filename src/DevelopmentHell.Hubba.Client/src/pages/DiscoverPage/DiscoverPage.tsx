@@ -36,6 +36,7 @@ export interface IDiscoveryCollaborator {
 }
 
 export interface IDiscoveryProjectShowcase {
+    ListingId: any;
     Id: number;
     Title: string;
     Rating: number;

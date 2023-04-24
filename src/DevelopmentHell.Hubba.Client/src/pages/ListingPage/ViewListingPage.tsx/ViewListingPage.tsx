@@ -9,6 +9,7 @@ import Button, { ButtonTheme } from "../../../components/Button/Button";
 import { Auth } from "../../../Auth";
 import ViewListingRatingsPage from "./ViewListingRatingsPage/ViewListingRatingsPage";
 import ListingAvailabilityCard from "./ViewListingRatingsPage/ListingAvailabilityCard/ListingAvailabilityCard";
+import NavbarGuest from "../../../components/NavbarGuest/NavbarGuest";
 
 interface IViewListingPageProps {
 
@@ -102,7 +103,9 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
 
     return (
         <div className="listing-container">
-            <NavbarUser /> 
+            {authData && authData.role !== Auth.Roles.DEFAULT_USER  ? 
+                <NavbarUser /> : <NavbarGuest /> 
+            }
             <div className="listing-content">
                 <div className="listing-wrapper">
                     { data && !error && loaded &&

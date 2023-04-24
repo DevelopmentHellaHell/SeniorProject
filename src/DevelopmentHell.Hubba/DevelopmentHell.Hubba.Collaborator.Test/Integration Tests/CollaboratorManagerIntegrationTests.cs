@@ -63,7 +63,6 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
         private readonly ICryptographyService _cryptographyService;
         private readonly IAuthenticationManager _authenticationManager;
         private readonly IOTPDataAccess _otpDataAccess;
-        private readonly string realEmail = "dkoroni@gmail.com";
         private readonly string dummyIp = "127.0.0.1";
 
           
@@ -202,7 +201,8 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
         [TestInitialize]
         public async Task Setup()
         {
-            await _testingService.DeleteAllRecords().ConfigureAwait(false);
+            await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.COLLABORATOR_PROFILES).ConfigureAwait(false);
+            await _fileService.DeleteDir("/Collaborators").ConfigureAwait(false);
         }
 
         [TestMethod]
@@ -1020,10 +1020,11 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
 
 
 
+
         [TestCleanup]
         public async Task Cleanup()
         {
-            await _testingService.DeleteAllRecords().ConfigureAwait(false);
+            await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.COLLABORATOR_PROFILES).ConfigureAwait(false);
             await _fileService.DeleteDir("/Collaborators").ConfigureAwait(false);
         }
 
