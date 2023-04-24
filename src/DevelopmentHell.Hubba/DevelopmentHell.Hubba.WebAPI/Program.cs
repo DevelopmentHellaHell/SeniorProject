@@ -129,6 +129,10 @@ builder.Services.AddTransient<IAccountSystemManager, AccountSystemManager>(s =>
     new AccountSystemManager(
         new AccountSystemService(
             s.GetService<IUserAccountDataAccess>()!,
+            new BookingsDataAccess(
+                HubbaConfig.ConfigurationManager.AppSettings["SchedulingsConnectionString"]!,
+                HubbaConfig.ConfigurationManager.AppSettings["BookingsTable"]!
+            ),
             s.GetService<ILoggerService>()!
         ),
         s.GetService<IOTPService>()!,
