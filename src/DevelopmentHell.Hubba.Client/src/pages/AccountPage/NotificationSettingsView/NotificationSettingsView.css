@@ -40,4 +40,5 @@
 
 .cellphone-details-fields .dropdown {
     margin-left: 5px;
+    display: inline-block;
 }

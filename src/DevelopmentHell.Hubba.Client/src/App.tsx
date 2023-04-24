@@ -20,6 +20,7 @@ import ListingProfilePage from "./pages/ListingProfilePage/ListingProfilePage";
 import ViewListingPage from "./pages/ListingPage/ViewListingPage.tsx/ViewListingPage";
 import EditListingPage from "./pages/ListingPage/EditListingPage.tsx/EditListingPage";
 import ViewListingRatingsPage from "./pages/ListingPage/ViewListingPage.tsx/ViewListingRatingsPage/ViewListingRatingsPage";
+import DiscoverPage from "./pages/DiscoverPage/DiscoverPage";
 
 interface IAppProps {
 
@@ -33,7 +34,8 @@ const App: React.FC<IAppProps> = (props) => {
 					<Routes>
 						{/* Anyone can access */}
 						<Route index element={<HomePage />} />
-						<Route path="*" element={<Navigate to='/' replace />} />
+						<Route path="*" element={<Navigate to="/" replace />} />
+						<Route path="/discover" element={<DiscoverPage />} />
 						<Route path="/unauthorized" element={<Unauthorized />} />
 						<Route path="/viewlisting" element={<ViewListingPage />} />
 						<Route path="/viewlistingratings" element={<ViewListingRatingsPage /> } />

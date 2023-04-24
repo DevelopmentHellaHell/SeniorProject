@@ -47,6 +47,11 @@ namespace DevelopmentHell.Hubba.Discovery.Manager.Implementations
                 return new(Result.Failure("Query is longer than 200 characters.", StatusCodes.Status414RequestUriTooLong));
             }
 
+            if (query.Length == 0)
+            {
+                return new(Result.Failure("Query is empty.", StatusCodes.Status400BadRequest));
+            }
+
 			var result = await _discoveryService.GetSearch(query, category, filter, offset).ConfigureAwait(false);
 			if (!result.IsSuccessful)
 			{
