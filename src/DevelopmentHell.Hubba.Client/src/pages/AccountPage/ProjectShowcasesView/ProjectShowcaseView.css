@@ -1,0 +1,97 @@
+
+.my-showcases-wrapper .table-pubstatus .published-yes{
+    fill: #4d646a;
+    stroke: #101010;
+    stroke-width: 3px;
+}
+
+
+.my-showcases-wrapper .table-pubstatus .published-no{
+    fill: #d9d9d9;
+    stroke: #101010;
+    stroke-width: 3px;
+}
+
+.my-showcases-wrapper .table-pubstatus{
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.my-showcases-wrapper .vector-circle{
+    align-content: center;
+    vertical-align: middle;
+}
+
+.my-showcases-wrapper .h-stack{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.my-showcases-wrapper .v-stack{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.my-showcases-wrapper .my-showcases-table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    margin: 3px
+}
+
+.my-showcases-wrapper .my-showcases-table-header th, td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 5px;
+}
+
+.my-showcases.wrapper {
+    color: rgb(var(--primary-text-dark));
+    text-align: center;
+    width: 100%;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    flex-grow: 1
+}
+
+.my-showcases-wrapper table {
+    width: 100%;
+}
+
+.my-showcases-wrapper .table-rating {
+    text-align: center;
+}
+
+.my-showcases-wrapper .header-likes {
+    min-width: 50px;
+}
+
+.my-showcases-wrapper .header-listing {
+    min-width: 250px;
+}
+
+.my-showcases-wrapper .header-title {
+    min-width: 250px;
+}
+
+.my-showcases-wrapper .header-published {
+    min-width: 80px;
+}
+
+.my-showcases.wrapper .table-title {
+    cursor: pointer;
+}
+
+.my-showcases-wrapper .h-stack button {
+    margin: 3px;
+}
+
+.my-showcases-wrapper .table-pubstatus .vector-circle{
+    cursor: pointer;
+}

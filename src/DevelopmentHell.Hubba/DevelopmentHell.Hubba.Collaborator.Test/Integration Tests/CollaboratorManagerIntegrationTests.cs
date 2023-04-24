@@ -798,9 +798,6 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
                 actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             }
 
-            IFormFile file = CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza6.png");
-            IFormFile[] uploadedFile = new IFormFile[] { file, file };
-
             CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
             collab.PfpFile = CreateMockFormFile();
             // creating first collaborator profile

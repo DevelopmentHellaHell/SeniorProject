@@ -1,0 +1,52 @@
+.collaborator-card {
+    display: flex;
+    flex-flow: column;
+    line-height: 0;
+    width: 300px;
+    height: auto;
+    text-align: center;
+    align-items: center;
+}
+
+.collaborator-card .thumbnail {
+    object-fit: scale-down;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+}
+
+.collaborator-card .title {
+    width: 300px;
+    overflow: hidden;
+    overflow-wrap: break-word;
+    max-height: 60px;
+    line-height: 1.1em;
+}
+
+.collaborator-card .rating-block {
+    margin-top: -20px;
+    align-items: center;
+}
+
+.collaborator-card .star {
+    color: #e7711b;
+}
+
+.collaborator-card .count {
+    margin-left: 5px;
+    display: inline-block;
+}
+
+.collaborator-card .description {
+    margin-top: -20px;
+    width: 300px;
+    overflow: hidden;
+    overflow-wrap: break-word;
+    max-height: 60px;
+    line-height: 1.1em;
+}
+
+.collaborator-card .error {
+    color: rgb(var(--error-text));
+    padding: 20px;
+}

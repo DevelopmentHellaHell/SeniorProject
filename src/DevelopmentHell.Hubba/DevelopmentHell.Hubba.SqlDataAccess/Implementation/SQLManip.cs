@@ -1,4 +1,6 @@
-﻿namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
+﻿using System.Net.NetworkInformation;
+
+namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 {
     public struct Comparator
     {
@@ -44,6 +46,10 @@
         public static string InnerJoinTables(Joiner tableColumn)
         {
             return String.Format("\n({0} INNER JOIN {1} ON {0}.{2} = {1}.{3})", tableColumn.T1, tableColumn.T2, tableColumn.C1, tableColumn.C2);
+        }
+        public static string InnerJoinTables(string Db1, string Db2, string table1, string table2, string column1, string column2)
+        {
+            return String.Format("\n({4} {0} INNER JOIN {5} {1} ON {0}.{2} = {1}.{3})", table1, table2, column1, column2, Db1, Db2);
         }
     }
 }

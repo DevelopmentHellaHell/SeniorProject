@@ -13,6 +13,7 @@ import CollaboratorRemovalView from "./CollaboratorProfileView/CollaboratorRemov
 import CollaboratorEditView from "./CollaboratorProfileView/CollaboratorEditView/CollaboratorEditView";
 import CollaboratorDeletionView from "./CollaboratorProfileView/CollaboratorDeletionView/CollaboratorDeletionView";
 import { Ajax } from "../../Ajax";
+import ProjectShowcaseView from "./ProjectShowcasesView/ProjectShowcaseView";
 
 interface IAccountPageProps {
 
@@ -74,7 +75,7 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
             case AccountViews.MANAGE_LISTINGS:
                 return <></>; //TODO
             case AccountViews.PROJECT_SHOWCASES:
-                return <></>; //TODO
+                return <ProjectShowcaseView />;
             case AccountViews.COLLABORATOR_PROFILE:
                 return <CollaboratorProfileView 
                     onViewClick={() => { createOrViewCollab() }}
@@ -88,6 +89,7 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
                 return <CollaboratorRemovalView onCancelClick={() => { setView(AccountViews.COLLABORATOR_PROFILE)}}/>; 
             case AccountViews.COLLABORATOR_PROFILE_DELETION:
                 return <CollaboratorDeletionView onCancelClick={() => { setView(AccountViews.COLLABORATOR_PROFILE)}}/>; 
+     
         }
     }
 
