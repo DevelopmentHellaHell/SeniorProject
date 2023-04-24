@@ -4,10 +4,47 @@ using System.Text;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 {
-    internal class UpdateDataAccess : AlterTableDataAccessBase
+    internal class UpdateDataAccess
     {
-        public UpdateDataAccess(string inPath) : base(inPath)
+        private string connectionPath;
+        public UpdateDataAccess(string inPath)
         {
+            connectionPath = inPath;
+        }
+
+        private async Task<Result> SendQuery(SqlCommand query)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionPath))
+                {
+                    query.Connection = conn;
+
+                    conn.Open();
+                    int rowsAffected = await query.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    if (rowsAffected == 0)
+                    {
+                        return new Result()
+                        {
+                            IsSuccessful = false,
+                        };
+                    }
+                }
+
+                // TODO: figure out what to fill these with
+                return new Result()
+                {
+                    IsSuccessful = true,
+                };
+            }
+            catch (Exception e)
+            {
+                return new Result()
+                {
+                    IsSuccessful = false,
+                    ErrorMessage = e.Message,
+                };
+            }
         }
 
         public async Task<Result> Update(string table, List<Comparator> filters, Dictionary<string, object> values)
@@ -20,6 +57,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                 StringBuilder filterSb = new();
                 foreach (var pair in values)
                 {
+                    if (pair.Value == null)
+                    {
+                        continue;
+                    }
                     if (!first)
                     {
                         valueSb.Append(", ");
@@ -35,7 +76,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 
                     if (!first)
                     {
-                        filterSb.Append(", ");
+                        filterSb.Append(" AND ");
                     }
                     first = false;
                     filterSb.Append($"{filter.Key} {filter.Op} @{filter.Key}");

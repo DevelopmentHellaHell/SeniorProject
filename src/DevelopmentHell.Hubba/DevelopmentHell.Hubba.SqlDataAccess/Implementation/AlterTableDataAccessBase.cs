@@ -25,7 +25,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                 {
                     query.Connection = conn;
                     await conn.OpenAsync().ConfigureAwait(false);
-                    await query.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    int rowsAffected = await query.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
             }
             catch (Exception e)

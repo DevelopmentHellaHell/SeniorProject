@@ -60,6 +60,20 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     }
                 )
             },
+            {
+                Databases.LISTING_PROFILES,
+                new (
+                    "DevelopmentHell.Hubba.ListingProfiles",
+                    ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+                    new ()
+                    {
+                        { Tables.LISTING_RATINGS, ConfigurationManager.AppSettings["ListingRatingsTable"]! },
+                        { Tables.LISTING_HISTORY, ConfigurationManager.AppSettings["ListingHistoryTable"]! },
+                        { Tables.LISTINGS, ConfigurationManager.AppSettings["ListingsTable"]! },
+                        { Tables.LISTING_AVAILABILITIES, ConfigurationManager.AppSettings["ListingAvailabilitiesTable"]! }
+                    }
+                )
+            },
         };
 
         public TestsDataAccess() { }

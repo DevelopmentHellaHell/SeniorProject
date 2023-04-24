@@ -12,15 +12,13 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 
         public async Task<Result> Delete(string source, List<Comparator>? filters)
         {
-
-            //TODO add implementation for group by, order by, having
-            using (SqlCommand insertQuery = new SqlCommand())
+            using (SqlCommand deleteCommand = new SqlCommand())
             {
-                bool first = true;
                 StringBuilder sbFilter = new();
-                string where = "";
-                if (filters is not null)
+                if (filters is not null && filters.Count > 0)
                 {
+                    sbFilter.Append(" WHERE ");
+                    bool first = true;
                     foreach (var filter in filters)
                     {
                         if (!first)
@@ -28,16 +26,30 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                             sbFilter.Append(" AND ");
                         }
                         first = false;
-                        sbFilter.Append($"{filter.Key} {filter.Op} @{filter.Key}");
-
-                        insertQuery.Parameters.Add(new SqlParameter(filter.Key.ToString(), filter.Value.ToString()));
+                        if (filter.Op.ToLower() == "in" && filter.Value is string inValues)
+                        {
+                            
+                            string[] valueArray = inValues.Split(',');
+                            string[] paramNames = new string[valueArray.Length];
+                            for (int i = 0; i < valueArray.Length; i++)
+                            {
+                                string paramName = $"{filter.Key}_in{i}";
+                                deleteCommand.Parameters.AddWithValue(paramName, valueArray[i]);
+                                paramNames[i] = $"@{paramName}";
+                            }
+                            sbFilter.Append($"{filter.Key} IN ({string.Join(",", paramNames)})");
+                        }
+                        else
+                        {
+                            // Add parameter normally
+                            sbFilter.Append($"{filter.Key} {filter.Op} @{filter.Key}");
+                            deleteCommand.Parameters.AddWithValue(filter.Key.ToString(), filter.Value);
+                        }
                     }
-                    where = $" WHERE {sbFilter.ToString()}";
                 }
 
-                insertQuery.CommandText = $"DELETE FROM {source} {where}";
-
-                return await SendQuery(insertQuery).ConfigureAwait(false);
+                deleteCommand.CommandText = $"DELETE FROM {source} {sbFilter.ToString()}";
+                return await SendQuery(deleteCommand).ConfigureAwait(false);
             }
         }
 

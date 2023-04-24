@@ -1,0 +1,152 @@
+.listing-container {
+    position: relative;
+    display: flex;
+    flex-flow: column;
+    flex-grow: 1
+}
+
+.listing-container.listing-content {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 2.5rem;
+    flex-grow: 1;
+}
+
+.listing-container .listing-content .listing-wrapper {
+    display: flex;
+    margin-top: 10vh;
+    width: 70%;
+}
+/* .listing-container {
+    position: relative;
+    display: flex;
+    flex-flow: column;
+    flex-grow: 1;
+}
+
+.listing-container .listing-content {
+    display: flex;
+    padding-bottom: 2.5rem;
+    flex-grow: 1;
+}
+
+.listing-container .listing-container .listing-wrapper {
+    color: rgb(var(--primary-text-dark));
+    text-align: center;
+}
+
+.listing-container .selection-bar {
+    width: 5px;
+    height: 20px;
+    border-radius: 3px;
+    background-color: rgb(var(--primary-text-dark));
+} */
+/* 
+.listing-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .listing-page .listing-page-status {
+    position: absolute;
+    left: 10px;
+    font-weight: bold;
+    color: black;
+    font-size: 30px;
+  }
+  
+  
+  .listing-page__title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-top: 1rem;
+  }
+  
+  .listing-page__picture {
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+    margin-top: 1rem;
+  }
+  
+  .listing-page__location,
+  .listing-page__price,
+  .listing-page__description {
+    font-size: 1.2rem;
+    margin-top: 1rem;
+  }
+   */
+
+   .listing-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  .listing-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+  }
+  
+  .listing-wrapper {
+    max-width: 800px;
+    width: 100%;
+  }
+  
+  .listing-page-status {
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  
+  .listing-page__title {
+    font-size: 2rem;
+    margin: 1rem 0;
+  }
+  
+   .listing-page__image-wrapper {
+    position: relative;
+    margin-bottom: 1rem;
+    max-width: 60%;
+   }
+  .listing-page__picture {
+    display: block;
+    width: 100%;
+    height: auto;
+  } 
+  
+  .listing-page__image-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 2rem;
+    color: white;
+    text-shadow: 1px 1px 1px black;
+  }
+  
+  .listing-page__image-nav--prev {
+    left: 0;
+  }
+  
+  .listing-page__image-nav--next {
+    right: 0;
+  }
+  
+  .listing-page__location,
+  .listing-page__price,
+  .listing-page__description {
+    margin: 1rem 0;
+  }
+  
+  .error {
+    color: red;
+    font-weight: bold;
+    margin-top: 1rem;
+  }
+  

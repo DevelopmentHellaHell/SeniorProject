@@ -1,5 +1,6 @@
 using DevelopmentHell.Hubba.Models;
 using Microsoft.Data.SqlClient;
+using System.Runtime.CompilerServices;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 {
@@ -19,6 +20,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                 bool first = true;
                 foreach (KeyValuePair<string, object> pair in values)
                 {
+                    if (pair.Value == null)
+                    {
+                        continue;
+                    }
                     if (!first)
                     {
                         columnString += ", ";
@@ -32,7 +37,44 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                     insertQuery.Parameters.Add(new SqlParameter(pair.Key, pair.Value));
                 }
                 insertQuery.CommandText = string.Format("INSERT into {0} ({1}) VALUES ({2})", table, columnString, valueString);
+                return await SendQuery(insertQuery).ConfigureAwait(false);
+            }
+        }
 
+        public async Task<Result> BatchInsert(string table, List<string> keys, List<List<object>> values)
+        {
+            using (SqlCommand insertQuery = new SqlCommand())
+            {
+                int paramIndex = 0;
+                string columnString = string.Join(", ", keys);
+                string valueString = "";
+                foreach (var row in values)
+                {
+                    var paramList = "";
+                    for (int i = 0; i < keys.Count; i++)
+                    {
+                        paramList += "@param" + i.ToString() + "_" + paramIndex.ToString();
+                        if (i < keys.Count - 1)
+                        {
+                            paramList += ", ";
+                        }
+                    }
+                    paramIndex++;
+                    valueString += "(" + paramList + "), ";
+                }
+                valueString = valueString.TrimEnd(", ".ToCharArray());
+
+                paramIndex = 0;
+                for (int j = 0; j < values.Count; j++)
+                {
+                    for (int i = 0; i < keys.Count; i++)
+                    {
+                        insertQuery.Parameters.AddWithValue("@param" + i.ToString() + "_" + paramIndex.ToString(), values[j][i]);
+                    }
+                    paramIndex++;
+                }
+
+                insertQuery.CommandText = string.Format("INSERT INTO {0} ({1}) VALUES {2}", table, columnString, valueString);
                 return await SendQuery(insertQuery).ConfigureAwait(false);
             }
         }

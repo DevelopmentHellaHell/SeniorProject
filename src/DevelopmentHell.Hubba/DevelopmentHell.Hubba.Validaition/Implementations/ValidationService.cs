@@ -1,4 +1,6 @@
-﻿using DevelopmentHell.Hubba.Models;
+﻿
+using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.Models.DTO;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using Microsoft.AspNetCore.Http;
 using System.Globalization;
@@ -13,7 +15,7 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
         {
 
         }
-
+        
         public Result ValidateEmail(string email)
         {
             Result result = new Result();
@@ -313,5 +315,260 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
             return result;
         }
 
+        public Result ValidateModel(Object obj)
+        {
+            Result result = new Result();
+            result.IsSuccessful = false;
+            List<string> nullValueNames = new();
+
+            foreach (PropertyInfo prop in obj.GetType().GetProperties())
+            {
+                var value = prop.GetValue(obj, null);
+                if (obj is ListingViewDTO && prop.Name == "AverageRating") continue;
+                if ((obj is ListingAvailabilityDTO && prop.Name == "OwnerId") || (obj is ListingAvailabilityDTO && prop.Name == "Action")) continue;
+                if (prop.Name == "AverageRating") continue;
+                if (value is null || value.ToString()!.Length < 1)
+                {
+                    nullValueNames.Add(prop.Name);
+                }
+            }
+            if (nullValueNames.Count > 0)
+            {
+                result.ErrorMessage = "Missing value(s) for " + string.Join(", ", nullValueNames);
+                result.ErrorMessage.Trim();
+                return result;
+            }
+            result.IsSuccessful = true;
+            return result;
+        }
+
+
+        public Result ValidateBodyText(string input)
+        {
+            Result result = new Result();
+            result.IsSuccessful = false;
+
+            Regex regex = new(@"[^a-zA-Z0-9\s'.,!()\]+]");
+
+            if (regex.IsMatch(input))
+            {
+                result.ErrorMessage = "Invalid characters or special characters. Note only apostrophes, commas, periods, exclamation marks, and parentheses are the only special characters allowed.";
+                return result;
+            }
+
+            result.IsSuccessful = true;
+            return result;
+
+        }
+
+        //change
+        public Result ValidateTitle(string title)
+        {
+            Result result = new Result();
+            result.IsSuccessful = false;
+
+            Regex regex = new(@"[^a-zA-Z0-9\s']+");
+
+            if (regex.IsMatch(title))
+            {
+                result.ErrorMessage = "Invalid characters or special characters. Note apostrophes are the only special characters allowed.";
+                return result;
+            }
+
+            result.IsSuccessful = true;
+            return result;
+
+        }
+
+        public Result ValidateRating(int rating)
+        {
+            Result result = new Result();
+            result.IsSuccessful = false;
+
+
+            if (rating < 0 || rating > 5)
+            {
+                result.ErrorMessage = "Invalid rating.";
+                return result;
+            }
+
+            result.IsSuccessful = true;
+            return result;
+        }
+
+        public Result ValidateAvailability(ListingAvailabilityDTO listingAvailability)
+        {
+            Result result = new Result();
+
+            if (Convert.ToDateTime(listingAvailability.StartTime).Day != Convert.ToDateTime(listingAvailability.EndTime).Day)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Start time and end time may not be on different days.";
+                return result;
+            }
+
+            if (Convert.ToDateTime(listingAvailability.StartTime).Minute % 30 != 0)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Start time must be on the hour or half hour.";
+                return result;
+            }
+
+            if (Convert.ToDateTime(listingAvailability.EndTime).Minute % 30 != 0)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "End time must be on the hour or half hour.";
+                return result;
+            }
+
+            if (Convert.ToDateTime(listingAvailability.EndTime).CompareTo(Convert.ToDateTime(listingAvailability.StartTime)) <= 0)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "End time must be at least 30 mins past start time.";
+                return result;
+            }
+
+            if (DateTime.Now.AddMinutes(30).CompareTo(Convert.ToDateTime(listingAvailability.StartTime)) > 0)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Start time must be more than 30 minutes of right now.";
+                return result;
+            }
+
+            if (DateTime.Now.AddHours(1).CompareTo(Convert.ToDateTime(listingAvailability.EndTime)) > 0)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "End time must be more than 60 minutes of right now.";
+                return result;
+            }
+
+            result.IsSuccessful = true;
+            return result;
+        }
+
+        public Result ValidateFiles(List<Tuple<string, string>> files)
+        {
+            Result result = new Result();
+
+            foreach (Tuple<string, string> file in files)
+            {
+                string extension = Path.GetExtension(file.Item1).ToLower();
+
+                if (extension == ".jpg" || extension == ".jpeg" || extension == ".png")
+                {
+                    using (var stream = new MemoryStream(Convert.FromBase64String(file.Item2)))
+                    using (var image = System.Drawing.Image.FromStream(stream))
+                    {
+                        if (image.RawFormat.Equals(System.Drawing.Imaging.ImageFormat.Jpeg) ||
+                            image.RawFormat.Equals(System.Drawing.Imaging.ImageFormat.Png))
+                        {
+                            // Check if the image size is less than or equal to 25 MB
+                            if (Convert.FromBase64String(file.Item2).Length > 25 * 1024 * 1024)
+                            {
+                                result.IsSuccessful = false;
+                                result.ErrorMessage = file.Item1 + " is too large.";
+                                return result;
+                            }
+                        }
+                        else
+                        {
+                            result.IsSuccessful = false;
+                            result.ErrorMessage = file.Item1 + " is an invalid image file type.";
+                            return result;
+                        }
+                    }
+                }
+                else if (extension == ".mp4")
+                {
+                    // Check if the video size is less than or equal to 300 MB
+                    if (Convert.FromBase64String(file.Item2).Length > 300 * 1024 * 1024)
+                    {
+                        result.IsSuccessful = false;
+                        result.ErrorMessage = file.Item1 + " is too large.";
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.IsSuccessful = false;
+                    result.ErrorMessage = file.Item1 + " is an invalid file type.";
+                    return result;
+                }
+            }
+
+            result.IsSuccessful = true;
+            return result;
+        }
+
+        public Result ValidateFile(IFormFile file)
+        {
+            Result result = new Result();
+
+
+            if (!Regex.IsMatch(file.FileName, @"^[a-zA-Z0-9_.]*$"))
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "File names must consist of only letters, numbers, and underscores.";
+                return result;
+            }
+
+            if (file == null || file.Length == 0)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = $"File {file.FileName} is empty";
+                return result;
+            }
+
+            if (!file.ContentType.StartsWith("image/") && file.ContentType != "video/mp4")
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = file.FileName + " is not a valid file type.";
+                return result;
+            }
+
+            if (file.ContentType.StartsWith("image/"))
+            {
+                using (var image = System.Drawing.Image.FromStream(file.OpenReadStream()))
+                {
+                    if (image.RawFormat.Equals(System.Drawing.Imaging.ImageFormat.Jpeg) ||
+                        image.RawFormat.Equals(System.Drawing.Imaging.ImageFormat.Png))
+                    {
+                        // Check if the image size is less than or equal to 25 MB
+                        if (file.Length > 25 * 1024 * 1024)
+                        {
+                            result.IsSuccessful = false;
+                            result.ErrorMessage = file.FileName + " is too large.";
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.IsSuccessful = false;
+                        result.ErrorMessage = file.FileName + " is an invalid image file type.";
+                        return result;
+                    }
+                }
+            }
+            else if (file.ContentType == "video/mp4")
+            {
+                // Check if the video size is less than or equal to 300 MB
+                if (file.Length > 300 * 1024 * 1024)
+                {
+                    result.IsSuccessful = false;
+                    result.ErrorMessage = file.FileName + " is too large.";
+                    return result;
+                }
+            }
+            else
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = file.FileName + " is an invalid file type.";
+                return result;
+            }
+            
+
+            result.IsSuccessful = true;
+            return result;
+        }
     }
 }

@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<Target Name="CopyCustomContent" AfterTargets="AfterBuild">
+    <Copy SourceFiles="..\App.config" DestinationFiles="$(OutDir)\testhost.dll.config" />
+  </Target>		<Copy SourceFiles="..\App.config" DestinationFiles="$(OutDir)\testhost.dll.config" />
+	
+	
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.8" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.8" />
+    <PackageReference Include="coverlet.collector" Version="3.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Integration Tests\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DevelopmentHell.Hubba.SqlDataAccess\DevelopmentHell.Hubba.SqlDataAccess.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -17,5 +17,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         Task<Result<int>> CountAdmin();
         Task<Result> SetEnabledStatus(int id, bool enabled);
 
+        Task<Result<string>> GetEmail(int id);
+
     }
 }

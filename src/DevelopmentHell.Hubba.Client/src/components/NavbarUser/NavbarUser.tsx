@@ -7,6 +7,7 @@ import { INotificationData } from "../../pages/NotificationPage/NotificationPage
 import { Ajax } from "../../Ajax";
 import { triggerNotification } from "../../Notification";
 import NotificationStateProvider from "../../NotificationStateProvider";
+import ListingProfilePage from "../../pages/ListingProfilePage/ListingProfilePage";
 
 interface INavbarUserProps {
 
@@ -27,6 +28,7 @@ const NavbarUser: React.FC<INavbarUserProps> = (props) => {
             <nav className="nav-links">
                 <li><p onClick={() => { alert("1") }}>Profile</p></li>
                 <li><p onClick={() => { alert("2") }}>Discover</p></li>
+                <li><p onClick={() => {navigate("/listingprofile")}}>My Listings</p></li>
                 {authData.role === Auth.Roles.ADMIN_USER &&
                     <li><p onClick={() => { navigate("/admin-dashboard") }}>Admin Dashboard</p></li>
                 }

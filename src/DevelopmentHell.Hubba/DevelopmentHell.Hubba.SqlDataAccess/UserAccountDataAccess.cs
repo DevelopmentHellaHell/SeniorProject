@@ -343,5 +343,31 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
             return setResult;
         }
+
+
+        public async Task<Result<string>> GetEmail(int id)
+        {
+            Result<string> result = new Result<string>();
+
+            Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
+                _tableName,
+                new List<string>() { "Email" },
+                new List<Comparator>()
+                {
+                    new Comparator("Id","=",id),
+                }
+            ).ConfigureAwait(false);
+
+            if (!selectResult.IsSuccessful || selectResult.Payload.Count != 1)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = selectResult.ErrorMessage;
+                return result;
+            }
+            result.IsSuccessful = true;
+            result.Payload = (string)selectResult.Payload[0]["Email"];
+            return result;
+        }
+
     }
 }
