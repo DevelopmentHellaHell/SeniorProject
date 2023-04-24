@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Ajax } from "../../../Ajax";
 import './MyListingsView.css';
 import ListingCard from "./ListingCard/ListingCard";
+import Button, { ButtonTheme } from "../../../components/Button/Button";
+import { useNavigate } from "react-router-dom";
 
 interface IMyListingsViewProps {
     
@@ -23,23 +25,43 @@ export interface IListing {
 
 
 const MyListingsView: React.FC<IMyListingsViewProps> = (props) => {
-    const [error, setError] = useState<string>("Error");
+    const [error, setError] = useState<string | undefined>(undefined);
     const [loaded, setLoaded] = useState<boolean>(false);
     const [data, setData] = useState<IListing[] | null>(null);
+    const [title, setTitle] = useState<string | null>(null);
+    const [showTitleField, setShowTitleField] = useState<boolean>(false);
+    const [showSubmitButton, setShowSubmitButton] = useState<boolean>(false);
+    const navigate = useNavigate();
 
 
     useEffect(() => {
         const getData = async () => {
             const response = await Ajax.get<IListing[]>('/listingprofile/viewMyListings')
             setData(response.data);
-            setError(response.error);
+            if (response.error) {
+                setError(response.error);
+                console.log(response.error);
+            }
+            
             setLoaded(response.loaded);
+            console.log(response.data);
         }
 
         getData();
     }, []);
+
+    useEffect(() => {
+        if (error !== undefined) {
+          alert(error);
+          setError(undefined);
+        }
+        
+      }, [error]);
+
     return (
         <div className="my-listing-view">
+
+            {data && data.length > 0 && 
              <table>
                 <thead>
                     <tr>
@@ -55,6 +77,39 @@ const MyListingsView: React.FC<IMyListingsViewProps> = (props) => {
                     })}
                 </tbody>
             </table>
+            }
+            <div className = "no-listings"> 
+                { data && data.length == 0  &&
+                    <h2>You have no listings</h2>
+                }
+                {(title==undefined || title=='') && !showSubmitButton &&
+                <Button theme={ButtonTheme.DARK} onClick={() => { setShowTitleField(true) }} title={"Create Listing"} />
+                    }       
+                { showTitleField && 
+                    <div className="input-field">
+                        <label>Title</label>
+                        <input id="title" type="text" maxLength={50} placeholder="Title" onChange={
+                            (event: React.ChangeEvent<HTMLInputElement>) => {
+                            setTitle(event.target.value);
+                            setShowSubmitButton(true);
+                            }
+                        }/>
+                        {
+                            title!==undefined && showSubmitButton && title!== '' &&
+                            <Button theme={ButtonTheme.DARK} onClick={async () => { 
+                                title!==undefined;
+                                const response = await Ajax.post("/listingprofile/createListing", {title} );
+                                if (response.error) {
+                                    setError(response.error);
+                                }
+                                setShowTitleField(false);
+                                window.location.reload();
+                                return;
+                            }} title={"Submit"} />
+                        }
+                    </div>
+                }
+            </div>
         </div>
     )
 }

@@ -100,6 +100,8 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             string userHash = Convert.ToBase64String(userHashResult.Payload.Hash!);
             _loggerService.Log(LogLevel.INFO, Category.BUSINESS, $"Successful listing creation from: {ownerUsername}.", userHash);
 
+            await _fileService.Disconnect().ConfigureAwait(false);
+
             return Result.Success();
         }
 
@@ -197,6 +199,8 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             }
             payload.Add("Ratings", getListingRatingsResult.Payload);
 
+            await _fileService.Disconnect().ConfigureAwait(false);
+
             return Result<Dictionary<string, object>>.Success(payload);
         }
 
@@ -270,7 +274,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             return Result.Success();
         }
 
-        public async Task<Result> EditListingAvailabilities(List<ListingAvailabilityDTO> listingAvailabilities)
+        public async Task<Result> EditListingAvailabilities(List<ListingAvailabilityReactDTO> listingAvailabilities)
         {
             //authorize
             if (!_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
@@ -516,6 +520,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
 
             }
 
+            await _fileService.Disconnect().ConfigureAwait(false);
             return Result.Success();
         }
 
@@ -703,6 +708,8 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             {
                 return new(Result.Failure(getFiles.ErrorMessage!, StatusCodes.Status400BadRequest));
             }
+
+            await _fileService.Disconnect().ConfigureAwait(false);
             return Result<List<string>>.Success(getFiles.Payload);
         }
 
@@ -736,7 +743,6 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                     else if (Path.GetExtension(file.Item1) == ".jpg" || Path.GetExtension(file.Item1) == ".jpeg" || Path.GetExtension(file.Item1) == ".png")
                     {
                         pictureFiles.Add(file.Item1, Convert.FromBase64String(file.Item2));
-                        Console.WriteLine(file.Item2);
                     }
                     else
                     {
@@ -862,11 +868,45 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                     Result unpublish = await _listingsService.UnpublishListing(listingId).ConfigureAwait(false);
                 }
             }
-
-
+            await  _fileService.Disconnect().ConfigureAwait(false);
 
             return Result.Success();
+        }
 
+        public async Task<Result<string>> HasListingHistory(int listingId)
+        {
+            //assign Id from token
+            var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
+            if (stringAccountId is null)
+            {
+                return Result<string>.Success("none");
+            }
+            int userId = int.Parse(stringAccountId);
+
+            Result<bool> checkHistoryResult = await _listingsService.CheckListingHistory(listingId, userId).ConfigureAwait(false);
+            if (!checkHistoryResult.IsSuccessful || checkHistoryResult.Payload == false)
+            {
+                return Result<string>.Success("none");
+            }
+
+            Result<bool> checkListingRatingResult = await _listingsService.CheckListingRating(listingId, userId).ConfigureAwait(false);
+            if (!checkListingRatingResult.IsSuccessful)
+            {
+                return Result<string>.Success("none");
+            }
+
+            if (checkListingRatingResult.Payload == false && checkHistoryResult.Payload == true)
+            {
+                return Result<string>.Success("history");
+            }
+
+            if (checkListingRatingResult.Payload == true && checkHistoryResult.Payload == true)
+            {
+                return Result<string>.Success("rating");
+            }
+
+            return new(Result.Failure("Unable to check", StatusCodes.Status400BadRequest));
         }
     }
 }

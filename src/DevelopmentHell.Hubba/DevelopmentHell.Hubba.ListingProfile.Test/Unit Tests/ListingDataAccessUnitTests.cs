@@ -30,7 +30,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
         private readonly string _userConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
         private readonly string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
 
-        private readonly string _listingProfileConnectionString = ConfigurationManager.AppSettings["ListingProfileConnectionString"]!;
+        private readonly string _listingProfileConnectionString = ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!;
         private readonly string _listingsTable = ConfigurationManager.AppSettings["ListingsTable"]!;
         private readonly string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
 

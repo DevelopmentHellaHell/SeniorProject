@@ -26,7 +26,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
         private readonly IListingsDataAccess _listingsDataAccess;
         private readonly IListingAvailabilitiesDataAccess _listingAvailabilitiesDataAccess;
 
-        private readonly string _listingProfileConnectionString = ConfigurationManager.AppSettings["ListingProfileConnectionString"]!;
+        private readonly string _listingProfileConnectionString = ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!;
         private readonly string _listingsTable = ConfigurationManager.AppSettings["ListingsTable"]!;
         private readonly string _listingAvailabilitiesTable = ConfigurationManager.AppSettings["ListingAvailabilitiesTable"]!;
         private readonly string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;

@@ -7,6 +7,7 @@ import Footer from "../../../components/Footer/Footer";
 import "./ViewListingPage.css";
 import Button, { ButtonTheme } from "../../../components/Button/Button";
 import { Auth } from "../../../Auth";
+import ViewListingRatingsPage from "./ViewListingRatingsPage/ViewListingRatingsPage";
 
 interface IViewListingPageProps {
 
@@ -22,17 +23,17 @@ interface IAvailability {
 interface IListingFile {
 }
 
-interface IRating {
+export interface IRating {
     listingId: number,
-    userId: number,
-    username: string,
+    userId?: number,
+    username?: string,
     rating: number,
     comment?: string,
     anonymous: boolean,
-    lastEdited: Date
+    lastEdited?: Date
 }
 
-interface IViewListingData {
+export interface IViewListingData {
     Listing: IListing,
     Availabilities?: IAvailability[],
     Files?: IListingFile[],
@@ -87,6 +88,16 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
         
       }, [error]);
 
+      const handleDeleteClick = async () => {
+        const response = await Ajax.post<null>('/listingprofile/deleteListing', { ListingId: data?.Listing.listingId })
+        console.log(response)
+        if (response.error) {
+            setError(response.error);
+            return;
+        }
+        navigate("/listingprofile");
+    };
+
     return (
         <div className="listing-container">
             <NavbarUser /> 
@@ -105,9 +116,11 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                         }
                                         setIsPublished(false);
                                     }} title={"Unpublish Listing"} />
+                                    <Button theme={ButtonTheme.DARK} onClick={() => { handleDeleteClick() }} title={"Delete Listing"} />
                                 </div>}
                                 { !isPublished && authData?.sub==data.Listing.ownerId.toString() && <div>
                                     <Button theme={ButtonTheme.DARK} onClick={() => { navigate("/editlisting", { state: { listingId: data.Listing.listingId }})} } title={"Edit Listing"} />
+                                    <Button theme={ButtonTheme.DARK} onClick={() => { handleDeleteClick() }} title={"Delete Listing"} />
                                 </div>} 
                              </p>
                             <h2 className="listing-page__title">{data.Listing.title}</h2>
@@ -146,6 +159,17 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                             <p className="listing-page__description">
                                 {"Description: " + (data.Listing.description ?? "")}
                             </p>
+                            <Button theme={ButtonTheme.DARK} onClick={() => 
+                            { 
+                                console.log(state.listingId, data.Listing, data.Ratings);
+                                navigate("/viewlistingratings", 
+                                {
+                                    state : 
+                                    { 
+                                        listingId: state.listingId, 
+                                    }
+                                });
+                            }} title={"View Ratings"} />
                         </div>
                     }
                     {error && loaded &&

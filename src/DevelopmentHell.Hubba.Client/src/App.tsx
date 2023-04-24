@@ -18,6 +18,7 @@ import NotificationStateProvider from "./NotificationStateProvider";
 import ListingProfilePage from "./pages/ListingProfilePage/ListingProfilePage";
 import ViewListingPage from "./pages/ListingPage/ViewListingPage.tsx/ViewListingPage";
 import EditListingPage from "./pages/ListingPage/EditListingPage.tsx/EditListingPage";
+import ViewListingRatingsPage from "./pages/ListingPage/ViewListingPage.tsx/ViewListingRatingsPage/ViewListingRatingsPage";
 
 interface IAppProps {
 
@@ -34,6 +35,7 @@ const App: React.FC<IAppProps> = (props) => {
 						<Route path="*" element={<Navigate to='/' replace />} />
 						<Route path="/unauthorized" element={<Unauthorized />} />
 						<Route path="/viewlisting" element={<ViewListingPage />} />
+						<Route path="/viewlistingratings" element={<ViewListingRatingsPage /> } />
 						
 						
 						{/* Public routes - no auth */}

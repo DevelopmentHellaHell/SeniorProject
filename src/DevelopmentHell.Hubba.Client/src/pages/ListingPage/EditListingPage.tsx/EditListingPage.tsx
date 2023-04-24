@@ -19,6 +19,7 @@ interface IAvailability {
     listingId: number
 }
 
+
 interface IListingFile {
     link: string
 }
@@ -40,6 +41,8 @@ interface IViewListingData {
     Ratings?: IRating[]
 }
 
+  
+
 const EditListingPage: React.FC<IListingPageProps> = (props) => {
     const { state } = useLocation();
     const [error, setError] = useState<string | undefined>(undefined);
@@ -55,11 +58,7 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
     const [deletedImageName, setDeletedImageName] = useState("");
     const [fileData, setFileData] = useState<{ Item1: string, Item2: string} []>([]);
     const [deletedFileNames, setDeletedFileNames] = useState<string[]>([]);
-
-
-
-
-
+    
     useEffect(() => {
         const getData = async () => {
             const response = await Ajax.post<IViewListingData>('/listingprofile/viewListing', { listingId: state.listingId });
@@ -208,6 +207,32 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
         return navigate("/viewlisting", { state: {listingId: state.listingId}});
     }
 
+
+    const handleDeleteClick = async () => {
+        const response = await Ajax.post<null>('/listingprofile/deleteListing', { ListingId: data?.Listing.listingId })
+        console.log(response)
+        if (response.error) {
+            setError(response.error);
+            return;
+        }
+        navigate("/listingprofile");
+    };
+
+    const [date, setDate] = useState('');
+    const [startTime, setStartTime] = useState('');
+    const [endTime, setEndTime] = useState('');
+    const [timeList, setTimeList] = useState<{ date: string; startTime: string; endTime: string; }[]>([]);
+
+    
+    const handleSubmit = (e: { preventDefault: () => void }) => {
+        e.preventDefault();
+        setTimeList([...timeList, { date, startTime, endTime }]);
+        setDate('');
+        setStartTime('');
+        setEndTime('');
+    };
+          
+          
     return (
         <div className="listing-container">
             <NavbarUser />
@@ -240,6 +265,7 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
                               title={'Preview Listing'}
                             />
                           )}
+                          <Button theme={ButtonTheme.DARK} onClick={() => { handleDeleteClick() }} title={"Delete Listing"} />
                         </p>
                         <h2 className="listing-page__title">{data.Listing.title}</h2>
                         {data.Files && data.Files.length > 0 && (
@@ -337,13 +363,35 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
                             {error && (
                                 <p className="error">{error}</p>
                             )}
+                        </form>
+
+                        <div>
+                        <h2>Time Tracker</h2>
+                            <form onSubmit={handleSubmit}>
+                                <label htmlFor="date">Date:</label>
+                                <input type="date" id="date" value={date} onChange={(e) => setDate(e.target.value)} />
+
+                                <label htmlFor="start-time">Start Time:</label>
+                                <input type="time" id="start-time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+
+                                <label htmlFor="end-time">End Time:</label>
+                                <input type="time" id="end-time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
+
+                                <button type="submit">Save Time</button>
                             </form>
-                            
+
+                            <h3>Time List:</h3>
+                            <ul>
+                                {timeList.map((time, index) => (
+                                <li key={index}>
+                                    {time.date} - {time.startTime} - {time.endTime}
+                                </li>
+                                ))}
+                            </ul>
+                            </div>
+     
                         <Button theme={ButtonTheme.DARK} title={"Publish"} onClick={ handlePublishSubmit } />
-                    </div>
-                      
-                    
-                    
+                    </div>                    
                     {error && loaded &&
                         <p className="error">{error}</p>
                     }
@@ -355,5 +403,6 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
         </div>
     );
 }
+
 
 export default EditListingPage;

@@ -68,7 +68,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
                 return result;
             }
 
-            result.IsSuccessful = true;
+            
             List<ListingViewDTO> listingDTOList = new();
             List<Listing> payload = getUserListingsResult.Payload!;
             foreach (Listing listing in payload)
@@ -84,9 +84,19 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
                     LastEdited = (DateTime)listing.LastEdited!,
                     Published = (bool)listing.Published!,
                 };
+                
+                double? value = null;
+                if (getOwnerAverageRatings.Payload is not null)
+                {
+                    if (getOwnerAverageRatings.Payload.TryGetValue(temp.ListingId, out double val)) {
+                        value = val;
+                    }  
+                }
+                temp.AverageRating = value;
 
                 listingDTOList.Add(temp);
             }
+            result.IsSuccessful = true;
             result.Payload = listingDTOList;
             return result;
         }

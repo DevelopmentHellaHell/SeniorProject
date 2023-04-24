@@ -289,5 +289,22 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 return StatusCode(result.StatusCode);
             }).ConfigureAwait(false);
         }
+
+        [HttpPost]
+        [Route("hasListingHistory")]
+        public async Task<IActionResult> HasListingHistory(ListingIdDTO listingIdDTO)
+        {
+            return await GuardedWorkload(async () =>
+            {
+                if (!ModelState.IsValid)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest);
+                }
+
+                var result = await _listingProfileManager.HasListingHistory(listingIdDTO.ListingId).ConfigureAwait(false);
+
+                return StatusCode(result.StatusCode, result.Payload);
+            }).ConfigureAwait(false);
+        }
     }
 }

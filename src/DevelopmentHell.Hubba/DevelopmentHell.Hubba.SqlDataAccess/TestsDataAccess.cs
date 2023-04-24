@@ -50,7 +50,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 Databases.LISTING_PROFILES,
                 new (
                     "DevelopmentHell.Hubba.ListingProfiles",
-                    ConfigurationManager.AppSettings["ListingProfileConnectionString"]!,
+                    ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
                     new ()
                     {
                         { Tables.LISTING_RATINGS, ConfigurationManager.AppSettings["ListingRatingsTable"]! },
