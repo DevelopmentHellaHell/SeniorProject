@@ -1,4 +1,5 @@
 ﻿using DevelopmentHell.Hubba.AccountSystem.Manager.Abstractions;
+using DevelopmentHell.Hubba.WebAPI.DTO.AccountSystem;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DevelopmentHell.Hubba.WebAPI.Controllers
@@ -36,7 +37,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 
         [HttpPost]
         [Route("verifyNewEmail")]
-        public async Task<IActionResult> VerifyNewEmail(string newEmail)
+        public async Task<IActionResult> VerifyNewEmail(VerifyEmailDTO verifyEmailDTO)
         {
             return await GuardedWorkload(async () =>
             {
@@ -44,6 +45,8 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
+
+                string newEmail = verifyEmailDTO.newEmail;
 
                 var result = await _accountSystemManager.VerifyNewEmail(newEmail).ConfigureAwait(false);
                 if (!result.IsSuccessful)
@@ -57,7 +60,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 
         [HttpPost]
         [Route("otpVerification")]
-        public async Task<IActionResult> OTPValidation(string otpEntry)
+        public async Task<IActionResult> OTPValidation(otpDTO otpEntryDTO)
         {
             return await GuardedWorkload(async () =>
             {
@@ -65,6 +68,8 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
+
+                string otpEntry = otpEntryDTO.otp!;
 
                 var result = await _accountSystemManager.OTPVerification(otpEntry).ConfigureAwait(false);
                 if (!result.IsSuccessful)
@@ -99,7 +104,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 
         [HttpPost]
         [Route("updatePassword")]
-        public async Task<IActionResult> UpdatePassword(string oldPassword, string newPassword, string newPasswordDupe)
+        public async Task<IActionResult> UpdatePassword(UpdatePasswordDTO updatePasswordDTO)
         {
             return await GuardedWorkload(async () =>
             {
@@ -107,6 +112,10 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
+
+                string oldPassword = updatePasswordDTO.oldPassword!;
+                string newPassword = updatePasswordDTO.newPassword!;
+                string newPasswordDupe = updatePasswordDTO.newPasswordDupe!;
 
                 var result = await _accountSystemManager.UpdatePassword(oldPassword, newPassword, newPasswordDupe).ConfigureAwait(false);
                 if (!result.IsSuccessful)
@@ -120,7 +129,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 
         [HttpPost]
         [Route("updateUserName")]
-        public async Task<IActionResult> UpdateUserName(string firstName, string lastName)
+        public async Task<IActionResult> UpdateUserName(UpdateUserNameDTO updateUserNameDTO)
         {
             return await GuardedWorkload(async () =>
             {
@@ -128,6 +137,9 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
+
+                string firstName = updateUserNameDTO.firstName!;
+                string lastName = updateUserNameDTO.lastName!;
 
                 var result = await _accountSystemManager.UpdateUserName(firstName, lastName).ConfigureAwait(false);
                 if (!result.IsSuccessful)

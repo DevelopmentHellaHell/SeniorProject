@@ -10,6 +10,12 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         private DeleteDataAccess _deleteDataAccess;
         private UpdateDataAccess _updateDataAccess;
         private string _tableName;
+        private readonly string _hash = "PasswordHash";
+        private readonly string _salt = "PasswordSalt";
+        private readonly string _email = "Email";
+        private readonly string _id = "Id";
+        private readonly string _firstName = "FirstName";
+        private readonly string _lastName = "LastName";
         public UserAccountDataAccess(string connectionString, string tableName)
         {
             _insertDataAccess = new InsertDataAccess(connectionString);
@@ -26,8 +32,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 new Dictionary<string, object>()
                 {
                     { "Email", email },
-                    { "PasswordHash", Convert.ToBase64String(password.Hash!) },
-                    { "PasswordSalt", password.Salt! },
+                    { _hash, Convert.ToBase64String(password.Hash!) },
+                    { _salt, password.Salt! },
                     { "LoginAttempts", 0 },
                     { "FailureTime", DBNull.Value },
                     { "Disabled", false },
@@ -81,8 +87,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 new List<Comparator>()
                 {
                     new Comparator("Email", "=", email),
-                    new Comparator("PasswordHash", "=", password.Hash!),
-                    new Comparator("PasswordSalt", "=", password.Salt!)
+                    new Comparator(_hash, "=", password.Hash!),
+                    new Comparator(_salt, "=", password.Salt!)
                 }
             ).ConfigureAwait(false);
 
@@ -195,7 +201,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
-                new List<string>() { "PasswordHash", "PasswordSalt" },
+                new List<string>() { _hash, _salt },
                 new List<Comparator>()
                 {
                     new Comparator("Email", "=", email),
@@ -219,8 +225,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             result.IsSuccessful = true;
             if (payload.Count > 0) result.Payload = new UserAccount()
             {
-                PasswordHash = (string)payload.First()["PasswordHash"],
-                PasswordSalt = (string)payload.First()["PasswordSalt"],
+                PasswordHash = (string)payload.First()[_hash],
+                PasswordSalt = (string)payload.First()[_salt],
             };
             return result;
         }
@@ -353,11 +359,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 _tableName,
                 new List<Comparator>()
                 {
-                    new Comparator("Email", "=", email)
+                    new Comparator(_email, "=", email)
                 },
                 new Dictionary<string, object>()
                 {
-                    {"PasswordHash", newHashPassword}
+                    {_hash, newHashPassword}
                 }
             ).ConfigureAwait(false);
             if (!updateResult.IsSuccessful)
@@ -380,11 +386,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 _tableName,
                 new List<Comparator>()
                 {
-                    new Comparator("Id", "=", userId)
+                    new Comparator(_id, "=", userId)
                 },
                 new Dictionary<string, object>()
                 {
-                    {"Email", newEmail}
+                    {_email, newEmail}
                 }
             ).ConfigureAwait(false);
             if (!updateResult.IsSuccessful)
@@ -405,10 +411,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
-                new List<string>() { "PasswordHash", "PasswordSalt" },
+                new List<string>() { _hash, _salt },
                 new List<Comparator>()
                 {
-                    new Comparator("Id", "=", userId),
+                    new Comparator(_id, "=", userId),
                 }
             ).ConfigureAwait(false);
             if (!selectResult.IsSuccessful || selectResult.Payload is null)
@@ -437,8 +443,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             result.Payload = new PasswordInformation()
             {
-                PasswordHash = (string)payload.First()["PasswordHash"],
-                PasswordSalt = (string)payload.First()["PasswordSalt"]
+                PasswordHash = (string)payload.First()[_hash],
+                PasswordSalt = (string)payload.First()[_salt]
             };
 
             return result;
@@ -455,11 +461,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     _tableName,
                     new List<Comparator>()
                     {
-                        new Comparator("Id", "=", userId),
+                        new Comparator(_id, "=", userId),
                     },
                     new Dictionary<string, object>
                     {
-                        {"LastName", lastName!}
+                        {_lastName, lastName!}
                     }
                 ).ConfigureAwait(false);
 
@@ -471,11 +477,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     _tableName,
                     new List<Comparator>()
                     {
-                    new Comparator("Id", "=", userId),
+                    new Comparator(_id, "=", userId),
                     },
                     new Dictionary<string, object>
                     {
-                    {"FirstName", firstName!}
+                    {_firstName, firstName!}
                     }
                 ).ConfigureAwait(false);
 
@@ -486,12 +492,12 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 _tableName,
                 new List<Comparator>()
                 {
-                    new Comparator("Id", "=", userId),
+                    new Comparator(_id, "=", userId),
                 },
                 new Dictionary<string, object>
                 {
-                    {"FirstName", firstName!},
-                    {"LastName", lastName!}
+                    {_firstName, firstName!},
+                    {_lastName, lastName!}
                 }
             ).ConfigureAwait(false);
 
@@ -504,10 +510,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
-                new List<string>() { "FirstName", "LastName" },
+                new List<string>() { _firstName, _lastName },
                 new List<Comparator>()
                 {
-                    new Comparator("Id", "=", userId)
+                    new Comparator(_id, "=", userId)
                 }
             ).ConfigureAwait(false);
 
@@ -528,8 +534,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             result.IsSuccessful = true;
             result.Payload = new AccountSystemSettings()
             {
-                FirstName = payload.First()["FirstName"] == DBNull.Value ? null : (string)payload.First()["FirstName"],
-                LastName = payload.First()["LastName"] == DBNull.Value ? null : (string)payload.First()["LastName"]
+                FirstName = payload.First()[_firstName] == DBNull.Value ? null : (string)payload.First()[_firstName],
+                LastName = payload.First()[_lastName] == DBNull.Value ? null : (string)payload.First()[_lastName]
             };
 
 
