@@ -9,13 +9,11 @@ namespace DevelopmentHell.Hubba.AccountSystem.Implementations
     public class AccountSystemService : IAccountSystemService
     {
         private IUserAccountDataAccess _userAccountDataAccess;
-        private IBookingsDataAccess _bookingsDataAccess;
         private ILoggerService _loggerService;
 
-        public AccountSystemService(IUserAccountDataAccess userAccountDataAccess, IBookingsDataAccess bookingsDataAccess ,ILoggerService loggerService)
+        public AccountSystemService(IUserAccountDataAccess userAccountDataAccess, ILoggerService loggerService)
         {
             _userAccountDataAccess = userAccountDataAccess;
-            _bookingsDataAccess = bookingsDataAccess;
             _loggerService = loggerService;
         }
         //TODO: Remember to write what needs to be checked in this layer
