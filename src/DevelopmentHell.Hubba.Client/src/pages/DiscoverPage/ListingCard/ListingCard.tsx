@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { IDiscoveryListing } from "../DiscoverPage";
 import "./ListingCard.css";
 import { Ajax } from "../../../Ajax";
+import { useNavigate } from "react-router-dom";
 
 interface IListingCardProps {
     data: IDiscoveryListing;
@@ -12,6 +13,7 @@ const ListingCard: React.FC<IListingCardProps> = (props) => {
     const [thumbnail, setThumbnail] = useState<string | undefined>(undefined);
     const [error, setError] = useState("");
     const [loaded, setLoaded] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const getFile = async () => {
@@ -28,7 +30,7 @@ const ListingCard: React.FC<IListingCardProps> = (props) => {
     }, [props.data]);
     
     return (
-        <div className="listing-card" onClick={() => { alert(props.data.ListingId) }}>
+        <div className="listing-card" onClick={() => { navigate("/viewlisting", { state: { listingId: props.data.ListingId } }) }}>
             {!error &&
                 <div>
                     <img className="thumbnail" src={thumbnail} />
