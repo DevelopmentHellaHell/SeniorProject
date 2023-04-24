@@ -313,7 +313,6 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             var actualPfpUrl = getCollabResult.Payload?.PfpUrl;
 
             //Assert
-            Assert.IsNotNull(getCollabResult.Payload!.PfpUrl);
             Assert.IsNull(actualPfpUrl);
             Assert.IsTrue(actual.IsSuccessful);
         }
@@ -639,9 +638,6 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             {
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
-
-            IFormFile file = CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza6.png");
-            IFormFile[] uploadedFile = new IFormFile[] { file, file };
 
             CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
             collab.PfpFile = CreateMockFormFile();
