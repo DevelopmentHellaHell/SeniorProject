@@ -199,7 +199,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
                 <td className="table-rating"> {showcaseData.rating}</td>
                 <td className="table-listing" onClick={() => {
                     navigate('/viewListing', { state: { listingId: showcaseData.linkedListingId} })
-                }}>{showcaseData.linkedListingTitle}</td>
+                }}>{showcaseData.linkedListingId!=null && `Click to go to listing: ${showcaseData.linkedListingId}`}</td>
                 <td className="table-title">
                     <Link to={`/showcases/view?s=${showcaseData.id}`}>{showcaseData.title}</Link>
                 </td>
