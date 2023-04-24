@@ -53,7 +53,12 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
             }
             if (collabFiles == null)
             {
-                return Result.Failure("Collaborator files are null. Unable to upload collaborator files to junction table database.",
+                return Result.Failure("Error, collaborator files are null.",
+                    (int)StatusCodes.Status412PreconditionFailed);
+            }
+            if (collabFiles.Length == 0)
+            {
+                return Result.Failure("Collaborator files are empty. Collaborators must include at least 1 file upload excluding profile picture.",
                     (int)StatusCodes.Status412PreconditionFailed);
             }
 
