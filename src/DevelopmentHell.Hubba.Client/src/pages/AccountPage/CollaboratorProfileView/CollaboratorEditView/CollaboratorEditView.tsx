@@ -157,6 +157,7 @@ const CollaboratorEditPage: React.FC<ICollaboratorEditPageProps> = (props) => {
             setSuccess("Successfully submitted.");
             setError(null);
         }
+        
     };
 
     return(
@@ -251,7 +252,7 @@ const CollaboratorEditPage: React.FC<ICollaboratorEditPageProps> = (props) => {
                     />
                     <div>Limit 1000 char</div>
                     <br />
-                    <div>
+                    <div id="profile-picture-wrapper">
                         <label htmlFor="profilePic">Upload Profile Picture: </label>
                         <input
                             type="file"
@@ -260,7 +261,7 @@ const CollaboratorEditPage: React.FC<ICollaboratorEditPageProps> = (props) => {
                             onChange={(e) => setProfilePicture(e.target.files![0])}
                         />
                     </div>
-                    <div>
+                    <div id="collab-pictures-wrapper">
                         <label htmlFor="photos">Upload Photos: </label>
                         <input
                             type="file"
@@ -320,10 +321,10 @@ const CollaboratorEditPage: React.FC<ICollaboratorEditPageProps> = (props) => {
                 }}/>
             </div> */}
             {error &&
-                <p className="error">{error}</p>
+                <p id='error' className="error">{error}</p>
             }
             {success &&
-                <p className="success">{success}</p>
+                <p id='success' className="success">{success}</p>
             }
         </div> 
     );
