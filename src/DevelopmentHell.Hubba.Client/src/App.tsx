@@ -17,6 +17,11 @@ import NotificationStateProvider from "./NotificationStateProvider";
 import OpenTimeSlotsView from "./pages/SchedulingPage/OpenSlotsView";
 import "./App.css";
 import OpenSlotsView from "./pages/SchedulingPage/OpenSlotsView";
+import CollaboratorPage from "./pages/CollaboratorPage/CollaboratorPage";
+import ListingProfilePage from "./pages/ListingProfilePage/ListingProfilePage";
+import ViewListingPage from "./pages/ListingPage/ViewListingPage.tsx/ViewListingPage";
+import EditListingPage from "./pages/ListingPage/EditListingPage.tsx/EditListingPage";
+import ViewListingRatingsPage from "./pages/ListingPage/ViewListingPage.tsx/ViewListingRatingsPage/ViewListingRatingsPage";
 
 interface IAppProps {
 
@@ -32,6 +37,9 @@ const App: React.FC<IAppProps> = (props) => {
 						<Route index element={<HomePage />} />
 						<Route path="*" element={<Navigate to='/' replace />} />
 						<Route path="/unauthorized" element={<Unauthorized />} />
+						<Route path="/viewlisting" element={<ViewListingPage />} />
+						<Route path="/viewlistingratings" element={<ViewListingRatingsPage /> } />
+						
 						
 						
 						{/* Public routes - no auth */}
@@ -56,11 +64,15 @@ const App: React.FC<IAppProps> = (props) => {
 							</PublicOutlet>
 						} />
 						
+						
 						{/* Protect/private routes - with auth */}
 						<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.VERIFIED_USER, Auth.Roles.ADMIN_USER]} />}>
 							<Route path="/account" element={<AccountPage />} />
 							<Route path="/logout" element={<LogoutPage />} />
 							<Route path="/notification" element={<NotificationPage />} />
+							<Route path="/collaborator" element={<CollaboratorPage/>}/>
+							<Route path="/listingprofile" element={<ListingProfilePage />} />
+							<Route path="/editlisting" element={<EditListingPage />} />
 						</Route>
 						<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.ADMIN_USER]}/>}>
 							<Route path="/admin-dashboard" element={<AdminDashboardPage />} />

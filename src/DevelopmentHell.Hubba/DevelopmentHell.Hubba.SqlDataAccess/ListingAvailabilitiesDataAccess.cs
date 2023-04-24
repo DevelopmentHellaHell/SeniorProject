@@ -18,11 +18,17 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 {
     public class ListingAvailabilitiesDataAccess : IListingAvailabilitiesDataAccess
     {
-        private InsertDataAccess _insertDataAccess;
-        private UpdateDataAccess _updateDataAccess;
-        private SelectDataAccess _selectDataAccess;
-        private DeleteDataAccess _deleteDataAccess;
-        private string _tableName;
+        private readonly InsertDataAccess _insertDataAccess;
+        private readonly UpdateDataAccess _updateDataAccess;
+        private readonly SelectDataAccess _selectDataAccess;
+        private readonly DeleteDataAccess _deleteDataAccess;
+        private readonly string _listingIdColumn = "ListingId";
+        private readonly string _startTimeColumn = "StartTime";
+        private readonly string _endTimeColumn = "EndTime";
+        private readonly string _availabilityIdColumn = "AvailabilityId";
+        private readonly string _ownerIdColumn = "OwnerId";
+        private readonly string _actionColumn = "Action";
+        private readonly string _tableName;
 
         public ListingAvailabilitiesDataAccess(string connectionString, string tableName)
         {
@@ -39,9 +45,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             List<List<Dictionary<string, object>>> insertList = new();
             List<string> keys = new List<string>()
             {
-                "ListingId",
-                "StartTime",
-                "EndTime"
+                _listingIdColumn,
+                _startTimeColumn,
+                _endTimeColumn
             };
             List<List<object>> values = listingAvailabilities.Select(avail => new List<object>()
                 {
@@ -49,8 +55,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     avail.StartTime,
                     avail.EndTime
                 }).ToList();
-            Console.WriteLine(listingAvailabilities.Count.ToString());
-            Console.WriteLine("Values count: " + values.Count);
             Result insertResult = await _insertDataAccess.BatchInsert(
                 _tableName, keys, values).ConfigureAwait(false);
 
@@ -82,12 +86,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 _tableName,
                 new List<Comparator>()
                 {
-                    new Comparator("ListingId", "=", listingId),
-                    new Comparator("AvailabilityId", "IN", sb.ToString()),
+                    new Comparator(_listingIdColumn, "=", listingId),
+                    new Comparator(_availabilityIdColumn, "IN", sb.ToString()),
                 }
             ).ConfigureAwait(false);
-
-            Console.WriteLine(deleteResult.ErrorMessage);
 
             return deleteResult;
         }
@@ -98,10 +100,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
-                new List<string>() { "ListingId", "AvailabilityId", "StartTime", "EndTime" },
+                new List<string>() { _listingIdColumn, _availabilityIdColumn, _startTimeColumn, _endTimeColumn },
                 new List<Comparator>()
                 {
-                    new Comparator("ListingId", "=", listingId),
+                    new Comparator(_listingIdColumn, "=", listingId),
                 }
             ).ConfigureAwait(false);
 
@@ -162,15 +164,15 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             {
                 var value = column.GetValue(listingAvailability);
 
-                if (value is null || column.Name == "ListingId" || column.Name == "AvailabilityId") continue;
+                if (value is null || column.Name == _listingIdColumn || column.Name == _availabilityIdColumn || column.Name == _ownerIdColumn || column.Name == _actionColumn) continue;
                 values[column.Name] = value;
             }
             Result updateResult = await _updateDataAccess.Update(
                 _tableName,
                 new List<Comparator>()
                 {
-                    new Comparator("ListingId", "=", listingAvailability.ListingId!),
-                    new Comparator("AvailabilityId", "=", listingAvailability.AvailabilityId!),
+                    new Comparator(_listingIdColumn, "=", listingAvailability.ListingId!),
+                    new Comparator(_availabilityIdColumn, "=", listingAvailability.AvailabilityId!),
                 },
                 values
             ).ConfigureAwait(false);

@@ -11,7 +11,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
 
         Task<Result<Listing>> GetListing(int listingId);
 
-        //Task<Result> UpdateListing(ListingEditorDTO listing);
+        Task<Result> UpdateListing(ListingEditorDTO listing);
 
         Task<Result<int>> GetListingOwnerId(int listingId);
 
@@ -19,9 +19,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
         Task<Result> PublishListing(int listingId);
 
         Task<Result<int>> GetListingId(int ownerId, string title);
-    
-
-		Task<Result<List<Dictionary<string, object>>>> Curate(int offset = 0);
-		Task<Result<List<Dictionary<string, object>>>> Search(string query, int offset = 0, double FTTWeight = 0.5, double RWeight = 0.25, double RCWeight = 0.25);
+        Task<Result<List<Dictionary<string, object>>>> Curate(int offset = 0);
+        Task<Result<List<Dictionary<string, object>>>> Search(string query, int offset = 0, double FTTWeight = 0.5, double RWeight = 0.25, double RCWeight = 0.25);
+        Task<Result> UnpublishListing(int listingId);
     }
 }

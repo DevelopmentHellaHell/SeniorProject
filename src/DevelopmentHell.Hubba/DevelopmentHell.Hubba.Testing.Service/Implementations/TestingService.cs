@@ -60,7 +60,7 @@ namespace DevelopmentHell.Hubba.Testing.Service.Implementations
 
         public async Task<Result> DeleteAllRecords()
         {
-            return await _testsDataAccess.DeleteAllRecords();
+            return await _testsDataAccess.DeleteAllRecords().ConfigureAwait(false);
         }
 
         public Databases? GetDatabase(string dbStr)

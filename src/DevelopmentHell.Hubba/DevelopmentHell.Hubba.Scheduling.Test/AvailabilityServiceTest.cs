@@ -122,8 +122,8 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
             };
             Result<bool> addBookedTimeFrames = await _bookedTimeFrameDAO.CreateBookedTimeFrames(bookingId, timeFrame).ConfigureAwait(false);
 
-            int month = avail1.StartTime.Month;
-            int year = avail1.StartTime.Year;
+            int month = ((DateTime)avail1.StartTime).Month;
+            int year = ((DateTime)avail1.StartTime).Year;
 
             result["Month"] = month;
             result["Year"] = year;

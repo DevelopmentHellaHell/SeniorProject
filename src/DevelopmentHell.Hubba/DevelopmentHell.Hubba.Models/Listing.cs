@@ -9,7 +9,7 @@ namespace DevelopmentHell.Hubba.Models
         public int? ListingId { get; set; }
         public string? Description { get; set; }
         public string? Location { get; set; }
-        public decimal? Price { get; set; }
+        public double? Price { get; set; }
         public DateTime? LastEdited { get; set; }
         public DateTime? CreationDate { get; set; }
         public bool? Published { get; set; }

@@ -47,12 +47,28 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 )
             },
             {
+                Databases.COLLABORATOR_PROFILES,
+                new (
+                    "DevelopmentHell.Hubba.CollaboratorProfiles",
+                    ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!,
+                    new ()
+                    {
+                        { Tables.COLLABORATOR_FILE_JUNCTION, ConfigurationManager.AppSettings["CollaboratorFileJunctionTable"]! },
+                        { Tables.COLLABORATORS, ConfigurationManager.AppSettings["CollaboratorsTable"]! },
+                        { Tables.COLLABORATOR_FILES, ConfigurationManager.AppSettings["CollaboratorFilesTable"]! },
+                        { Tables.USER_VOTES, ConfigurationManager.AppSettings["CollaboratorUserVotesTable"]! }
+                    }
+                )
+            },
+            {
                 Databases.LISTING_PROFILES,
                 new (
                     "DevelopmentHell.Hubba.ListingProfiles",
                     ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
                     new ()
                     {
+                        { Tables.LISTING_RATINGS, ConfigurationManager.AppSettings["ListingRatingsTable"]! },
+                        { Tables.LISTING_HISTORY, ConfigurationManager.AppSettings["ListingHistoryTable"]! },
                         { Tables.LISTINGS, ConfigurationManager.AppSettings["ListingsTable"]! },
                         { Tables.LISTING_AVAILABILITIES, ConfigurationManager.AppSettings["ListingAvailabilitiesTable"]! },
                         { Tables.BOOKINGS, ConfigurationManager.AppSettings["BookingsTable"]! },
@@ -68,8 +84,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             Result result = new Result();
             var dbT = _databaseStructure[db];
-            foreach (string tValue in dbT.Item3.Values)
+            foreach (var tValue in dbT.Item3.Values)
             {
+                if (tValue == null) continue;
                 DeleteDataAccess deleteDataAccess = new DeleteDataAccess(_databaseStructure[db].Item2);
                 Result deleteResult = await deleteDataAccess.Delete(tValue, null).ConfigureAwait(false);
                 if (!deleteResult.IsSuccessful)

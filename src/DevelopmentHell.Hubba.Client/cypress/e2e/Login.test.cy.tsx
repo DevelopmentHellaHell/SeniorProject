@@ -54,7 +54,7 @@ context('UI functionality', () => {
 context.only('Login operation', () => {
     let baseUrl: string = Cypress.env('baseUrl') + "/";
     let loginUrl: string = Cypress.env('baseUrl') + "/login";
-    let realEmail: string = Cypress.env("realEmail");
+    let realEmail: string = Cypress.env("standardEmail");
     let standardPassword: string = Cypress.env("standardPassword");
     let testsRoute: string = '/tests/deleteDatabaseRecords';
     let startTimer: number;
