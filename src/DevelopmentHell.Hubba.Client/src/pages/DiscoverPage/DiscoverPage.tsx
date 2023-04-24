@@ -92,29 +92,29 @@ const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
                 }
             } 
 
-            if (response.data) {
-                fill(response.data.listings, {
-                    AvgRatings: 0,
-                    ListingId: -1,
-                    Location: "Empty",
-                    Price: 0,
-                    Score: 0,
-                    Title: "Empty",
-                    TotalRatings: 0,
-                }, 5);
-                console.log(response.data);
-                fill(response.data.collaborators, {
-                    CollaboratorId: -1,
-                    Name: "Empty",
-                    TotalVotes: 0,
-                }, 5);
-                fill(response.data.showcases, {
-                    Id: -1,
-                    Title: "Empty",
-                    Rating: 0,
-                    Description: "Empty",
-                }, 5);
-            }
+            // if (response.data) {
+            //     fill(response.data.listings, {
+            //         AvgRatings: 0,
+            //         ListingId: -1,
+            //         Location: "Empty",
+            //         Price: 0,
+            //         Score: 0,
+            //         Title: "Empty",
+            //         TotalRatings: 0,
+            //     }, 5);
+            //     console.log(response.data);
+            //     fill(response.data.collaborators, {
+            //         CollaboratorId: -1,
+            //         Name: "Empty",
+            //         TotalVotes: 0,
+            //     }, 5);
+            //     fill(response.data.showcases, {
+            //         Id: -1,
+            //         Title: "Empty",
+            //         Rating: 0,
+            //         Description: "Empty",
+            //     }, 5);
+            // }
             
             setData(response.data);
             setError(response.error);
