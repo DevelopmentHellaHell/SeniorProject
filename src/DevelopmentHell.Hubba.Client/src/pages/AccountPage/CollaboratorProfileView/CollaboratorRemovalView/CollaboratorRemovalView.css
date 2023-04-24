@@ -1,0 +1,16 @@
+.remove-collaborator-wrapper {
+    color: rgb(var(--primary-text-dark));
+    text-align: left;
+    padding-bottom: 2.5rem;
+    padding-left: 20px;
+}
+
+.remove-collaborator-wrapper .buttons button {
+    display: inline-block;
+    margin-top: 10px;
+    margin-right: 20px;
+}
+
+.remove-collaborator-wrapper .error {
+    color: rgb(var(--error-text));
+}

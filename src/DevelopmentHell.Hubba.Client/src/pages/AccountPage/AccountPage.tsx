@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { redirect } from "react-router-dom";
+import { redirect, useNavigate } from "react-router-dom";
 import { Auth } from "../../Auth";
 import Footer from "../../components/Footer/Footer";
 import NavbarUser from "../../components/NavbarUser/NavbarUser";
@@ -9,6 +9,10 @@ import DeleteAccountView from "./LoginSecurityView/DeleteAccountView/DeleteAccou
 import LoginSecurityView from "./LoginSecurityView/LoginSecurityView";
 import NotificationSettingsView from "./NotificationSettingsView/NotificationSettingsView";
 import CollaboratorProfileView from "./CollaboratorProfileView/CollaboratorProfileView";
+import CollaboratorRemovalView from "./CollaboratorProfileView/CollaboratorRemovalView/CollaboratorRemovalView";
+import CollaboratorEditView from "./CollaboratorProfileView/CollaboratorEditView/CollaboratorEditView";
+import CollaboratorDeletionView from "./CollaboratorProfileView/CollaboratorDeletionView/CollaboratorDeletionView";
+import { Ajax } from "../../Ajax";
 
 interface IAccountPageProps {
 
@@ -25,18 +29,25 @@ enum AccountViews {
     PROJECT_SHOWCASES = "Project Showcases",
     COLLABORATOR_PROFILE = "Collaborator Profile",
     COLLABORATOR_PROFILE_REMOVAL = "Collaborator Profile Removal",
+    COLLABORATOR_PROFILE_EDIT = "Collaborator Profile Update",
+    COLLABORATOR_PROFILE_DELETION = "Collaborator Profile Deletion",
 }
 
 const SubViews: {
     [view in AccountViews]?: AccountViews[];
 } = {
     [AccountViews.LOGIN_SECURITY]: [AccountViews.LOGIN_SECURITY_ACCOUNT_DELETION, AccountViews.LOGIN_SECURITY_UPDATE_PASSWORD],
-    [AccountViews.COLLABORATOR_PROFILE]: [AccountViews.COLLABORATOR_PROFILE_REMOVAL]
+    [AccountViews.COLLABORATOR_PROFILE]: [ AccountViews.COLLABORATOR_PROFILE_EDIT, AccountViews.COLLABORATOR_PROFILE_REMOVAL, AccountViews.COLLABORATOR_PROFILE_DELETION],
 }
 
 const AccountPage: React.FC<IAccountPageProps> = (props) => {
     const [view, setView] = useState(AccountViews.EDIT_PROFILE);
     const authData = Auth.getAccessData();
+    const accountId = authData?.sub;
+    const [collaboratorId, setCollaboratorId] = useState<number>();
+
+
+    const navigate = useNavigate();
 
     if (!authData) {
         redirect("/login");
@@ -65,7 +76,18 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
             case AccountViews.PROJECT_SHOWCASES:
                 return <></>; //TODO
             case AccountViews.COLLABORATOR_PROFILE:
-                return <CollaboratorProfileView onRemoveClick={() => { setView(AccountViews.COLLABORATOR_PROFILE_REMOVAL)}}/>; 
+                return <CollaboratorProfileView 
+                    onViewClick={() => { createOrViewCollab() }}
+                    onEditClick={() => { createOrEditCollab() }}
+                    onRemoveClick={() => { setView(AccountViews.COLLABORATOR_PROFILE_REMOVAL)}}
+                    onDeleteCollabClick={() => { setView(AccountViews.COLLABORATOR_PROFILE_DELETION)}}
+                />; 
+            case AccountViews.COLLABORATOR_PROFILE_EDIT:
+                return <CollaboratorEditView collaboratorId={collaboratorId} />;
+            case AccountViews.COLLABORATOR_PROFILE_REMOVAL:
+                return <CollaboratorRemovalView onCancelClick={() => { setView(AccountViews.COLLABORATOR_PROFILE)}}/>; 
+            case AccountViews.COLLABORATOR_PROFILE_DELETION:
+                return <CollaboratorDeletionView onCancelClick={() => { setView(AccountViews.COLLABORATOR_PROFILE)}}/>; 
         }
     }
 
@@ -78,6 +100,29 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
                 <p onClick={() => { setView(actualView) }}>{actualView}</p>
             </li>
         );
+    }
+
+    const createOrViewCollab = async () =>{
+        const response = await Ajax.post<boolean>("/collaborator/hascollaborator", {AccountId: accountId});
+        if(response.data){
+            const responseCollabId = await Ajax.post<number>("/collaborator/getCollaboratorId", {AccountId: accountId});
+            if(responseCollabId.data){
+                navigate("/collaborator", { state: { CollaboratorId: responseCollabId.data }});
+            }
+        }
+        setCollaboratorId(undefined);
+        return setView(AccountViews.COLLABORATOR_PROFILE_EDIT);
+    }
+
+    const createOrEditCollab = async () =>{
+        const response = await Ajax.post<boolean>("/collaborator/hascollaborator", {AccountId: accountId});
+        if(response.data){
+            const responseCollabId = await Ajax.post<number>("/collaborator/getCollaboratorId", {AccountId: accountId});
+            if(responseCollabId.data){
+                setCollaboratorId(responseCollabId.data);
+            }
+        }
+        return setView(AccountViews.COLLABORATOR_PROFILE_EDIT);
     }
 
     return (

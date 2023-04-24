@@ -20,6 +20,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         private UpdateDataAccess _updateDataAccess;
         private string _tableName;
         private string _collaboratorIdColumn = "CollaboratorId";
+        private readonly string _ownerId = "OwnerId";
+        private readonly string _lastModifiedUser = "LastModifiedUser";
+        private readonly string _createDate = "CreateDate";
+        private readonly string _updateDate = "UpdateDate";
+        private readonly string _name = "Name";
 
 
         public CollaboratorsDataAccess(string connectionString, string tableName)
@@ -56,7 +61,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 StringBuilder sbColumn = new();
 
                 var columns = new List<String>(){
-                    "Name",
+                    _name,
                     "ProfilePicture",
                     "ContactInfo",
                     "Tags",
@@ -107,7 +112,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
                 var collab = new CollaboratorProfile()
                 {
-                    Name = (string)payload[0]["Name"],
+                    Name = (string)payload[0][_name],
                     ContactInfo = (string)payload[0]["ContactInfo"],
                     Description = (string)payload[0]["Description"],
                     Votes = (int)payload[0]["Votes"],
@@ -146,7 +151,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 new List<string>() { _collaboratorIdColumn },
                 new List<Comparator>()
                 {
-                    new Comparator("OwnerId", "=", ownerId)
+                    new Comparator(_ownerId, "=", ownerId)
                 }
             ).ConfigureAwait(false);
 
@@ -175,7 +180,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             Result<int> result = new Result<int>();
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
-                new List<string>() { "OwnerId" },
+                new List<string>() { _ownerId },
                 new List<Comparator>()
                 {
                     new Comparator(_collaboratorIdColumn, "=", collabId)
@@ -198,7 +203,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 return new(Result.Failure("Could not find selected Owner."));
             }
             result.IsSuccessful = true;
-            result.Payload = (int)payload[0]["OwnerId"];
+            result.Payload = (int)payload[0][_ownerId];
             return result;
 
         }
@@ -249,12 +254,12 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             var insertDict = new Dictionary<string, object>()
                 {
-                    { "Name", collab.Name!},
+                    { _name, collab.Name!},
                     { "ContactInfo", collab.ContactInfo!},
                     { "Description", collab.Description!},
-                    { "OwnerId", accountIdInt},
-                    { "LastModifiedUser", accountIdInt},
-                    { "CreateDate", DateTime.Now},
+                    { _ownerId, accountIdInt},
+                    { _lastModifiedUser, accountIdInt},
+                    { _createDate, DateTime.Now},
                     { "Published", collab.Published}
                 };
             if (collab.PfpUrl != null)
@@ -321,12 +326,12 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             var updateDict = new Dictionary<string, object>()
             {
-                { "Name", collab.Name!},
+                { _name, collab.Name!},
                 { "ContactInfo", collab.ContactInfo!},
                 { "Description", collab.Description!},
                 { "Published", collab.Published},
-                { "LastModifiedUser", accountIdInt},
-                { "UpdateDate", DateTime.Now}
+                { _lastModifiedUser, accountIdInt},
+                { _updateDate, DateTime.Now}
             };
             if (collab.Tags != null)
             {
@@ -385,10 +390,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
-                new List<String>() { "OwnerId" },
+                new List<String>() { _ownerId },
                 new List<Comparator>()
                 {
-                    new Comparator("OwnerId", "=", accountId)
+                    new Comparator(_ownerId, "=", accountId)
                 }
             ).ConfigureAwait(false);
 
@@ -414,6 +419,38 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             };
 
         }
+
+        public async Task<Result<int?>> SelectCollaboratorId(int accountId)
+        {
+            Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
+                _tableName,
+                new List<String>() { "CollaboratorId" },
+                new List<Comparator>()
+                {
+                    new Comparator(_ownerId, "=", accountId)
+                }
+            ).ConfigureAwait(false);
+
+            if (!selectResult.IsSuccessful || selectResult.Payload is null)
+            {
+                return new(Result.Failure("" + selectResult.ErrorMessage));
+            }
+            List<Dictionary<string, object>> payload = selectResult.Payload;
+            if (payload.Count == 0)
+            {
+                return new Result<int?>()
+                {
+                    IsSuccessful = true,
+                    Payload = null
+                };
+            }
+            return new Result<int?>()
+            {
+                IsSuccessful = true,
+                Payload = (int)payload[0]["CollaboratorId"]
+            };
+        }
+
 
         public async Task<Result<bool>> Exists(int collabId)
         {

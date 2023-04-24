@@ -11,6 +11,8 @@ using DevelopmentHell.Hubba.Collaborator.Service.Abstractions;
 using DevelopmentHell.Hubba.Collaborator.Service.Implementations;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
+using DevelopmentHell.Hubba.Files.Service.Abstractions;
+using DevelopmentHell.Hubba.Files.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Models;
@@ -22,10 +24,12 @@ using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
+using DevelopmentHell.Hubba.WebAPI.DTO.Collaborator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Identity.Client;
 using System.Configuration;
+using System.Security.Policy;
 
 
 namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
@@ -49,6 +53,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
         private readonly ICollaboratorFileDataAccess _collaboratorFileDataAccess;
         private readonly ITestingService _testingService;
         private readonly IValidationService _validationService;
+        private readonly IFileService _fileService;
 
         public CollaboratorManagerIntegrationTests()
         {
@@ -85,6 +90,12 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
                 new CollaboratorUserVoteDataAccess(
                     ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!,
                     ConfigurationManager.AppSettings["CollaboratorUserVotesTable"]!),
+                new FTPFileService(
+                            ConfigurationManager.AppSettings["FTPServer"]!,
+                            ConfigurationManager.AppSettings["FTPUsername"]!,
+                            ConfigurationManager.AppSettings["FTPPassword"]!,
+                            loggerService
+                        ),
                 loggerService,
                 _validationService
                 );
@@ -106,6 +117,11 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
                _validationService,
                loggerService
             );
+            _fileService = new FTPFileService(
+                ConfigurationManager.AppSettings["FTPServer"]!,
+                ConfigurationManager.AppSettings["FTPUsername"]!,
+                ConfigurationManager.AppSettings["FTPPassword"]!,
+                loggerService);
 
         }
         [TestInitialize]
@@ -138,28 +154,16 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
 
-            IFormFile file = CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza0.png");
-            IFormFile[] uploadedFile = new IFormFile[] { file };
+            CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
 
-            CollaboratorProfile collab = new CollaboratorProfile()
-            {
-                Name ="Bestest  woodworker",
-                PfpUrl = null,
-                ContactInfo = "123 Avenue Wood Village, CA",
-                Tags = "woodie, super strong, carpenter",
-                Description = "I can build big old tables and chairs",
-                Availability = "I'm free whenever",
-                Votes = 0,
-                CollabUrls = new List<string>(),
-                Published = true
-            };
 
 
             //Act
-            Result actual = await _collaboratorManager.CreateCollaborator(collab, uploadedFile).ConfigureAwait(false);
+            Result actual = await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
 
             //Assert
             Console.WriteLine(actual.ErrorMessage);
+
             Assert.IsTrue(actual.IsSuccessful);
         }
 
@@ -181,25 +185,12 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
 
-            IFormFile file = CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza1.png");
-            IFormFile[] uploadedFile = new IFormFile[] { file };
-
-            CollaboratorProfile collab = new CollaboratorProfile()
-            {
-                Name = "Bestest  woodworker",
-                PfpUrl = null,
-                ContactInfo = "123 Avenue Wood Village, CA",
-                Tags = "woodie, super strong, carpenter",
-                Description = "I can build big old tables and chairs",
-                Availability = "I'm free whenever",
-                Votes = 0,
-                CollabUrls = new List<string>(),
-                Published = true
-            };
+            var collab = MockCreateCollaboratorDTO();
+            collab.PfpFile= CreateMockFormFile();
 
 
             //Act
-            Result actual = await _collaboratorManager.CreateCollaborator(collab, uploadedFile, uploadedFile[0]).ConfigureAwait(false);
+            Result actual = await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
 
             //Assert
             Console.WriteLine(actual.ErrorMessage);
@@ -225,25 +216,17 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
 
-            IFormFile file = CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza2.png");
-            IFormFile[] uploadedFile = new IFormFile[] { file, file };
-
-            CollaboratorProfile collab = new CollaboratorProfile()
+            CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
+            collab.UploadedFiles = new IFormFile[]
             {
-                Name = "Bestest  woodworker",
-                PfpUrl = null,
-                ContactInfo = "123 Avenue Wood Village, CA",
-                Tags = "woodie, super strong, carpenter",
-                Description = "I can build big old tables and chairs",
-                Availability = "I'm free whenever",
-                Votes = 0,
-                CollabUrls = new List<string>(),
-                Published = true
+                CreateMockFormFile(),
+                CreateMockFormFile()
             };
+            collab.PfpFile = CreateMockFormFile();
 
 
             //Act
-            Result actual = await _collaboratorManager.CreateCollaborator(collab, uploadedFile, uploadedFile[0]).ConfigureAwait(false);
+            Result actual = await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
 
             //Assert
             Console.WriteLine(actual.ErrorMessage);
@@ -268,23 +251,15 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
 
-            IFormFile file = CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza3.png");
-            IFormFile[] uploadedFile = new IFormFile[] { file, file };
-
-            CollaboratorProfile collab = new CollaboratorProfile()
+            CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
+            collab.UploadedFiles = new IFormFile[]
             {
-                Name = "Bestest  woodworker",
-                PfpUrl = null,
-                ContactInfo = "123 Avenue Wood Village, CA",
-                Tags = "woodie, super strong, carpenter",
-                Description = "I can build big old tables and chairs",
-                Availability = "I'm free whenever",
-                Votes = 0,
-                CollabUrls = new List<string>(),
-                Published = true
+                CreateMockFormFile(),
+                CreateMockFormFile()
             };
+            collab.PfpFile = CreateMockFormFile();
 
-            await _collaboratorManager.CreateCollaborator(collab, uploadedFile, uploadedFile[0]).ConfigureAwait(false);
+            await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
             var collabIdResult = await _collaboratorsDataAccess.GetCollaboratorId(accountId).ConfigureAwait(false);
             int collabId = (int)collabIdResult.Payload!;
 
@@ -292,7 +267,6 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             var actual = await _collaboratorManager.GetCollaborator(collabId).ConfigureAwait(false);
 
             //Assert
-            Console.WriteLine(actual.ErrorMessage);
             Assert.IsTrue(actual.IsSuccessful);
             Assert.IsTrue(_validationService.ValidateCollaborator(actual.Payload!).IsSuccessful);
         }
@@ -315,56 +289,32 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
 
-            IFormFile file = CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza4.png");
-            IFormFile[] uploadedFile = new IFormFile[] { file, file };
-            IFormFile[] changedFile = new IFormFile[] { file };
+            // create new collaborator
+            IFormFile changedFile = CreateMockFormFile("changed");
+            CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
+            collab.PfpFile = CreateMockFormFile();
+            await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false); 
 
-            CollaboratorProfile collab = new CollaboratorProfile()
-            {
-                Name = "Bestest  woodworker",
-                PfpUrl = null,
-                ContactInfo = "123 Avenue Wood Village, CA",
-                Tags = "woodie, super strong, carpenter",
-                Description = "I can build big old tables and chairs",
-                Availability = "I'm free whenever",
-                Votes = 0,
-                CollabUrls = new List<string>(),
-                Published = true
-            };
+            // create new editing DTO
+            EditCollaboratorDTO changedCollab = MockEditCollaboratorDTO();
+            changedCollab.UploadedFiles = new IFormFile[] { CreateMockFormFile() };
 
-            CollaboratorProfile collabChanges = new CollaboratorProfile()
-            {
-                Name = "Meh  woodworker",
-                PfpUrl = null,
-                ContactInfo = "2020 Avenue Wood Village, CA",
-                Tags = "alright, super okay",
-                Description = "I can't build big old tables and chairs",
-                Availability = "I'm free never",
-                Votes = 0,
-                CollabUrls = new List<string>(),
-                Published = true
-            };
+            // get the newly uploaded collaborator
+            var collabIdResult = await _collaboratorsDataAccess.GetCollaboratorId(accountId).ConfigureAwait(false);
+            int collabId = (int)collabIdResult.Payload!;
+            var getCollabResult = await _collaboratorManager.GetCollaborator(collabId).ConfigureAwait(false);
 
-            await _collaboratorManager.CreateCollaborator(collab, uploadedFile, uploadedFile[0]).ConfigureAwait(false);
-            var removedFileIdsResult = await _collaboratorFileDataAccess.SelectFileIdsFromOwner(accountId).ConfigureAwait(false);
-            List<int> removedFileIds = new();
-            foreach(var fileId in removedFileIdsResult.Payload!)
-            {
-                removedFileIds.Add((int)fileId!);
-            }
-            var removedFileUrlsResult = await _collaboratorFileDataAccess.SelectFileUrls(removedFileIds).ConfigureAwait(false);
-            string[] removedFileUrls = new string[removedFileIdsResult.Payload!.Count];
-            for(int i = 0; i < removedFileUrls.Length; i++)
-            {
-                removedFileUrls[i] = removedFileUrlsResult.Payload![i];
-            }
-
+            // remove the pfp from collaborator
+            changedCollab.RemovedFiles = new string[] { getCollabResult.Payload!.PfpUrl! };
+            
             //Act
-            var actual = await _collaboratorManager.EditCollaborator(collabChanges, changedFile,
-                removedFileUrls).ConfigureAwait(false);
+            var actual = await _collaboratorManager.EditCollaborator(changedCollab).ConfigureAwait(false);
+            getCollabResult = await _collaboratorManager.GetCollaborator(collabId).ConfigureAwait(false);
+            var actualPfpUrl = getCollabResult.Payload?.PfpUrl;
 
             //Assert
-            Console.WriteLine(actual.ErrorMessage);
+            Assert.IsNotNull(getCollabResult.Payload!.PfpUrl);
+            Assert.IsNull(actualPfpUrl);
             Assert.IsTrue(actual.IsSuccessful);
         }
 
@@ -386,133 +336,34 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
 
-            IFormFile file = CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza5.png");
-            IFormFile[] uploadedFile = new IFormFile[] { file, file };
-            IFormFile[] changedFile = new IFormFile[] { file };
+            CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
+            collab.PfpFile = CreateMockFormFile();
 
-            CollaboratorProfile collab = new CollaboratorProfile()
-            {
-                Name = "Bestest  woodworker",
-                PfpUrl = null,
-                ContactInfo = "123 Avenue Wood Village, CA",
-                Tags = "woodie, super strong, carpenter",
-                Description = "I can build big old tables and chairs",
-                Availability = "I'm free whenever",
-                Votes = 0,
-                CollabUrls = new List<string>(),
-                Published = true
-            };
+            await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
 
-            CollaboratorProfile collabChanges = new CollaboratorProfile()
-            {
-                Name = "Meh  woodworker",
-                PfpUrl = null,
-                ContactInfo = "2020 Avenue Wood Village, CA",
-                Tags = "alright, super okay",
-                Description = "I can't build big old tables and chairs",
-                Availability = "I'm free never",
-                Votes = 0,
-                CollabUrls = new List<string>(),
-                Published = true
-            };
+            // create new editing DTO
+            EditCollaboratorDTO changedCollab = MockEditCollaboratorDTO();
+            changedCollab.PfpFile =  CreateMockFormFile();
 
-            await _collaboratorManager.CreateCollaborator(collab, uploadedFile, uploadedFile[0]).ConfigureAwait(false);
-            var removedFileIdsResult = await _collaboratorFileDataAccess.SelectFileIdsFromOwner(accountId).ConfigureAwait(false);
-            List<int> removedFileIds = new();
-            foreach (var fileId in removedFileIdsResult.Payload!)
-            {
-                removedFileIds.Add((int)fileId!);
-            }
-            var removedFileUrlsResult = await _collaboratorFileDataAccess.SelectFileUrls(removedFileIds).ConfigureAwait(false);
-            string[] removedFileUrls = new string[removedFileIdsResult.Payload!.Count];
-            for (int i = 0; i < removedFileUrls.Length; i++)
-            {
-                removedFileUrls[i] = removedFileUrlsResult.Payload![i];
-            }
-
-            //Act
-            var actual = await _collaboratorManager.EditCollaborator(collabChanges, changedFile,
-                removedFileUrls, changedFile[0]).ConfigureAwait(false);
-
-            //Assert
-            Console.WriteLine(actual.ErrorMessage);
-            Assert.IsTrue(actual.IsSuccessful);
-        }
-
-        [TestMethod]
-        public async Task DeleteCollaboratorWithNoChangeToOtherCollaborators()
-        {
-            //Arrange
-            // first user
-            string email = "test@gmail.com";
-            string password = "12345678";
-            await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
-            var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
-            int accountId = accountIdResult.Payload;
-            // second user
-            string email2 = "test2@gmail.com";
-            await _registrationService.RegisterAccount(email2, password).ConfigureAwait(false);
-            var accountIdResult2 = await _userAccountDataAccess.GetId(email2).ConfigureAwait(false);
-            int accountId2 = accountIdResult2.Payload;
-
-            // log in as user 1
-            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
-            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
-            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
-            {
-                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
-            }
-
-            IFormFile file = CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza6.png");
-            IFormFile[] uploadedFile = new IFormFile[] { file, file };
-
-            CollaboratorProfile collab = new CollaboratorProfile()
-            {
-                Name = "Bestest  woodworker",
-                PfpUrl = null,
-                ContactInfo = "123 Avenue Wood Village, CA",
-                Tags = "woodie, super strong, carpenter",
-                Description = "I can build big old tables and chairs",
-                Availability = "I'm free whenever",
-                Votes = 0,
-                CollabUrls = new List<string>(),
-                Published = true
-            };
-            // creating first collaborator profile
-            await _collaboratorManager.CreateCollaborator(collab, uploadedFile, uploadedFile[0]).ConfigureAwait(false);
-            _authenticationService.Logout();
-
-            // log in as user 2
-            var accessTokenResult2 = await _authorizationService.GenerateAccessToken(accountId2, false).ConfigureAwait(false);
-            var idTokenResult2 = _authenticationService.GenerateIdToken(accountId2, accessTokenResult2.Payload!);
-            if (accessTokenResult2.IsSuccessful && idTokenResult2.IsSuccessful)
-            {
-                _testingService.DecodeJWT(accessTokenResult2.Payload!, idTokenResult2.Payload!);
-            }
-
-            //creating second collaborator profile
-            var secondCollabResult = await _collaboratorManager.CreateCollaborator(collab, uploadedFile, uploadedFile[0]).ConfigureAwait(false);
-
-
-            // get the second account's id
-            var collabIdResult = await _collaboratorsDataAccess.GetCollaboratorId(accountId2).ConfigureAwait(false);
+            // get the newly uploaded collaborator
+            var collabIdResult = await _collaboratorsDataAccess.GetCollaboratorId(accountId).ConfigureAwait(false);
             int collabId = (int)collabIdResult.Payload!;
-            var fileIdsResult = await _collaboratorFileDataAccess.SelectFileIdsFromOwner(accountId2).ConfigureAwait(false);
-            List<int> fileIds = fileIdsResult.Payload!;
+            var getCollabResult = await _collaboratorManager.GetCollaborator(collabId).ConfigureAwait(false);
+            var beforeChangeUrl = getCollabResult.Payload!.PfpUrl;
+
+            // remove the pfp from collaborator
+            changedCollab.RemovedFiles = new string[] { getCollabResult.Payload!.PfpUrl! };
 
             //Act
-            // second account is deleting its collaborator profile
-            var actual = await _collaboratorManager.DeleteCollaborator(collabId).ConfigureAwait(false);
-            var collabIdDeletedResult = await _collaboratorsDataAccess.GetCollaboratorId(accountId2).ConfigureAwait(false);
-            var fileIdsResultDeleted = await _collaboratorFileDataAccess.SelectFileIdsFromOwner(accountId2).ConfigureAwait(false);
-            List<int> fileIdsDeleted = fileIdsResultDeleted.Payload!;
+            var actual = await _collaboratorManager.EditCollaborator(changedCollab).ConfigureAwait(false);
+            getCollabResult = await _collaboratorManager.GetCollaborator(collabId).ConfigureAwait(false);
+            var actualPfpUrl = getCollabResult.Payload?.PfpUrl;
 
             //Assert
+            Assert.IsNotNull(getCollabResult.Payload!.PfpUrl);
+            Assert.IsNotNull(actualPfpUrl);
+            Assert.AreNotEqual(beforeChangeUrl, actualPfpUrl);
             Assert.IsTrue(actual.IsSuccessful);
-            Assert.IsNotNull(collabId);
-            Assert.IsFalse(collabIdDeletedResult.IsSuccessful);
-            Assert.IsNotNull(fileIds);
-            Assert.IsTrue(fileIdsDeleted.Count == 0);
         }
 
 
@@ -534,24 +385,10 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
 
-            IFormFile file = CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza7.png");
-            IFormFile[] uploadedFile = new IFormFile[] { file, file };
-            IFormFile[] changedFile = new IFormFile[] { file };
 
-            CollaboratorProfile collab = new CollaboratorProfile()
-            {
-                Name = "Bestest  woodworker",
-                PfpUrl = null,
-                ContactInfo = "123 Avenue Wood Village, CA",
-                Tags = "woodie, super strong, carpenter",
-                Description = "I can build big old tables and chairs",
-                Availability = "I'm free whenever",
-                Votes = 0,
-                CollabUrls = new List<string>(),
-                Published = true
-            };
+            CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
 
-            await _collaboratorManager.CreateCollaborator(collab, uploadedFile, uploadedFile[0]).ConfigureAwait(false);
+            await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
             var collabIdResult = await _collaboratorsDataAccess.GetCollaboratorId(accountId).ConfigureAwait(false);
             int collabId = (int)collabIdResult.Payload!;
             bool expected = false;
@@ -564,6 +401,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             //Assert
             Assert.IsTrue(actualPublished.IsSuccessful);
             Assert.AreEqual(expected, actual);
+            Assert.IsFalse(actual);
         }
 
         [TestMethod]
@@ -590,23 +428,9 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
 
-            IFormFile file = CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza8.png");
-            IFormFile[] uploadedFile = new IFormFile[] { file, file };
-
-            CollaboratorProfile collab = new CollaboratorProfile()
-            {
-                Name = "Bestest  woodworker",
-                PfpUrl = null,
-                ContactInfo = "123 Avenue Wood Village, CA",
-                Tags = "woodie, super strong, carpenter",
-                Description = "I can build big old tables and chairs",
-                Availability = "I'm free whenever",
-                Votes = 0,
-                CollabUrls = new List<string>(),
-                Published = true
-            };
+            CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
             // creating first collaborator profile
-            await _collaboratorManager.CreateCollaborator(collab, uploadedFile, uploadedFile[0]).ConfigureAwait(false);
+            await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
             _authenticationService.Logout();
 
             // log in as user 2
@@ -618,7 +442,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             }
 
             //creating second collaborator profile
-            var secondCollabResult = await _collaboratorManager.CreateCollaborator(collab, uploadedFile, uploadedFile[0]).ConfigureAwait(false);
+            var secondCollabResult = await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
 
 
             // get the second account's id
@@ -631,15 +455,15 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             // second account is removing its collaborator profile
             var actual = await _collaboratorManager.RemoveCollaborator(collabId).ConfigureAwait(false);
             var collabIdRemovedResult = await _collaboratorsDataAccess.GetCollaboratorId(accountId2).ConfigureAwait(false);
-            var fileIdsResultRemoved = await _collaboratorFileDataAccess.SelectFileIdsFromOwner(accountId2).ConfigureAwait(false);
-            List<int> fileIdsDeleted = fileIdsResultRemoved.Payload!;
+            var newFileIdResults = await _collaboratorFileDataAccess.SelectFileIdsFromOwner(accountId2).ConfigureAwait(false);
+            List<int> newFileId = newFileIdResults.Payload!;
 
             //Assert
             Assert.IsTrue(actual.IsSuccessful);
             Assert.IsNotNull(collabId);
             Assert.IsTrue(collabIdRemovedResult.IsSuccessful);
             Assert.IsNotNull(fileIds);
-            Assert.IsTrue(fileIdsDeleted.Count == 0);
+            Assert.IsTrue(newFileId.Count == 0);
         }
 
         [TestMethod]
@@ -666,24 +490,9 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
 
-            IFormFile file = CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza3.png");
-            IFormFile[] uploadedFile = new IFormFile[] { file, file };
-
-            CollaboratorProfile collab = new CollaboratorProfile()
-            {
-                Name = "Bestest  woodworker",
-                PfpUrl = null,
-                ContactInfo = "123 Avenue Wood Village, CA",
-                Tags = "woodie, super strong, carpenter",
-                Description = "I can build big old tables and chairs",
-                Availability = "I'm free whenever",
-                Votes = 0,
-                CollabUrls = new List<string>(),
-                Published = true
-            };
-
+            CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
             // get the collaborator id before logging off
-            await _collaboratorManager.CreateCollaborator(collab, uploadedFile, uploadedFile[0]).ConfigureAwait(false);
+            await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
             var collabIdResult = await _collaboratorsDataAccess.GetCollaboratorId(accountId).ConfigureAwait(false);
             int collabId = (int)collabIdResult.Payload!;
             _authenticationService.Logout();
@@ -715,8 +524,297 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             Assert.IsTrue(actualUpvote.IsSuccessful);
             Assert.IsTrue(actualDownvote.IsSuccessful);
             Assert.AreEqual(votesBefore, votesAfter);
-            Assert.IsTrue(votesBefore == 0 && votesDuring == 1);
+            Assert.IsTrue(votesBefore == 0);
+            Assert.IsTrue(votesDuring == 1);
+            Assert.IsTrue(votesAfter == 0);
         }
+
+        [TestMethod]
+        public async Task RemoveOwnCollaborator()
+        {
+            //Arrange
+            string email = "test@gmail.com";
+            string password = "12345678";
+            await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+
+            CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
+            collab.UploadedFiles = new IFormFile[]
+            {
+                CreateMockFormFile(),
+                CreateMockFormFile()
+            };
+            collab.PfpFile = CreateMockFormFile();
+
+            await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
+            var collabIdResult = await _collaboratorsDataAccess.GetCollaboratorId(accountId).ConfigureAwait(false);
+            int collabId = (int)collabIdResult.Payload!;
+
+            //Act
+            var actual = await _collaboratorManager.RemoveOwnCollaborator().ConfigureAwait(false);
+            var actualCollab = await _collaboratorsDataAccess.GetCollaborator(collabId).ConfigureAwait(false);
+
+
+            //Assert
+            Assert.IsTrue(actual.IsSuccessful);
+            Assert.IsFalse(_validationService.ValidateCollaborator(actualCollab.Payload!).IsSuccessful);
+            Assert.IsTrue(string.IsNullOrEmpty(actualCollab.Payload!.PfpUrl));
+            Assert.IsTrue(string.IsNullOrEmpty(actualCollab.Payload!.Name));
+            Assert.IsTrue(string.IsNullOrEmpty(actualCollab.Payload!.ContactInfo));
+            Assert.IsTrue(string.IsNullOrEmpty(actualCollab.Payload!.Availability));
+            Assert.IsTrue(string.IsNullOrEmpty(actualCollab.Payload!.Description));
+            Assert.IsFalse(actualCollab.Payload!.Published);
+        }
+
+        [TestMethod]
+        public async Task DeleteCollaborator()
+        {
+            //Arrange
+            string email = "test@gmail.com";
+            string password = "12345678";
+            await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+
+            CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
+            collab.UploadedFiles = new IFormFile[]
+            {
+                CreateMockFormFile(),
+                CreateMockFormFile()
+            };
+            collab.PfpFile = CreateMockFormFile();
+
+            await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
+            var collabIdResult = await _collaboratorsDataAccess.GetCollaboratorId(accountId).ConfigureAwait(false);
+            int collabId = (int)collabIdResult.Payload!;
+
+            //Act
+            var actual = await _collaboratorManager.DeleteCollaborator(collabId).ConfigureAwait(false);
+            var actualCollab = await _collaboratorsDataAccess.GetCollaborator(collabId).ConfigureAwait(false);
+
+
+            //Assert
+            Assert.IsTrue(actual.IsSuccessful);
+            Assert.IsFalse(actualCollab.IsSuccessful);
+            Assert.IsTrue(actualCollab.Payload == null);
+        }
+
+        [TestMethod]
+        public async Task DeleteCollaboratorWithNoChangeToOtherCollaborators()
+        {
+            //Arrange
+            // first user
+            string email = "test@gmail.com";
+            string password = "12345678";
+            await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+            // second user
+            string email2 = "test2@gmail.com";
+            await _registrationService.RegisterAccount(email2, password).ConfigureAwait(false);
+            var accountIdResult2 = await _userAccountDataAccess.GetId(email2).ConfigureAwait(false);
+            int accountId2 = accountIdResult2.Payload;
+
+            // log in as user 1
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+
+            IFormFile file = CreateFormFileFromFilePath("C:\\Users\\NZXT ASRock\\Documents\\Senior Project\\SeniorProject\\src\\DevelopmentHell.Hubba\\Images\\rayquaza6.png");
+            IFormFile[] uploadedFile = new IFormFile[] { file, file };
+
+            CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
+            collab.PfpFile = CreateMockFormFile();
+            // creating first collaborator profile
+            await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
+            _authenticationService.Logout();
+
+            // log in as user 2
+            var accessTokenResult2 = await _authorizationService.GenerateAccessToken(accountId2, false).ConfigureAwait(false);
+            var idTokenResult2 = _authenticationService.GenerateIdToken(accountId2, accessTokenResult2.Payload!);
+            if (accessTokenResult2.IsSuccessful && idTokenResult2.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult2.Payload!, idTokenResult2.Payload!);
+            }
+
+            //creating second collaborator profile
+            var secondCollabResult = await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
+
+
+            // get the second account's id
+            var collabIdResult = await _collaboratorsDataAccess.GetCollaboratorId(accountId2).ConfigureAwait(false);
+            int collabId = (int)collabIdResult.Payload!;
+            var fileIdsResult = await _collaboratorFileDataAccess.SelectFileIdsFromOwner(accountId2).ConfigureAwait(false);
+            List<int> fileIds = fileIdsResult.Payload!;
+
+            //Act
+            // second account is deleting its collaborator profile
+            var actual = await _collaboratorManager.DeleteCollaborator(collabId).ConfigureAwait(false);
+            var collabIdDeletedResult = await _collaboratorsDataAccess.GetCollaboratorId(accountId2).ConfigureAwait(false);
+            var fileIdsResultDeleted = await _collaboratorFileDataAccess.SelectFileIdsFromOwner(accountId2).ConfigureAwait(false);
+            List<int> fileIdsDeleted = fileIdsResultDeleted.Payload!;
+
+            //Assert
+            Assert.IsTrue(actual.IsSuccessful);
+            Assert.IsNotNull(collabId);
+            Assert.IsFalse(collabIdDeletedResult.IsSuccessful);
+            Assert.IsNotNull(fileIds);
+            Assert.IsTrue(fileIdsDeleted.Count == 0);
+        }
+
+        [TestMethod]
+        public async Task FailureDeleteCollaboratorWithoutCollaborator()
+        {
+            //Arrange
+            string email = "test@gmail.com";
+            string password = "12345678";
+            await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+
+            CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
+            collab.UploadedFiles = new IFormFile[]
+            {
+                CreateMockFormFile(),
+                CreateMockFormFile()
+            };
+            collab.PfpFile = CreateMockFormFile();
+
+            await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
+            var collabIdResult = await _collaboratorsDataAccess.GetCollaboratorId(accountId).ConfigureAwait(false);
+            int collabId = (int)collabIdResult.Payload!;
+
+            await _collaboratorManager.DeleteCollaborator(collabId).ConfigureAwait(false);
+            await _collaboratorsDataAccess.GetCollaborator(collabId).ConfigureAwait(false);
+
+
+            //Act
+            var actual = await _collaboratorManager.DeleteCollaborator(collabId).ConfigureAwait(false);
+            var actualCollab = await _collaboratorsDataAccess.GetCollaborator(collabId).ConfigureAwait(false);
+
+
+            //Assert
+            Assert.IsTrue(collabIdResult.IsSuccessful);
+            Assert.IsFalse(actual.IsSuccessful);
+            Assert.IsFalse(actualCollab.IsSuccessful);
+            Assert.IsTrue(actualCollab.Payload == null);
+        }
+
+        [TestMethod]
+        public async Task FailureGetCollaboratorWithoutCollaborator()
+        {
+            //Arrange
+            string email = "test@gmail.com";
+            string password = "12345678";
+            await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+
+            CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
+            collab.UploadedFiles = new IFormFile[]
+            {
+                CreateMockFormFile(),
+                CreateMockFormFile()
+            };
+            collab.PfpFile = CreateMockFormFile();
+
+            await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
+            var collabIdResult = await _collaboratorsDataAccess.GetCollaboratorId(accountId).ConfigureAwait(false);
+            int collabId = (int)collabIdResult.Payload!;
+
+            await _collaboratorManager.DeleteCollaborator(collabId).ConfigureAwait(false);
+
+
+            //Act
+            var actual = await _collaboratorsDataAccess.GetCollaborator(collabId).ConfigureAwait(false);
+
+
+            //Assert
+            Assert.IsTrue(collabIdResult.IsSuccessful);
+            Assert.IsFalse(actual.IsSuccessful);
+            Assert.IsNull(actual.Payload);
+        }
+
+        [TestMethod]
+        public async Task FailureVoteWithoutLoggingIn()
+        {
+            //Arrange
+            string email = "test@gmail.com";
+            string password = "12345678";
+            await _registrationService.RegisterAccount(email, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+
+            // log in as user
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(accountId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(accountId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            }
+
+            CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
+            collab.UploadedFiles = new IFormFile[]
+            {
+                CreateMockFormFile(),
+                CreateMockFormFile()
+            };
+            collab.PfpFile = CreateMockFormFile();
+
+            await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
+            var collabIdResult = await _collaboratorsDataAccess.GetCollaboratorId(accountId).ConfigureAwait(false);
+            int collabId = (int)collabIdResult.Payload!;
+            _authenticationService.Logout();
+
+
+
+            //Act
+            var actual = await _collaboratorManager.Vote(collabId, true).ConfigureAwait(false);
+
+
+            //Assert
+            Assert.IsFalse(actual.IsSuccessful);
+            Assert.AreEqual(actual.StatusCode, StatusCodes.Status401Unauthorized);
+        }
+
+
+
 
 
 
@@ -732,6 +830,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
         public async Task Cleanup()
         {
             await _testingService.DeleteAllRecords().ConfigureAwait(false);
+            await _fileService.DeleteDir("/Collaborators").ConfigureAwait(false);
         }
 
 
@@ -756,6 +855,54 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
                 contentType = "application/octet-stream";
             }
             return contentType;
+        }
+
+        // creates a dummy iformfile
+        public  IFormFile CreateMockFormFile(string title = "mock")
+        {
+            var content = "This is a mock image file";
+            var fileName = "mockimage.jpg";
+            var name = title;
+            var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(content));
+            return new FormFile(stream, 0, stream.Length, name, fileName)
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = "image/jpeg"
+            };
+        }
+
+        // Create dummy collaborator for testing
+        public CreateCollaboratorDTO MockCreateCollaboratorDTO()
+        {
+            IFormFile[] uploadedFile = new IFormFile[] { CreateMockFormFile() };
+            return new CreateCollaboratorDTO()
+            {
+                Name = "Bestest  woodworker",
+                PfpFile = null,
+                ContactInfo = "123 Avenue Wood Village, CA",
+                Tags = "woodie, super strong, carpenter",
+                Description = "I can build big old tables and chairs",
+                Availability = "I'm free whenever",
+                UploadedFiles = uploadedFile,
+                Published = true
+            };
+        }
+
+        // Edit collaborator 
+        public EditCollaboratorDTO MockEditCollaboratorDTO()
+        {
+            IFormFile[] uploadedFile = new IFormFile[] { CreateMockFormFile() };
+            return new EditCollaboratorDTO()
+            {
+                Name = "Bestest  woodworker",
+                ContactInfo = "123 Avenue Wood Village, CA",
+                Tags = "woodie, super strong, carpenter",
+                Description = "I can build big old tables and chairs",
+                Availability = "I'm free whenever",
+                Published = true,
+                PfpFile = null,
+                UploadedFiles = uploadedFile,
+            };
         }
     }
 }

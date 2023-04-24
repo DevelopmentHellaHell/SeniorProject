@@ -14,6 +14,17 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         private DeleteDataAccess _deleteDataAccess;
         private UpdateDataAccess _updateDataAccess;
         private string _tableName;
+        private readonly string _fileName = "FileName";
+        private readonly string _fileType = "FileType";
+        private readonly string _fileSize = "FileSize";
+        private readonly string _fileUrl = "FileUrl";
+        private readonly string _ownerId = "OwnerId";
+        private readonly string _lastModifiedUser = "LastModifiedUser";
+        private readonly string _createDate = "CreateDate";
+        private readonly string _fileId = "FileId";
+        private readonly string _pfpFile = "PfpFile";
+        private readonly string _updateDate = "UpdateDate";
+
 
         public CollaboratorFileDataAccess(string connectionString, string tableName)
         {
@@ -36,15 +47,15 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 _tableName,
                 new Dictionary<string, object>()
                 {
-                    { "FileName", file.Name},
-                    { "FileType", Path.GetExtension(file.FileName).Substring(1)},
-                    { "FileSize", file.Length},
-                    { "FileUrl", fileUrl},
-                    { "OwnerId", accountIdInt},
-                    { "LastModifiedUser", accountIdInt},
-                    { "CreateDate", DateTime.Now}
+                    { _fileName, file.Name},
+                    { _fileType, Path.GetExtension(file.FileName).Substring(1)},
+                    { _fileSize, file.Length},
+                    { _fileUrl, fileUrl},
+                    { _ownerId, accountIdInt},
+                    { _lastModifiedUser, accountIdInt},
+                    { _createDate, DateTime.Now}
                 },
-                "FileId"
+                _fileId
             ).ConfigureAwait(false);
             
             // check if the insertion was successful
@@ -67,7 +78,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 return result;
             }
             result.IsSuccessful = true;
-            result.Payload = (int)(insertResult.Payload[0]["FileId"]);
+            result.Payload = (int)(insertResult.Payload[0][_fileId]);
             return result;
 
         }
@@ -84,13 +95,13 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 _tableName,
                 new List<Comparator>()
                 {
-                    new Comparator("FileId", "=", fileId),
+                    new Comparator(_fileId, "=", fileId),
                 },
                 new Dictionary<string, object>()
                 {
-                    { "FileUrl", fileUrl},
-                    { "LastModifiedUser", accountIdInt},
-                    { "UpdateDate", DateTime.Now}
+                    { _fileUrl, fileUrl},
+                    { _lastModifiedUser, accountIdInt},
+                    { _updateDate, DateTime.Now}
                 }
             ).ConfigureAwait(false);
 
@@ -115,8 +126,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.SelectWhereIn(
                 _tableName,
-                new List<String>() { "FileUrl" },
-                "FileId",
+                new List<String>() { _fileUrl },
+                _fileId,
                 fileIdsString                
             ).ConfigureAwait(false);
 
@@ -135,7 +146,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             foreach (var row in payload)
             {
-                fileUrls.Add((string)row["FileUrl"]);
+                fileUrls.Add((string)row[_fileUrl]);
             }
 
             return new Result<List<string>>()
@@ -155,8 +166,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.SelectWhereIn(
                 _tableName,
-                new List<String>() { "FileId" },
-                "FileUrl",
+                new List<String>() { _fileId },
+                _fileUrl,
                 fileUrlsString
             ).ConfigureAwait(false);
 
@@ -175,7 +186,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             foreach (var row in payload)
             {
-                fileIds.Add((int)row["FileId"]);
+                fileIds.Add((int)row[_fileId]);
             }
 
             return new Result<List<int>>()
@@ -189,10 +200,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
-                new List<String>() { "FileId" },
+                new List<String>() { _fileId },
                 new List<Comparator>()
                 {
-                    new Comparator("OwnerId", "=", ownerId)
+                    new Comparator(_ownerId, "=", ownerId)
                 }
             ).ConfigureAwait(false);
 
@@ -211,7 +222,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             foreach (var row in payload)
             {
-                fileIds.Add((int)row["FileId"]);
+                fileIds.Add((int)row[_fileId]);
             }
 
             return new Result<List<int>>()
@@ -225,10 +236,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
-                new List<String>() { "FileType" },
+                new List<String>() { _fileType },
                 new List<Comparator>()
                 {
-                    new Comparator("FileId", "=", fileId)
+                    new Comparator(_fileId, "=", fileId)
                 }
             ).ConfigureAwait(false);
 
@@ -245,7 +256,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return new Result<string>()
             {
                 IsSuccessful = true,
-                Payload = $".{(string)payload[0]["FileType"]}"
+                Payload = $".{(string)payload[0][_fileType]}"
             };
         }
 
@@ -253,11 +264,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
-                new List<String>() { "FileUrl" },
+                new List<String>() { _fileUrl },
                 new List<Comparator>()
                 {
-                    new Comparator("OwnerId", "=", ownerId),
-                    new Comparator("FileName", "=", "PfpFile")
+                    new Comparator(_ownerId, "=", ownerId),
+                    new Comparator(_fileName, "=", _pfpFile)
                 }
             ).ConfigureAwait(false);
 
@@ -284,7 +295,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return new Result<string?>()
             {
                 IsSuccessful = true,
-                Payload = (string)payload[0]["FileUrl"]
+                Payload = (string)payload[0][_fileUrl]
             };
         }
 
@@ -293,7 +304,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             if (removedFileUrls.Length == 0)
                 return new Result() { IsSuccessful = true };
             List<string> removedFileUrlsList = removedFileUrls.ToList<string>();
-            var deleteResult = await _deleteDataAccess.DeleteWhereIn(_tableName, "FileUrl", removedFileUrlsList).ConfigureAwait(false);
+            var deleteResult = await _deleteDataAccess.DeleteWhereIn(_tableName, _fileUrl, removedFileUrlsList).ConfigureAwait(false);
 
             return deleteResult;
         }
@@ -308,7 +319,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 fileIdsString.Add(fileId.ToString());
             }
 
-            var deleteResult = await _deleteDataAccess.DeleteWhereIn(_tableName, "FileId", fileIdsString).ConfigureAwait(false);
+            var deleteResult = await _deleteDataAccess.DeleteWhereIn(_tableName, _fileId, fileIdsString).ConfigureAwait(false);
             return deleteResult;
         }
 
@@ -316,7 +327,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             List<string> ownerIdString = new List<string>();
             ownerIdString.Add(ownerId.ToString());
-            var deleteResult = await _deleteDataAccess.DeleteWhereIn(_tableName, "OwnerId", ownerIdString).ConfigureAwait(false);
+            var deleteResult = await _deleteDataAccess.DeleteWhereIn(_tableName, _ownerId, ownerIdString).ConfigureAwait(false);
             return deleteResult;
         }
     }

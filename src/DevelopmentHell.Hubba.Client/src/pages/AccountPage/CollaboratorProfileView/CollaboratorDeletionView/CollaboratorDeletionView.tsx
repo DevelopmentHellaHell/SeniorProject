@@ -3,13 +3,13 @@ import { useState } from "react";
 import { Ajax } from "../../../../Ajax";
 import { Auth } from "../../../../Auth";
 import Button from "../../../../components/Button/Button";
-import "./CollaboratorRemovalView.css";
+import "./CollaboratorDeletionView.css";
 
-interface ICollaboratorRemoval {
+interface ICollaboratorDeletion {
     onCancelClick: () => void;
 }
 
-const CollaboratorRemovalView: React.FC<ICollaboratorRemoval> = (props) => {
+const CollaboratorDeletionView: React.FC<ICollaboratorDeletion> = (props) => {
     const [error, setError] = useState("");
     const [loaded, setLoaded] = useState(true);
 
@@ -24,28 +24,28 @@ const CollaboratorRemovalView: React.FC<ICollaboratorRemoval> = (props) => {
     }
 
     return (
-        <div className="remove-collaborator-wrapper">
-            <h1 id="remove-collaborator-header">Collaborator Removal</h1>
+        <div className="deletion-collaborator-wrapper">
+            <h1 id="deletion-collaborator-header">Collaborator Profile Deletion</h1>
 
-            <p>Are you sure you want to remove your collaborator profile?
+            <p>Are you sure you want to delete your collaborator profile?
                 <br />This action can't be undone.
             </p>
             <div id="buttons" className="buttons">
                 <Button title="Cancel" onClick={ props.onCancelClick }/>           
                 
-                <Button title="Remove" loading={!loaded} onClick={async () => {
+                <Button title="Delete" loading={!loaded} onClick={async () => {
                     setLoaded(false);
                     if(!accountId){
                         onError("Unable to find selected account of collaborator.");
                         return;
                     }
 
-                    const response = await Ajax.post("/collaborator/removeowncollaborator", ({}));
+                    const response = await Ajax.post("/collaborator/deletecollaboratorwithaccountid", ({accountId}));
                     if (response.error) {
                         onError(response.error);
                         return;
                     }
-                    setSuccess("Successfully removed all collaborator details.");
+                    setSuccess("Successfully deleted collaborator profile.");
                     setLoaded(true);
                 }}/>
             </div>
@@ -61,4 +61,4 @@ const CollaboratorRemovalView: React.FC<ICollaboratorRemoval> = (props) => {
     
 }
 
-export default CollaboratorRemovalView;
+export default CollaboratorDeletionView;

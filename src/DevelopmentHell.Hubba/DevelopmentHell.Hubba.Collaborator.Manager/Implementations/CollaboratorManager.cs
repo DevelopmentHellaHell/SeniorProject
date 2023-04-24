@@ -65,7 +65,8 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
 
             if (!changeVisibilityResult.IsSuccessful)
             {
-                return new(Result.Failure("Could not update public viewing status."));
+                return new(Result.Failure("Could not update public viewing status. " + changeVisibilityResult.ErrorMessage
+                    , changeVisibilityResult.StatusCode));
             }
 
             return new Result()
@@ -249,6 +250,42 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             };
         }
 
+        public async Task<Result> RemoveOwnCollaborator()
+        {
+            // check if user is logged in
+            if (Thread.CurrentPrincipal is null)
+            {
+                return new(Result.Failure("Error, user is not logged in", StatusCodes.Status401Unauthorized));
+            }
+            // Get the ID of current thread
+            var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            string accountIDStr = principal.FindFirstValue("sub");
+            int.TryParse(accountIDStr, out int accountIdInt);
+
+            var getCollaboratorId = await _collaboratorService.GetCollaboratorId(accountIdInt).ConfigureAwait(false);
+            if(!getCollaboratorId.IsSuccessful)
+            {
+                return new(Result.Failure("Error finding collaborator for removal. "));
+            }
+            if(getCollaboratorId.Payload == null)
+            {
+                return new(Result.Failure("Account has no associated collaborator. ", StatusCodes.Status404NotFound));
+            }
+
+            int collabId = (int)getCollaboratorId.Payload;
+            var removeResult = await _collaboratorService.RemoveCollaborator(collabId).ConfigureAwait(false);
+
+            if (!removeResult.IsSuccessful)
+            {
+                return new(Result.Failure("Unable to remove account's collaborator profile. " + removeResult.ErrorMessage, removeResult.StatusCode));
+            }
+            return new Result()
+            {
+                IsSuccessful = true,
+                StatusCode = StatusCodes.Status202Accepted
+            };
+        }
+
         public async Task<Result> DeleteCollaboratorWithAccountId(int accountId)
         {
             // check if user is logged in
@@ -349,41 +386,38 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
                 return new(Result.Failure("Unable to determine number of uploaded files currently stored in database. " + countFilesResult.ErrorMessage));
             }
 
-            // storing way more than the stored file limit
-            if (uploadedCount - removedCount + countFilesResult.Payload > 10)
+            // check if they are removing the pfp since it is optional to have and doesn't count towards total
+            var pfpurl = await _collaboratorService.GetPfpUrl(accountIdInt).ConfigureAwait(false);
+            if (!pfpurl.IsSuccessful)
             {
-                return new(Result.Failure("A maximum of 10 files can be uploaded to the server, including those already stored. ", StatusCodes.Status412PreconditionFailed));
+                return new(Result.Failure("Unable to check if profile picture is being removed. "));
+            }
+            if (pfpurl.Payload != null)
+            {
+                if (removedFiles != null && removedFiles.Contains<string>(pfpurl.Payload))
+                {
+                    removedCount += 1;
+                }
             }
 
-
+            // storing way more than the stored file limit
+            if (uploadedCount > 10)
+            {
+                return new(Result.Failure("A maximum of 10 files can be uploaded to the server, including those already stored." +
+                    " The Profile Picture does not count towards the 10 file maximum. Please remove another file instead.", StatusCodes.Status412PreconditionFailed));
+            }
+            // storing way more than the stored file limit
+            if (uploadedCount + countFilesResult.Payload - removedCount > 10)
+            {
+                return new(Result.Failure("A maximum of 10 files can be uploaded to the server, including those already stored." +
+                    " The Profile Picture does not count towards the 10 file maximum. Please remove another file instead.", StatusCodes.Status412PreconditionFailed));
+            }
             // borderline case, should check if a profile picture is being removed since it
             // doesn't count towards total number of files stored
-            if (uploadedCount > 0 && (uploadedCount - removedCount +  countFilesResult.Payload == 10))
+            if (uploadedCount + countFilesResult.Payload - removedCount <= 0)
             {
-                // can't do that if they're not removing anything
-                if(removedCount == 0)
-                {
-                    return new(Result.Failure("A maximum of 10 files can be uploaded to the server, including those already stored. ", StatusCodes.Status412PreconditionFailed));
-                }
-
-                // gotta check if the profile picture is being removed
-                var pfpurl = await _collaboratorService.GetPfpUrl(accountIdInt).ConfigureAwait(false);
-                if(!pfpurl.IsSuccessful)
-                {
-                    return new(Result.Failure("Unable to check if profile picture is being removed. "));
-                }
-                // they don't have a pfp to remove so they're immediately unable to upload more than 10 files
-                if(pfpurl.Payload == null)
-                {
-                    return new(Result.Failure("A maximum of 10 files can be uploaded to the server, including those already stored. ",StatusCodes.Status412PreconditionFailed));
-                }
-                // looks like theyre removing the profile picture so they can't upload
-                // a new photo since it doesn't count towards max file storage
-                if(removedFiles != null && removedFiles.Contains<string>(pfpurl.Payload))
-                {
-                    return new(Result.Failure("A maximum of 10 files can be uploaded to the server, including those already stored." +
-                        " The Profile Picture does not count towards the 10 file maximum. Please remove another file instead.", StatusCodes.Status412PreconditionFailed));
-                }
+                return new(Result.Failure("A minimum of 1 file needs to be stored on the server to display a collaborator profile.", StatusCodes.Status412PreconditionFailed));
+             
             }
 
             var validateCollab = _validationService.ValidateCollaboratorAllowEmptyFiles(collab);
@@ -458,6 +492,38 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             return getCollabResult;
         }
 
+        public async Task<Result<int>> GetCollaboratorId(int accountId)
+        {
+            if (Thread.CurrentPrincipal is null)
+            {
+                return new(Result.Failure("Error, user is not logged in", StatusCodes.Status401Unauthorized));
+            }
+
+            Result authorizationResult = _authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" });
+            if (!(authorizationResult.IsSuccessful))
+            {
+                return new(Result.Failure("Error, user is not authorized for this request.", StatusCodes.Status401Unauthorized));
+            }
+
+            var getCollabIdResult = await _collaboratorService.GetCollaboratorId(accountId).ConfigureAwait(false);
+            if (!getCollabIdResult.IsSuccessful)
+            {
+                return new(Result.Failure("Error while retrieving collaborator Id. " + 
+                    getCollabIdResult.ErrorMessage, StatusCodes.Status404NotFound));
+            }
+            if (getCollabIdResult.Payload == null)
+            {
+                return new(Result.Failure("Could not find collaborator", StatusCodes.Status404NotFound));
+            }
+
+            return new Result<int>
+            {
+                IsSuccessful = true,
+                StatusCode = StatusCodes.Status200OK,
+                Payload = (int)getCollabIdResult.Payload
+            };
+        }
+
         public async Task<Result<bool>> HasCollaborator(int? accountId = null)
         {
             if (Thread.CurrentPrincipal is null)
@@ -481,6 +547,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             var hasCollaboratorResult = await _collaboratorService.HasCollaborator((int)accountId).ConfigureAwait(false);
             if(hasCollaboratorResult.IsSuccessful)
                 hasCollaboratorResult.StatusCode = StatusCodes.Status200OK;
+
             return hasCollaboratorResult;
         }
 

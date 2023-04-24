@@ -15,7 +15,7 @@ import AdminDashboardPage from "./pages/AdminDashboardPage/AdminDashboardPage";
 import AccountRecoveryPage from "./pages/AccountRecoveryPage/AccountRecoveryPage";
 import "./App.css";
 import NotificationStateProvider from "./NotificationStateProvider";
-import CollaboratorProfilePage from "./pages/CollaboratorProfilePage/CollaboratorProfilePage";
+import CollaboratorPage from "./pages/CollaboratorPage/CollaboratorPage";
 
 interface IAppProps {
 
@@ -55,7 +55,7 @@ const App: React.FC<IAppProps> = (props) => {
 							<Route path="/account" element={<AccountPage />} />
 							<Route path="/logout" element={<LogoutPage />} />
 							<Route path="/notification" element={<NotificationPage />} />
-							<Route path="/collaborator" element={<CollaboratorProfilePage/>}/>
+							<Route path="/collaborator" element={<CollaboratorPage/>}/>
 						</Route>
 						<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.ADMIN_USER]}/>}>
 							<Route path="/admin-dashboard" element={<AdminDashboardPage />} />

@@ -79,6 +79,27 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         }
 
         [HttpPost]
+        [Route("GetCollaboratorId")]
+        public async Task<IActionResult> GetCollaboratorId(GetCollaboratorIdDTO getCollaboratorIdDTO)
+        {
+            return await GuardedWorkload(async () =>
+            {
+                if (!ModelState.IsValid)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest);
+                }
+
+                var result = await _collaboratorManager.GetCollaboratorId(getCollaboratorIdDTO.AccountId).ConfigureAwait(false);
+                if (!result.IsSuccessful)
+                {
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
+                }
+
+                return StatusCode(result.StatusCode, result.Payload);
+            }).ConfigureAwait(false);
+        }
+
+        [HttpPost]
         [Route("DeleteCollaborator")]
         public async Task<IActionResult> DeleteCollaborator(DeleteCollaboratorIdDTO deleteCollaboratorDTO)
         {
@@ -132,6 +153,27 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 }
 
                 var result = await _collaboratorManager.RemoveCollaborator(removeCollaboratorDTO.CollaboratorId).ConfigureAwait(false);
+                if (!result.IsSuccessful)
+                {
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
+                }
+
+                return StatusCode(result.StatusCode);
+            }).ConfigureAwait(false);
+        }
+
+        [HttpPost]
+        [Route("RemoveOwnCollaborator")]
+        public async Task<IActionResult> RemoveOwnCollaborator()
+        {
+            return await GuardedWorkload(async () =>
+            {
+                if (!ModelState.IsValid)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest);
+                }
+
+                var result = await _collaboratorManager.RemoveOwnCollaborator().ConfigureAwait(false);
                 if (!result.IsSuccessful)
                 {
                     return StatusCode(result.StatusCode, result.ErrorMessage);

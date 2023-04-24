@@ -7,11 +7,13 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Abstractions
 {
     public interface ICollaboratorManager
     {
-        Task<Result<CollaboratorProfile>> GetCollaborator(int collabId);
         Task<Result> CreateCollaborator(CreateCollaboratorDTO collabDTO);
         Task<Result> EditCollaborator(EditCollaboratorDTO collabDTO);
         Task<Result> DeleteCollaborator(int collabId);
         Task<Result> RemoveCollaborator(int collabId);
+        Task<Result> RemoveOwnCollaborator();
+        Task<Result<CollaboratorProfile>> GetCollaborator(int collabId);
+        Task<Result<int>> GetCollaboratorId(int accountId);
         Task<Result> DeleteCollaboratorWithAccountId(int accountId);
         Task<Result> ChangeVisibility(int collabId, bool isPublic);
         Task<Result<bool>> HasCollaborator(int? accountId);

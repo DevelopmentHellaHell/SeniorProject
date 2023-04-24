@@ -16,6 +16,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
         Task<Result> Delete(int collabId);
         Task<Result> SetPublished(int collabId, bool published);
         Task<Result<bool>> HasCollaborator(int accountId);
+        Task<Result<int?>> SelectCollaboratorId(int accountId);
         Task<Result<bool>> Exists(int collabId);
     }
 }

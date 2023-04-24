@@ -592,6 +592,10 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
 
         public async Task<Result<int>> GetOwnerId(int collabId)
         {
+            if (collabId < 0)
+            {
+                return new(Result.Failure("Invalid collaborator id.", StatusCodes.Status412PreconditionFailed));
+            }
             var accountIdResult = await _collaboratorDataAccess.GetOwnerId(collabId).ConfigureAwait(false);
             if (!accountIdResult.IsSuccessful)
             {
@@ -600,11 +604,25 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
             return accountIdResult;   
         }
 
+        public async Task<Result<int?>> GetCollaboratorId(int accountId)
+        {
+            if (accountId < 0)
+            {
+                return new(Result.Failure("Invalid account id.", StatusCodes.Status412PreconditionFailed));
+            }
+            var collabIdResult = await _collaboratorDataAccess.SelectCollaboratorId(accountId).ConfigureAwait(false);
+            if (!collabIdResult.IsSuccessful)
+            {
+                return new(Result.Failure("Could not get collaborator Id. " + collabIdResult.ErrorMessage));
+            }
+            return collabIdResult;
+        }
+
         public async Task<Result<string?>> GetPfpUrl(int ownerId)
         {
             if (ownerId < 0)
             {
-                return new(Result.Failure("Invalid collaborator id.", StatusCodes.Status412PreconditionFailed));
+                return new(Result.Failure("Invalid account id.", StatusCodes.Status412PreconditionFailed));
             }
             var selectPfpUrl = await _collaboratorFileDataAccess.SelectPfpUrl(ownerId).ConfigureAwait(false);
             if(!selectPfpUrl.IsSuccessful)
@@ -748,7 +766,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
             {
                 return new(Result.Failure("Unable to find extension for file to be removed. " + fileExtensionResult.ErrorMessage));
             }
-            var deleteResult = await _fileService.DeleteFile(dirPath + "/" + fileId + fileExtensionResult.Payload);
+            var deleteResult = await _fileService.DeleteFile(dirPath + "/" + fileId + fileExtensionResult.Payload).ConfigureAwait(false);
             if (!deleteResult.IsSuccessful)
             {
                 result.ErrorMessage = deleteResult.ErrorMessage;
