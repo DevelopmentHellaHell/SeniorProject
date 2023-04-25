@@ -1,4 +1,5 @@
-﻿using DevelopmentHell.Hubba.Models;
+﻿using Azure.Core;
+using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
@@ -364,6 +365,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             ).ConfigureAwait(false);
 
             if (!selectResult.IsSuccessful || selectResult.Payload.Count != 1)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = selectResult.ErrorMessage;
+                return result;
+            }
 
             result.IsSuccessful = true;
             result.Payload = (string)selectResult.Payload[0]["Email"];
