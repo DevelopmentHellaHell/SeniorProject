@@ -1,23 +1,12 @@
-﻿using Development.Hubba.JWTHandler.Service.Abstractions;
-using Development.Hubba.JWTHandler.Service.Implementations;
-using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
-using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
-using DevelopmentHell.Hubba.Logging.Service.Implementations;
-using DevelopmentHell.Hubba.Models;
+﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Models.DTO;
-using DevelopmentHell.Hubba.Registration.Service.Abstractions;
-using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.Scheduling.Service.Abstractions;
 using DevelopmentHell.Hubba.Scheduling.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
-using DevelopmentHell.Hubba.Validation.Service.Abstractions;
-using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Runtime.InteropServices;
 
 namespace DevelopmentHell.Hubba.Scheduling.Test.Service
 {
