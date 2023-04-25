@@ -50,10 +50,10 @@ const CollaboratorRemovalView: React.FC<ICollaboratorRemoval> = (props) => {
                 }}/>
             </div>
             {error &&
-                <p className="error">{error}</p>
+                <p id='error' className="error">{error}</p>
             }
             {success &&
-                <p className="success">{success}</p>
+                <p id='success' className="success">{success}</p>
             }
             
         </div> 

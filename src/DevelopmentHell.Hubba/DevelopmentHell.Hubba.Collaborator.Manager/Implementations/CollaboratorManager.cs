@@ -396,7 +396,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             {
                 if (removedFiles != null && removedFiles.Contains<string>(pfpurl.Payload))
                 {
-                    removedCount += 1;
+                    removedCount -= 1;
                 }
             }
 
