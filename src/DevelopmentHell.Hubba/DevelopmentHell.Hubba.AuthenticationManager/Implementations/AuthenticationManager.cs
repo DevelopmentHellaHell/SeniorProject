@@ -50,13 +50,13 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
             Result<string> otpResult = await _otpService.NewOTP(accountId).ConfigureAwait(false);
             string otp = otpResult.Payload!.ToString();
 
-            //Result sendOTPResult = _otpService.SendOTP(email, otp);
-            //if (!sendOTPResult.IsSuccessful)
-            //{
-            //    result.IsSuccessful = false;
-            //    result.ErrorMessage = sendOTPResult.ErrorMessage;
-            //    return result;
-            //}
+            Result sendOTPResult = _otpService.SendOTP(email, otp);
+            if (!sendOTPResult.IsSuccessful)
+            {
+               result.IsSuccessful = false;
+               result.ErrorMessage = sendOTPResult.ErrorMessage;
+               return result;
+            }
 
             string userHashKey = ConfigurationManager.AppSettings["UserHashKey"]!;
             Result<HashData> userHashResult = _cryptographyService.HashString(email, userHashKey);
