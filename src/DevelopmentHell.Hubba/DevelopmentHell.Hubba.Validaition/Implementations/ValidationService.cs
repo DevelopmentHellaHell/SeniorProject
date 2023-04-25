@@ -29,6 +29,7 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
             {
                 result.ErrorMessage = error;
                 return result;
+                
             }
 
             string regex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";

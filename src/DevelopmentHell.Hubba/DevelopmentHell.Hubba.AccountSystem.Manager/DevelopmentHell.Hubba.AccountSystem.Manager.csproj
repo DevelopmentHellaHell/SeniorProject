@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DevelopmentHell.Hubba.AccountSystem\DevelopmentHell.Hubba.AccountSystem.Service.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.Authorization.Service\DevelopmentHell.Hubba.Authorization.Service.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.Notification.Manager\DevelopmentHell.Hubba.Notification.Manager.csproj" />
+    <ProjectReference Include="..\OneTimePass\DevelopmentHell.Hubba.OneTimePassword.Service.csproj" />
+  </ItemGroup>
+
+</Project>
