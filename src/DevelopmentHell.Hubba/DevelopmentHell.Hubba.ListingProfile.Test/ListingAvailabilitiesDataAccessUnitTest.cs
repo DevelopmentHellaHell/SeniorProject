@@ -212,7 +212,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.DAL
 
 
             //Act
-            var actual = await _listingAvailabilitiesDataAccess.GetListingAvailabilitiesByMonth(listingId, temp1.StartTime.Month, temp1.StartTime.Year).ConfigureAwait(false);
+            var actual = await _listingAvailabilitiesDataAccess.GetListingAvailabilitiesByMonth(listingId, ((DateTime)temp1.StartTime).Month, ((DateTime)temp1.StartTime).Year).ConfigureAwait(false);
 
             //Assert
             Assert.IsNotNull(actual);

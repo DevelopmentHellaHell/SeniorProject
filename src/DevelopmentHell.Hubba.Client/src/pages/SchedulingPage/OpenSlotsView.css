@@ -11,33 +11,44 @@
     flex-grow: 1;
   }
   
-  .opentimeslots-view-container .opentimeslots-view-container .opentimeslots-view-wrapper {
-    color: rgb(var(--primary-text-dark));
-    text-align: center;
-  }
-  
-  .opentimeslots-view-card {
-    background-color: rgb(var(--primary-background-light));
+  .opentimeslots-view-container .opentimeslots-view-content .opentimeslots-view-main-wrapper {
     padding: 20px 20px;
-    border: none;
-    border-radius: 10px;
-    width: 300px;
+    color: rgb(var(--primary-text-dark));
     text-align: left;
   }
+    .opentimeslots-view-container .opentimeslots-view-content .opentimeslots-view-main-wrapper .opentimeslots-view-second-wrapper {
+      display: flex;
+      padding: 20px 20px;
+      color: rgb(var(--primary-text-dark));
+      text-align: left;
+    }
+      .opentimeslots-view-container .opentimeslots-view-content .opentimeslots-view-main-wrapper .opentimeslots-view-second-wrapper .opentimeslots-view-wrapper{
+        padding: 20px 20px;
+        color: rgb(var(--primary-text-dark));
+        text-align: left;
+      }
+.opentimeslots-sidebar {
+  background-color: rgb(var(--primary-background-light));
+  padding: 20px 20px;
+  border: none;
+  border-radius: 10px;
+  width: 300px;
+  text-align: left;
+}
   
-  .opentimeslots-view-card .input-field {
+  .opentimeslots-sidebar .input-field {
     margin-bottom: 15px;
     display: flex;
     align-items: center;
     text-align: left;
   }
   
-  .opentimeslots-view-card .input-field label {
-    width: 150px;
+  .opentimeslots-sidebar .input-field label {
+    width: 200px;
     margin-right: 10px;
   }
   
-  .opentimeslots-view-card .input-field input {
+  .opentimeslots-sidebar .input-field input {
     width: 40%;
     padding: 5px 5px;
     border: 1px solid rgb(var(--primary-text-dark));
@@ -45,19 +56,66 @@
     row-gap: 5px;
   }
   
-  .opentimeslots-view-card .buttons {
+  .opentimeslots-sidebar .buttons {
     display: flex;
     justify-content: center;
   }
   
-  .opentimeslots-view-card .info {
+  .opentimeslots-sidebar .info {
     color: rgb(var(--secondary-text-dark));
   }
   
-  .opentimeslots-view-card .info:hover {
+  .opentimeslots-sidebar .info:hover {
     color: rgb(var(--primary-text-dark));
   }
   
-  .opentimeslots-view-card .error {
+  .opentimeslots-sidebar .error {
     color: rgb(var(--error-text));
+    justify-content: center;
   }
+/* calendar wrapper */
+.opentimeslots-calendar{
+  display: flex;
+  flex-flow: column;
+  text-align: center;
+}
+.opentimeslots-calendar .month{
+  padding-bottom: 50px;
+}
+  .opentimeslots-calendar .month .daysofweek {
+    display: flex;
+    flex-flow: row;
+    padding-bottom: 20px;
+  }
+  .opentimeslots-calendar .month .daysofweek .day{
+    width: 44px;
+    text-align: center;
+    justify-content: center;
+  }
+  .opentimeslots-calendar .month .week{
+    display: flex;
+    padding-bottom: 3px;
+  }
+  .opentimeslots-calendar .month .week .day{
+    justify-content: center;
+    padding-right: 5px;
+  }
+/* hours wrapper */
+.opentimeslots-hours {
+  display: flex;
+  flex-flow: row;
+  padding-bottom: 10px;
+  text-align: center;
+}
+  .opentimeslots-hours .halfday{
+    display: flex;
+    flex-flow: column;
+    padding-right: 20px;
+    padding-bottom: 10px
+  }
+    .opentimeslots-hours .halfday .buttons{
+      display: flex;
+      flex-direction: column;
+      justify-content: left;
+      padding-bottom: 10px;
+    }

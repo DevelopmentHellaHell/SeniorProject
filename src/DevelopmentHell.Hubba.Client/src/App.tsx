@@ -39,8 +39,13 @@ const App: React.FC<IAppProps> = (props) => {
 						<Route path="/unauthorized" element={<Unauthorized />} />
 						<Route path="/viewlisting" element={<ViewListingPage />} />
 						<Route path="/viewlistingratings" element={<ViewListingRatingsPage /> } />
-						
-						
+						<Route path="/scheduling" 
+								element={<OpenSlotsView 
+											listingId={20} 
+											ownerId={200}
+											listingTitle={"A beautiful mess in Long Beach"} 
+											price={25.99}
+						/>} />	
 						
 						{/* Public routes - no auth */}
 						<Route path="/registration" element={
@@ -56,11 +61,6 @@ const App: React.FC<IAppProps> = (props) => {
 						<Route path="/account-recovery" element={
 							<PublicOutlet redirectPath="/">
 								<AccountRecoveryPage />
-							</PublicOutlet>
-						} />
-						<Route path="/scheduling" element={
-							<PublicOutlet redirectPath="/">
-								<OpenSlotsView listingId={0} />
 							</PublicOutlet>
 						} />
 						

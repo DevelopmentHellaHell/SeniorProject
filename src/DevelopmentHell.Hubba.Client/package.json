@@ -26,7 +26,8 @@
     "build:serve": "react-scripts build && serve -s build",
     "test": "cypress run",
     "debug": "cypress open",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "react-debug": "react-scripts debug"
   },
   "browserslist": {
     "production": [
