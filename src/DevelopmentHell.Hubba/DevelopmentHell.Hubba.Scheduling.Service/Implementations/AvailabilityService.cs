@@ -104,7 +104,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
                             {
                                 lastEnd = bookedTimeFrame.EndDateTime; //update lastEnd
                             }
-                            if (bookedTimeFrame.StartDateTime > lastEnd && bookedTimeFrame.EndDateTime < availability.EndTime) //booked time in between lastEnd and availability.EndTime
+                            if (bookedTimeFrame.StartDateTime > lastEnd && bookedTimeFrame.EndDateTime <= availability.EndTime) //booked time in between lastEnd and availability.EndTime
                             {
                                 openTimeSlotsDTO.Add(new ListingAvailabilityDTO()
                                 {

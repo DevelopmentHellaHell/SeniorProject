@@ -6,10 +6,8 @@ import NavbarGuest from '../../components/NavbarGuest/NavbarGuest';
 import { Ajax } from '../../Ajax';
 import "./OpenSlotsView.css";
 import HourBarButton, { HourBarButtonTheme } from './HourBarButton';
-import { initial } from 'cypress/types/lodash';
 import { Auth } from '../../Auth';
 import NavbarUser from '../../components/NavbarUser/NavbarUser';
-import { start } from 'repl';
 
 interface IOpenTimeSlotsProp {
     listingId: number,
@@ -39,7 +37,7 @@ interface IReservedTimeSlots {
     userId: number,
     listingId: number,
     fullPrice: number,
-    bookedTimeFrames: IBookedTimeFrame[]
+    chosenTimeFrames: IBookedTimeFrame[]
 }
 
 const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
@@ -49,6 +47,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
     const [month, setMonth] = useState<number>((new Date(initialDate)).getMonth() + 1);
     const [year, setYear] = useState<number>(new Date(initialDate).getFullYear());
 
+    const [fullPrice, setFullPrice] = useState(0);
     const [reserveTimeSlots, setReserveTimeSlots] = useState<IReservedTimeSlots | null>(null);
     const [readyToSubmit, setReadyToSubmit] = useState<boolean>(false);
 
@@ -59,6 +58,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
 
     const [printedDates, setPrintedDate] = useState<string[]>([]);
     const [loaded, setLoaded] = useState(false);
+    const [onSuccess, setOnSuccess] = useState(false)
     const [error, setError] = useState("");
 
     const authData = Auth.getAuthData();
@@ -68,8 +68,9 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
         setBookedTimeFrames([]);
         setSelectedHours([]);
         setReadyToSubmit(false);
+        setOnSuccess(false);
         setError("");
-    }, [initialDate, chosenDate]);
+    }, [initialDate, chosenDate, onSuccess]);
 
     useEffect(() => {
         if (!readyToSubmit) {
@@ -79,8 +80,8 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
         setReserveTimeSlots({
             userId: parseInt(authData!.sub),
             listingId: listingId,
-            fullPrice: 100,
-            bookedTimeFrames: bookedTimeFrames
+            fullPrice: fullPrice,
+            chosenTimeFrames: bookedTimeFrames
         } as IReservedTimeSlots);
     }, [readyToSubmit]);
 
@@ -89,6 +90,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
         setLoaded(true);
     }
     const renderSummary = (bookedTimeFrames: IBookedTimeFrame[], error: string) => {
+        // setFullPrice(bookedTimeFrames.length * props.price)
         if (!bookedTimeFrames || error) {
             return;
         }
@@ -115,11 +117,28 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                     <div className='info'>
                         Total = {bookedTimeFrames.length * props.price}
                     </div>
-                    {authData && authData.sub &&
-                        <Button title="Reserve" theme={ButtonTheme.DARK}/>
+                    {
+                        <Button title="Reserve" theme={ButtonTheme.DARK} onClick={ async () => {
+                            setFullPrice(bookedTimeFrames.length * props.price);
+                            if (authData && authData.role !== Auth.Roles.DEFAULT_USER) {
+                                await Ajax.post("/scheduling/reserve", {
+                                    userId: reserveTimeSlots?.userId,
+                                    listingId: reserveTimeSlots?.listingId,
+                                    fullPrice: reserveTimeSlots?.fullPrice,
+                                    chosenTimeFrames: reserveTimeSlots?.chosenTimeFrames
+                                }).then(response => {
+                                    if(response.error) {
+                                        onError("Scheduling Error. Please refresh page or try again later.")
+                                    }
+                                    setOnSuccess(true);
+                                })
+                            }
+                            else {
+                                onError("User must be logged in to make reservation.")
+                            }
+                        }}/>
                     }
-                    
-
+                    {/* render Confirmation card */}
                 </>
             })}
         </>
@@ -169,6 +188,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                                 }));
                                 setLoaded(true);
                                 setListingAvailabilityData(listingAvailability);
+                                console.log(listingAvailabilityData)
                             });
                         }
                     }} />
@@ -326,7 +346,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                                 return <>
                                     <div className='buttons'>
                                         <HourBarButton key={index} theme={theme} title={index.toString().concat(":00")} onClick={() => {
-                                            if (authData && authData.sub) {
+                                            if (authData && authData.role !== Auth.Roles.DEFAULT_USER) {
                                                 if (matchingTimeSlot) {
                                                     const startTime = new Date(date);
                                                     startTime.setHours(index);
@@ -359,13 +379,17 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                             <h4> PM </h4>
                             {hoursArrayPM.map((index) => {
                                 // console.log("PM");
+                                console.log("Matching availabilities", matchingAvailabilities);
                                 let matchingTimeSlot: IBookedTimeFrame | undefined = undefined;
                                 matchingAvailabilities?.forEach(timeSlot => {
-                                    // console.log(new Date(timeSlot.endTime).getHours())
-                                    // console.log(new Date(timeSlot.startTime).getHours())
-                                    if (new Date(timeSlot.endDateTime).getHours() >= index && new Date(timeSlot.startDateTime).getHours() <= index) {
+                                    console.log("INDEX = ", index)
+                                    console.log("Timeslot start = ", new Date(timeSlot.startDateTime).getHours())
+                                    console.log("Timeslot end = ",new Date(timeSlot.endDateTime).getHours())
+                                    
+                                    if (new Date(timeSlot.endDateTime).getHours() > index && new Date(timeSlot.startDateTime).getHours() <= index) {
                                         matchingTimeSlot = timeSlot;
                                     }
+                                    console.log("Matching timeslot = ", matchingTimeSlot)
                                 })
                                 let theme = matchingTimeSlot ? HourBarButtonTheme.LIGHT : HourBarButtonTheme.HOLLOW_DARK;
                                 theme = selectedHours.includes(index) ? HourBarButtonTheme.DARK : theme;
@@ -373,7 +397,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                                 return <>
                                     <div className='buttons'>
                                         <HourBarButton key={index} theme={theme} title={index.toString().concat(":00")} onClick={() => {
-                                            if (authData && authData.sub) {
+                                            if (authData && authData.role !== Auth.Roles.DEFAULT_USER) {
                                                 if (matchingTimeSlot) {
                                                     const startTime = new Date(date);
                                                     startTime.setHours(index);
