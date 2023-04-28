@@ -1,4 +1,5 @@
-import Loading from '../../components/Loading/Loading';
+
+import Loading from '../../../components/Loading/Loading';
 import './DateButton.css';
 
 interface IDateButtonProps {
@@ -13,7 +14,7 @@ export enum DateButtonTheme {
     LIGHT = "light",
     DARK = "dark",
     HOLLOW_LIGHT = "hollow_light",
-    HOLLOW_DARK = "hollow_dark",
+    GREY = "hollow_dark",
 }
 
 const DateButton: React.FC<IDateButtonProps> = (props) => {
@@ -40,7 +41,7 @@ const DateButton: React.FC<IDateButtonProps> = (props) => {
             color: `rgb(${getColor("--primary-text-light")})`,
             border: `2px solid rgb(${getColor("--primary-text-light")})`
         },
-        [DateButtonTheme.HOLLOW_DARK]: {
+        [DateButtonTheme.GREY]: {
             background: "rgb(0, 0, 0, 0.09)",
             color: `rgb(0, 0, 0, 0.09)`,
             border: `2px solid rgb(${getColor("--primary-text-light")})`
@@ -53,7 +54,7 @@ const DateButton: React.FC<IDateButtonProps> = (props) => {
             id={props.id}
             onClick={ props.onClick }
             style={
-                themes[props.theme ?? DateButtonTheme.HOLLOW_DARK]
+                themes[props.theme ?? DateButtonTheme.GREY]
             }>
             {!props.loading ?
                 props.title :

@@ -10,13 +10,12 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { INITIAL_EVENTS, createEventId } from './event-utils';
-import Button, { ButtonTheme } from '../../components/Button/Button';
-import Footer from '../../components/Footer/Footer';
-import NavbarGuest from '../../components/NavbarGuest/NavbarGuest';
+import Button, { ButtonTheme } from '../../../components/Button/Button';
+import Footer from '../../../components/Footer/Footer';
+import NavbarGuest from '../../../components/NavbarGuest/NavbarGuest';
 import { Calendar } from 'fullcalendar';
 import "./SchedulingView.css";
-import { Ajax } from '../../Ajax';
+import { Ajax } from '../../../Ajax';
 
 interface ISchedulingViewProp {
 
@@ -124,7 +123,7 @@ const SchedulingView: React.FC<ISchedulingViewProp> = (props) => {
 
         if (title) {
             calendarApi.addEvent({
-                id: createEventId(),
+                //id: createEventId(),
                 title,
                 start: selectInfo.startStr,
                 end: selectInfo.endStr,
@@ -182,7 +181,7 @@ const SchedulingView: React.FC<ISchedulingViewProp> = (props) => {
                 selectMirror: true,
                 dayMaxEvents: true,
                 weekends: true,
-                initialEvents: INITIAL_EVENTS,
+                //initialEvents: INITIAL_EVENTS,
                 select: handleDateSelect,
                 eventContent: renderEventContent,
                 eventClick: handleEventClick,

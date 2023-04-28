@@ -1,32 +1,76 @@
 .opentimeslots-view-container {
-    position: relative;
-    display: flex;
-    flex-flow: column;
-    flex-grow: 1;
-  }
-  
-  .opentimeslots-view-container .opentimeslots-view-content {
-    display: flex;
-    padding-bottom: 2.5rem;
-    flex-grow: 1;
-  }
-  
-  .opentimeslots-view-container .opentimeslots-view-content .opentimeslots-view-main-wrapper {
-    padding: 20px 20px;
-    color: rgb(var(--primary-text-dark));
-    text-align: left;
-  }
-    .opentimeslots-view-container .opentimeslots-view-content .opentimeslots-view-main-wrapper .opentimeslots-view-second-wrapper {
-      display: flex;
-      padding: 20px 20px;
-      color: rgb(var(--primary-text-dark));
-      text-align: left;
-    }
-      .opentimeslots-view-container .opentimeslots-view-content .opentimeslots-view-main-wrapper .opentimeslots-view-second-wrapper .opentimeslots-view-wrapper{
-        padding: 20px 20px;
-        color: rgb(var(--primary-text-dark));
-        text-align: left;
-      }
+  position: relative;
+  display: flex;
+  flex-flow: column;
+  flex-grow: 1;
+}
+
+.opentimeslots-view-container .opentimeslots-view-content {
+  display: flex;
+  padding-bottom: 2.5rem;
+  flex-grow: 1;
+}
+
+.opentimeslots-view-container .opentimeslots-view-content .main-wrapper {
+  padding: 20px 20px;
+  color: rgb(var(--primary-text-dark));
+  text-align: left;
+}
+
+.opentimeslots-view-container .opentimeslots-view-content .main-wrapper .second-wrapper {
+  display: flex;
+  padding: 20px 20px;
+  color: rgb(var(--primary-text-dark));
+  text-align: left;
+}
+
+.opentimeslots-view-container .opentimeslots-view-content .main-wrapper .second-wrapper .view-wrapper {
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
+  color: rgb(var(--primary-text-dark));
+  text-align: center;
+}
+
+.opentimeslots-view-container .opentimeslots-view-content .main-wrapper .second-wrapper .slots-card {
+  width: 250px;
+  padding-bottom: 20px;
+  color: rgb(var(--primary-text-dark));
+  text-align: center;
+  border-width: 1px;
+  border-style: dashed;
+}
+.opentimeslots-view-container .opentimeslots-view-content .main-wrapper .second-wrapper .slots-card .info {
+  color: rgb(var(--secondary-text-dark));
+  justify-content: center;
+}
+.opentimeslots-view-container .opentimeslots-view-content .main-wrapper .second-wrapper .slots-card .error {
+  color: rgb(var(--error-text));
+  justify-content: center;
+}
+
+.opentimeslots-view-container .opentimeslots-view-content .main-wrapper .second-wrapper .slots-card .halfdaywrapper {
+  display: flex;
+  flex-flow: row;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 10px;
+  justify-content: center;
+}
+.opentimeslots-view-container .opentimeslots-view-content .main-wrapper .second-wrapper .slots-card .halfdaywrapper .halfday {
+  display: flex;
+  flex-flow: column;
+  padding-bottom: 10px
+}
+.opentimeslots-view-container .opentimeslots-view-content .main-wrapper .second-wrapper .slots-card .halfdaywrapper .halfday .buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 3px;
+  padding-right: 3px;
+  padding-bottom: 3px;
+}
+
 .opentimeslots-sidebar {
   background-color: rgb(var(--primary-background-light));
   padding: 20px 20px;
@@ -35,87 +79,84 @@
   width: 300px;
   text-align: left;
 }
-  
-  .opentimeslots-sidebar .input-field {
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    text-align: left;
-  }
-  
-  .opentimeslots-sidebar .input-field label {
-    width: 200px;
-    margin-right: 10px;
-  }
-  
-  .opentimeslots-sidebar .input-field input {
-    width: 40%;
-    padding: 5px 5px;
-    border: 1px solid rgb(var(--primary-text-dark));
-    border-radius: 3px;
-    row-gap: 5px;
-  }
-  
-  .opentimeslots-sidebar .buttons {
-    display: flex;
-    justify-content: center;
-  }
-  
-  .opentimeslots-sidebar .info {
-    color: rgb(var(--secondary-text-dark));
-  }
-  
-  .opentimeslots-sidebar .info:hover {
-    color: rgb(var(--primary-text-dark));
-  }
-  
-  .opentimeslots-sidebar .error {
-    color: rgb(var(--error-text));
-    justify-content: center;
-  }
+
+.opentimeslots-sidebar .input-field {
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  text-align: left;
+}
+
+.opentimeslots-sidebar .input-field label {
+  width: 200px;
+  margin-right: 10px;
+}
+
+.opentimeslots-sidebar .input-field input {
+  width: 40%;
+  padding: 5px 5px;
+  border: 1px solid rgb(var(--primary-text-dark));
+  border-radius: 3px;
+  row-gap: 5px;
+}
+
+.opentimeslots-sidebar .buttons {
+  display: flex;
+  justify-content: center;
+}
+
+.opentimeslots-sidebar .info {
+  color: rgb(var(--secondary-text-dark));
+  justify-content: center;
+}
+
+.opentimeslots-sidebar .info:hover {
+  color: rgb(var(--primary-text-dark));
+}
+
+.opentimeslots-sidebar .error {
+  color: rgb(var(--error-text));
+  justify-content: center;
+}
+
 /* calendar wrapper */
-.opentimeslots-calendar{
+.calendar {
   display: flex;
   flex-flow: column;
   text-align: center;
+  justify-content: center;
 }
-.opentimeslots-calendar .month{
+
+.calendar .month {
   padding-bottom: 50px;
 }
-  .opentimeslots-calendar .month .daysofweek {
-    display: flex;
-    flex-flow: row;
-    padding-bottom: 20px;
-  }
-  .opentimeslots-calendar .month .daysofweek .day{
-    width: 44px;
-    text-align: center;
-    justify-content: center;
-  }
-  .opentimeslots-calendar .month .week{
-    display: flex;
-    padding-bottom: 3px;
-  }
-  .opentimeslots-calendar .month .week .day{
-    justify-content: center;
-    padding-right: 5px;
-  }
-/* hours wrapper */
-.opentimeslots-hours {
+.calendar .month .today{
+  padding-top: 20px;
+  justify-content: center;
+}
+
+.calendar .month .daysofweek {
   display: flex;
   flex-flow: row;
-  padding-bottom: 10px;
-  text-align: center;
+  padding-bottom: 20px;
+  justify-content: center;
 }
-  .opentimeslots-hours .halfday{
-    display: flex;
-    flex-flow: column;
-    padding-right: 20px;
-    padding-bottom: 10px
-  }
-    .opentimeslots-hours .halfday .buttons{
-      display: flex;
-      flex-direction: column;
-      justify-content: left;
-      padding-bottom: 10px;
-    }
+
+.calendar .month .daysofweek .day {
+  width: 40px;
+  padding-left: 3px;
+  padding-right: 3px;
+  text-align: center;
+  justify-content: center;
+}
+
+.calendar .month .week {
+  display: flex;
+  padding-bottom: 3px;
+}
+
+.calendar .month .week .day {
+  justify-content: center;
+  padding-left: 3px;
+  padding-right: 3px;
+}

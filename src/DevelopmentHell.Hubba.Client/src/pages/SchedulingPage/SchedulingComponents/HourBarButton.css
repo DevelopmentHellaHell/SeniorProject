@@ -1,11 +1,12 @@
 .hour-btn {
     background-color: rgb(var(--primary-button-light));
     color: rgb(var(--primary-text-dark));
-    padding: 8px 6px;
+    padding: 8px 8px;
     width: 100px;
-    height: 40px;
+    height: 35px;
     font-size: 16px;
     font-weight: 700;
+    text-align: center;
     border-radius: 10px;
     border: 1px solid;
     border-width: thin;
