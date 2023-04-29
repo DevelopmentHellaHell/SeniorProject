@@ -17,14 +17,14 @@
   text-align: left;
 }
 
-.opentimeslots-view-container .opentimeslots-view-content .main-wrapper .second-wrapper {
+.main-wrapper .second-wrapper {
   display: flex;
   padding: 20px 20px;
   color: rgb(var(--primary-text-dark));
   text-align: left;
 }
 
-.opentimeslots-view-container .opentimeslots-view-content .main-wrapper .second-wrapper .view-wrapper {
+.main-wrapper .second-wrapper .view-wrapper {
   padding-left: 20px;
   padding-right: 20px;
   padding-bottom: 20px;
@@ -32,7 +32,7 @@
   text-align: center;
 }
 
-.opentimeslots-view-container .opentimeslots-view-content .main-wrapper .second-wrapper .slots-card {
+.main-wrapper .second-wrapper .slots-card {
   width: 250px;
   padding-bottom: 20px;
   color: rgb(var(--primary-text-dark));
@@ -40,16 +40,18 @@
   border-width: 1px;
   border-style: dashed;
 }
-.opentimeslots-view-container .opentimeslots-view-content .main-wrapper .second-wrapper .slots-card .info {
+
+.main-wrapper .second-wrapper .slots-card .info {
   color: rgb(var(--secondary-text-dark));
   justify-content: center;
 }
-.opentimeslots-view-container .opentimeslots-view-content .main-wrapper .second-wrapper .slots-card .error {
+
+.main-wrapper .second-wrapper .slots-card .error {
   color: rgb(var(--error-text));
   justify-content: center;
 }
 
-.opentimeslots-view-container .opentimeslots-view-content .main-wrapper .second-wrapper .slots-card .halfdaywrapper {
+.main-wrapper .second-wrapper .slots-card .halfdaywrapper {
   display: flex;
   flex-flow: row;
   padding-left: 20px;
@@ -57,12 +59,14 @@
   padding-bottom: 10px;
   justify-content: center;
 }
-.opentimeslots-view-container .opentimeslots-view-content .main-wrapper .second-wrapper .slots-card .halfdaywrapper .halfday {
+
+.main-wrapper .second-wrapper .slots-card .halfdaywrapper .halfday {
   display: flex;
   flex-flow: column;
   padding-bottom: 10px
 }
-.opentimeslots-view-container .opentimeslots-view-content .main-wrapper .second-wrapper .slots-card .halfdaywrapper .halfday .buttons {
+
+.main-wrapper .second-wrapper .slots-card .halfdaywrapper .halfday .buttons {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -70,14 +74,19 @@
   padding-right: 3px;
   padding-bottom: 3px;
 }
-
-.opentimeslots-sidebar {
+.opentimeslots-sidebar-wrapper {
   background-color: rgb(var(--primary-background-light));
+  border: none;
+  padding-bottom: 20px;
+}
+.opentimeslots-sidebar {
+  display: flex;
+  flex-direction: column;
   padding: 20px 20px;
   border: none;
-  border-radius: 10px;
   width: 300px;
-  text-align: left;
+  height: fit-content;
+  text-align: center;
 }
 
 .opentimeslots-sidebar .input-field {
@@ -101,17 +110,13 @@
 }
 
 .opentimeslots-sidebar .buttons {
-  display: flex;
+  width: 100%;
   justify-content: center;
 }
 
 .opentimeslots-sidebar .info {
   color: rgb(var(--secondary-text-dark));
   justify-content: center;
-}
-
-.opentimeslots-sidebar .info:hover {
-  color: rgb(var(--primary-text-dark));
 }
 
 .opentimeslots-sidebar .error {
@@ -126,11 +131,30 @@
   text-align: center;
   justify-content: center;
 }
+.calendar .header {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  color: rgb(var(--primary-text-dark));
+  
+  font-weight: 700;
+  padding-bottom: 20px;
+  justify-content: center;
+}
+.calendar .header .text{
+  width: 220px;
+  font-size: 28px;
+}
+
+.calendar .header .buttons{
+  
+}
 
 .calendar .month {
   padding-bottom: 50px;
 }
-.calendar .month .today{
+
+.calendar .month .today {
   padding-top: 20px;
   justify-content: center;
 }
@@ -159,4 +183,88 @@
   justify-content: center;
   padding-left: 3px;
   padding-right: 3px;
+}
+
+/* confirmation card */
+.opentimeslots-view-container .confirmation-card-wrapper {
+  position: fixed;
+  color: rgb(var(--primary-text-dark));
+  top: 20%;
+  left: 30%;
+  z-index: 9999;
+  width: 100%;
+  height: fit-content;
+}
+.confirmation-card-wrapper .confirmation-card {
+  position: absolute;
+  background-color: rgb(var(--primary-background-light));
+  padding: 20px 70px;
+  border: none;
+  border-radius: 10px;
+  width: fit-content;
+  text-align: center;
+}
+.confirmation-card .h1 {
+  font-size: 32px;
+  font-weight: 600;
+  color: rgb(var(--primary-text-dark));
+}
+.confirmation-card .h2 {
+  font-size: 18px;
+  font-weight: 400;
+  color: rgb(var(--primary-text-dark));
+}
+.details {
+  display: flex;
+  flex-flow: column;
+  color: rgb(var(--secondary-text-dark));
+  text-align: left;
+  width: fit-content;
+  font-size: 14px;
+  padding-left: 60px;
+}
+.details .info {
+  padding-left: 20px;
+  justify-content: center;
+}
+.info-bold {
+  display: flex;
+  flex-flow: row;
+  color: rgb(var(--primary-text-dark));
+  font-weight: 600;
+  text-align: center;
+  justify-content: center;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+.info-bold .info-left {
+  display: flex;
+  flex-flow: column;
+  color: rgb(var(--secondary-text-dark));
+  text-align: left;
+  padding-top: 10px;
+  border-top: 1px dotted;
+}
+.info-bold .info-right {
+  display: flex;
+  flex-flow: column;
+  color: rgb(var(--secondary-text-dark));
+  text-align: right;
+  padding-top: 10px;
+  border-top: 1px dotted;
+}
+
+.info-bold .block{
+  width: 100px;
+}
+
+.confirmation-card .error {
+  color: rgb(var(--error-text));
+}
+.confirmation-card .buttons {
+  display: flex;
+  flex-flow: row;
+  gap: 20px;
+  justify-content: center;
+  padding-top: 20px;
 }
