@@ -53,7 +53,7 @@
 
 .main-wrapper .second-wrapper .slots-card .halfdaywrapper {
   display: flex;
-  flex-flow: row;
+  flex-direction: row;
   padding-left: 20px;
   padding-right: 20px;
   padding-bottom: 10px;
@@ -87,26 +87,8 @@
   width: 300px;
   height: fit-content;
   text-align: center;
-}
-
-.opentimeslots-sidebar .input-field {
-  margin-bottom: 15px;
-  display: flex;
-  align-items: center;
-  text-align: left;
-}
-
-.opentimeslots-sidebar .input-field label {
-  width: 200px;
-  margin-right: 10px;
-}
-
-.opentimeslots-sidebar .input-field input {
-  width: 40%;
-  padding: 5px 5px;
-  border: 1px solid rgb(var(--primary-text-dark));
-  border-radius: 3px;
-  row-gap: 5px;
+  color: rgb(var(--primary-text-dark));
+  font-weight: 600;
 }
 
 .opentimeslots-sidebar .buttons {
@@ -186,22 +168,21 @@
 }
 
 /* confirmation card */
-.opentimeslots-view-container .confirmation-card-wrapper {
-  position: fixed;
-  color: rgb(var(--primary-text-dark));
-  top: 20%;
-  left: 30%;
-  z-index: 9999;
+.opentimeslots-view-content .confirmation-card-wrapper {
+  display: flex;
   width: 100%;
-  height: fit-content;
+  color: rgb(var(--primary-text-dark));
+  justify-content: center;
+  align-items: center;
 }
 .confirmation-card-wrapper .confirmation-card {
-  position: absolute;
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
   background-color: rgb(var(--primary-background-light));
   padding: 20px 70px;
   border: none;
   border-radius: 10px;
-  width: fit-content;
   text-align: center;
 }
 .confirmation-card .h1 {
@@ -222,6 +203,7 @@
   width: fit-content;
   font-size: 14px;
   padding-left: 60px;
+  padding-bottom: 20px;
 }
 .details .info {
   padding-left: 20px;
@@ -236,6 +218,7 @@
   justify-content: center;
   padding-top: 20px;
   padding-bottom: 20px;
+  border-top: 1px dotted;
 }
 .info-bold .info-left {
   display: flex;
@@ -243,7 +226,6 @@
   color: rgb(var(--secondary-text-dark));
   text-align: left;
   padding-top: 10px;
-  border-top: 1px dotted;
 }
 .info-bold .info-right {
   display: flex;
@@ -251,11 +233,11 @@
   color: rgb(var(--secondary-text-dark));
   text-align: right;
   padding-top: 10px;
-  border-top: 1px dotted;
+  
 }
 
 .info-bold .block{
-  width: 100px;
+  width: 120px;
 }
 
 .confirmation-card .error {

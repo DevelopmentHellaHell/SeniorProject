@@ -41,8 +41,17 @@ export interface IReservedTimeSlots {
     chosenTimeFrames: IBookedTimeFrame[]
 }
 
+interface IBookingView {
+    userId: number,
+    bookingId: number,
+    fullPrice: number,
+    bookedTimeFrames: IBookedTimeFrame
+}
+
 const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
-    const [listingId, setListingId] = useState(20);
+    const [bookingView, setBookingView] = useState<IBookingView | null>(null);
+    const [bookingId, setBookingId] = useState<number>(0);
+    const [listingId, setListingId] = useState(props.listingId);
     const [initialDate, setInitialDate] = useState((new Date()).toDateString());
     const [month, setMonth] = useState<number>((new Date(initialDate)).getMonth() + 1);
     const [year, setYear] = useState<number>(new Date(initialDate).getFullYear());
@@ -63,6 +72,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
     const [sidebarError, setSideBarError] = useState("");
     const [error, setError] = useState("");
     const [showConfirmation, setShowConfirmation] = useState(false);
+    const [onDoneBooking, setOnDoneBooking] = useState(false);
 
     const authData = Auth.getAuthData();
 
@@ -72,16 +82,18 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
         setSelectedHours([]);
         setReadyToSubmit(false);
         setOnSuccess(false);
+        setOnDoneBooking(false);
         setSideBarError("");
         setError("");
-    }, [initialDate, chosenDate, onSuccess]);
+    }, [initialDate, chosenDate]);
 
     useEffect(() => {
         setMonth((new Date(initialDate)).getMonth() + 1);
         setShowConfirmation(false);
         setChosenDate("");
         setListingAvailabilityData([]);
-    }, [initialDate, onSuccess]);
+        setBookingId(0)
+    }, [initialDate, onDoneBooking]);
 
     useEffect(() => {
         if (!readyToSubmit) {
@@ -104,6 +116,43 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
     const onSideBarError = (message: string) => {
         setSideBarError(message);
         setLoaded(true);
+    };
+
+    const getListingAvailabilityData = async (year: number, month: number) => {
+        const currentDate = new Date();
+        setLoaded(false);
+        if (!initialDate) {
+            onError("Can't retrieve data. Please refresh page or try again later.");
+        }
+
+        if (month && year) {
+            await Ajax.post("/scheduling/findlistingavailabilitybymonth/", {
+                listingId: listingId,
+                month: month,
+                year: year
+            }).then(response => {
+                if (response.error) {
+                    onError(response.error);
+                    return;
+                }
+                {
+                    !listingAvailabilityData &&
+                        <div className='info'>
+                            No open time slots found
+                        </div>
+                }
+                const data = response.data as IListingAvailabilityData[];
+                const listingAvailability: IListingAvailabilityData[] = data.map(item => ({
+                    listingId: item.listingId,
+                    ownerId: item.ownerId,
+                    availabilityId: item.availabilityId,
+                    startTime: item.startTime,
+                    endTime: item.endTime
+                }));
+                setLoaded(true);
+                setListingAvailabilityData(listingAvailability);
+            });
+        }
     };
 
     const getMonth = (initialDate: number) => {
@@ -221,14 +270,11 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                 </div>
             </>
         }
-        else {
-            return <>
-                {chosenDate == "" &&
-                    <div className='info'>
-                        Select a date to check open slots
-                    </div>
-                }
-            </>
+        {
+            error &&
+                <div className='error'>
+                    {error}
+                </div>
         }
     };
 
@@ -247,7 +293,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                     theme={theme}
                     onClick={() => {
 
-                        if (chosenDate !== dateString && uniqueDates.includes(dateString)) {
+                        if (chosenDate !== dateString && uniqueDates.includes(dateString) && (new Date(dateString) >= new Date())) {
                             setChosenDate(dateString);
                         }
                         else {
@@ -300,7 +346,9 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
             }))}
             <div className='today'>
                 <HourBarButton title="Today" theme={todayButtonTheme} onClick={() => {
-                    setInitialDate(new Date().toDateString())
+                    const today = new Date();
+                    setInitialDate(today.toDateString())
+                    getListingAvailabilityData(today.getFullYear(), today.getMonth() + 1)
                 }} />
             </div>
         </>;
@@ -343,7 +391,6 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                                 <div className='block'>{(bookedTimeFrames.length * props.price + fee + tax).toLocaleString("en-US", { style: 'currency', currency: 'USD' })}</div>
                             </div>
                         </div>
-                        {/* render Confirmation card */}
                     </>
                 })}
             </div>
@@ -352,86 +399,81 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
     const renderSidebar = () => {
         return (
             <div className="opentimeslots-sidebar">
-                <div className="input-field">
-                    <label>Find Listing Availability</label>
-                </div>
-                <div className="input-field">
-                    <label>Select date to start</label>
-                    <input type="date" id="month" value={initialDate} placeholder={initialDate} onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                        setInitialDate(event.target.value);
-                        setMonth(new Date(event.target.value).getMonth() + 1);
-                        setYear(new Date(event.target.value).getFullYear());
-                    }} />
-                </div>
-                <div className="buttons">
-                    <Button title="Find availability" theme={ButtonTheme.DARK} onClick={async () => {
-                        setLoaded(false);
-                        if (!initialDate) {
-                            onSideBarError("Please select a date");
-                        }
-                        if (month && year) {
-                            await Ajax.post("/scheduling/findlistingavailabilitybymonth/", {
-                                listingId: listingId,
-                                month: month,
-                                year: year
-                            }).then(response => {
-                                if (response.error) {
-                                    onSideBarError(response.error);
-                                    return;
-                                }
-                                {
-                                    !listingAvailabilityData &&
-                                        <div className='info'>
-                                            No open time slots found
-                                        </div>
-                                }
-                                const data = response.data as IListingAvailabilityData[];
-                                const listingAvailability: IListingAvailabilityData[] = data.map(item => ({
-                                    listingId: item.listingId,
-                                    ownerId: item.ownerId,
-                                    availabilityId: item.availabilityId,
-                                    startTime: item.startTime,
-                                    endTime: item.endTime
-                                }));
-                                setLoaded(true);
-                                setListingAvailabilityData(listingAvailability);
-                            });
-                        }
-                    }} />
-                </div>
+                {!chosenDate &&
+                    <p className='info'>Click on calendar to find listing's availability</p>
+                }
+                {chosenDate &&
+                    <div>
+                        Your Booking Details:
+                    </div>
+                }
             </div>
         );
     };
     const renderConfirmation = () => {
-        console.log("BOOKED TIME FRAMES = ", bookedTimeFrames)
+        let confirmationHeader = !onDoneBooking ? "Confirm Your Booking" : "Thank Your For Your Booking";
+        console.log("ON DONE BOOKING = ", onDoneBooking)
+        console.log("BOOKING ID = ", bookingId)
+        console.log("SHOW CONFIRMATION = ", showConfirmation)
         return <>
             <div className='confirmation-card'>
-                <div className='h1'>Confirm Your Booking</div>
+                {/* {!bookingView &&
+                    <div className='h1'>Thank You For Your Booking
+                        <div>Confirmation Number: {bookingView?.bookingId}</div>
+                    </div>
+                } */}
+
+                <div className='h1'>{confirmationHeader}</div>
+                {bookingId !== 0 &&
+                    <div className='h2'>
+                        Confirmation number: {bookingId}
+                    </div>
+                }
                 <div className='h2'>Listing: {props.listingTitle}</div>
                 <p className='h2'>Booking details:</p>
                 {renderSummary(bookedTimeFrames, error)}
-                <div className='buttons'>
-                    <Button title="No" theme={ButtonTheme.HOLLOW_DARK} onClick={() => history.go(-1)} />
-                    <Button title="Yes" theme={ButtonTheme.DARK} onClick={async () => {
-                        if (authData && authData.role !== Auth.Roles.DEFAULT_USER) {
-                            await Ajax.post("/scheduling/reserve", {
-                                userId: reserveTimeSlots?.userId,
-                                listingId: reserveTimeSlots?.listingId,
-                                fullPrice: reserveTimeSlots?.fullPrice,
-                                chosenTimeFrames: reserveTimeSlots?.chosenTimeFrames
-                            }).then(response => {
-                                if (response.error) {
-                                    onSideBarError("Scheduling Error. Please refresh page or try again later.")
-                                }
-                                setOnSuccess(true);
-                                setShowConfirmation(true);
-                            })
-                        }
-                        else {
-                            onError("User must be logged in to make reservation.")
-                        }
-                    }} />
-                </div>
+                {!onSuccess &&
+                    <div className='buttons'>
+                        <Button title="No" theme={ButtonTheme.HOLLOW_DARK} onClick={() => history.go(-1)} />
+                        <Button title="Yes" theme={ButtonTheme.DARK} onClick={async () => {
+                            if (authData && authData.role !== Auth.Roles.DEFAULT_USER) {
+                                await Ajax.post("/scheduling/reserve", {
+                                    userId: reserveTimeSlots?.userId,
+                                    listingId: reserveTimeSlots?.listingId,
+                                    fullPrice: reserveTimeSlots?.fullPrice,
+                                    chosenTimeFrames: reserveTimeSlots?.chosenTimeFrames
+                                }).then(response => {
+                                    if (response.error) {
+                                        onSideBarError("Scheduling Error. Please refresh page or try again later.")
+                                    }
+                                    const data = response.data as IBookingView;
+                                    console.log("DATA", data)
+                                    const bookingConfirmation: IBookingView = {
+                                        userId: data.userId,
+                                        bookingId: data.bookingId,
+                                        fullPrice: data.fullPrice,
+                                        bookedTimeFrames: data.bookedTimeFrames,
+                                    };
+                                    setBookingId(data.bookingId);
+                                    setOnSuccess(true);
+                                })
+                            }
+                            else {
+                                onError("User must be logged in to make reservation.")
+                            }
+                        }} />
+                    </div>
+                }
+                {onSuccess &&
+                    <div className='info'>
+                        <p> Booking confirmed. </p>
+                        <div className='buttons'>
+                            <Button title="Close" theme={ButtonTheme.DARK} onClick={() => {
+                                setOnDoneBooking(true);
+                            }} />
+                        </div>
+                    </div>
+                }
             </div>
 
             {error &&
@@ -478,9 +520,10 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                                             let prevDate = new Date(initialDate);
                                             const prevYear = prevDate.getFullYear();
                                             const prevMonth = prevDate.getMonth(); // January is 0
-                                            setInitialDate(new Date(prevYear, prevMonth-1, 1).toDateString());
-                                            setMonth(prevMonth-1);
+                                            setInitialDate(new Date(prevYear, prevMonth - 1, 1).toDateString());
+                                            setMonth(prevMonth - 1);
                                             setYear(prevYear);
+                                            getListingAvailabilityData(prevYear, prevMonth);
                                         }} />
                                         <div className='text'>
                                             {getMonth((new Date(initialDate)).getMonth() + 1)} {(new Date(initialDate)).getFullYear()}
@@ -489,10 +532,11 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                                             let nextDate = new Date(initialDate);
                                             const nextYear = nextDate.getFullYear();
                                             const nextMonth = nextDate.getMonth(); // January is 0
-                                            setInitialDate(new Date(nextYear, nextMonth+1, 1).toDateString());
-                                            setMonth(nextMonth+1);
+                                            setInitialDate(new Date(nextYear, nextMonth + 1, 1).toDateString());
+                                            setMonth(nextMonth + 2);
                                             setYear(nextYear);
-                                        }}/>
+                                            getListingAvailabilityData(nextYear, nextMonth + 2);
+                                        }} />
                                     </div>
                                     <div className='month'>
                                         {renderCalendar(initialDate)}
@@ -512,15 +556,18 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                         </div>
                     </div>
                 }
+                {/** Render confirmation card after clicking reserve button */}
+                {showConfirmation &&
+                    // <ConfirmationCard onSuccess={() => { }} reserveTimeSlots={reserveTimeSlots ?? null} />
+                    <div className='confirmation-card-wrapper'>
+                        {renderConfirmation()}
+                    </div>
+                }
+            </div>
+            <div className='confirmation-view-content'>
+
             </div>
 
-            {/** Render confirmation card after clicking reserve button */}
-            {showConfirmation &&
-                // <ConfirmationCard onSuccess={() => { }} reserveTimeSlots={reserveTimeSlots ?? null} />
-                <div className='confirmation-card-wrapper'>
-                    {renderConfirmation()}
-                </div>
-            }
             <Footer />
         </div>
     );
