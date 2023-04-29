@@ -564,9 +564,6 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                     </div>
                 }
             </div>
-            <div className='confirmation-view-content'>
-
-            </div>
 
             <Footer />
         </div>
