@@ -2,7 +2,8 @@ export namespace Database {
     export enum Databases {
         USERS = "USERS",
         LOGS = "LOGS",
-        NOTIFICATIONS = "NOTIFICATIONS"
+        NOTIFICATIONS = "NOTIFICATIONS",
+        COLLABORATORS = "COLLABORATOR_PROFILES"
     }
 
     export enum Tables {

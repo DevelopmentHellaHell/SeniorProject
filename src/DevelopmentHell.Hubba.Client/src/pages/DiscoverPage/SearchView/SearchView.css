@@ -1,0 +1,11 @@
+.search-view-wrapper {
+    padding: 20px;
+}
+
+.search-view-wrapper .catalogue {
+    display: flex;
+    justify-content: space-around;
+    height: 200px;
+    padding: 10px 10px;
+    margin-bottom: 120px;
+}

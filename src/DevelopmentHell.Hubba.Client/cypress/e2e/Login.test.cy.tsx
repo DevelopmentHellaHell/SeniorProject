@@ -1,5 +1,4 @@
 /// <reference types="cypress" />
-import { Ajax } from "../../src/Ajax";
 import { Database } from "./TestModels/Database";
 
 context('UI functionality', () => {

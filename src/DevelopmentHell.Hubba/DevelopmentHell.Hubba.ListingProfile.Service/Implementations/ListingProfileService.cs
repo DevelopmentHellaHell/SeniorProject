@@ -307,7 +307,8 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
                     UserId = (int)listingRating.UserId!,
                     LastEdited = (DateTime)listingRating.LastEdited!,
                     Rating = (int)listingRating.Rating,
-                    Comment = listingRating.Comment
+                    Comment = listingRating.Comment,
+                    Anonymous = (bool)listingRating.Anonymous!,
                 };
 
                 Result<string> getUsername = await GetUsername(temp.UserId).ConfigureAwait(false);

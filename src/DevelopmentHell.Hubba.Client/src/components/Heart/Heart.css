@@ -1,0 +1,9 @@
+.icon-heart .check-heart 
+{
+  display: none;
+  cursor: pointer;
+}
+.icon-heart .check-heart:checked + svg path
+{
+  fill: #ff0000;
+}

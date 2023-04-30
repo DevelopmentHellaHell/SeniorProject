@@ -86,8 +86,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// <returns>List<Booking> in Payload</returns>
         public async Task<Result<List<Booking>>> GetBooking(List<Tuple<string,object>> filters)
         {
-            
-            
             if (filters.Count == 0)
             {
                 return new(Result.Failure("Invalid filter", StatusCodes.Status400BadRequest));
@@ -109,6 +107,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 comparators.Add(new Comparator(filter.Item1,"=", filter.Item2));
             }
             
+
             var selectResult = await _selectDataAccess.Select(
                 SQLManip.InnerJoinTables(
                     new Joiner(

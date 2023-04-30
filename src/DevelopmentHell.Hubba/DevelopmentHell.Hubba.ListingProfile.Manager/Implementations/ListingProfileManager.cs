@@ -736,7 +736,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             }
 
 
-            Result<List<string>> getFiles = await _fileService.GetFilesInDir("ListingProfiles/" + listingId +"Pictures/").ConfigureAwait(false);
+            Result<List<string>> getFiles = await _fileService.GetFilesInDir("ListingProfiles/" + listingId +"/Pictures/").ConfigureAwait(false);
             if (!getFiles.IsSuccessful)
             {
                 return new(Result.Failure(getFiles.ErrorMessage!, StatusCodes.Status400BadRequest));

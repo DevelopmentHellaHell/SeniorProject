@@ -11,7 +11,7 @@ using Microsoft.Extensions.Configuration.UserSecrets;
 using System.Diagnostics.Tracing;
 using System.Security.Claims;
 
-namespace DevelopmentHell.Hubba.Scheduling.Manager
+namespace DevelopmentHell.Hubba.Scheduling.Manager.Abstraction
 {
     public class SchedulingManager : ISchedulingManager
     {

@@ -1,5 +1,5 @@
 ﻿using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.Scheduling.Manager;
+using DevelopmentHell.Hubba.Scheduling.Manager.Abstraction;
 using DevelopmentHell.Hubba.WebAPI.DTO.Scheduling;
 using Microsoft.AspNetCore.Mvc;
 

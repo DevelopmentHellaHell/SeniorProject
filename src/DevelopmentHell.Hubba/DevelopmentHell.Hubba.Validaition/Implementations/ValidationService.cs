@@ -4,6 +4,9 @@ using DevelopmentHell.Hubba.Models.DTO;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using Microsoft.AspNetCore.Http;
 using System.Globalization;
+using System.Diagnostics;
+using System.Globalization;
+using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -26,6 +29,7 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
             {
                 result.ErrorMessage = error;
                 return result;
+                
             }
 
             string regex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";

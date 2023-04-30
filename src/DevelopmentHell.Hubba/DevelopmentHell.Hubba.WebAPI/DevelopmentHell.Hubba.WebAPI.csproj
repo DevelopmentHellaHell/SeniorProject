@@ -24,6 +24,7 @@
     <ProjectReference Include="..\Development.Hubba.JWTHandler.Service\Development.Hubba.JWTHandler.Service.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.AccountDeletion.Manager\DevelopmentHell.Hubba.AccountDeletion.Manager.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.AccountRecovery.Manager\DevelopmentHell.Hubba.AccountRecovery.Manager.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.AccountSystem.Manager\DevelopmentHell.Hubba.AccountSystem.Manager.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.Analytics.Service\DevelopmentHell.Hubba.Analytics.Service.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.AuthenticationManager\DevelopmentHell.Hubba.Authentication.Manager.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.Collaborator.Manager\DevelopmentHell.Hubba.Collaborator.Manager.csproj" />
@@ -37,6 +38,8 @@
     <ProjectReference Include="..\DevelopmentHell.Hubba.Scheduling.Service\DevelopmentHell.Hubba.Scheduling.Service.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.Testing.Service\DevelopmentHell.Hubba.Testing.Service.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.UserManagement.Manager\DevelopmentHell.Hubba.UserManagement.Manager.csproj" />
+    <ProjectReference Include="..\ProjectShowcaseManager\DevelopmentHell.Hubba.ProjectShowcase.Manager.csproj" />
+	<ProjectReference Include="..\DevelopmentHell.Hubba.AccountSystem.Manager\DevelopmentHell.Hubba.AccountSystem.Manager.csproj" />
   </ItemGroup>
 
 </Project>

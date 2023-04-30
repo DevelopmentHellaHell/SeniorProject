@@ -87,7 +87,7 @@ const CollaboratorPage: React.FC<ICollaboratorPage> = (props) => {
                     <div className="collaborator-page-profile">
                         <div className="collaborator-page-information-wrapper">
                             <div className="collaborator-page-information-leftcolumn-wrapper">
-                                <h2 className="collaborator-page-title">{data.name}</h2>
+                                <h2 id='collaborator-page-title' className="collaborator-page-title">{data.name}</h2>
                                 <div className="collaborator-page-tags-wrapper">
                                     <p id="tags-label" className="tags-label">Tags: </p>
                                     <p id="tags-list" className="tags-list">{data.tags ? data.tags : "No tags provided."}</p>
@@ -95,7 +95,7 @@ const CollaboratorPage: React.FC<ICollaboratorPage> = (props) => {
                                 <div className="collaborator-page-votes-wrapper">
                                     <div className="vote-control">
                                             <div className="h-stack">
-                                                <p className="up-vote" onClick={() => {
+                                                <p id='up-vote' className="up-vote" onClick={() => {
                                                     handleUpvoteClick();
                                                 }}>↑</p>
                                                 <p className="down-vote" onClick={() => {

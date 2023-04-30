@@ -53,9 +53,9 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
             Result sendOTPResult = _otpService.SendOTP(email, otp);
             if (!sendOTPResult.IsSuccessful)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = sendOTPResult.ErrorMessage;
-                return result;
+               result.IsSuccessful = false;
+               result.ErrorMessage = sendOTPResult.ErrorMessage;
+               return result;
             }
 
             string userHashKey = ConfigurationManager.AppSettings["UserHashKey"]!;

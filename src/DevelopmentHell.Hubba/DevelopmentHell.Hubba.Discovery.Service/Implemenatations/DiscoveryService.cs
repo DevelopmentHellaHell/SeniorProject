@@ -9,17 +9,17 @@ namespace DevelopmentHell.Hubba.Discovery.Service.Implemenatations
     {
         private readonly IListingsDataAccess _listingsDataAccess;
         private readonly ICollaboratorsDataAccess _collaboratorsDataAccess;
-        private readonly IProjectShowcasesDataAccess _projectShowcaseDataAccess;
+        private readonly IProjectShowcaseDataAccess _projectShowcaseDataAccess;
         private readonly ILoggerService _loggerService;
 
-        public DiscoveryService(IListingsDataAccess listingsDataAccess, ICollaboratorsDataAccess collaboratorsDataAccess, IProjectShowcasesDataAccess projectShowcasesDataAccess, ILoggerService loggerService)
+        public DiscoveryService(IListingsDataAccess listingsDataAccess, ICollaboratorsDataAccess collaboratorsDataAccess, IProjectShowcaseDataAccess projectShowcasesDataAccess, ILoggerService loggerService)
         {
             _listingsDataAccess = listingsDataAccess;
             _collaboratorsDataAccess = collaboratorsDataAccess;
             _projectShowcaseDataAccess = projectShowcasesDataAccess;
             _loggerService = loggerService;
         }
-
+        
         public async Task<Result<Dictionary<string, List<Dictionary<string, object>>?>>> GetCurated(int offset)
         {
             var listingsResult = await _listingsDataAccess.Curate().ConfigureAwait(false);
