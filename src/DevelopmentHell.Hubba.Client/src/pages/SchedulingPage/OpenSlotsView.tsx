@@ -84,7 +84,6 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
         setOnSuccess(false);
         setOnDoneBooking(false);
         setSideBarError("");
-        setError("");
     }, [initialDate, chosenDate]);
 
     useEffect(() => {
@@ -93,6 +92,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
         setChosenDate("");
         setListingAvailabilityData([]);
         setBookingId(0)
+        setError("");
     }, [initialDate, onDoneBooking]);
 
     useEffect(() => {
@@ -122,7 +122,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
         const currentDate = new Date();
         setLoaded(false);
         if (!initialDate) {
-            onError("Can't retrieve data. Please refresh page or try again later.");
+            onSideBarError("Can't retrieve data. Please refresh page or try again later.");
         }
 
         if (month && year) {
@@ -132,7 +132,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                 year: year
             }).then(response => {
                 if (response.error) {
-                    onError(response.error);
+                    onSideBarError(response.error);
                     return;
                 }
                 {
@@ -396,7 +396,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
             </div>
         </>
     }
-    const renderSidebar = () => {
+    const renderSidebar = (error: string) => {
         return (
             <div className="opentimeslots-sidebar">
                 {!chosenDate &&
@@ -407,7 +407,13 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                         Your Booking Details:
                     </div>
                 }
+                {sidebarError &&
+                    <div className='error'>
+                        {sidebarError}
+                    </div>
+                }
             </div>
+
         );
     };
     const renderConfirmation = () => {
@@ -432,7 +438,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                 <div className='h2'>Listing: {props.listingTitle}</div>
                 <p className='h2'>Booking details:</p>
                 {renderSummary(bookedTimeFrames, error)}
-                {!onSuccess &&
+                {!onSuccess && !error &&
                     <div className='buttons'>
                         <Button title="No" theme={ButtonTheme.HOLLOW_DARK} onClick={() => history.go(-1)} />
                         <Button title="Yes" theme={ButtonTheme.DARK} onClick={async () => {
@@ -443,17 +449,20 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                                     fullPrice: reserveTimeSlots?.fullPrice,
                                     chosenTimeFrames: reserveTimeSlots?.chosenTimeFrames
                                 }).then(response => {
-                                    if (response.error) {
-                                        onSideBarError("Scheduling Error. Please refresh page or try again later.")
+                                    if (response.error || response.data == null) {
+                                        onError("Scheduling Error. Please refresh page or try again later.")
                                     }
                                     const data = response.data as IBookingView;
+                                    console.log("RESPONSE DATA", data);
                                     console.log("DATA", data)
-                                    const bookingConfirmation: IBookingView = {
-                                        userId: data.userId,
-                                        bookingId: data.bookingId,
-                                        fullPrice: data.fullPrice,
-                                        bookedTimeFrames: data.bookedTimeFrames,
-                                    };
+                                    if (data !== null) {
+                                        const bookingConfirmation: IBookingView = {
+                                            userId: data?.userId,
+                                            bookingId: data?.bookingId,
+                                            fullPrice: data?.fullPrice,
+                                            bookedTimeFrames: data?.bookedTimeFrames,
+                                        };
+                                    }
                                     setBookingId(data.bookingId);
                                     setOnSuccess(true);
                                 })
@@ -462,6 +471,11 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                                 onError("User must be logged in to make reservation.")
                             }
                         }} />
+                    </div>
+                }
+                {error &&
+                    <div className='buttons'>
+                        <Button title="Close" theme={ButtonTheme.DARK} onClick={() => history.go(-1)}/>
                     </div>
                 }
                 {onSuccess &&
@@ -474,12 +488,13 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                         </div>
                     </div>
                 }
+                {error &&
+                    <div className="error">
+                        {error}
+                    </div>}
             </div>
 
-            {error &&
-                <div className="error">
-                    {error}
-                </div>}
+
         </>
     }
     return (
@@ -492,7 +507,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                 {/* Render sidebar for selection summary */}
                 {!showConfirmation &&
                     <div className='opentimeslots-sidebar-wrapper'>
-                        {renderSidebar()}
+                        {renderSidebar(sidebarError)}
                         {renderSummary(bookedTimeFrames, error)}
                         {readyToSubmit &&
                             <div className='opentimeslots-sidebar'>
