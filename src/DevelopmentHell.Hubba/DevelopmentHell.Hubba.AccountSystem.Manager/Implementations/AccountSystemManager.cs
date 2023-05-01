@@ -416,6 +416,25 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
 
         }
 
+        public async Task<Result<List<BookingHistory>>> GetBookingHistory()
+        {
+            Result<List<BookingHistory>> result = new Result<List<BookingHistory>>();
+            var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
+            if (stringAccountId is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error, invalid access token format. ";
+                return result;
+            }
+
+            var accountId = int.Parse(stringAccountId);
+
+            var getResult = await _accountSystemService.GetBookingHistory(accountId).ConfigureAwait(false);
+            return getResult;
+        }
+
+
         //Check proper credentials of user
         private async Task<Result> CheckPassword(int accountId, string email, string password) //MOVE
         {
