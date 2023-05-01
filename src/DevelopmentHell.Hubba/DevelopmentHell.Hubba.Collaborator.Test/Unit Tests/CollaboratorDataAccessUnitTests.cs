@@ -357,13 +357,13 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Unit_Tests
 
 
             //Act
-            var getCollabId = await _collaboratorsDataAccess.SelectCollaboratorId(createdId).ConfigureAwait(false);
+            var getCollabId = await _collaboratorsDataAccess.SelectCollaboratorId(accountId).ConfigureAwait(false);
             var collabId = getCollabId.Payload;
 
 
             //Assert
             Assert.IsTrue(getCollabId.IsSuccessful);
-            Assert.IsNull(getCollabId.Payload);
+            Assert.IsNotNull(getCollabId.Payload);
             Assert.AreEqual(createdId, collabId);
 
         }
