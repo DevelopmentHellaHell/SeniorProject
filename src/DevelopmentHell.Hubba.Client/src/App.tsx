@@ -47,10 +47,10 @@ const App: React.FC<IAppProps> = (props) => {
 						<Route path="/viewlistingratings" element={<ViewListingRatingsPage /> } />
 						<Route path="/scheduling" 
 								element={<OpenSlotsView 
-											listingId={20} 
-											ownerId={200}
-											listingTitle={"A beautiful mess in Long Beach"} 
-											price={25.99}
+											listingId={3667} 
+											ownerId={8}
+											listingTitle={"Title 15"} 
+											price={23.50}
 						/>} />	
 						<Route path="/showcases/view" element={<ViewProjectShowcasePage />}/>
 						

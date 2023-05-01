@@ -8,8 +8,6 @@ import NavbarUser from '../../components/NavbarUser/NavbarUser';
 import DateButton, { DateButtonTheme } from './SchedulingComponents/DateButton';
 import HourBarButton, { HourBarButtonTheme } from './SchedulingComponents/HourBarButton';
 import "./OpenSlotsView.css";
-import ConfirmationCard from './SchedulingComponents/ConfirmationCard';
-import { initial } from 'cypress/types/lodash';
 
 interface IOpenTimeSlotsProp {
     listingId: number,
@@ -49,12 +47,14 @@ interface IBookingView {
 }
 
 const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
+    const localeLanguage = "en-US";
+    const localeCurrency = { style: "currency", currency: "USD"};
+    const defaultTax = 0.0785;
+    const defaultFee = 0.15;
+
     const [bookingView, setBookingView] = useState<IBookingView | null>(null);
-    const [bookingId, setBookingId] = useState<number>(0);
     const [listingId, setListingId] = useState(props.listingId);
     const [initialDate, setInitialDate] = useState((new Date()).toDateString());
-    const [month, setMonth] = useState<number>((new Date(initialDate)).getMonth() + 1);
-    const [year, setYear] = useState<number>(new Date(initialDate).getFullYear());
 
     const [reserveTimeSlots, setReserveTimeSlots] = useState<IReservedTimeSlots | null>(null);
 
@@ -63,8 +63,8 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
     const [listingAvailabilityData, setListingAvailabilityData] = useState<IListingAvailabilityData[] | null>(null);
     const [selectedHours, setSelectedHours] = useState<number[]>([]);
     const [fullPrice, setFullPrice] = useState(bookedTimeFrames.length * props.price);
-    const [fee, setFee] = useState(props.fee || 10);
-    const [tax, setTax] = useState(fullPrice * props.tax! || 0);
+    const [fee, setFee] = useState(props.fee ?? defaultFee);
+    const [tax, setTax] = useState(props.tax ?? defaultTax);
 
     const [readyToSubmit, setReadyToSubmit] = useState<boolean>(false);
     const [loaded, setLoaded] = useState(false);
@@ -87,24 +87,27 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
     }, [initialDate, chosenDate]);
 
     useEffect(() => {
-        setMonth((new Date(initialDate)).getMonth() + 1);
         setShowConfirmation(false);
         setChosenDate("");
         setListingAvailabilityData([]);
-        setBookingId(0)
+        setBookingView(null);
         setError("");
     }, [initialDate, onDoneBooking]);
 
+    useEffect (() => {
+        setFullPrice(bookedTimeFrames.length * props.price);
+    },[bookedTimeFrames])
+    
     useEffect(() => {
         if (!readyToSubmit) {
             return;
         }
-
+        const total = bookedTimeFrames.length*props.price + (bookedTimeFrames.length * props.price * tax) + bookedTimeFrames.length * props.price * fee;
         setReserveTimeSlots({
             userId: parseInt(authData!.sub),
             listingId: listingId,
             listingTile: props.listingTitle,
-            fullPrice: fullPrice,
+            fullPrice: total,
             chosenTimeFrames: bookedTimeFrames
         } as IReservedTimeSlots);
     }, [readyToSubmit, selectedHours]);
@@ -119,7 +122,6 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
     };
 
     const getListingAvailabilityData = async (year: number, month: number) => {
-        const currentDate = new Date();
         setLoaded(false);
         if (!initialDate) {
             onSideBarError("Can't retrieve data. Please refresh page or try again later.");
@@ -305,9 +307,10 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
     };
 
     const renderCalendar = (initialDate: string) => {
+        const chosenYear = new Date(initialDate).getFullYear();
         const chosenMonth = new Date(initialDate).getMonth();
         const weeks: string[][] = [];
-        const date: Date = new Date(year, chosenMonth, 1);
+        const date: Date = new Date(chosenYear, chosenMonth, 1);
         while (date.getMonth() === chosenMonth) {
             const week: string[] = new Array(7);
             for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
@@ -354,6 +357,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
         </>;
     }
     const renderSummary = (bookedTimeFrames: IBookedTimeFrame[], error: string) => {
+        
         if (!bookedTimeFrames || error) {
             return;
         }
@@ -384,11 +388,11 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                                 <div className='block'>Total</div>
                             </div>
                             <div className='info-right'>
-                                <div className='block'>{reserveTimeSlots?.chosenTimeFrames.length} hr(s)</div>
-                                <div className='block'>{(bookedTimeFrames.length * props.price).toLocaleString("en-US", { style: 'currency', currency: 'USD' })}</div>
-                                <div className='block'>{tax.toLocaleString("en-US", { style: 'currency', currency: 'USD' })}</div>
-                                <div className='block'>{fee.toLocaleString("en-US", { style: 'currency', currency: 'USD' })}</div>
-                                <div className='block'>{(bookedTimeFrames.length * props.price + fee + tax).toLocaleString("en-US", { style: 'currency', currency: 'USD' })}</div>
+                                <div className='block'>{bookedTimeFrames.length} hr(s)</div>
+                                <div className='block'>{(fullPrice).toLocaleString(localeLanguage, localeCurrency)}</div>
+                                <div className='block'>{(fullPrice * tax).toLocaleString(localeLanguage, localeCurrency)}</div>
+                                <div className='block'>{(fullPrice * fee).toLocaleString(localeLanguage, localeCurrency)}</div>
+                                <div className='block'>{(fullPrice + fullPrice*fee + fullPrice*tax).toLocaleString(localeLanguage, localeCurrency)}</div>
                             </div>
                         </div>
                     </>
@@ -397,10 +401,11 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
         </>
     }
     const renderSidebar = (error: string) => {
+        
         return (
             <div className="opentimeslots-sidebar">
                 {!chosenDate &&
-                    <p className='info'>Click on calendar to find listing's availability</p>
+                    <p className='info'>Click '&lt;' or '&gt;' on the calendar to find listing's availability</p>
                 }
                 {chosenDate &&
                     <div>
@@ -418,25 +423,18 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
     };
     const renderConfirmation = () => {
         let confirmationHeader = !onDoneBooking ? "Confirm Your Booking" : "Thank Your For Your Booking";
-        console.log("ON DONE BOOKING = ", onDoneBooking)
-        console.log("BOOKING ID = ", bookingId)
-        console.log("SHOW CONFIRMATION = ", showConfirmation)
         return <>
             <div className='confirmation-card'>
-                {/* {!bookingView &&
-                    <div className='h1'>Thank You For Your Booking
-                        <div>Confirmation Number: {bookingView?.bookingId}</div>
-                    </div>
-                } */}
 
                 <div className='h1'>{confirmationHeader}</div>
-                {bookingId !== 0 &&
+                {bookingView &&
                     <div className='h2'>
-                        Confirmation number: {bookingId}
+                        Confirmation number: {bookingView?.bookingId}
                     </div>
                 }
                 <div className='h2'>Listing: {props.listingTitle}</div>
                 <p className='h2'>Booking details:</p>
+
                 {renderSummary(bookedTimeFrames, error)}
                 {!onSuccess && !error &&
                     <div className='buttons'>
@@ -453,18 +451,15 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                                         onError("Scheduling Error. Please refresh page or try again later.")
                                     }
                                     const data = response.data as IBookingView;
-                                    console.log("RESPONSE DATA", data);
-                                    console.log("DATA", data)
                                     if (data !== null) {
-                                        const bookingConfirmation: IBookingView = {
+                                        setBookingView({
                                             userId: data?.userId,
                                             bookingId: data?.bookingId,
                                             fullPrice: data?.fullPrice,
                                             bookedTimeFrames: data?.bookedTimeFrames,
-                                        };
+                                        });
+                                        setOnSuccess(true);
                                     }
-                                    setBookingId(data.bookingId);
-                                    setOnSuccess(true);
                                 })
                             }
                             else {
@@ -475,7 +470,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                 }
                 {error &&
                     <div className='buttons'>
-                        <Button title="Close" theme={ButtonTheme.DARK} onClick={() => history.go(-1)}/>
+                        <Button title="Close" theme={ButtonTheme.DARK} onClick={() => history.go(-1)} />
                     </div>
                 }
                 {onSuccess &&
@@ -526,7 +521,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                 {!showConfirmation &&
                     <div className="main-wrapper">
                         <h1>{props.listingTitle}</h1>
-                        <h2>${props.price}/hour</h2>
+                        <h2>{props.price.toLocaleString(localeLanguage, localeCurrency)}/hour</h2>
                         <div className='second-wrapper'>
                             <div className="view-wrapper">
                                 <div className='calendar'>
@@ -536,8 +531,6 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                                             const prevYear = prevDate.getFullYear();
                                             const prevMonth = prevDate.getMonth(); // January is 0
                                             setInitialDate(new Date(prevYear, prevMonth - 1, 1).toDateString());
-                                            setMonth(prevMonth - 1);
-                                            setYear(prevYear);
                                             getListingAvailabilityData(prevYear, prevMonth);
                                         }} />
                                         <div className='text'>
@@ -548,8 +541,6 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                                             const nextYear = nextDate.getFullYear();
                                             const nextMonth = nextDate.getMonth(); // January is 0
                                             setInitialDate(new Date(nextYear, nextMonth + 1, 1).toDateString());
-                                            setMonth(nextMonth + 2);
-                                            setYear(nextYear);
                                             getListingAvailabilityData(nextYear, nextMonth + 2);
                                         }} />
                                     </div>
