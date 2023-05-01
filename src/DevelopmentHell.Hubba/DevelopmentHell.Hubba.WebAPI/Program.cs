@@ -149,6 +149,10 @@ builder.Services.AddTransient<IAccountSystemManager, AccountSystemManager>(s =>
     new AccountSystemManager(
         new AccountSystemService(
             s.GetService<IUserAccountDataAccess>()!,
+        new BookingsDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["SchedulingsConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["BookingsTable"]!
+        ),
             s.GetService<ILoggerService>()!
         ),
         s.GetService<IOTPService>()!,
@@ -156,6 +160,13 @@ builder.Services.AddTransient<IAccountSystemManager, AccountSystemManager>(s =>
         s.GetService<ICryptographyService>()!,
         s.GetService<INotificationManager>()!,
         s.GetService<IValidationService>()!,
+        new SchedulingManager(
+            s.GetService<IBookingService>()!,
+            s.GetService<IAvailabilityService>()!,
+            s.GetService<IAuthorizationService>()!,
+            s.GetService<INotificationService>()!,
+            s.GetService<ILoggerService>()!
+        ),
         s.GetService<ILoggerService>()!
     )
 );

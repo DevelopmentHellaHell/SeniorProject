@@ -507,7 +507,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     },
                     new Dictionary<string, object>
                     {
-                    {_firstName, firstName!}
+                        {_firstName, firstName!}
                     }
                 ).ConfigureAwait(false);
 

@@ -5,10 +5,11 @@ using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using System.Security.Claims;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
-using Microsoft.Identity.Client;
 using DevelopmentHell.Hubba.Notification.Manager.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
+using DevelopmentHell.Hubba.Scheduling.Service.Abstractions;
+using DevelopmentHell.Hubba.Scheduling.Manager.Abstraction;
 
 namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
 {
@@ -20,8 +21,10 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
         private ICryptographyService _cryptographyService;
         private INotificationManager _notificationManager;
         private IValidationService _validationService;
+        private ISchedulingManager _schedulingManager;
         private ILoggerService _loggerService;
-        public AccountSystemManager(IAccountSystemService accountSystemService, IOTPService otpService, IAuthorizationService authorizationService, ICryptographyService cryptographyService, INotificationManager notificationManager, IValidationService validationService, ILoggerService loggerService)
+        public AccountSystemManager(IAccountSystemService accountSystemService, IOTPService otpService, IAuthorizationService authorizationService, ICryptographyService cryptographyService,
+            INotificationManager notificationManager, IValidationService validationService, ISchedulingManager schedulingManager, ILoggerService loggerService)
         {
             _accountSystemService = accountSystemService;
             _otpService = otpService;
@@ -29,14 +32,13 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             _cryptographyService = cryptographyService;
             _notificationManager = notificationManager;
             _validationService = validationService;
+            _schedulingManager = schedulingManager;
             _loggerService = loggerService;
         }
         //TODO: Check this function
         public async Task<Result> VerifyAccount()
         {
             Result result = new Result();
-
-            //TODO: sanitation check for email
 
             //Check prinicpal of user
             if (!_authorizationService.Authorize(new string[] { "AdminUser", "VerifiedUser" }).IsSuccessful)
@@ -384,6 +386,33 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             }
 
             return getResult;
+
+        }
+
+        public async Task<Result> CancelBooking(int bookingId)
+        {
+            Result result = new Result();
+            var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
+            if (stringAccountId is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error, invalid access token format. ";
+                return result;
+            }
+
+            var accountId = int.Parse(stringAccountId);
+
+            Result<bool> cancelResult = await _schedulingManager.CancelBooking(accountId, bookingId).ConfigureAwait(false);
+            if(!cancelResult.IsSuccessful || cancelResult.Payload is false) 
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = cancelResult.ErrorMessage;
+                return result;
+            }
+
+            result.IsSuccessful = true;
+            return result;
 
         }
 
