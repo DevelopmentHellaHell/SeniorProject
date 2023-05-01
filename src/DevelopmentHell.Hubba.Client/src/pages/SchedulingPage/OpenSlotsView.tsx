@@ -1,4 +1,4 @@
-import React, { JSXElementConstructor, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Button, { ButtonTheme } from '../../components/Button/Button';
 import Footer from '../../components/Footer/Footer';
 import NavbarGuest from '../../components/NavbarGuest/NavbarGuest';
@@ -84,6 +84,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
         setOnSuccess(false);
         setOnDoneBooking(false);
         setSideBarError("");
+        setError("");
     }, [initialDate, chosenDate]);
 
     useEffect(() => {
@@ -156,6 +157,11 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
             });
         }
     };
+
+    useEffect(() => {
+        const today = new Date(initialDate);
+        getListingAvailabilityData(today.getFullYear(), today.getMonth()+1);
+    })
 
     const getMonth = (initialDate: number) => {
         switch (initialDate) {
@@ -508,6 +514,11 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                             <div className='opentimeslots-sidebar'>
                                 <div className='buttons'>
                                     <Button title="Reserve" theme={ButtonTheme.DARK} onClick={async () => {
+                                        console.log("USERID :", authData?.sub)
+                                        if (props.ownerId.toString() == authData?.sub) {
+                                            onSideBarError("Owner can not book their own listing");
+                                            return;
+                                        }
                                         setFullPrice(bookedTimeFrames.length * props.price);
                                         setShowConfirmation(true);
                                     }} />
@@ -564,7 +575,6 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                 }
                 {/** Render confirmation card after clicking reserve button */}
                 {showConfirmation &&
-                    // <ConfirmationCard onSuccess={() => { }} reserveTimeSlots={reserveTimeSlots ?? null} />
                     <div className='confirmation-card-wrapper'>
                         {renderConfirmation()}
                     </div>
