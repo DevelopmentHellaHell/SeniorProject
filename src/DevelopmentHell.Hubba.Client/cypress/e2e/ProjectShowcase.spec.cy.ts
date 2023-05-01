@@ -24,8 +24,8 @@ let createShowcaseRoute = '/showcases/new';
 let getShowcaseRoute = '/showcases/view';
 let getUserShowcasesRoute = '/showcases/user';
 
-let testFile1 = 'test_files/test1.png';
-let testFile2 = 'test_files/test2.png';
+let testFile1 = 'cypress/fixtures/test1.png';
+let testFile2 = 'cypress/fixtures/test2.png';
 
 
 let createRoute: string = '/usermanagement/create';
