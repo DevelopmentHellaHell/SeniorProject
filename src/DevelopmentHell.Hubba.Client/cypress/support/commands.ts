@@ -1,4 +1,8 @@
 /// <reference types="cypress" />
+let registrationRoute: string = Cypress.env("serverUrl") + "/registration/register";
+let loginRoute: string = Cypress.env('serverUrl') + "/authentication/login";
+let listingRoute: string = Cypress.env('serverUrl') + "/listingprofile";
+
 export { }
 declare global {
     namespace Cypress {
@@ -8,16 +12,22 @@ declare global {
             LoginViaApi(email: string, password: string): Chainable<void>;
             LogInandOut(): Chainable<void>;
             CreateShowcase(showcaseId, title, description, files:File[]): Chainable<void>;
+            CreateListing(title: string): Chainable<void>;
         }
     }
 }
+
+Cypress.Commands.add("CreateListing", (title:string) => {
+    cy.request("POST", listingRoute + "/createlisting", {title} )
+        .its("status").should("eq", 200);
+});
 
 /**
  * Register new account by direct AJAX HTTP POST to API
  * @param: email, password
 */
 Cypress.Commands.add('RegisterViaApi', (email: string, password: string) => {
-    cy.request('POST', Cypress.env('serverUrl') + "/registration/register", { email, password })
+    cy.request('POST', registrationRoute, { email, password })
         .its('status').should('eq', 200);
 });
 
@@ -27,7 +37,7 @@ Cypress.Commands.add('RegisterViaApi', (email: string, password: string) => {
  */
 Cypress.Commands.add('LoginViaApi', (email: string, password: string) => {
     cy.session([email, password], () => {
-        cy.request('POST', Cypress.env('serverUrl') + "/authentication/login", { email, password })
+        cy.request('POST', loginRoute, { email, password })
             .then(() => {
                 cy.request('GET', Cypress.env('serverUrl') + "/tests/getotp")
                     .then((response) => {
@@ -93,7 +103,6 @@ Cypress.Commands.add("LogInandOut", () => {
             });
     });
 });
-
 
 Cypress.Commands.add("CreateShowcase", (showcaseId, title, description, files:File[]) => {
     const fileDataList: { Item1: string; Item2: string; }[] = [];

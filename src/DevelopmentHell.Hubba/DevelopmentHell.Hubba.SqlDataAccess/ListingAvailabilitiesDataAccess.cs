@@ -104,7 +104,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 new List<Comparator>()
                 {
                     new Comparator(_listingIdColumn, "=", listingId),
-                }
+                },
+                "",
+                "StartTime"
             ).ConfigureAwait(false);
 
             if (!selectResult.IsSuccessful)

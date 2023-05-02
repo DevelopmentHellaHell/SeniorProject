@@ -12,8 +12,8 @@ interface IHourBarButtonProps {
 export enum HourBarButtonTheme {
     LIGHT = "light",
     DARK = "dark",
-    HOLLOW_DARK = "hollow_light",
-    GREY = "hollow_dark",
+    HOLLOW_DARK = "hollow_dark",
+    GREY = "grey",
 }
 
 const HourBarButton: React.FC<IHourBarButtonProps> = (props) => {

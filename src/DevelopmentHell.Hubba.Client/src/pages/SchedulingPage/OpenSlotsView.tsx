@@ -9,6 +9,13 @@ import DateButton, { DateButtonTheme } from './SchedulingComponents/DateButton';
 import HourBarButton, { HourBarButtonTheme } from './SchedulingComponents/HourBarButton';
 import "./OpenSlotsView.css";
 
+const findListingAvailabilityRoute: string = "/scheduling/findlistingavailabilitybymonth/";
+const reserveRoute: string = "/scheduling/reserve";
+const localeLanguage: string = "en-US";
+const localeCurrency: object = { style: "currency", currency: "USD" };
+const defaultTax: number = 0.0785;
+const defaultFee: number = 0.15;
+
 interface IOpenTimeSlotsProp {
     listingId: number,
     listingTitle: string,
@@ -45,34 +52,32 @@ interface IBookingView {
     fullPrice: number,
     bookedTimeFrames: IBookedTimeFrame
 }
+const REFRESH_COOLDOWN_MILLISECONDS = 5000;
 
 const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
-    const localeLanguage = "en-US";
-    const localeCurrency = { style: "currency", currency: "USD"};
-    const defaultTax = 0.0785;
-    const defaultFee = 0.15;
-
     const [bookingView, setBookingView] = useState<IBookingView | null>(null);
-    const [listingId, setListingId] = useState(props.listingId);
-    const [initialDate, setInitialDate] = useState((new Date()).toDateString());
+    const [listingId, setListingId] = useState<number>(props.listingId);
+    const [initialDate, setInitialDate] = useState<string>((new Date()).toDateString());
 
     const [reserveTimeSlots, setReserveTimeSlots] = useState<IReservedTimeSlots | null>(null);
 
-    const [chosenDate, setChosenDate] = useState("");
+    const [chosenDate, setChosenDate] = useState<string>("");
     const [bookedTimeFrames, setBookedTimeFrames] = useState<IBookedTimeFrame[]>([]);
     const [listingAvailabilityData, setListingAvailabilityData] = useState<IListingAvailabilityData[] | null>(null);
+    const [lastRefreshed, setLastRefreshed] = useState(Date.now() - REFRESH_COOLDOWN_MILLISECONDS);
+
     const [selectedHours, setSelectedHours] = useState<number[]>([]);
-    const [fullPrice, setFullPrice] = useState(bookedTimeFrames.length * props.price);
-    const [fee, setFee] = useState(props.fee ?? defaultFee);
-    const [tax, setTax] = useState(props.tax ?? defaultTax);
+    const [fullPrice, setFullPrice] = useState<number>(bookedTimeFrames.length * props.price);
+    const [fee, setFee] = useState<number>(props.fee ?? defaultFee);
+    const [tax, setTax] = useState<number>(props.tax ?? defaultTax);
 
     const [readyToSubmit, setReadyToSubmit] = useState<boolean>(false);
-    const [loaded, setLoaded] = useState(false);
-    const [onSuccess, setOnSuccess] = useState(false);
-    const [sidebarError, setSideBarError] = useState("");
-    const [error, setError] = useState("");
-    const [showConfirmation, setShowConfirmation] = useState(false);
-    const [onDoneBooking, setOnDoneBooking] = useState(false);
+    const [loaded, setLoaded] = useState<boolean>(false);
+    const [onSuccess, setOnSuccess] = useState<boolean>(false);
+    const [sidebarError, setSideBarError] = useState<string>("");
+    const [error, setError] = useState<string>("");
+    const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
+    const [onDoneBooking, setOnDoneBooking] = useState<boolean>(false);
 
     const authData = Auth.getAuthData();
 
@@ -93,17 +98,17 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
         setListingAvailabilityData([]);
         setBookingView(null);
         setError("");
-    }, [initialDate, onDoneBooking]);
+    }, [initialDate, onDoneBooking, loaded]);
 
-    useEffect (() => {
+    useEffect(() => {
         setFullPrice(bookedTimeFrames.length * props.price);
-    },[bookedTimeFrames])
-    
+    }, [bookedTimeFrames])
+
     useEffect(() => {
         if (!readyToSubmit) {
             return;
         }
-        const total = bookedTimeFrames.length*props.price + (bookedTimeFrames.length * props.price * tax) + bookedTimeFrames.length * props.price * fee;
+        const total = bookedTimeFrames.length * props.price + (bookedTimeFrames.length * props.price * tax) + bookedTimeFrames.length * props.price * fee;
         setReserveTimeSlots({
             userId: parseInt(authData!.sub),
             listingId: listingId,
@@ -123,13 +128,12 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
     };
 
     const getListingAvailabilityData = async (year: number, month: number) => {
-        setLoaded(false);
         if (!initialDate) {
             onSideBarError("Can't retrieve data. Please refresh page or try again later.");
         }
 
         if (month && year) {
-            await Ajax.post("/scheduling/findlistingavailabilitybymonth/", {
+            await Ajax.post(findListingAvailabilityRoute, {
                 listingId: listingId,
                 month: month,
                 year: year
@@ -160,10 +164,10 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
 
     useEffect(() => {
         const today = new Date(initialDate);
-        getListingAvailabilityData(today.getFullYear(), today.getMonth()+1);
+        getListingAvailabilityData(today.getFullYear(), today.getMonth() + 1);
     })
 
-    const getMonth = (initialDate: number) => {
+    const convertToMonthName = (initialDate: number) => {
         switch (initialDate) {
             case 1: return "January";
             case 2: return "February";
@@ -179,7 +183,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
             case 12: return "December";
         };
     };
-    const getDay = (index: number) => {
+    const convertToDayName = (index: number) => {
         switch (index) {
             case 0: return "SUN";
             case 1: return "MON";
@@ -337,7 +341,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                 {daysOfWeek.map((dayOfWeek => {
                     return <>
                         <div className='day'>
-                            {getDay(dayOfWeek)}
+                            {convertToDayName(dayOfWeek)}
                         </div>
                     </>
                 }))}
@@ -354,6 +358,17 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                 </>
             }))}
             <div className='today'>
+                <HourBarButton theme={HourBarButtonTheme.HOLLOW_DARK} title="Refresh" onClick={async () => {
+                    if (Date.now() - lastRefreshed < REFRESH_COOLDOWN_MILLISECONDS) {
+                        setSideBarError(`Must wait ${(REFRESH_COOLDOWN_MILLISECONDS / 1000).toFixed(0)} seconds before refreshing again.`);
+                        return;
+                    }
+                    const refreshDate = new Date(chosenDate);
+                    setLastRefreshed(Date.now());
+                    setLoaded(false);
+                    await getListingAvailabilityData(refreshDate.getFullYear(), refreshDate.getMonth() + 1);
+                    setLoaded(true);
+                }} />
                 <HourBarButton title="Today" theme={todayButtonTheme} onClick={() => {
                     const today = new Date();
                     setInitialDate(today.toDateString())
@@ -363,7 +378,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
         </>;
     }
     const renderSummary = (bookedTimeFrames: IBookedTimeFrame[], error: string) => {
-        
+
         if (!bookedTimeFrames || error) {
             return;
         }
@@ -398,7 +413,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                                 <div className='block'>{(fullPrice).toLocaleString(localeLanguage, localeCurrency)}</div>
                                 <div className='block'>{(fullPrice * tax).toLocaleString(localeLanguage, localeCurrency)}</div>
                                 <div className='block'>{(fullPrice * fee).toLocaleString(localeLanguage, localeCurrency)}</div>
-                                <div className='block'>{(fullPrice + fullPrice*fee + fullPrice*tax).toLocaleString(localeLanguage, localeCurrency)}</div>
+                                <div className='block'>{(fullPrice + fullPrice * fee + fullPrice * tax).toLocaleString(localeLanguage, localeCurrency)}</div>
                             </div>
                         </div>
                     </>
@@ -407,7 +422,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
         </>
     }
     const renderSidebar = (error: string) => {
-        
+
         return (
             <div className="opentimeslots-sidebar">
                 {!chosenDate &&
@@ -447,7 +462,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                         <Button title="No" theme={ButtonTheme.HOLLOW_DARK} onClick={() => history.go(-1)} />
                         <Button title="Yes" theme={ButtonTheme.DARK} onClick={async () => {
                             if (authData && authData.role !== Auth.Roles.DEFAULT_USER) {
-                                await Ajax.post("/scheduling/reserve", {
+                                await Ajax.post(reserveRoute, {
                                     userId: reserveTimeSlots?.userId,
                                     listingId: reserveTimeSlots?.listingId,
                                     fullPrice: reserveTimeSlots?.fullPrice,
@@ -498,6 +513,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
 
         </>
     }
+
     return (
         <div className="opentimeslots-view-container">
             {authData && authData.role !== Auth.Roles.DEFAULT_USER ?
@@ -511,18 +527,16 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                         {renderSidebar(sidebarError)}
                         {renderSummary(bookedTimeFrames, error)}
                         {readyToSubmit &&
-                            <div className='opentimeslots-sidebar'>
-                                <div className='buttons'>
-                                    <Button title="Reserve" theme={ButtonTheme.DARK} onClick={async () => {
-                                        console.log("USERID :", authData?.sub)
-                                        if (props.ownerId.toString() == authData?.sub) {
-                                            onSideBarError("Owner can not book their own listing");
-                                            return;
-                                        }
-                                        setFullPrice(bookedTimeFrames.length * props.price);
-                                        setShowConfirmation(true);
-                                    }} />
-                                </div>
+                            <div className='buttons'>
+                                <Button title="Reserve" theme={ButtonTheme.DARK} onClick={async () => {
+                                    console.log("USERID :", authData?.sub)
+                                    if (props.ownerId.toString() == authData?.sub) {
+                                        onSideBarError("Owner can not book their own listing");
+                                        return;
+                                    }
+                                    setFullPrice(bookedTimeFrames.length * props.price);
+                                    setShowConfirmation(true);
+                                }} />
                             </div>
                         }
                     </div>
@@ -545,7 +559,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                                             getListingAvailabilityData(prevYear, prevMonth);
                                         }} />
                                         <div className='text'>
-                                            {getMonth((new Date(initialDate)).getMonth() + 1)} {(new Date(initialDate)).getFullYear()}
+                                            {convertToMonthName((new Date(initialDate)).getMonth() + 1)} {(new Date(initialDate)).getFullYear()}
                                         </div>
                                         <Button title=">" onClick={() => {
                                             let nextDate = new Date(initialDate);

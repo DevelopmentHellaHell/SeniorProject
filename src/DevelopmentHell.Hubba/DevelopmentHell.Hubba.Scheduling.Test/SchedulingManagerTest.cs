@@ -51,12 +51,15 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
         private readonly ILoggerDataAccess _loggerDataAccess;
         private readonly IListingsDataAccess _listingsDataAccess;
         private readonly IListingAvailabilitiesDataAccess _listingAvailabilitiesDataAccess;
+        private readonly IListingHistoryDataAccess _listingHistoryDataAccess;
         private readonly IBookingsDataAccess _bookingsDataAccess;
         private readonly IBookedTimeFramesDataAccess _bookedTimeFramesDataAccess;
 
         private readonly IRegistrationManager _registrationManager;
         private readonly ISchedulingManager _schedulingManager;
 
+        private readonly string _listingProfilesConnectionString = ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!;
+        private readonly string _schedulingsConnectionString = ConfigurationManager.AppSettings["SchedulingsConnectionString"]!;
 
         public SchedulingManagerTest() 
         {
@@ -117,23 +120,28 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             
             // listingsDAO, listingAvailDAO, bookingsDAO, bookedTimeFramesDAO
             _listingsDataAccess = new ListingsDataAccess(
-                ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+                _listingProfilesConnectionString,
                 ConfigurationManager.AppSettings["ListingsTable"]!
             );
             _listingAvailabilitiesDataAccess = new ListingAvailabilitiesDataAccess(
-                ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+                _listingProfilesConnectionString,
                 ConfigurationManager.AppSettings["ListingAvailabilitiesTable"]!
             );
+            _listingHistoryDataAccess = new ListingHistoryDataAccess(
+                _listingProfilesConnectionString,
+                ConfigurationManager.AppSettings["ListingHistoryTable"]!
+                );
             _bookingsDataAccess = new BookingsDataAccess(
-                ConfigurationManager.AppSettings["SchedulingsConnectionString"]!,
+                _schedulingsConnectionString,
                 ConfigurationManager.AppSettings["BookingsTable"]!
             );
             _bookedTimeFramesDataAccess = new BookedTimeFramesDataAccess(
-                ConfigurationManager.AppSettings["SchedulingsConnectionString"]!,
+                _schedulingsConnectionString,
                 ConfigurationManager.AppSettings["BookedTimeFramesTable"]!
             );
+
             // bookingService, availabilityService
-            _bookingService = new BookingService(_bookingsDataAccess, _bookedTimeFramesDataAccess);
+            _bookingService = new BookingService(_bookingsDataAccess, _bookedTimeFramesDataAccess, _listingHistoryDataAccess);
             _availabilityService = new AvailabilityService(_listingsDataAccess, _listingAvailabilitiesDataAccess, _bookedTimeFramesDataAccess);
 
             // Managers
@@ -205,7 +213,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             // create Listing Availability
             var createAvailability = await _listingAvailabilitiesDataAccess.AddListingAvailabilities(listingAvailabilities).ConfigureAwait(false);
             var getAvailabilities = await _listingAvailabilitiesDataAccess.GetListingAvailabilities(listingId).ConfigureAwait(false);
-            testData["ListingAvailabilities"] = getAvailabilities.Payload;
+            testData["ListingAvailabilities"] = getAvailabilities.Payload!;
 
             // add Booking
             Booking booking = new Booking()
@@ -229,7 +237,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
                 {
                     BookingId = bookingId,
                     ListingId = listingId,
-                    AvailabilityId = (int) ((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId,
+                    AvailabilityId = (int) ((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId!,
                     StartDateTime = DateTime.Today.AddDays(2).AddHours(8),
                     EndDateTime = DateTime.Today.AddDays(2).AddHours(11)
                 },
@@ -237,7 +245,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
                 {
                     BookingId = bookingId,
                     ListingId = listingId,
-                    AvailabilityId = (int) ((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId,
+                    AvailabilityId = (int) ((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId!,
                     StartDateTime = DateTime.Today.AddDays(2).AddHours(13),
                     EndDateTime = DateTime.Today.AddDays(2).AddHours(15)
                 }
@@ -268,7 +276,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             //Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsSuccessful);
-            Assert.IsTrue(actual.Payload.Count == 0);
+            Assert.IsTrue(actual.Payload!.Count == 0);
         }
         [TestMethod]
         public async Task FindListingAvailabilityByMonth_PayloadNotEmpty_Successful()
@@ -276,8 +284,8 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             //Arrange
             var testData = await SetUpTestData().ConfigureAwait(false);
             int listingId = (int)testData["ListingId"];
-            int avail_0 = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
-            int avail_1 = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[1].AvailabilityId;
+            int avail_0 = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId!;
+            int avail_1 = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[1].AvailabilityId!;
             int month = (int)testData["Month"];
             int year = (int)testData["Year"];
             var expected = new List<ListingAvailabilityDTO>()
@@ -293,7 +301,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             //Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsSuccessful);
-            Assert.IsTrue(expected.GetType() == actual.Payload.GetType());
+            Assert.IsTrue(expected.GetType() == actual.Payload!.GetType());
             Assert.AreEqual(expected.Count, actual.Payload.Count);
         }
         [TestMethod]
@@ -317,7 +325,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             //  - Setup test data
             var testData = await SetUpTestData().ConfigureAwait(false);
             int listingId = (int)testData["ListingId"];
-            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
+            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId!;
             float fullPrice = 100;
             int invalidListingId = 0;
             List<BookedTimeFrame> chosenTimeFrames = new()
@@ -360,7 +368,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             var testData = await SetUpTestData().ConfigureAwait(false);
             int ownerId = (int)testData["OwnerId"];
             int listingId = (int)testData["ListingId"];
-            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
+            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId!;
             float fullPrice = 100;
             List<BookedTimeFrame> chosenTimeFrames = new()
             {
@@ -386,7 +394,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             //  - Setup test data
             var testData = await SetUpTestData().ConfigureAwait(false);
             int listingId = (int)testData["ListingId"];
-            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
+            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId!;
             float fullPrice = 100;
             List<BookedTimeFrame> chosenTimeFrames = new()
             {
@@ -428,7 +436,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             //  - Setup test data
             var testData = await SetUpTestData().ConfigureAwait(false);
             int listingId = (int)testData["ListingId"];
-            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
+            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId!;
             float fullPrice = 100;
             List<BookedTimeFrame> chosenTimeFrames = new()
             {
@@ -468,7 +476,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             //  - Setup test data
             var testData = await SetUpTestData().ConfigureAwait(false);
             int listingId = (int)testData["ListingId"];
-            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
+            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId!;
             float fullPrice = 100;
             List<BookedTimeFrame> chosenTimeFrames = new()
             {
@@ -508,7 +516,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             //  - Setup test data
             var testData = await SetUpTestData().ConfigureAwait(false);
             int listingId = (int) testData["ListingId"];
-            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
+            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId!;
             float fullPrice = 100;
             List<BookedTimeFrame> chosenTimeFrames = new()
             {
@@ -527,7 +535,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             //Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsSuccessful);
-            Assert.AreEqual(actual.Payload.GetType(), typeof(BookingViewDTO));
+            Assert.AreEqual(actual.Payload!.GetType(), typeof(BookingViewDTO));
         }
         [TestMethod]
         public async Task CancelBooking_AuthorizedUser_BookingBelongsToOtherUser_Failed()
@@ -550,8 +558,8 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             //  - Setup test data
             var testData = await SetUpTestData().ConfigureAwait(false);
             int listingId = (int)testData["ListingId"];
-            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
-            float fullPrice = 100;
+            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId!;
+            
             List<BookedTimeFrame> chosenTimeFrames = new()
             {
                 new BookedTimeFrame()
@@ -579,8 +587,8 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             int bookingId = (int)testData["BookingId"];
             int userId = ((Booking)testData["Booking"]).UserId;
             int listingId = (int)testData["ListingId"];
-            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
-            float fullPrice = 100;
+            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId!;
+            
             List<BookedTimeFrame> chosenTimeFrames = new()
             {
                 new BookedTimeFrame()
@@ -608,18 +616,8 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             var testData = await SetUpTestData().ConfigureAwait(false);
             int userId = ((Booking)testData["Booking"]).UserId;
             int listingId = (int)testData["ListingId"];
-            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
-            float fullPrice = 100;
-            List<BookedTimeFrame> chosenTimeFrames = new()
-            {
-                new BookedTimeFrame()
-                {
-                    ListingId = listingId,
-                    AvailabilityId = availabilityId,
-                    StartDateTime = DateTime.Today.AddDays(2).AddHours(11),
-                    EndDateTime = DateTime.Today.AddDays(2).AddHours(12)
-                }
-            };
+            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId!;
+            
             int nonExistingBookingId = 0;
             //Act
             var actual = await _schedulingManager.CancelBooking(userId, nonExistingBookingId).ConfigureAwait(false);
@@ -649,7 +647,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             //  - Setup test data
             var testData = await SetUpTestData().ConfigureAwait(false);
             int listingId = (int)testData["ListingId"];
-            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
+            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId!;
             float fullPrice = 100;
             List<BookedTimeFrame> chosenTimeFrames = new()
             {
@@ -669,7 +667,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             //Act
             var actual = await _schedulingManager.CancelBooking(userId, bookingId).ConfigureAwait(false);
             var doubleCheck = await _bookingService.GetBookingByBookingId(bookingId).ConfigureAwait(false);
-            var returnBookingStatus = doubleCheck.Payload.BookingStatusId;
+            var returnBookingStatus = doubleCheck.Payload!.BookingStatusId;
 
             //Assert
             Assert.IsNotNull(actual);
@@ -698,7 +696,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             //  - Setup test data
             var testData = await SetUpTestData().ConfigureAwait(false);
             int listingId = (int)testData["ListingId"];
-            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId;
+            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId!;
             float fullPrice = 100;
             List<BookedTimeFrame> chosenTimeFrames = new()
             {

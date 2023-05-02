@@ -78,21 +78,23 @@
   background-color: rgb(var(--primary-background-light));
   border: none;
   padding-bottom: 20px;
+  justify-content: center;
 }
 .opentimeslots-sidebar {
   display: flex;
   flex-direction: column;
   padding: 20px 20px;
   border: none;
-  width: 300px;
+  width: 250px;
   height: fit-content;
   text-align: center;
   color: rgb(var(--primary-text-dark));
   font-weight: 600;
+  align-items: center;
 }
 
-.opentimeslots-sidebar .buttons {
-  width: 100%;
+.opentimeslots-sidebar-wrapper .buttons {
+  display: flex;
   justify-content: center;
 }
 
@@ -137,6 +139,9 @@
 }
 
 .calendar .month .today {
+  display: flex;
+  flex-flow: row;
+  gap: 10px;
   padding-top: 20px;
   justify-content: center;
 }
@@ -203,7 +208,7 @@
   text-align: left;
   width: fit-content;
   font-size: 14px;
-  padding-left: 60px;
+  padding-left: 20px;
   padding-bottom: 20px;
 }
 .details .info {
