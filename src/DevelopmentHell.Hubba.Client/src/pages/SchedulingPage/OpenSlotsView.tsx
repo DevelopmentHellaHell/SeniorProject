@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Button, { ButtonTheme } from '../../components/Button/Button';
 import Footer from '../../components/Footer/Footer';
 import NavbarGuest from '../../components/NavbarGuest/NavbarGuest';
@@ -8,6 +9,7 @@ import NavbarUser from '../../components/NavbarUser/NavbarUser';
 import DateButton, { DateButtonTheme } from './SchedulingComponents/DateButton';
 import HourBarButton, { HourBarButtonTheme } from './SchedulingComponents/HourBarButton';
 import "./OpenSlotsView.css";
+import { IListing } from '../ListingProfilePage/MyListingsView/MyListingsView';
 
 const findListingAvailabilityRoute: string = "/scheduling/findlistingavailabilitybymonth/";
 const reserveRoute: string = "/scheduling/reserve";
@@ -17,13 +19,22 @@ const defaultTax: number = 0.0785;
 const defaultFee: number = 0.15;
 
 interface IOpenTimeSlotsProp {
-    listingId: number,
-    listingTitle: string,
-    ownerId: number,
-    price: number,
-    fee?: number,
-    tax?: number
+    // listingId: number,
+    // listingTitle: string,
+    // ownerId: number,
+    // price: number,
+    // fee?: number,
+    // tax?: number
 }
+interface IState {
+    listingId: string,
+    listingTitle: string,
+    ownerId: string,
+    price: string,
+    fee?: string,
+    tax?: string
+}
+
 interface IListingAvailabilityData {
     listingId: number,
     ownerId: number,
@@ -32,13 +43,13 @@ interface IListingAvailabilityData {
     endTime: Date
 }
 
-export interface IBookedTimeFrame {
+interface IBookedTimeFrame {
     availabilityId: number,
     startDateTime: Date,
     endDateTime: Date
 }
 
-export interface IReservedTimeSlots {
+interface IReservedTimeSlots {
     userId: number,
     listingId: number,
     listingTile: string,
@@ -55,8 +66,12 @@ interface IBookingView {
 const REFRESH_COOLDOWN_MILLISECONDS = 5000;
 
 const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
+    const {state} = useLocation();
+    console.log("STATE", state);
     const [bookingView, setBookingView] = useState<IBookingView | null>(null);
-    const [listingId, setListingId] = useState<number>(props.listingId);
+    console.log(state);
+
+    const [listingId, setListingId] = useState<number>(state.listingId);
     const [initialDate, setInitialDate] = useState<string>((new Date()).toDateString());
 
     const [reserveTimeSlots, setReserveTimeSlots] = useState<IReservedTimeSlots | null>(null);
@@ -67,9 +82,9 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
     const [lastRefreshed, setLastRefreshed] = useState(Date.now() - REFRESH_COOLDOWN_MILLISECONDS);
 
     const [selectedHours, setSelectedHours] = useState<number[]>([]);
-    const [fullPrice, setFullPrice] = useState<number>(bookedTimeFrames.length * props.price);
-    const [fee, setFee] = useState<number>(props.fee ?? defaultFee);
-    const [tax, setTax] = useState<number>(props.tax ?? defaultTax);
+    const [fullPrice, setFullPrice] = useState<number>(bookedTimeFrames.length * state.price);
+    const [fee, setFee] = useState<number>(state.fee ?? defaultFee);
+    const [tax, setTax] = useState<number>(state.tax ?? defaultTax);
 
     const [readyToSubmit, setReadyToSubmit] = useState<boolean>(false);
     const [loaded, setLoaded] = useState<boolean>(false);
@@ -101,18 +116,18 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
     }, [initialDate, onDoneBooking, loaded]);
 
     useEffect(() => {
-        setFullPrice(bookedTimeFrames.length * props.price);
+        setFullPrice(bookedTimeFrames.length * state.price);
     }, [bookedTimeFrames])
 
     useEffect(() => {
         if (!readyToSubmit) {
             return;
         }
-        const total = bookedTimeFrames.length * props.price + (bookedTimeFrames.length * props.price * tax) + bookedTimeFrames.length * props.price * fee;
+        const total = bookedTimeFrames.length * state.price + (bookedTimeFrames.length * state.price * tax) + bookedTimeFrames.length * state.price * fee;
         setReserveTimeSlots({
             userId: parseInt(authData!.sub),
             listingId: listingId,
-            listingTile: props.listingTitle,
+            listingTile: state.listingTitle,
             fullPrice: total,
             chosenTimeFrames: bookedTimeFrames
         } as IReservedTimeSlots);
@@ -453,7 +468,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                         Confirmation number: {bookingView?.bookingId}
                     </div>
                 }
-                <div className='h2'>Listing: {props.listingTitle}</div>
+                <div className='h2'>Listing: {state.listingTitle}</div>
                 <p className='h2'>Booking details:</p>
 
                 {renderSummary(bookedTimeFrames, error)}
@@ -530,11 +545,11 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                             <div className='buttons'>
                                 <Button title="Reserve" theme={ButtonTheme.DARK} onClick={async () => {
                                     console.log("USERID :", authData?.sub)
-                                    if (props.ownerId.toString() == authData?.sub) {
+                                    if (state.ownerId.toString() == authData?.sub) {
                                         onSideBarError("Owner can not book their own listing");
                                         return;
                                     }
-                                    setFullPrice(bookedTimeFrames.length * props.price);
+                                    setFullPrice(bookedTimeFrames.length * state.price);
                                     setShowConfirmation(true);
                                 }} />
                             </div>
@@ -545,8 +560,8 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                 {/** Render calendar and hour bars after chosing the date*/}
                 {!showConfirmation &&
                     <div className="main-wrapper">
-                        <h1>{props.listingTitle}</h1>
-                        <h2>{props.price.toLocaleString(localeLanguage, localeCurrency)}/hour</h2>
+                        <h1>{state.listingTitle}</h1>
+                        <h2>{state.price.toLocaleString(localeLanguage, localeCurrency)}/hour</h2>
                         <div className='second-wrapper'>
                             <div className="view-wrapper">
                                 <div className='calendar'>

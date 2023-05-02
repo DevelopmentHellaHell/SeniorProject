@@ -45,13 +45,7 @@ const App: React.FC<IAppProps> = (props) => {
 						<Route path="/unauthorized" element={<Unauthorized />} />
 						<Route path="/viewlisting" element={<ViewListingPage />} />
 						<Route path="/viewlistingratings" element={<ViewListingRatingsPage /> } />
-						<Route path="/scheduling" 
-								element={<OpenSlotsView 
-											listingId={5} 
-											ownerId={4006}
-											listingTitle={"Sample Listing 5"} 
-											price={175.50}
-						/>} />	
+						<Route path="/scheduling" element={<OpenSlotsView />} />	
 						<Route path="/showcases/view" element={<ViewProjectShowcasePage />}/>
 						
 						{/* Public routes - no auth */}

@@ -3,23 +3,23 @@ import { Ajax } from "../../src/Ajax";
 import { Database } from "./TestModels/Database";
 
 let schedulingRoute: string = "/scheduling";
-let testEmail: string = "testEmail@gmail.com";
+let testEmail: string = "scheduling.user.testing@gmail.com";
+let hostEmail: string = "scheduling.owner.testing@gmail.com"
 let testPassword: string = "12345678";
 
 context("Scheduling E2E Test Suite", () => {
     before(()=>{
         // Clear all sessions include the backend and cache
         Cypress.session.clearAllSavedSessions();
-        // Regsiter UserA, Log In, Create Listing, Add Listing Availabilities, 
-        cy.RegisterViaApi(testEmail, testPassword);
+        // Log In 
         cy.LoginViaApi(testEmail, testPassword);
-        cy.CreateListing("Scheduling test creating a listing");
     });
-    after(() => {
-        // Delete test account, listing, booking
-    });
-    describe("Public access to Scheduling View from a published Listing, PASS", () => {
 
+    describe("Public access to Scheduling View from a published Listing, PASS", () => {
+        beforeEach(() => {
+            cy.visit("/");
+            cy.
+        })
         it("View rendered with Listing Title, Price, SideBar, Calendar on current date, PASS", () => {
 
         });

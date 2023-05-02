@@ -134,15 +134,17 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                             <div className="buttons">
                                 <Button title="Check Calendar"
                                     onClick={() => {
-                                        navigate("/scheduling"),
-                                        {
+                                        navigate("/scheduling", {
                                             state: {
-                                                listingId: data.Listing.listingId, listingTitle: data.Listing.title, ownerId: data.Listing.ownerId, price: data.Listing.price
+                                                listingId: data?.Listing.listingId,
+                                                listingTitle: data?.Listing.title,
+                                                ownerId: data?.Listing.ownerId,
+                                                price: data?.Listing.price
                                             }
-                                        }
+                                        })
                                     }} />
                             </div>
-                            
+
                             <h3 className="listing-username">{data.Listing.ownerUsername}</h3>
                             {data.Files && data.Files.length > 0 && (
                                 <div className="listing-page__image-wrapper">
