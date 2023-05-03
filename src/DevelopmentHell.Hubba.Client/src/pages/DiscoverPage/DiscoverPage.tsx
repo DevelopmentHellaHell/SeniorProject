@@ -148,8 +148,8 @@ const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
                                             return;
                                         }
 
-                                        if (searchQuery.query.length >= 250) {
-                                            setError("Search query too long, please try again.");
+                                        if (searchQuery.query.length >= 200) {
+                                            setError("Query is longer than 200 characters.");
                                             return;
                                         }
 
@@ -174,8 +174,8 @@ const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
                             <h3>Filter</h3>
                             <div id="filter">
                                 <Dropdown title={searchQuery.filter} id={"filter-dropdown"}>
-                                    <p onClick={() => { setSearchQuery((previous) => { return {...previous, filter: "none"} }) }}>None</p>
-                                    <p onClick={() => { setSearchQuery((previous) => { return {...previous, filter: "popular"} }) }}>Popularity</p>
+                                    <p id="filter-none" onClick={() => { setSearchQuery((previous) => { return {...previous, filter: "none"} }) }}>None</p>
+                                    <p id="filter-popularity" onClick={() => { setSearchQuery((previous) => { return {...previous, filter: "popular"} }) }}>Popularity</p>
                                 </Dropdown>
                             </div>
                         </div>                        

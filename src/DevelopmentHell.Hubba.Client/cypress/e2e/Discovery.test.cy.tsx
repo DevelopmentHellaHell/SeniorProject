@@ -52,6 +52,18 @@ describe('search-results', () => {
         cy.get("#discover-content").get(".error").should("exist").and("be.visible");
     });
 
+    it('long-search-query', () => {
+        cy.visit(discover);
+        var query = "";
+        for (var i = 0; i < 201; i++) {
+            query += "a";
+        }
+        cy.get("#discover-content").get("#search-input").type(query);
+        cy.get("#discover-content").get("#search-button").click();
+
+        cy.get("#discover-content").get(".error").should("exist").and("be.visible");
+    });
+
     it('visit-page-and-search-with-catgeory-listings-with-no-results', () => {
         cy.visit(discover);
         cy.get("#discover-content").get("#search-input").type("asdasdasd");
@@ -118,8 +130,25 @@ describe('search-results', () => {
         cy.get("#discover-content").get(".project-showcase-card").should("exist").and("be.visible");
     });
 
-    // it('visit-page-and-search-with-filter', () => {
-    //     cy.visit(discover);
-    //     cy.get("#discover-content").get("#search-input").type("best");
-    // });
+    it('visit-page-and-search-with-filter-with-no-results', () => {
+        cy.visit(discover);
+        cy.get("#discover-content").get("#search-input").type("asdasd");
+        cy.get("#discover-content").get("#filter").get("#filter-dropdown").invoke("show");
+        cy.get("#discover-content").get("#filter").get("#filter-popularity").click();
+        cy.get("#discover-content").get("#search-button").click();
+
+        cy.get("#discover-content").contains("Results: 0").should("exist").and("be.visible");
+        cy.get("#discover-content").get(".project-showcase-card").should("not.exist");
+    });
+
+    it('visit-page-and-search-with-filter-with-results', () => {
+        cy.visit(discover);
+        cy.get("#discover-content").get("#search-input").type("best");
+        cy.get("#discover-content").get("#filter").get("#filter-dropdown").invoke("show");
+        cy.get("#discover-content").get("#filter").get("#filter-popularity").click();
+        cy.get("#discover-content").get("#search-button").click();
+
+        cy.get("#discover-content").contains("Results").should("exist").and("be.visible");
+        cy.get("#discover-content").get(".listing-card").should("exist").and("be.visible");
+    });
 });
