@@ -140,6 +140,10 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
         }
     }, []);
 
+    useEffect(() => {
+        getComments();
+    }, [commentCount, commentPage])
+
     interface ImageSliderProps {
         images: string[];
       }
@@ -377,25 +381,25 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                     <p className={commentCount == 10 ? "selected-comment-count" : "unselected-comment-count"}
                                     onClick={() => {
                                         if (commentCount != 10) {
+                                            setCommentsLoaded(false);
                                             setCommentPage(1);
                                             setCommentCount(10);
-                                            getComments();
                                         }
                                     }}>10</p>
                                     <p className={commentCount == 20 ? "selected-comment-count" : "unselected-comment-count"}
                                     onClick={() => {
                                         if (commentCount != 20) {
+                                            setCommentsLoaded(false);
                                             setCommentPage(1);
                                             setCommentCount(20);
-                                            getComments();
                                         }
                                     }}>20</p>
                                     <p className={commentCount == 50 ? "selected-comment-count" : "unselected-comment-count"}
                                     onClick={() => {
                                         if (commentCount != 50) {
+                                            setCommentsLoaded(false);
                                             setCommentPage(1);
                                             setCommentCount(50);
-                                            getComments();
                                         }
                                     }}>50</p>
                                 </div>
