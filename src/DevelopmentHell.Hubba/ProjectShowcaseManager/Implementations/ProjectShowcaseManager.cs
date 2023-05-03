@@ -320,15 +320,31 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
         }
 
-        public async Task<Result<PackagedShowcase>> GetShowcase(string showcaseId)
+        public async Task<Result<PackagedShowcase>> GetPackagedShowcase(string showcaseId)
         {
             try
             {
+                PackagedShowcase output = new();
+
                 var getShowcaseResult = await _projectShowcaseService.GetShowcase(showcaseId).ConfigureAwait(false);
                 if (!getShowcaseResult.IsSuccessful)
                 {
                     var errorMessage = $"Error in getting Showcase {showcaseId}: {getShowcaseResult.ErrorMessage}";
-                    return new(Result.Failure(errorMessage));
+                    _logger.Warning(Category.BUSINESS, errorMessage);
+                    output.Showcase = new();
+                }
+                else
+                {
+                    output.Showcase = getShowcaseResult.Payload;
+                }
+
+                if (!(bool)getShowcaseResult.Payload!.IsPublished!)
+                {
+                    var checkResult = await IsAdminOrOwnerOf(showcaseId).ConfigureAwait(false);
+                    if (!checkResult.IsSuccessful || !checkResult.Payload)
+                    {
+                        return new(checkResult);
+                    }
                 }
 
                 Result<List<string>> getFilesResult = await _fileService.GetFilesInDir($"ProjectShowcases/{showcaseId}");
@@ -336,6 +352,44 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 if (!getFilesResult.IsSuccessful)
                 {
                     var errorMessage = $"Error in getting files for Showcase {showcaseId}: {getFilesResult.ErrorMessage}";
+                    _logger.Warning(Category.BUSINESS, errorMessage);
+                    output.FilePaths = new List<string>();
+                }
+                else
+                {
+                    output.FilePaths = getFilesResult.Payload;
+                }
+                
+
+                var getCommentsResult = await _projectShowcaseService.GetComments(showcaseId, 10, 1).ConfigureAwait(false);
+                if (!getCommentsResult.IsSuccessful)
+                {
+                    var errorMessage = $"Error in getting comments for Showcase {showcaseId}: {getFilesResult.ErrorMessage}";
+                    _logger.Warning(Category.BUSINESS, errorMessage);
+                    output.Comments = new();
+                }
+                else
+                {
+                    output.Comments = getCommentsResult.Payload;
+                }
+
+                return Result<PackagedShowcase>.Success(output);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in getting showcase: {ex.Message}", "ShowcaseManager");
+                return new(Result.Failure("Error in getting showcase"));
+            }
+        }
+
+        public async Task<Result<Showcase>> GetShowcase(string showcaseId)
+        {
+            try
+            {
+                var getShowcaseResult = await _projectShowcaseService.GetShowcase(showcaseId).ConfigureAwait(false);
+                if (!getShowcaseResult.IsSuccessful)
+                {
+                    var errorMessage = $"Error in getting Showcase {showcaseId}: {getShowcaseResult.ErrorMessage}";
                     return new(Result.Failure(errorMessage));
                 }
 
@@ -347,16 +401,9 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                         return new(checkResult);
                     }
                 }
-                
 
-                var getCommentsResult = await _projectShowcaseService.GetComments(showcaseId, 10, 1).ConfigureAwait(false);
-                if (!getCommentsResult.IsSuccessful)
-                {
-                    var errorMessage = $"Error in getting comments for Showcase {showcaseId}: {getFilesResult.ErrorMessage}";
-                    return new(Result.Failure(errorMessage));
-                }
 
-                return Result<PackagedShowcase>.Success(new() { Comments = getCommentsResult.Payload, Showcase = getShowcaseResult.Payload, FilePaths = getFilesResult.Payload });
+                return Result<Showcase>.Success(getShowcaseResult.Payload);
             }
             catch (Exception ex)
             {
