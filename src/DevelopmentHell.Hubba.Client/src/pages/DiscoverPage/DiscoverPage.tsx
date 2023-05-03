@@ -163,7 +163,7 @@ const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
                         <div className="search-group">
                             <h3>Category</h3>
                             <div id="category">
-                                <Dropdown title={searchQuery.category}>
+                                <Dropdown title={searchQuery.category} id={"category-dropdown"}>
                                     <p id="category-listings" onClick={() => { setSearchQuery((previous) => { return {...previous, category: Category.LISTINGS} }) }}>Listings</p>
                                     <p id="category-project-showcases" onClick={() => { setSearchQuery((previous) => { return {...previous, category: Category.PROJECT_SHOWCASES} }) }}>Project Showcases</p>
                                     <p id="category-collaborators" onClick={() => { setSearchQuery((previous) => { return {...previous, category: Category.COLLABORATORS} }) }}>Collaborators</p>
@@ -173,7 +173,7 @@ const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
                         <div className="search-group">
                             <h3>Filter</h3>
                             <div id="filter">
-                                <Dropdown title={searchQuery.filter}>
+                                <Dropdown title={searchQuery.filter} id={"filter-dropdown"}>
                                     <p onClick={() => { setSearchQuery((previous) => { return {...previous, filter: "none"} }) }}>None</p>
                                     <p onClick={() => { setSearchQuery((previous) => { return {...previous, filter: "popular"} }) }}>Popularity</p>
                                 </Dropdown>

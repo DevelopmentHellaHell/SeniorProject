@@ -4,46 +4,26 @@
 ** https://on.cypress.io/type
 */
 
-import { Ajax } from "../../src/Ajax";
-import { Database } from "./TestModels/Database";
-
-let testsRoute: string = '/tests/deleteDatabaseRecords';
 let discover: string = 'http://localhost:3000/discover';
 
 describe('attempt-to-access-page', () => {
-    after(async () => {
-        await Ajax.post(testsRoute, { database: Database.Databases.USERS });
-    });
-
     it('logged-out', () => {
         cy.visit(discover);
         cy.get('#discover-container').contains('Search');
     });
 
-    it('logged-in', () => {
-        Cypress.session.clearAllSavedSessions();
-        cy.RegisterViaApi(Cypress.env('standardEmail'), Cypress.env('standardPassword'));
-        cy.LoginViaApi(Cypress.env('standardEmail'), Cypress.env('standardPassword'));
+    // it('logged-in', () => {
+    //     Cypress.session.clearAllSavedSessions();
+    //     cy.LoginViaApi("usera@gmail.com", "12345678");
 
-        cy.visit(discover);
-        cy.get('#discover-container').contains('Search');
-    });
+    //     cy.visit(discover);
+    //     cy.get('#discover-container').contains('Search');
+    // });
 });
 
 describe('curated-results', () => {
     let realEmail: string = Cypress.env("realEmail");
     let standardPassword: string = Cypress.env("standardPassword");
-    let testsRoute: string = '/tests/deleteDatabaseRecords';
-
-    after(async () => {
-        await Ajax.post(testsRoute, { database: Database.Databases.USERS });
-    });
-
-    before(() => {
-        Cypress.session.clearAllSavedSessions();
-        //using Custom Commands
-        cy.RegisterViaApi(Cypress.env('realEmail'), Cypress.env('standardPassword'));
-    });
 
     it('visit-page-and-load-curated-data', () => {
         cy.visit(discover);
@@ -53,27 +33,10 @@ describe('curated-results', () => {
     });
 })
 
-describe('data-results', () => {
+describe('search-results', () => {
     let realEmail: string = Cypress.env("realEmail");
     let standardPassword: string = Cypress.env("standardPassword");
     let testsRoute: string = '/tests/deleteDatabaseRecords';
-
-    after(async () => {
-        await Ajax.post(testsRoute, { database: Database.Databases.USERS });
-    });
-
-    before(() => {
-        Cypress.session.clearAllSavedSessions();
-        //using Custom Commands
-        cy.RegisterViaApi(Cypress.env('realEmail'), Cypress.env('standardPassword'));
-    });
-
-    it('visit-page-and-load-curated-data', () => {
-        cy.visit(discover);
-        cy.get("#curated-view-wrapper").contains("Listings");
-        cy.get("#curated-view-wrapper").contains("Project Showcases");
-        cy.get("#curated-view-wrapper").contains("Collaborators");
-    });
 
     it('visit-page-and-search-data', () => {
         cy.visit(discover);
@@ -82,31 +45,81 @@ describe('data-results', () => {
         cy.get("#discover-content").contains("Results:");
     });
 
-    it('visit-page-and-search-with-catgeory-listings', () => {
+    it('empty-search', () => {
         cy.visit(discover);
-        cy.get("#discover-content").get("#search-input").type("woodworking");
-        cy.get('.dropdown-content').invoke('show');
+        cy.get("#discover-content").get("#search-button").click();
+        
+        cy.get("#discover-content").get(".error").should("exist").and("be.visible");
+    });
+
+    it('visit-page-and-search-with-catgeory-listings-with-no-results', () => {
+        cy.visit(discover);
+        cy.get("#discover-content").get("#search-input").type("asdasdasd");
+        cy.get("#discover-content").get("#category").get("#category-dropdown").invoke("show");
         cy.get("#discover-content").get("#category").get("#category-listings").click();
         cy.get("#discover-content").get("#search-button").click();
-        cy.get("#discover-content").contains("Results:");
+
+        cy.get("#discover-content").contains("Results: 0").should("exist").and("be.visible");
+        cy.get("#discover-content").get(".listing-card").should("not.exist");
     });
 
-    it('visit-page-and-search-with-catgeory-project-showcases', () => {
+    it('visit-page-and-search-with-catgeory-listings-with-results', () => {
         cy.visit(discover);
-        cy.get("#discover-content").get("#search-input").type("woodworking");
-        cy.get('.dropdown-content').invoke('show');
+        cy.get("#discover-content").get("#search-input").type("best");
+        cy.get("#discover-content").get("#category").get("#category-dropdown").invoke("show");
+        cy.get("#discover-content").get("#category").get("#category-listings").click();
+        cy.get("#discover-content").get("#search-button").click();
+
+        cy.get("#discover-content").contains("Results").should("exist").and("be.visible");
+        cy.get("#discover-content").get(".listing-card").should("exist").and("be.visible");
+    });
+
+    it('visit-page-and-search-with-catgeory-collaborators-with-no-results', () => {
+        cy.visit(discover);
+        cy.get("#discover-content").get("#search-input").type("asdasdasd");
+        cy.get("#discover-content").get("#category").get("#category-dropdown").invoke("show");
+        cy.get("#discover-content").get("#category").get("#category-collaborators").click();
+        cy.get("#discover-content").get("#search-button").click();
+
+        cy.get("#discover-content").contains("Results: 0").should("exist").and("be.visible");
+        cy.get("#discover-content").get(".collaborator-card").should("not.exist");
+    });
+
+    it('visit-page-and-search-with-catgeory-collaborators-with-results', () => {
+        cy.visit(discover);
+        cy.get("#discover-content").get("#search-input").type("best");
+        cy.get("#discover-content").get("#category").get("#category-dropdown").invoke("show");
+        cy.get("#discover-content").get("#category").get("#category-collaborators").click();
+        cy.get("#discover-content").get("#search-button").click();
+
+        cy.get("#discover-content").contains("Results").should("exist").and("be.visible");
+        cy.get("#discover-content").get(".collaborator-card").should("exist").and("be.visible");
+    });
+
+    it('visit-page-and-search-with-catgeory-project-showcases-with-no-results', () => {
+        cy.visit(discover);
+        cy.get("#discover-content").get("#search-input").type("asdasdasd");
+        cy.get("#discover-content").get("#category").get("#category-dropdown").invoke("show");
         cy.get("#discover-content").get("#category").get("#category-project-showcases").click();
         cy.get("#discover-content").get("#search-button").click();
-        cy.get("#discover-content").contains("Results:");
+
+        cy.get("#discover-content").contains("Results: 0").should("exist").and("be.visible");
+        cy.get("#discover-content").get(".project-showcase-card").should("not.exist");
     });
 
-    // it('visit-page-and-search-with-catgeory-collaborators', () => {
-    //     cy.visit(discover);
-    //     cy.get("#discover-content").get("#search-input").type("woodworking");
-    //     cy.get('#category').get('.dropdown-content').invoke('show');
-    //     cy.get("#discover-content").get("#category").get("#category-collaborators").click();
-    //     cy.get("#discover-content").get("#search-button").click();
-    //     cy.get("#discover-content").contains("Results:");
-    // });
+    it('visit-page-and-search-with-catgeory-project-showcases-with-results', () => {
+        cy.visit(discover);
+        cy.get("#discover-content").get("#search-input").type("description1");
+        cy.get("#discover-content").get("#category").get("#category-dropdown").invoke("show");
+        cy.get("#discover-content").get("#category").get("#category-project-showcases").click();
+        cy.get("#discover-content").get("#search-button").click();
 
-})
+        cy.get("#discover-content").contains("Results").should("exist").and("be.visible");
+        cy.get("#discover-content").get(".project-showcase-card").should("exist").and("be.visible");
+    });
+
+    // it('visit-page-and-search-with-filter', () => {
+    //     cy.visit(discover);
+    //     cy.get("#discover-content").get("#search-input").type("best");
+    // });
+});

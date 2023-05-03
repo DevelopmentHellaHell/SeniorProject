@@ -255,14 +255,6 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
             _otpDataAccess = new OTPDataAccess(_userConnectionString, _userOTPsTable);
         }
 
-        [TestInitialize]
-        public async Task Setup()
-        {
-            await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.LISTING_PROFILES).ConfigureAwait(false);
-            await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.USERS).ConfigureAwait(false);
-            await _fileService.DeleteDir(dirPath).ConfigureAwait(false);
-        }
-
         [TestMethod]
         public async Task ListingProfileSetUp()
         {

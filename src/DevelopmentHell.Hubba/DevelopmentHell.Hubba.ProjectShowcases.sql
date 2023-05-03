@@ -404,7 +404,7 @@ FROM [DevelopmentHell.Hubba.ProjectShowcases].[dbo].[Showcases] AS S
 WHERE S.IsPublished = 1
 ORDER BY S.Rating DESC
 OFFSET @Offset ROWS
-FETCH NEXT 50 ROWS ONLY;
+FETCH NEXT 5 ROWS ONLY;
 GO
 ALTER AUTHORIZATION ON [dbo].[CurateShowcases] TO  SCHEMA OWNER 
 GO

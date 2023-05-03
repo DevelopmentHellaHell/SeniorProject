@@ -356,7 +356,7 @@ ON C.CollaboratorId = V.CollaboratorId
 WHERE C.Published = 1
 ORDER BY V.TotalVotes DESC
 OFFSET @Offset ROWS
-FETCH NEXT 50 ROWS ONLY;
+FETCH NEXT 5 ROWS ONLY;
 GO
 ALTER AUTHORIZATION ON [dbo].[CurateCollaborators] TO  SCHEMA OWNER 
 GO
