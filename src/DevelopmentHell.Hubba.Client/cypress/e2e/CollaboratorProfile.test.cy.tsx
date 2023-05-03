@@ -77,6 +77,33 @@ describe('working-ui', () => {
 
 });
 
+describe('create-collaborator', () => {
+    
+    before(() =>{
+        //clear all sessions include the backend and cache
+        Cypress.session.clearAllSavedSessions();
+    })
+    let testsRoute: string = '/tests/deleteDatabaseRecords';
+    beforeEach(() => {
+        // using Custom Commands
+        cy.RegisterViaApi(Cypress.env('standardEmail'), Cypress.env('standardPassword'));
+        cy.LoginViaApi(Cypress.env('standardEmail'), Cypress.env('standardPassword'));
+        cy.visit(accountUrl);
+        cy.contains('Collaborator Profile').click();
+    });
+
+    after(async () => {
+        await Ajax.post(testsRoute, { database: Database.Databases.USERS });
+        await Ajax.post(testsRoute, { database: Database.Databases.COLLABORATORS });
+    });
+
+    it('create-collaborator', () => {
+        cy.CreateSampleCollaborator();
+        cy.pause();
+    });
+});
+
+
 describe('working-collaborator-view-and-edit', () => {
     
     before(() =>{

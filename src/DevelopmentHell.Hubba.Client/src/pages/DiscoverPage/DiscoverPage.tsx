@@ -143,6 +143,16 @@ const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
                                 <Button
                                     title="🔎"
                                     onClick={ () => {
+                                        if (!searchQuery.query || !searchQuery.query.length || searchQuery.query.length == 0) {
+                                            setError("Empty search query. Please try again.");
+                                            return;
+                                        }
+
+                                        if (searchQuery.query.length >= 250) {
+                                            setError("Search query too long, please try again.");
+                                            return;
+                                        }
+
                                         setLastSearchQuery(searchQuery);
                                         setView(DiscoverViews.SEARCH);
                                     }}
