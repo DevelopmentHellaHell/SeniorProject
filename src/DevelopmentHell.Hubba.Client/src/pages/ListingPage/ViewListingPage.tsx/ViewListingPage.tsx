@@ -55,43 +55,43 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
     const [defaultError] = useState<string>("Listings failed to load. Refresh page or try again later.")
 
     useEffect(() => {
-    const getData = async () => {
-        const response = await Ajax.post<IViewListingData>('/listingprofile/viewListing', { listingId: state.listingId });
-        console.log(response.data);
-        if (response.data) {
-            setData(response.data);
-            setIsPublished(response.data.Listing.published!);
-        }
-        if (response.error) {
-            setError("Listing failed to load. Refresh page or try again later.\n" +response.error);
-        }
-        
-        setLoaded(response.loaded);
+        const getData = async () => {
+            const response = await Ajax.post<IViewListingData>('/listingprofile/viewListing', { listingId: state.listingId });
+            console.log(response.data);
+            if (response.data) {
+                setData(response.data);
+                setIsPublished(response.data.Listing.published!);
+            }
+            if (response.error) {
+                setError("Listing failed to load. Refresh page or try again later.\n" + response.error);
+            }
+
+            setLoaded(response.loaded);
         };
         getData();
-        }, []);
+    }, []);
 
     const handlePrevImage = () => {
         setCurrentImage((prevImage) =>
-          prevImage === 0 ? data!.Files!.length! - 1 : prevImage - 1
+            prevImage === 0 ? data!.Files!.length! - 1 : prevImage - 1
         );
-      };
-    
-      const handleNextImage = () => {
+    };
+
+    const handleNextImage = () => {
         setCurrentImage((prevImage) =>
-          prevImage === (data?.Files?.length ?? 0) - 1 ? 0 : prevImage + 1
+            prevImage === (data?.Files?.length ?? 0) - 1 ? 0 : prevImage + 1
         );
-      };
+    };
 
-      useEffect(() => {
+    useEffect(() => {
         if (error !== undefined) {
-          alert(error);
-          setError(undefined);
+            alert(error);
+            setError(undefined);
         }
-        
-      }, [error]);
 
-      const handleDeleteClick = async () => {
+    }, [error]);
+
+    const handleDeleteClick = async () => {
         const response = await Ajax.post<null>('/listingprofile/deleteListing', { ListingId: data?.Listing.listingId })
         console.log(response)
         if (response.error) {
@@ -103,54 +103,70 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
 
     return (
         <div className="listing-container">
-            {authData && authData.role !== Auth.Roles.DEFAULT_USER  ? 
-                <NavbarUser /> : <NavbarGuest /> 
+            {authData && authData.role !== Auth.Roles.DEFAULT_USER ?
+                <NavbarUser /> : <NavbarGuest />
             }
             <div className="listing-content">
                 <div className="listing-wrapper">
-                    { data && !error && loaded &&
+                    {data && !error && loaded &&
                         <div className="listing-page">
-                            <div className="listing-page-status"> { isPublished ? 'Public' : 'Draft'  } </div> 
-                            <p> { isPublished && authData?.sub==data.Listing.ownerId.toString() && <div>
-                                    <Button theme={ButtonTheme.DARK} onClick={() => { navigate("/editlisting", { state: { listingId: data.Listing.listingId }})} } title={"Edit Listing"} />
-                                    <Button theme={ButtonTheme.DARK} onClick={async () => { 
-                                        const response = await Ajax.post("/listingprofile/unpublishListing", { listingId: data.Listing.listingId })
-                                        if (response.error) {
-                                            setError("Publishing listing error. Refresh page or try again later.\n" + response.error);
-                                            return;
-                                        }
-                                        setIsPublished(false);
-                                    }} title={"Unpublish Listing"} />
+                            <div className="listing-page-status"> {isPublished ? 'Public' : 'Draft'} </div>
+                            <p> {isPublished && authData?.sub == data.Listing.ownerId.toString() && <div>
+                                <Button theme={ButtonTheme.DARK} onClick={() => { navigate("/editlisting", { state: { listingId: data.Listing.listingId } }) }} title={"Edit Listing"} />
+                                <Button theme={ButtonTheme.DARK} onClick={async () => {
+                                    const response = await Ajax.post("/listingprofile/unpublishListing", { listingId: data.Listing.listingId })
+                                    if (response.error) {
+                                        setError("Publishing listing error. Refresh page or try again later.\n" + response.error);
+                                        return;
+                                    }
+                                    setIsPublished(false);
+                                }} title={"Unpublish Listing"} />
+                                <Button theme={ButtonTheme.DARK} onClick={() => { handleDeleteClick() }} title={"Delete Listing"} />
+                            </div>}
+                                {!isPublished && authData?.sub == data.Listing.ownerId.toString() && <div>
+                                    <Button theme={ButtonTheme.DARK} onClick={() => { navigate("/editlisting", { state: { listingId: data.Listing.listingId } }) }} title={"Edit Listing"} />
                                     <Button theme={ButtonTheme.DARK} onClick={() => { handleDeleteClick() }} title={"Delete Listing"} />
                                 </div>}
-                                { !isPublished && authData?.sub==data.Listing.ownerId.toString() && <div>
-                                    <Button theme={ButtonTheme.DARK} onClick={() => { navigate("/editlisting", { state: { listingId: data.Listing.listingId }})} } title={"Edit Listing"} />
-                                    <Button theme={ButtonTheme.DARK} onClick={() => { handleDeleteClick() }} title={"Delete Listing"} />
-                                </div>} 
-                             </p>
+                            </p>
                             <h2 className="listing-page__title">{data.Listing.title}</h2>
+
+                            {/** REDIRECT TO SCHEDULING FEATURE */}
+                            <div className="buttons">
+                                <Button title="Check Calendar"
+                                    onClick={() => {
+                                        navigate("/scheduling", {
+                                            state: {
+                                                listingId: data?.Listing.listingId,
+                                                listingTitle: data?.Listing.title,
+                                                ownerId: data?.Listing.ownerId,
+                                                price: data?.Listing.price
+                                            }
+                                        })
+                                    }} />
+                            </div>
+
                             <h3 className="listing-username">{data.Listing.ownerUsername}</h3>
                             {data.Files && data.Files.length > 0 && (
                                 <div className="listing-page__image-wrapper">
-                                    { data!.Files![currentImage].toString().substring(data!.Files![currentImage].toString().lastIndexOf('/') + 1) } {currentImage + 1} / {data!.Files!.length}
-                                <img
-                                    className="listing-page__picture"
-                                    src={data.Files[currentImage]?.toString()}
-                                    alt={data.Listing.title}
-                                />
-                                {data.Files.length > 1 && (
-                                    <>
-                                    <button onClick={handlePrevImage}>
-                                        &#10094;
-                                    </button>
-                                    <button onClick={handleNextImage}>
-                                        &#10095;
-                                    </button>
-                                    </>
-                                )}
+                                    {data!.Files![currentImage].toString().substring(data!.Files![currentImage].toString().lastIndexOf('/') + 1)} {currentImage + 1} / {data!.Files!.length}
+                                    <img
+                                        className="listing-page__picture"
+                                        src={data.Files[currentImage]?.toString()}
+                                        alt={data.Listing.title}
+                                    />
+                                    {data.Files.length > 1 && (
+                                        <>
+                                            <button onClick={handlePrevImage}>
+                                                &#10094;
+                                            </button>
+                                            <button onClick={handleNextImage}>
+                                                &#10095;
+                                            </button>
+                                        </>
+                                    )}
                                 </div>
                             )}
-                            <p>{"Location: " + (data.Listing.location ?? "")}</p> 
+                            <p>{"Location: " + (data.Listing.location ?? "")}</p>
                             <p>{"Price: " + (data.Listing.price ?? "")}</p>
                             <p>{"Description: " + (data.Listing.description ?? "")}</p>
                             <div>
@@ -162,30 +178,30 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        { data && data.Availabilities && data.Availabilities.map((value: IAvailability) => {
-                                            return <ListingAvailabilityCard key={`${value.listingId}-listing-card`} availability={value}/>
+                                        {data && data.Availabilities && data.Availabilities.map((value: IAvailability) => {
+                                            return <ListingAvailabilityCard key={`${value.listingId}-listing-card`} availability={value} />
                                         })}
                                     </tbody>
                                 </table>
                             </div>
 
-                            <Button theme={ButtonTheme.DARK} onClick={() => { 
-                                navigate("/viewlistingratings", 
-                                {
-                                    state : 
-                                    { 
-                                        listingId: state.listingId, 
-                                    }
-                                });
-                                }} title={"View Ratings"} />
+                            <Button theme={ButtonTheme.DARK} onClick={() => {
+                                navigate("/viewlistingratings",
+                                    {
+                                        state:
+                                        {
+                                            listingId: state.listingId,
+                                        }
+                                    });
+                            }} title={"View Ratings"} />
                         </div>
                     }
                     {error && loaded &&
                         <p className="error">{error}</p>
-                    }   
+                    }
                 </div>
             </div>
-        <Footer />
+            <Footer />
         </div>
     );
 }

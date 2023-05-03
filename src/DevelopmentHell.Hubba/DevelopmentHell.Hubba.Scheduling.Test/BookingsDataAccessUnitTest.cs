@@ -33,7 +33,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
         [TestCleanup]
         public async Task CleanUp()
         {
-            await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.LISTING_PROFILES).ConfigureAwait(false);
+            await _testingService.DeleteTableRecords(Models.Tests.Databases.LISTING_PROFILES, Models.Tests.Tables.BOOKINGS).ConfigureAwait(false);
         }
         
         private async Task<Result<int>> CreateListing()
@@ -259,7 +259,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
             //Act
             var actual = await _bookingDAO.UpdateBooking(values, comparators).ConfigureAwait(false);
             var getBooking = await _bookingDAO.GetBooking(filter).ConfigureAwait(false);
-            var expected = getBooking.Payload[0];
+            var expected = getBooking.Payload![0];
 
             //Assert
             Assert.IsNotNull(actual);

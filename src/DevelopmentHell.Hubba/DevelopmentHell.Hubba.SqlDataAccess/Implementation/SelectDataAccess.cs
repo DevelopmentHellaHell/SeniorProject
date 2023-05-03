@@ -59,7 +59,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
             //TODO add implementation for group by, order by, having
             using (SqlCommand insertQuery = new SqlCommand())
             {
-
                 bool first = true;
                 StringBuilder sbFilter = new();
                 StringBuilder sbColumn = new();

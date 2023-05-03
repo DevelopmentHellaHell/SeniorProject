@@ -81,8 +81,8 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
                 new List<ListingAvailabilityDTO>() { avail1, avail2 }
                 ).ConfigureAwait(false);
             Result<List<ListingAvailability>> getAvailabilityId = await _listingavailabilityDAO.GetListingAvailabilities(listingId).ConfigureAwait(false);
-            int availabilityId_1 = (int)getAvailabilityId.Payload[0].AvailabilityId;
-            int availabilityId_2 = (int)getAvailabilityId.Payload[1].AvailabilityId;
+            int availabilityId_1 = (int)getAvailabilityId.Payload![0].AvailabilityId!;
+            int availabilityId_2 = (int)getAvailabilityId.Payload![1].AvailabilityId!;
 
             result["availabilityId_1"] = availabilityId_1;
             result["availabilityId_2"] = availabilityId_2;
@@ -153,25 +153,25 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
             //Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsSuccessful);
-            Assert.AreEqual(actual.Payload.Count, expected.Count);
+            Assert.AreEqual(actual.Payload!.Count, expected.Count);
         }
         [TestMethod]
         public async Task GetOpenTimeSlotsByMonth_NoFound_Successful()
         {
             //Arrange
             var testData = await SetUp();
-            int month = 5;
+            int testMonth = 2;
             //Act
             var actual = await _availabilityService.GetOpenTimeSlotsByMonth(
                 (int)testData[nameof(Listing.ListingId)],
-                month,
+                testMonth,
                 (int)testData["Year"]
                 ).ConfigureAwait(false);
 
             //Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsSuccessful);
-            Assert.IsTrue(actual.Payload.Count == 0);
+            Assert.IsTrue(actual.Payload!.Count == 0);
         }
         [TestMethod]
         public async Task GetOpenTimeSlots_AfterAddingMoreBookedTimeFrames_Successful()
@@ -183,7 +183,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
                 (int)testData["Month"],
                 (int)testData["Year"]
                 ).ConfigureAwait(false);
-            int beforeCount = getOpenTimeSlots.Payload.Count;
+            int beforeCount = getOpenTimeSlots.Payload!.Count;
 
             // add more booking
             Booking anotherBooking = new Booking()
@@ -237,7 +237,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
             //Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsSuccessful);
-            Assert.AreEqual(actual.Payload.Count, expected.Count);
+            Assert.AreEqual(actual.Payload!.Count, expected.Count);
         }
         [TestMethod]
         public async Task ValidateChosenTimeFrames_OverlappedBookedTimeFrames_Failed()
@@ -325,7 +325,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
             //Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsSuccessful);
-            Assert.AreEqual(actual.Payload.GetType(), typeof(BookingViewDTO));
+            Assert.AreEqual(actual.Payload!.GetType(), typeof(BookingViewDTO));
         }
     }
 }

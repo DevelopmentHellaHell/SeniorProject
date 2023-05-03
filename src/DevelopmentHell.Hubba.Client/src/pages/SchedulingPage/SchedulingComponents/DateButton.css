@@ -1,0 +1,21 @@
+.date-btn {
+    background-color: rgb(var(--primary-button-light));
+    color: rgb(var(--primary-text-dark));
+    padding: 8px 6px;
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 20px;
+    border: solid;
+    cursor: pointer;
+    justify-content: center
+}
+.date-btn .enable {
+    background-color: rgb(var(--primary-button-dark));
+    color: rgb(var(--primary-text-light));
+}
+
+.date-btn:hover {
+    box-shadow: inset 0 0 100px 100px rgba(0, 0, 0, 0.05);
+}

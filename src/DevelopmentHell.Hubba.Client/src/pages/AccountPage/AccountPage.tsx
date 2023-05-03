@@ -14,6 +14,7 @@ import CollaboratorEditView from "./CollaboratorProfileView/CollaboratorEditView
 import CollaboratorDeletionView from "./CollaboratorProfileView/CollaboratorDeletionView/CollaboratorDeletionView";
 import { Ajax } from "../../Ajax";
 import ProjectShowcaseView from "./ProjectShowcasesView/ProjectShowcaseView";
+import SchedulingHistoryView from "./SchedulingHistory/SchedulingHistoryView";
 
 interface IAccountPageProps {
 
@@ -71,7 +72,7 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
             case AccountViews.NOTIFICATION_SETTINGS:
                 return <NotificationSettingsView />; //TODO
             case AccountViews.SCHEDULING_HISTORY:
-                return <></>; //TODO
+                return <SchedulingHistoryView />; //TODO
             case AccountViews.MANAGE_LISTINGS:
                 return <></>; //TODO
             case AccountViews.PROJECT_SHOWCASES:

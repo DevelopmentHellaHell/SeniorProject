@@ -54,14 +54,14 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
             var getBookedTimeFrames = await ExecuteAvailabilityService(() => _bookedTimeFrameDAO.GetBookedTimeFrames(filters));
             if (!getBookedTimeFrames.IsSuccessful) 
             {
-                return new(Result.Failure(getBookedTimeFrames.ErrorMessage));
+                return new(Result.Failure(getBookedTimeFrames.ErrorMessage!));
             }
-            if(getBookedTimeFrames.Payload.Count == 0)
+            if(getBookedTimeFrames.Payload?.Count == 0)
             {
                 return new(Result.Success());
             }
             // Check if the time frame overlaps with any booked time frame
-            foreach (var bookedTimeFrame in getBookedTimeFrames.Payload)
+            foreach (var bookedTimeFrame in getBookedTimeFrames.Payload!)
             {
                 if (chosenTimeFrame.StartDateTime < bookedTimeFrame.EndDateTime
                     && chosenTimeFrame.EndDateTime > bookedTimeFrame.StartDateTime)
@@ -75,6 +75,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
         }
         public async Task<Result<List<ListingAvailabilityDTO>>> GetOpenTimeSlotsByMonth(int listingId, int month, int year)
         {
+            //sorted list of Availability
             var getListingAvailabilityByMonth = await ExecuteAvailabilityService(() =>
                 _availabilityDAO.GetListingAvailabilitiesByMonth(listingId, month, year)).ConfigureAwait(false);
             
@@ -87,7 +88,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
             ).ConfigureAwait(false);
 
             List<ListingAvailabilityDTO> openTimeSlotsDTO = new();
-            foreach (var availability in getListingAvailabilityByMonth.Payload)
+            foreach (var availability in getListingAvailabilityByMonth.Payload!)
             {
                 var lastEnd = availability.StartTime; //latest open slots
                 if (!getBookedTimeFramesByListing.IsSuccessful || getBookedTimeFramesByListing.Payload == null)
@@ -104,7 +105,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
                             {
                                 lastEnd = bookedTimeFrame.EndDateTime; //update lastEnd
                             }
-                            if (bookedTimeFrame.StartDateTime > lastEnd && bookedTimeFrame.EndDateTime < availability.EndTime) //booked time in between lastEnd and availability.EndTime
+                            if (bookedTimeFrame.StartDateTime > lastEnd && bookedTimeFrame.EndDateTime <= availability.EndTime) //booked time in between lastEnd and availability.EndTime
                             {
                                 openTimeSlotsDTO.Add(new ListingAvailabilityDTO()
                                 {
@@ -124,7 +125,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
                     openTimeSlotsDTO.Add(new ListingAvailabilityDTO()
                     {
                         ListingId = listingId,
-                        AvailabilityId = (int)availability.AvailabilityId,
+                        AvailabilityId = (int)availability.AvailabilityId!,
                         StartTime = lastEnd,
                         EndTime = availability.EndTime
                     });
@@ -145,15 +146,15 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
 
             if (!getListings.IsSuccessful)
             {
-                return new(Result.Failure(getListings.ErrorMessage, getListings.StatusCode));
+                return new(Result.Failure(getListings.ErrorMessage!, getListings.StatusCode));
             }
             // return needed Listing's details for the Booking View
             BookingViewDTO bookingViewDTO = new()
             {
-                OwnerId = getListings.Payload.OwnerId,
+                OwnerId = getListings.Payload?.OwnerId,
                 ListingId = listingId,
-                ListingTitle = getListings.Payload.Title,
-                ListingLocation = getListings.Payload.Location
+                ListingTitle = getListings.Payload?.Title,
+                ListingLocation = getListings.Payload?.Location
             };
             return Result<BookingViewDTO>.Success(bookingViewDTO);
         }

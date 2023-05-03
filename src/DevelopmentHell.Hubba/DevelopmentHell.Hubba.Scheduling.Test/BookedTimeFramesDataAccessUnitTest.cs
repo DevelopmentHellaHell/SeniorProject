@@ -39,7 +39,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
         [TestCleanup]
         public async Task CleanUp() 
         {
-            await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.LISTING_PROFILES).ConfigureAwait(false);
+            await _testingService.DeleteTableRecords(Models.Tests.Databases.LISTING_PROFILES, Models.Tests.Tables.BOOKINGS).ConfigureAwait(false);
         }
         /// <summary>
         /// Set up dependencies. 
@@ -87,7 +87,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
             // create a booking
             var createBooking = await _bookingDAO.CreateBooking(booking).ConfigureAwait(false);
 
-            return new Tuple<int, int, List<ListingAvailability>>(listingId.Payload, createBooking.Payload, getAvailabilities.Payload);
+            return new Tuple<int, int, List<ListingAvailability>>(listingId.Payload, createBooking.Payload, getAvailabilities.Payload!);
         }
 
         [TestMethod]
@@ -124,7 +124,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
             // Arrange
             var createListingBookingAvailability = await TestInitialize();
             int listingId = createListingBookingAvailability.Item1;
-            int availId = (int)createListingBookingAvailability.Item3[0].AvailabilityId;
+            int availId = (int)createListingBookingAvailability.Item3[0].AvailabilityId!;
             int nonexistedBookingId = 0;
             List<BookedTimeFrame> testtimeframes =
                 new List<BookedTimeFrame>()
@@ -161,7 +161,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
                         {
                             BookingId = bookingId,
                             ListingId = listingId,
-                            AvailabilityId = (int) availId,
+                            AvailabilityId = (int) availId!,
                             StartDateTime = DateTime.Now.AddDays(1),
                             EndDateTime = DateTime.Now.AddDays(1).AddHours(1)
                         }
@@ -190,7 +190,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
                         {
                             BookingId =bookingId,
                             ListingId = listingId,
-                            AvailabilityId = (int) availId,
+                            AvailabilityId = (int) availId!,
                             StartDateTime = DateTime.Now.AddDays(1),
                             EndDateTime = DateTime.Now.AddDays(1).AddHours(1)
                         }
@@ -205,7 +205,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
             //Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsSuccessful);
-            Assert.AreEqual(testtimeframes.Count, actual.Payload.Count);
+            Assert.AreEqual(testtimeframes.Count, actual.Payload!.Count);
         }
         [TestMethod]
         public async Task GetBookedTimeFrame_ByListingId_ListOfBookedTimeFrame()
@@ -222,7 +222,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
                         {
                             BookingId =bookingId,
                             ListingId = listingId,
-                            AvailabilityId = (int) availId,
+                            AvailabilityId = (int) availId!,
                             StartDateTime = DateTime.Now.AddDays(1),
                             EndDateTime = DateTime.Now.AddDays(1).AddHours(1)
                         },
@@ -245,7 +245,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
             //Assert
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.IsSuccessful);
-            Assert.AreEqual(testtimeframes.Count, actual.Payload.Count);
+            Assert.AreEqual(testtimeframes.Count, actual.Payload!.Count);
         }
         [TestMethod]
         public async Task DeleteBookedTimeFrames_ByBookingId_Successful()
@@ -262,7 +262,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
                         {
                             BookingId =bookingId,
                             ListingId = listingId,
-                            AvailabilityId = (int) availId,
+                            AvailabilityId = (int) availId!,
                             StartDateTime = DateTime.Now.AddDays(1),
                             EndDateTime = DateTime.Now.AddDays(1).AddHours(1)
                         },

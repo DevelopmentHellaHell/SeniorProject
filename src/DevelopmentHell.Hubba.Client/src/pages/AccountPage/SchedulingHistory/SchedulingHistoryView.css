@@ -1,0 +1,82 @@
+.schedulinghistory-container {
+    position: relative;
+    display: flex;
+    flex-flow: column;
+    flex-grow: 1
+}
+
+.schedulinghistory-container .schedulinghistory-content {
+    display: flex;
+    padding-bottom: 2.5rem;
+    flex-grow: 1;
+}
+
+.schedulinghistory-container .schedulinghistory-content .schedulinghistory-wrapper {
+    color: rgb(var(--primary-text-dark));
+    text-align: center;
+    width: 100%;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}
+
+.schedulinghistory-container .schedulinghistory-card .filters-wrapper {
+    display: flex;
+    justify-content: right;
+}
+
+.schedulinghistory-container .schedulinghistory-card .filters {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 550px;
+}
+
+.schedulinghistory-container .schedulinghistory-card table {
+    width: 100%;
+}
+
+.schedulinghistory-container .schedulinghistory-card table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+.schedulinghistory-container .schedulinghistory-card table, th {
+    text-align: center;
+}
+
+.schedulinghistory-container .schedulinghistory-card table, td {
+    text-align: left;
+}
+
+.schedulinghistory-container table .table-button-hide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.schedulinghistory-container .actions-wrapper {
+    display: flex;
+    justify-content: right;
+}
+
+.schedulinghistory-container .actions {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 280px;
+    margin-top: 5px;
+}
+
+.schedulinghistory-container .schedulinghistory-card {
+    background-color: rgb(var(--primary-background-light));
+    padding: 20px 70px;
+    border: none;
+    border-radius: 10px;
+    width: 75%;
+    text-align: center;
+}
+
+.schedulinghistory-container .error {
+    color: rgb(var(--error-text));
+}
