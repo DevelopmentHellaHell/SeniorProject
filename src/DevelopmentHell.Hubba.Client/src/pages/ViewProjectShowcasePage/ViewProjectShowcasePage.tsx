@@ -91,6 +91,10 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                 setCommentsLoaded(true);
                 setImagesLoaded(true);
             }
+            else {
+                setShowcaseError(response.error);
+                setCommentsError("Unable to load comments")
+            }
         });
     }
 
@@ -291,9 +295,10 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                             }}></textarea>
                             <button onClick={() => {
                                 console.log(commentText);
+                                setCommentsLoaded(false);
                                 Ajax.post(`/showcases/comments?s=${showcaseId}`, { commentText: commentText } ).then((response) => {
                                     if (response.error){
-                                        alert(response.error);
+                                        setCommentsError(response.error);
                                     }
                                     if(response.data) {
                                         alert("Comment submitted successfully");
