@@ -657,7 +657,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
 
 
             // TODO: Change file path to local repository
-            string imagePath = "C:\\Users\\NZXT ASRock\\Pictures\\Paint Art\\Totodile.png";
+            string imagePath = "C:\\Users\\bryan\\Desktop\\School Repos\\2022-2023\\SEM 1\\CECS 491A-04\\SeniorProject\\src\\DevelopmentHell.Hubba.Client\\cypress\\fixtures\\Crypto Mine.png";
 
             IFormFile file = CreateFormFileFromFilePath(imagePath);
 

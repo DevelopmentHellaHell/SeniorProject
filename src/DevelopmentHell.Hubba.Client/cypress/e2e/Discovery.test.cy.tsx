@@ -99,7 +99,7 @@ describe('search-results', () => {
 
     it('visit-page-and-search-with-catgeory-collaborators-with-results', () => {
         cy.visit(discover);
-        cy.get("#discover-content").get("#search-input").type("best");
+        cy.get("#discover-content").get("#search-input").type("woodwork");
         cy.get("#discover-content").get("#category").get("#category-dropdown").invoke("show");
         cy.get("#discover-content").get("#category").get("#category-collaborators").click();
         cy.get("#discover-content").get("#search-button").click();
