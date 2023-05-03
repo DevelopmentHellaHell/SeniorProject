@@ -19,20 +19,7 @@ const defaultTax: number = 0.0785;
 const defaultFee: number = 0.15;
 
 interface IOpenTimeSlotsProp {
-    // listingId: number,
-    // listingTitle: string,
-    // ownerId: number,
-    // price: number,
-    // fee?: number,
-    // tax?: number
-}
-interface IState {
-    listingId: string,
-    listingTitle: string,
-    ownerId: string,
-    price: string,
-    fee?: string,
-    tax?: string
+    
 }
 
 interface IListingAvailabilityData {
@@ -67,9 +54,7 @@ const REFRESH_COOLDOWN_MILLISECONDS = 5000;
 
 const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
     const {state} = useLocation();
-    console.log("STATE", state);
     const [bookingView, setBookingView] = useState<IBookingView | null>(null);
-    console.log(state);
 
     const [listingId, setListingId] = useState<number>(state.listingId);
     const [initialDate, setInitialDate] = useState<string>((new Date()).toDateString());
@@ -176,12 +161,9 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
             });
         }
     };
-
     useEffect(() => {
-        const today = new Date(initialDate);
-        getListingAvailabilityData(today.getFullYear(), today.getMonth() + 1);
-    })
-
+        
+    });
     const convertToMonthName = (initialDate: number) => {
         switch (initialDate) {
             case 1: return "January";

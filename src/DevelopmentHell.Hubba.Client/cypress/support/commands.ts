@@ -12,15 +12,9 @@ declare global {
             LoginViaApi(email: string, password: string): Chainable<void>;
             LogInandOut(): Chainable<void>;
             CreateShowcase(showcaseId, title, description, files:File[]): Chainable<void>;
-            CreateListing(title: string): Chainable<void>;
         }
     }
 }
-
-Cypress.Commands.add("CreateListing", (title:string) => {
-    cy.request("POST", listingRoute + "/createlisting", {title} )
-        .its("status").should("eq", 200);
-});
 
 /**
  * Register new account by direct AJAX HTTP POST to API

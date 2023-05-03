@@ -2,39 +2,42 @@
 import { Ajax } from "../../src/Ajax";
 import { Database } from "./TestModels/Database";
 
-let schedulingRoute: string = "/scheduling";
-let testEmail: string = "scheduling.user.testing@gmail.com";
-let hostEmail: string = "scheduling.owner.testing@gmail.com"
+let baseUrl: string = Cypress.env("baseUrl") + "/";
+let viewListingRoute: string = baseUrl + "viewlisting"
+let schedulingRoute: string = baseUrl + "scheduling";
+let userAEmail: string = "user.a@gmail.com";
+let userBEmail: string = "user.b@gmail.com"
 let testPassword: string = "12345678";
 
 context("Scheduling E2E Test Suite", () => {
     before(()=>{
         // Clear all sessions include the backend and cache
         Cypress.session.clearAllSavedSessions();
-        // Log In 
-        cy.LoginViaApi(testEmail, testPassword);
     });
 
     describe("Public access to Scheduling View from a published Listing, PASS", () => {
         beforeEach(() => {
-            cy.visit("/");
-            cy.
+            cy.visit("/discover");
+            cy.get(".title").contains("USER A listing").click();
+            cy.url().should("eq", viewListingRoute);
+            cy.contains("Check Calendar").click();
         })
         it("View rendered with Listing Title, Price, SideBar, Calendar on current date, PASS", () => {
-
+            cy.url().should("eq", schedulingRoute);
+            cy.contains("USER A listing").should("exist").and("be.visible");
+            cy.contains("/hour").should("exist").and("be.visible");
+            cy.get(".opentimeslots-sidebar").should("exist").and("be.visible");
+            cy.get(".calendar").should("exist").and("be.visible");
+            cy.get(".month").should("exist").and("be.visible");
         });
 
-        it("Initial loaded view, PASS", () => {
-
+        it.only("Initial loaded view, PASS", () => {
             //"Past dates are disabled in grey color, no functionality, PASS"
-
-            //
-            
-
+            cy.get(".header").contains("<").click().click();
+            cy.get(".month").contains("1").click();
+            cy.get(".slots-card .info").should("exist").and("be.visible");
+            cy.get(".halfday").should("not.exist");
             //"Available dates are highlighted in light color, PASS"
-
-            
-
         });
 
         it("User clicks '<' or '>' button to request availability for the corresponded month, PASS", () => {
