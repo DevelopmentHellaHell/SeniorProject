@@ -14,6 +14,7 @@ import CollaboratorEditView from "./CollaboratorProfileView/CollaboratorEditView
 import CollaboratorDeletionView from "./CollaboratorProfileView/CollaboratorDeletionView/CollaboratorDeletionView";
 import { Ajax } from "../../Ajax";
 import ProjectShowcaseView from "./ProjectShowcasesView/ProjectShowcaseView";
+import UpdatePasswordView from "./LoginSecurityView/UpdatePasswordView/UpdatePasswordView";
 
 interface IAccountPageProps {
 
@@ -65,7 +66,7 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
                     onDeleteClick={() => { setView(AccountViews.LOGIN_SECURITY_ACCOUNT_DELETION) }}
                 />;
             case AccountViews.LOGIN_SECURITY_UPDATE_PASSWORD:
-                return <></>; //TODO
+                return <UpdatePasswordView onCancelClick={() => { startUpdatePassword() }}/>; //TODO
             case AccountViews.LOGIN_SECURITY_ACCOUNT_DELETION:
                 return <DeleteAccountView onCancelClick={() => { setView(AccountViews.LOGIN_SECURITY) }}/>;
             case AccountViews.NOTIFICATION_SETTINGS:
@@ -125,6 +126,11 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
             }
         }
         return setView(AccountViews.COLLABORATOR_PROFILE_EDIT);
+    }
+
+    const startUpdatePassword = async () => {
+        await Ajax.post("/accountsystem/verifyaccount", {});
+        return setView(AccountViews.LOGIN_SECURITY)
     }
 
     return (

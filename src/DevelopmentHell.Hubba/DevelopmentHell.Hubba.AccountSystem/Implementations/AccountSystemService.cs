@@ -58,7 +58,17 @@ namespace DevelopmentHell.Hubba.AccountSystem.Implementations
 
         public async Task<Result<AccountSystemSettings>> GetAccountSettings(int userId)
         {
-            return await _userAccountDataAccess.GetAccountSettings(userId).ConfigureAwait(false);
+            Result<AccountSystemSettings> result = new Result<AccountSystemSettings>();
+            Result<AccountSystemSettings> getResult = await _userAccountDataAccess.GetAccountSettings(userId).ConfigureAwait(false);
+            if (!getResult.IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = getResult.ErrorMessage;
+                return result;
+            }
+            result.IsSuccessful = true;
+            result.Payload = getResult.Payload;
+            return result;
         }
 
         public async Task<Result> CheckNewEmail(string newEmail)

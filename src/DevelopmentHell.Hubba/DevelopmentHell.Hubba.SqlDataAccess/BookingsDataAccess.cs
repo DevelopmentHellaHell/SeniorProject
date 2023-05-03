@@ -165,7 +165,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         public async Task<Result<List<BookingHistory>>> GetBookingHistory(int userId)
         {
-            Result<List<BookingHistory>> result = new Result<List<BookingHistory>>();
+            List<BookingHistory> result = new ();
             var selectResult = await _selectDataAccess.Select(
                 SQLManip.InnerJoinTables(
                     new Joiner(
@@ -176,7 +176,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 new List<string>()
                 {
                     nameof(BookingHistory.BookingId),
-                    nameof(BookingHistory.ListingId),
+                    _tableName + "." + nameof(BookingHistory.ListingId),
                     nameof(BookingHistory.FullPrice),
                     nameof(BookingHistory.BookingStatusId),
                     nameof(BookingHistory.Title),
@@ -189,8 +189,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             ).ConfigureAwait(false);
             if (!selectResult.IsSuccessful || selectResult.Payload is null) 
             {
-                result.IsSuccessful = false;
-                return result;
+                return new(Result.Failure("Booking Data Access Error"));
             }
 
             if (selectResult.Payload.Count < 1)
@@ -201,19 +200,25 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             {
                 foreach(var row in selectResult.Payload)
                 {
-                    result.Payload!.Add(new BookingHistory()
+                    result.Add(new BookingHistory()
                     {
-                        BookingId = (int)row[nameof(BookingHistory.BookingId)],
-                        ListingId = (int)row[nameof(BookingHistory.ListingId)],
-                        FullPrice = (int)row[nameof(BookingHistory.FullPrice)],
-                        BookingStatusId = (int)row[nameof(BookingHistory.BookingStatusId)],
-                        Title = (string)row[nameof(BookingHistory.Title)],
-                        Location = (string)row[nameof(BookingHistory.Location)]
-                    }); ;
+                        BookingId = (int)row["BookingId"],
+                        ListingId = (int)row["ListingId"],
+                        FullPrice = decimal.ToDouble((decimal)row["FullPrice"]),
+                        BookingStatusId = (int)row["BookingStatusId"],
+                        Title = (string)row["Title"],
+                        Location = (string)row["Location"]
+                    });
                 }
             }
-            result.IsSuccessful = true;
-            return result;
+            return Result<List<BookingHistory>>.Success(result);
         }
     }
 }
+
+/*BookingId = (int)row[nameof(Booking.BookingId)],
+                        UserId = (int)row[nameof(Booking.UserId)],
+                        ListingId = (int)row[nameof(Booking.ListingId)],
+                        BookingStatusId = (BookingStatus)row[nameof(Booking.BookingStatusId)],
+                        FullPrice = Convert.ToSingle(row[nameof(Booking.FullPrice)]),
+                        LastEditUser = (int)row[nameof(Booking.LastEditUser)]*/

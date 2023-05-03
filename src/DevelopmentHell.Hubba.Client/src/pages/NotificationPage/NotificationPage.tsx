@@ -172,7 +172,7 @@ const NotificationPage: React.FC<INotificationPageProps> = (props) => {
                                             setError(response.error);
                                         });
                                     }} />
-                                <Button theme={selectedNotifications.length > 0 ? ButtonTheme.DARK : ButtonTheme.HOLLOW_DARK} title="Delete"
+                                <Button theme={selectedNotifications.length > 0 ? ButtonTheme.DARK : ButtonTheme.HOLLOW_DARK} title="Hide"
                                     onClick={() => {
                                         if (selectedNotifications.length == 0) {
                                             setError("Select notifications to delete.");

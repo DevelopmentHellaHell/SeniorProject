@@ -7,7 +7,7 @@ import Button from "../../../../components/Button/Button";
 import "./DeleteAccountView.css";
 
 interface IDeleteAccountViewProps {
-    onCancelClick: () => void;
+onCancelClick: () => void;
 }
 
 const DeleteAccountView: React.FC<IDeleteAccountViewProps> = (props) => {

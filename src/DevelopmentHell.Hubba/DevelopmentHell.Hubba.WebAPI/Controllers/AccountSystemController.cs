@@ -24,13 +24,13 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
-
+              
                 var result = await _accountSystemManager.VerifyAccount().ConfigureAwait(false);
                 if (!result.IsSuccessful)
                 {
                     return StatusCode(result.StatusCode, result.ErrorMessage);
                 }
-
+                
                 return StatusCode(result.StatusCode);
             }).ConfigureAwait(false);
         }
@@ -83,7 +83,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 
         [HttpPost]
         [Route("updateEmailInformation")]
-        public async Task<IActionResult> updateEmailInformation(string newEmail, string password)
+        public async Task<IActionResult> UpdateEmailInformation(UpdateEmail emailInfo)
         {
             return await GuardedWorkload(async () =>
             {
@@ -91,6 +91,8 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
+                var newEmail = emailInfo.newEmail;
+                var password = emailInfo.password;
 
                 var result = await _accountSystemManager.UpdateEmailInformation(newEmail, password).ConfigureAwait(false);
                 if (!result.IsSuccessful)

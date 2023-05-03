@@ -35,7 +35,6 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             _schedulingManager = schedulingManager;
             _loggerService = loggerService;
         }
-        //TODO: Check this function
         public async Task<Result> VerifyAccount()
         {
             Result result = new Result();
@@ -88,6 +87,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             }
 
             result.IsSuccessful = true;
+            result.StatusCode = 200;
             return result;
         }
 
@@ -161,6 +161,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             }
 
             result.IsSuccessful = true;
+            result.StatusCode = 200;
             return result;
         }
 
@@ -185,8 +186,9 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
                 result.ErrorMessage = checkOTPResult.ErrorMessage;
                 return result;
             }
-
+            
             result.IsSuccessful = true;
+            result.StatusCode = 200;
             return result;
         }
 
@@ -233,6 +235,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             }
 
             result.IsSuccessful = true;
+            result.StatusCode = 200;
             await _notificationManager.CreateNewNotification(accountId, "Your email has sucessfully changed. ", 0, true);
             return result;
         }
@@ -307,6 +310,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             }
 
             result.IsSuccessful = true;
+            result.StatusCode = 200;
             await _notificationManager.CreateNewNotification(accountId, "You've successfully changed your password. ", 0, true);
             return result;
         }
@@ -343,6 +347,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             }
 
             result.IsSuccessful = true;
+            result.StatusCode = 200;
             await _notificationManager.CreateNewNotification(accountId, "You've successfully changed your Account Settings. " +
                 "If this was not you, please contact administration for further assistance. ", 0, true);
             return result;
@@ -385,7 +390,10 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
                 return result;
             }
 
-            return getResult;
+            result.Payload = getResult.Payload;
+            result.IsSuccessful = true;
+            result.StatusCode = 200;
+            return result;
 
         }
 
@@ -412,6 +420,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             }
 
             result.IsSuccessful = true;
+            result.StatusCode = 200;
             return result;
 
         }
@@ -431,7 +440,16 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             var accountId = int.Parse(stringAccountId);
 
             var getResult = await _accountSystemService.GetBookingHistory(accountId).ConfigureAwait(false);
-            return getResult;
+            if(!getResult.IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = getResult.ErrorMessage;
+                return result;
+            }
+            result.IsSuccessful = true;
+            result.StatusCode = 200;
+            result.Payload = getResult.Payload;
+            return result;
         }
 
 
