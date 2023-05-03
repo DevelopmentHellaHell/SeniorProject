@@ -232,7 +232,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager.Abstraction
 			}
 
 			// Log successful booking
-			string logString = string.Format("User #{0} booked Listing #{1}, Booking #{2}", userId, listingId, bookingId);
+			string logString = string.Format("User #{0} booked, Booking #{2}", userId, listingId, bookingId);
 			_loggerService.Log(LogLevel.INFO, Category.BUSINESS, logString);
 
 			// Prep confirmation for Booking View
