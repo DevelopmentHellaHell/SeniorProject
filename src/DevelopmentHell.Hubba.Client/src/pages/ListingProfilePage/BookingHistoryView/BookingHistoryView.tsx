@@ -129,13 +129,16 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
                             return;
                         }
 
-                        Ajax.post("accountsystem/cancelbooking", {cancelBooking: selectBooking[0] }).then(response => {
+                        const response = await Ajax.post("accountsystem/cancelbooking", { bookingId: selectBooking[0] });
+                        if (!response.error) {
                             setData([]);
+                            setSelectedBooking([]);
+                        } else {
                             setError(response.error);
-                        });
+                        }
                     }}/>
                 </div>
-            </div>
+            </div>s
             {error &&
                 <p className="error">{error}</p>
             }
