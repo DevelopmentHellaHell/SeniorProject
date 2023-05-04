@@ -133,12 +133,13 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
                         if (!response.error) {
                             setData([]);
                             setSelectedBooking([]);
+                            getData();
                         } else {
                             setError(response.error);
                         }
                     }}/>
                 </div>
-            </div>s
+            </div>
             {error &&
                 <p className="error">{error}</p>
             }
