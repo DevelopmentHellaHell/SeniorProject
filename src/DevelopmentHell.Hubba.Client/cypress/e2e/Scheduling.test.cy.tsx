@@ -5,13 +5,18 @@ import { Database } from "./TestModels/Database";
 let baseUrl: string = Cypress.env("baseUrl") + "/";
 let viewListingRoute: string = baseUrl + "viewlisting"
 let schedulingRoute: string = baseUrl + "scheduling";
-let testRoute: string = Cypress.env("serverUrl") + "tests/deletetablerecords"
+let deleteDatabaseRoute: string = Cypress.env("serverUrl") + "/tests/deletedatabaserecords";
+let deleteTablesRoute: string = Cypress.env("serverUrl") + "/tests/deletetablerecords";
+let listingProfilesDatabase: string = Database.Databases.LISTING_PROFILES;
+let notificationDatabase: string = Database.Databases.NOTIFICATIONS;
+let listingHistoryTable: string = Database.Tables.LISTING_HISTORY;
+let bookingsTable: string = Database.Tables.BOOKINGS;
 let userAEmail: string = "user.a@gmail.com";
-let userBEmail: string = "user.b@gmail.com"
+let hostEmail: string = "jettsonoda@gmail.com";
 let testPassword: string = "12345678";
 
 context("Scheduling E2E Test Suite on existed test data", () => {
-    before(()=>{
+    before(() => {
         // Clear all sessions include the backend and cache
         Cypress.session.clearAllSavedSessions();
     });
@@ -69,16 +74,18 @@ context("Scheduling E2E Test Suite on existed test data", () => {
     describe("Authenticated user can reserve a booking with chosen time frames, PASS", () => {
         beforeEach(() => {
             cy.LoginViaApi(userAEmail, testPassword);
-            // Clear notification
-            cy.visit(baseUrl + "notification");
-            cy.contains("Clear All").click();
         })
-        
-        
-        it.only("Select highlighted date, highlighted time, reserve the booking, PASS", async () => {
+
+        after(() => {
+            cy.request('POST', deleteTablesRoute, { database: listingProfilesDatabase, table: listingHistoryTable });
+            cy.request('POST', deleteTablesRoute, { database: listingProfilesDatabase, table: bookingsTable });
+            cy.request('POST', deleteDatabaseRoute, { database: notificationDatabase });
+        })
+
+        it("Select highlighted date, highlighted time, reserve the booking, PASS", () => {
             // Navigate from Discover page
             cy.visit(baseUrl + "discover");
-            cy.wait(3000);
+            cy.wait(2000);
             cy.get(".listing-card").eq(0).click();
             cy.url().should("eq", viewListingRoute);
             cy.contains("Check Calendar").click();
@@ -93,61 +100,43 @@ context("Scheduling E2E Test Suite on existed test data", () => {
             cy.contains("Reserve").should("exist").and("be.visible").click();
             cy.get(".confirmation-card").should("exist").and("be.visible");
             cy.contains("Yes").click()
-                .then(() => {
-                    cy.contains("Confirmation number").should("exist").and("be.visible");
-                })
+            cy.contains("Booking confirmed.").should("exist").and("be.visible");
+
+
+            // User received notification
             cy.visit(baseUrl + "notification");
+            cy.wait(2000);
             cy.contains("Booking #").should("exist");
             cy.contains("CONFIRMED").should("exist");
-            
-                        // .then((response) => {
-                        //     if (response) {
-                        //         cy.contains("14:00").click();
-                        //         cy.contains("15:00").click();
-                        
-                        
-                        //     }
-                        // });
-            
-        });
 
-        it("User received a notification", () => {
-            // Navigate to Notification page
+            // Host received notification
+            cy.get('.dropdown-content').invoke('show');
+            cy.contains('Logout').click();
+            cy.LoginViaApi(hostEmail, testPassword);
             cy.visit(baseUrl + "notification");
-            cy.contains("")
-        })
-
-        it("Owner can't book their own listing, message displayed, PASS", () => {
-
+            cy.wait(2000);
+            cy.contains("Booking #").should("exist");
+            cy.contains("CONFIRMED").should("exist");
         });
-
-        it("Authenticated user can see Booking summary on the Sidebar, Reserve button after choosing open time slots, PASS", () => {
-
-        });
-
-        it ("Reserve button clicked render Confirmation Card, PASS", () => {
-
-        });
-
-        it ("User clicks Yes/No to confirm booking, confirmed message displayed with Booking ID, PASS", () => {
-
-        });
-
-        it ("Notification Page updated with Booking ID, PASS", () => {
-
-        });
-
-        it ("Listing Owner got notification with the same Booking ID, PASS", () => {
-
-        });
-
-        after(async () => {
-            await Ajax.post(testRoute, { database: Database.Databases.LISTING_PROFILES, table: Database.Tables.BOOKINGS });
-        })
-
     });
 
-    describe("User cancels their booing in Rental History, Kevin's responsilble, FAILED", () => {
+    describe.only("Owner can't book their own listing",() => {
+        it("Owner can't book their own listing, message displayed, PASS", () => {
+            cy.LoginViaApi(hostEmail, testPassword);
+            cy.visit("/listingprofile");
+            cy.contains("View").click();
+            cy.wait(2000);
+            cy.contains("Check Calendar").click();
+            cy.get(".header").contains(">").click();
+            cy.wait(3000);
+            cy.get(".day").eq(30).click();
+            cy.contains("9:00").click();
+            cy.contains("Reserve").click();
+            cy.get(".error").should("exist").and("be.visible");
+        });
+    })
+
+    describe("User cancels their booing in Scheduling History, Kevin's responsilble, FAILED", () => {
 
         it("Should see their booking listed in Rental History, status CONFIRMED", () => {
 

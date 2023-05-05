@@ -9,6 +9,7 @@ export namespace Database {
 
     export enum Tables {
         USER_ACCOUNTS = "USER",
-        BOOKINGS = "BOOKINGS"
+        BOOKINGS = "BOOKINGS",
+        LISTING_HISTORY = "LISTING_HISTORY",
     }
 }
