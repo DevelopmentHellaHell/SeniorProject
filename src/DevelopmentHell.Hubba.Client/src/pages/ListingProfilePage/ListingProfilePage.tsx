@@ -6,6 +6,7 @@ import NavbarUser from "../../components/NavbarUser/NavbarUser";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import MyListingsView from "./MyListingsView/MyListingsView";
 import './ListingProfilePage.css';
+import BookingHistoryView from "./BookingHistoryView/BookingHistoryView";
 
 
 interface IListingProfilePageProps {
@@ -14,7 +15,7 @@ interface IListingProfilePageProps {
 
 enum ListingProfileViews {
     MY_LISTINGS = "My Listings",
-    RESERVATIONS = "Reservations"
+    BOOKING_HISTORY = "Booking History"
 }
 
 const ListingProfilePage: React.FC<IListingProfilePageProps> = (props) => {
@@ -25,8 +26,8 @@ const ListingProfilePage: React.FC<IListingProfilePageProps> = (props) => {
         switch(view) {
             case ListingProfileViews.MY_LISTINGS:
                 return <MyListingsView />;
-            case ListingProfileViews.RESERVATIONS:
-                return <>TODO FOR KEVIN</>;
+            case ListingProfileViews.BOOKING_HISTORY:
+                return <BookingHistoryView/>;
         }
     }
 
@@ -38,7 +39,7 @@ const ListingProfilePage: React.FC<IListingProfilePageProps> = (props) => {
 
                 <Sidebar>
                     <li><p onClick={() => { setView(ListingProfileViews.MY_LISTINGS) }}> My Listings</p></li>
-                    <li><p onClick={() => { setView(ListingProfileViews.RESERVATIONS) }}> Reservations</p></li>
+                    <li><p onClick={() => { setView(ListingProfileViews.BOOKING_HISTORY) }}> Booking History</p></li>
                 </Sidebar>
 
                 <div className="listingprofile-wrapper">

@@ -143,20 +143,6 @@ builder.Services.AddTransient<INotificationService, NotificationService>(s =>
         s.GetService<ILoggerService>()!
     )
 );
-builder.Services.AddTransient<IAccountSystemManager, AccountSystemManager>(s =>
-    new AccountSystemManager(
-        new AccountSystemService(
-            s.GetService<IUserAccountDataAccess>()!,
-            s.GetService<ILoggerService>()!
-        ),
-        s.GetService<IOTPService>()!,
-        s.GetService<IAuthorizationService>()!,
-        s.GetService<ICryptographyService>()!,
-        s.GetService<INotificationManager>()!,
-        s.GetService<IValidationService>()!,
-        s.GetService<ILoggerService>()!
-    )
-);
 builder.Services.AddTransient<INotificationManager, NotificationManager>(s =>
     new NotificationManager(
         s.GetService<INotificationService>()!,
@@ -472,6 +458,36 @@ builder.Services.AddTransient<ISchedulingManager, SchedulingManager>(s =>
         s.GetService<ILoggerService>()!
     )
 );
+
+builder.Services.AddTransient<IAccountSystemManager, AccountSystemManager>(s =>
+    new AccountSystemManager(
+        new AccountSystemService(
+        new UserAccountDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["UsersConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
+        ),
+        new BookingsDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["SchedulingsConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["BookingsTable"]!
+        ),
+            s.GetService<ILoggerService>()!
+        ),
+        s.GetService<IOTPService>()!,
+        s.GetService<IAuthorizationService>()!,
+        s.GetService<ICryptographyService>()!,
+        s.GetService<INotificationManager>()!,
+        s.GetService<IValidationService>()!,
+        new SchedulingManager(
+            s.GetService<IBookingService>()!,
+            s.GetService<IAvailabilityService>()!,
+            s.GetService<IAuthorizationService>()!,
+            s.GetService<INotificationService>()!,
+            s.GetService<ILoggerService>()!
+        ),
+        s.GetService<ILoggerService>()!
+    )
+);
+
 
 builder.Services.AddCors();
 
