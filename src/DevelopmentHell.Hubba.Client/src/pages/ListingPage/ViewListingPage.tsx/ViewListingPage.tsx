@@ -10,6 +10,7 @@ import { Auth } from "../../../Auth";
 import ViewListingRatingsPage from "./ViewListingRatingsPage/ViewListingRatingsPage";
 import ListingAvailabilityCard from "./ViewListingRatingsPage/ListingAvailabilityCard/ListingAvailabilityCard";
 import NavbarGuest from "../../../components/NavbarGuest/NavbarGuest";
+import ListingRatingCard from "./ViewListingRatingsPage/ListingRatingCard/ListingRatingCard";
 
 interface IViewListingPageProps {
 
@@ -106,101 +107,113 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
             {authData && authData.role !== Auth.Roles.DEFAULT_USER ?
                 <NavbarUser /> : <NavbarGuest />
             }
-            <div className="listing-content">
-                <div className="listing-wrapper">
-                    {data && !error && loaded &&
-                        <div className="listing-page">
+            
+                
+                {data && !error && loaded &&
+                    <div className="listing-content">
+                        <div className="Title">
+                            <h1>{data.Listing.title}</h1>
+                            <h3>Owner: {data.Listing.ownerUsername}</h3>
+                            {data.Listing.averageRating && 
+                                <h4>Average Rating: {data.Listing.averageRating}</h4>
+                            }
+                        </div>
+
+                        <div className="Buttons">
                             <div className="listing-page-status"> {isPublished ? 'Public' : 'Draft'} </div>
-                            <p> {isPublished && authData?.sub == data.Listing.ownerId.toString() && <div>
-                                <Button theme={ButtonTheme.DARK} onClick={() => { navigate("/editlisting", { state: { listingId: data.Listing.listingId } }) }} title={"Edit Listing"} />
-                                <Button theme={ButtonTheme.DARK} onClick={async () => {
+                            {/** REDIRECT TO SCHEDULING FEATURE */}
+                            {isPublished && authData?.sub != data.Listing.ownerId.toString() &&
+                            <Button title="Check Calendar"
+                                onClick={() => {
+                                    navigate("/scheduling", {
+                                        state: {
+                                            listingId: data?.Listing.listingId,
+                                            listingTitle: data?.Listing.title,
+                                            ownerId: data?.Listing.ownerId,
+                                            price: data?.Listing.price
+                                        }
+                                    })
+                                }} />
+                            }
+                            {authData?.sub == data.Listing.ownerId.toString() && <div>
+                                <p><Button theme={ButtonTheme.HOLLOW_DARK} onClick={async () => {
                                     const response = await Ajax.post("/listingprofile/unpublishListing", { listingId: data.Listing.listingId })
                                     if (response.error) {
                                         setError("Publishing listing error. Refresh page or try again later.\n" + response.error);
                                         return;
                                     }
                                     setIsPublished(false);
-                                }} title={"Unpublish Listing"} />
-                                <Button theme={ButtonTheme.DARK} onClick={() => { handleDeleteClick() }} title={"Delete Listing"} />
-                            </div>}
-                                {!isPublished && authData?.sub == data.Listing.ownerId.toString() && <div>
-                                    <Button theme={ButtonTheme.DARK} onClick={() => { navigate("/editlisting", { state: { listingId: data.Listing.listingId } }) }} title={"Edit Listing"} />
-                                    <Button theme={ButtonTheme.DARK} onClick={() => { handleDeleteClick() }} title={"Delete Listing"} />
-                                </div>}
-                            </p>
-                            <h2 className="listing-page__title">{data.Listing.title}</h2>
-
-                            {/** REDIRECT TO SCHEDULING FEATURE */}
-                            <div className="buttons">
-                                <Button title="Check Calendar"
-                                    onClick={() => {
-                                        navigate("/scheduling", {
-                                            state: {
-                                                listingId: data?.Listing.listingId,
-                                                listingTitle: data?.Listing.title,
-                                                ownerId: data?.Listing.ownerId,
-                                                price: data?.Listing.price
-                                            }
-                                        })
-                                    }} />
+                                }} title={"Unpublish Listing"} /></p>
+                                <p><Button theme={ButtonTheme.HOLLOW_DARK} onClick={() => { navigate("/editlisting", { state: { listingId: data.Listing.listingId } }) }} title={"Edit Listing"} /></p>
+                                
+                                <p><Button theme={ButtonTheme.DARK} onClick={() => { handleDeleteClick() }} title={"Delete Listing"} /></p>
                             </div>
-
-                            <h3 className="listing-username">{data.Listing.ownerUsername}</h3>
-                            {data.Files && data.Files.length > 0 && (
-                                <div className="listing-page__image-wrapper">
-                                    {data!.Files![currentImage].toString().substring(data!.Files![currentImage].toString().lastIndexOf('/') + 1)} {currentImage + 1} / {data!.Files!.length}
-                                    <img
-                                        className="listing-page__picture"
-                                        src={data.Files[currentImage]?.toString()}
-                                        alt={data.Listing.title}
-                                    />
-                                    {data.Files.length > 1 && (
-                                        <>
-                                            <button onClick={handlePrevImage}>
-                                                &#10094;
-                                            </button>
-                                            <button onClick={handleNextImage}>
-                                                &#10095;
-                                            </button>
-                                        </>
-                                    )}
-                                </div>
-                            )}
-                            <p>{"Location: " + (data.Listing.location ?? "")}</p>
-                            <p>{"Price: " + (data.Listing.price ?? "")}</p>
-                            <p>{"Description: " + (data.Listing.description ?? "")}</p>
-                            <div>
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>StartTime</th>
-                                            <th>EndTime</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {data && data.Availabilities && data.Availabilities.map((value: IAvailability) => {
-                                            return <ListingAvailabilityCard key={`${value.listingId}-listing-card`} availability={value} />
-                                        })}
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <Button theme={ButtonTheme.DARK} onClick={() => {
-                                navigate("/viewlistingratings",
-                                    {
-                                        state:
-                                        {
-                                            listingId: state.listingId,
-                                        }
-                                    });
-                            }} title={"View Ratings"} />
+                            }
                         </div>
-                    }
-                    {error && loaded &&
-                        <p className="error">{error}</p>
-                    }
-                </div>
-            </div>
+                    
+                        {data.Files && data.Files.length > 0 && (
+                            <div className="Files">
+                                {data!.Files![currentImage].toString().substring(data!.Files![currentImage].toString().lastIndexOf('/') + 1)} {currentImage + 1} / {data!.Files!.length}
+                                <img
+                                    className="listing-page__picture"
+                                    src={data.Files[currentImage]?.toString()}
+                                    alt={data.Listing.title}
+                                />
+                                {data.Files.length > 1 && (
+                                    <>
+                                        <button onClick={handlePrevImage}>
+                                            &#10094;
+                                        </button>
+                                        <button onClick={handleNextImage}>
+                                            &#10095;
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    
+                        <div className="Information">
+                            <div className="Location">
+                                <h3>{"Location: "}</h3> 
+                                <p>{data.Listing.location ?? ""}</p>
+                            </div>
+                            <div className="Price">
+                                <h3>{"Price: " }</h3>
+                                <p>{data.Listing.price ?? ""}</p>
+                            </div>
+                            <div className="Description">
+                                <h3>{"Description: "}</h3>
+                                <p>{data.Listing.description ?? ""}</p>
+                            </div>
+                        </div>
+                    
+                                      
+                        <div className="Ratings">
+                            <h2>Ratings</h2>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Ratings</th>
+                                        <th>Comment</th>
+                                        <th>Username</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    { data && data.Ratings && data.Ratings.map((value: IRating) => {
+                                        return <ListingRatingCard key={`${value.listingId}-listing-card`} rating={value}/>
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+
+                {error && loaded &&
+                    <p className="error">{error}</p>
+                }
+                
+                
             <Footer />
         </div>
     );

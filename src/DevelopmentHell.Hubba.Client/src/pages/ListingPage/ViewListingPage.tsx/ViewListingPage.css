@@ -1,60 +1,94 @@
-/* .listing-container {
+     .listing-container {
     position: relative;
     display: flex;
     flex-flow: column;
     flex-grow: 1;
-}
+}   
+  
 
-.listing-container .listing-content {
-    display: flex;
-    padding-bottom: 2.5rem;
-    flex-grow: 1;
-}
-
-.listing-container .listing-container .listing-wrapper {
-    color: rgb(var(--primary-text-dark));
-    text-align: center;
-}
-
-.listing-container .selection-bar {
-    width: 5px;
-    height: 20px;
-    border-radius: 3px;
-    background-color: rgb(var(--primary-text-dark));
-} 
-
-.listing-page {
+  .listing-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto auto 1fr;
+    grid-template-areas:
+      "Title Title Buttons"
+      "Files Information Information"
+      "Ratings Ratings Ratings";
+    gap: 10px;
+    padding-left: 20px;
+    padding-top: 20px;
+    padding-right: 20px;
+  }
+  
+  .listing-content .Title {
+    grid-area: Title;
+  }
+  
+  .listing-content .Buttons {
+    grid-area: Buttons;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .listing-content .Files {
+    grid-area: Files;
     display: flex;
     flex-direction: column;
     align-items: center;
   }
+  
+  .listing-content .Information {
+    grid-area: Information;
+  }
 
-  .listing-page .listing-page-status {
-    position: absolute;
-    left: 10px;
-    font-weight: bold;
-    color: black;
-    font-size: 30px;
+
+  .listing-content .Information h3 {
+    display: inline-block;
+    vertical-align: top;
+    margin: 0;
   }
   
-  
-  .listing-page__title {
-    font-size: 2rem;
-    font-weight: bold;
-    margin-top: 1rem;
+  .listing-content .Information p {
+    display: inline-block;
+    vertical-align: top;
+    margin: 0 0 0 10px;
   }
-  
+
   .listing-page__picture {
     width: 100%;
-    max-width: 800px;
+    max-width: 400px;
     height: auto;
-    margin-top: 1rem;
+    margin-bottom: 10px;
   }
   
-  .listing-page__location,
-  .listing-page__price,
-  .listing-page__description {
-    font-size: 1.2rem;
-    margin-top: 1rem;
+  .listing-content .Ratings {
+    grid-area: Ratings;
+    display: flex;
+    flex-direction: column;
   }
-   */
+  
+  .listing-content .Ratings h2 {
+    margin-top: 0;
+  }
+  
+  .listing-content .Ratings table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  .listing-content .Ratings th,
+  .Ratings td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .listing-content .Ratings th {
+    background-color: #f2f2f2;
+  }
+  
+  .listing-content .Ratings tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
