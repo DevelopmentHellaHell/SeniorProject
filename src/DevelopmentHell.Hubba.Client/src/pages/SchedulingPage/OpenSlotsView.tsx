@@ -199,14 +199,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
 
     const renderHourBars = (date: string) => {
         if (!date || !uniqueDates) { return; }
-
-        // console.log("DATE: " + date);
-        // console.log("UNIQUEDATES:" + uniqueDates);
         const matchingAvailabilities = listingAvailabilityData?.filter(availability => {
-            // console.log("\n AVAILABILITIES");
-            // console.log(new Date(availability.startTime).toDateString());
-            // console.log(new Date(date).toDateString());
-            // console.log("MATCHING DATE:" + (new Date(availability.startTime).toDateString() == new Date(date).toDateString()));
             return (new Date(availability.startTime).toDateString() == new Date(date).toDateString()) as boolean
         }).map(availability => {
             return {
@@ -215,14 +208,11 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                 endDateTime: availability.endTime
             } as IBookedTimeFrame
         });
-        // console.log(matchingAvailabilities);
         const renderHalfDay = (slotsArray: number[]) => {
             return <>
                 {slotsArray.map((index) => {
                     let matchingTimeSlot: IBookedTimeFrame | undefined = undefined;
                     matchingAvailabilities?.forEach(timeSlot => {
-                        // console.log(new Date(timeSlot.endTime).getHours())
-                        // console.log(new Date(timeSlot.startTime).getHours())
                         if (new Date(timeSlot.endDateTime).getHours() > index && new Date(timeSlot.startDateTime).getHours() <= index) {
                             matchingTimeSlot = timeSlot;
                         }
@@ -531,7 +521,6 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                         {readyToSubmit &&
                             <div className='buttons'>
                                 <Button title="Reserve" theme={ButtonTheme.DARK} onClick={async () => {
-                                    console.log("USERID :", authData?.sub)
                                     if (state.ownerId.toString() == authData?.sub) {
                                         onSideBarError("Owner can not book their own listing");
                                         return;

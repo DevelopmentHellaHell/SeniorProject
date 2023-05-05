@@ -71,7 +71,6 @@ context("Scheduling E2E Test Suite on existed test data", () => {
             cy.LoginViaApi(userAEmail, testPassword);
             // Clear notification
             cy.visit(baseUrl + "notification");
-            cy.pause();
             cy.contains("Clear All").click();
         })
         
