@@ -10,6 +10,8 @@ import DateButton, { DateButtonTheme } from './SchedulingComponents/DateButton';
 import HourBarButton, { HourBarButtonTheme } from './SchedulingComponents/HourBarButton';
 import "./OpenSlotsView.css";
 import { IListing } from '../ListingProfilePage/MyListingsView/MyListingsView';
+import { render } from '@fullcalendar/core/preact';
+import { use } from 'chai';
 
 const findListingAvailabilityRoute: string = "/scheduling/findlistingavailabilitybymonth/";
 const reserveRoute: string = "/scheduling/reserve";
@@ -101,6 +103,11 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
     }, [initialDate, onDoneBooking, loaded]);
 
     useEffect(() => {
+        const today = new Date();        
+        setInitialDate(today.toDateString());
+    },[]);
+
+    useEffect(() => {
         setFullPrice(bookedTimeFrames.length * state.price);
     }, [bookedTimeFrames])
 
@@ -128,10 +135,6 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
     };
 
     const getListingAvailabilityData = async (year: number, month: number) => {
-        if (!initialDate) {
-            onSideBarError("Can't retrieve data. Please refresh page or try again later.");
-        }
-
         if (month && year) {
             await Ajax.post(findListingAvailabilityRoute, {
                 listingId: listingId,
@@ -162,8 +165,10 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
         }
     };
     useEffect(() => {
-        
-    });
+        const today = new Date (Date.now());
+        getListingAvailabilityData(today.getFullYear(), today.getMonth() + 1);
+    }, []);
+
     const convertToMonthName = (initialDate: number) => {
         switch (initialDate) {
             case 1: return "January";
@@ -297,7 +302,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
         return <>
             <div className='day'>
                 <DateButton
-                    id={dateString}
+                    id={key}
                     title={key}
                     theme={theme}
                     onClick={() => {
@@ -548,23 +553,27 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                             <div className="view-wrapper">
                                 <div className='calendar'>
                                     <div className='header'>
-                                        <Button title="<" onClick={() => {
-                                            let prevDate = new Date(initialDate);
-                                            const prevYear = prevDate.getFullYear();
-                                            const prevMonth = prevDate.getMonth(); // January is 0
-                                            setInitialDate(new Date(prevYear, prevMonth - 1, 1).toDateString());
-                                            getListingAvailabilityData(prevYear, prevMonth);
-                                        }} />
+                                        <Button title="<" 
+                                            onClick={() => {
+                                                let prevDate = new Date(initialDate);
+                                                const prevYear = prevDate.getFullYear();
+                                                const prevMonth = prevDate.getMonth(); // January is 0
+                                                setInitialDate(new Date(prevYear, prevMonth - 1, 1).toDateString());
+                                                getListingAvailabilityData(prevYear, prevMonth);
+                                            }} 
+                                        />
                                         <div className='text'>
                                             {convertToMonthName((new Date(initialDate)).getMonth() + 1)} {(new Date(initialDate)).getFullYear()}
                                         </div>
-                                        <Button title=">" onClick={() => {
-                                            let nextDate = new Date(initialDate);
-                                            const nextYear = nextDate.getFullYear();
-                                            const nextMonth = nextDate.getMonth(); // January is 0
-                                            setInitialDate(new Date(nextYear, nextMonth + 1, 1).toDateString());
-                                            getListingAvailabilityData(nextYear, nextMonth + 2);
-                                        }} />
+                                        <Button title=">"
+                                            onClick={() => {
+                                                let nextDate = new Date(initialDate);
+                                                const nextYear = nextDate.getFullYear();
+                                                const nextMonth = nextDate.getMonth(); // January is 0
+                                                setInitialDate(new Date(nextYear, nextMonth + 1, 1).toDateString());
+                                                getListingAvailabilityData(nextYear, nextMonth + 2);
+                                            }} 
+                                        />
                                     </div>
                                     <div className='month'>
                                         {renderCalendar(initialDate)}
