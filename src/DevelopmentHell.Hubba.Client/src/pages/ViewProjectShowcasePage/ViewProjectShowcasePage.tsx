@@ -48,11 +48,14 @@ interface IPackagedProjectShowcase {
 
 const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props) => {
     const [comments, setComments] = useState<IShowcaseComment[]>([]);
-    const [commentsLoaded, setCommentsLoaded] = useState(false);
     const [showcase, setShowcase] = useState<IProjectShowcase>();
     const [images, setImages] = useState<string[]>([]);
-    const [error , setError] = useState("");
-    const [loaded, setLoaded] = useState(false);
+    const [imagesError , setImagesError] = useState("");
+    const [commentsError , setCommentsError] = useState("");
+    const [showcaseError , setShowcaseError] = useState("");
+    const [showcaseLoaded, setShowcaseLoaded] = useState(false);
+    const [commentsLoaded, setCommentsLoaded] = useState(false);
+    const [imagesLoaded, setImagesLoaded] = useState(false);
     const [commentPage, setCommentPage] = useState(1);
     const [commentCount, setCommentCount] = useState(10);
     const [shared, setShared] = useState(false);
@@ -70,33 +73,76 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
     
 
     const navigate = useNavigate();
-    
+
 
     const getData = async () => {
-        await Ajax.get<IPackagedProjectShowcase>(`/showcases/view?s=${showcaseId}`).then((response) => {
+        await Ajax.get<IPackagedProjectShowcase>(`/showcases/packaged?s=${showcaseId}`).then((response) => {
             if(response.data) {
                 setComments(response.data.comments);
                 setShowcase(response.data.showcase);
                 setImages(response.data.filePaths);
                 setShowcaseLikes(response.data.showcase.rating);
             }
-            setError(response.error);
-            setLoaded(response.loaded);
-            console.log(`${images}`)
+            if (images.length == 0) {
+                setImagesError("Unable to load images");
+            }
+            if (!response.error){
+                setShowcaseLoaded(true);
+                setCommentsLoaded(true);
+                setImagesLoaded(true);
+            }
+            else {
+                setShowcaseError(response.error);
+                setCommentsError("Unable to load comments")
+            }
         });
     }
 
     const getComments = async() => {
         await Ajax.get<IShowcaseComment[]>(`/showcases/comments?s=${showcaseId}&c=${commentCount}&p=${commentPage}`).then((response) => {
             setComments(response.data && response.data.length ? response.data : []);
+            setCommentsLoaded(response.loaded);
+            setCommentsError(response.error);
             alert(response.error);
         });
     }
 
+    const getShowcase = async() => {
+        await Ajax.get<IProjectShowcase>(`/showcases/view?s=${showcaseId}`).then((response) => {
+            if(response.data) {
+                setShowcase(response.data);
+            }
+            setShowcaseError(response.error);
+            setShowcaseLoaded(response.loaded);
+        });
+    }
+
+    const getImages = async() => {
+        await Ajax.get<string[]>(`/showcases/files?s=${showcaseId}`).then((response) => {
+            if(response.data) {
+                setImages(response.data);
+            }
+            setImagesError(response.error);
+            setImagesLoaded(response.loaded);
+        });
+    }
+
     useEffect(() => {
-        if (!loaded)
+        if (!showcaseLoaded && !imagesLoaded && !commentsLoaded)
             getData();
+        else{
+            if (!showcaseLoaded)
+                getShowcase();
+            if (!imagesLoaded)
+                getImages();
+            if (!commentsLoaded)
+                getComments();
+        }
     }, []);
+
+    useEffect(() => {
+        getComments();
+    }, [commentCount, commentPage])
 
     interface ImageSliderProps {
         images: string[];
@@ -132,10 +178,17 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
             <NavbarUser />
 
             <div className="view-project-showcase-content">
-                {error
-                            ? <p className='error-output'>{error}</p>
-                            : ( !(loaded && images && images.length > 0) ?  <h1>Loading...</h1> :
                 <div className="view-project-showcase-wrapper">
+                    {showcaseError ? 
+                    <div>
+                        <p className='error-output'>{showcaseError}</p>
+                        <button onClick={() => {
+                            setShowcaseLoaded(false);
+                            getShowcase();
+                        }}>Reload Showcase</button>
+                    </div> //TODO: add button to reload content
+                    : ( !(showcaseLoaded) ?  <h1>Loading...</h1>
+                    : 
                     <div className="showcase-header">
                         <div className="h-stack"> 
                             <h1>{showcase?.title}</h1>
@@ -202,13 +255,42 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                             {shared && <p>Link Copied!</p>}
                         </div>
                     </div>
+                    )}
+                    
+                    {imagesError || images.length === 0 ? 
+                    <div>
+                        <p className='error-output'>{imagesError}</p>
+                        <button onClick={() => {
+                            setImagesLoaded(false);
+                            getImages();
+                        }}>Reload Images</button>
+                    </div>
+                    
+                    : ( !(imagesLoaded && images && images.length > 0) ?  <h1>Loading...</h1>
+                    : 
                     <div className="showcase-images">
                         <ImageSlider images={images} />
                     </div>
+                    )}
+                    {showcaseError
+                    ? <p className='error-output'>{showcaseError}</p> //TODO: add button to reload content
+                    : ( !(showcaseLoaded) ?  <h1>Loading...</h1>
+                    : 
                     <div className="showcase-description">
                         <h3>Description</h3>
                         <p>{showcase?.description}</p>
                     </div>
+                    )}
+                    {commentsError ? 
+                    <div>
+                        <p className='error-output'>{commentsError}</p>
+                        <button onClick={() => {
+                            setCommentsLoaded(false);
+                            getComments();
+                        }}>Reload Comments</button>
+                    </div>
+                    : ( !(commentsLoaded && comments) ?  <h1>Loading Comments...</h1>
+                    : 
                     <div className="showcase-comments">
                         <div className="comment-input">
                             <h3>Leave a comment</h3>
@@ -217,9 +299,10 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                             }}></textarea>
                             <button onClick={() => {
                                 console.log(commentText);
+                                setCommentsLoaded(false);
                                 Ajax.post(`/showcases/comments?s=${showcaseId}`, { commentText: commentText } ).then((response) => {
                                     if (response.error){
-                                        alert(response.error);
+                                        setCommentsError(response.error);
                                     }
                                     if(response.data) {
                                         alert("Comment submitted successfully");
@@ -230,6 +313,10 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                         </div>
                         <h3>Comments</h3>
                         <div className="comments">
+                            {comments.length === 0 ?
+                                <p>No comments yet.</p>
+                                : <div></div>
+                            }
                             {comments.map((comment) => {
                                 return (
                                     <div className="comment" >
@@ -294,25 +381,25 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                     <p className={commentCount == 10 ? "selected-comment-count" : "unselected-comment-count"}
                                     onClick={() => {
                                         if (commentCount != 10) {
+                                            setCommentsLoaded(false);
                                             setCommentPage(1);
                                             setCommentCount(10);
-                                            getComments();
                                         }
                                     }}>10</p>
                                     <p className={commentCount == 20 ? "selected-comment-count" : "unselected-comment-count"}
                                     onClick={() => {
                                         if (commentCount != 20) {
+                                            setCommentsLoaded(false);
                                             setCommentPage(1);
                                             setCommentCount(20);
-                                            getComments();
                                         }
                                     }}>20</p>
                                     <p className={commentCount == 50 ? "selected-comment-count" : "unselected-comment-count"}
                                     onClick={() => {
                                         if (commentCount != 50) {
+                                            setCommentsLoaded(false);
                                             setCommentPage(1);
                                             setCommentCount(50);
-                                            getComments();
                                         }
                                     }}>50</p>
                                 </div>
@@ -337,10 +424,9 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                             </div>
                         </div>
                     </div>
+                    )}
                 </div>
-                )}
             </div>
-            <p className='error-output'>{error ? error + " please try again later" : ""}</p>
             <Footer />
         </div> 
     );

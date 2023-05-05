@@ -124,6 +124,36 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         }
 
         [HttpGet]
+        [Route("packaged")]
+        public async Task<IActionResult> GetPackagedShowcase([FromQuery(Name = "s")] string? showcaseId = null)
+        {
+            try
+            {
+                if (showcaseId == null)
+                {
+                    return BadRequest("Invalid request.");
+                }
+                var showcaseResult = await _projectShowcaseManager.GetPackagedShowcase(showcaseId);
+                if (!showcaseResult.IsSuccessful)
+                {
+                    showcaseResult = await _projectShowcaseManager.GetPackagedShowcase(showcaseId);
+                    if (!showcaseResult.IsSuccessful)
+                    {
+                        return GetFuncCode((int)showcaseResult.StatusCode!)(GetErrorMessage(showcaseResult.StatusCode));
+                    }
+                    return GetFuncCode((int)showcaseResult.StatusCode!)(GetErrorMessage(showcaseResult.StatusCode));
+                }
+                return Ok(showcaseResult.Payload);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Models.Category.SERVER, $"Error in GetShowcase: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
+            }
+        }
+
+        [HttpGet]
         [Route("user")]
         public async Task<IActionResult> GetUserShowcases([FromQuery(Name = "u")] int? accountId = null)
         {

@@ -198,6 +198,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             _otpDataAccess = new OTPDataAccess(ConfigurationManager.AppSettings["UsersConnectionString"]!, ConfigurationManager.AppSettings["UserOTPsTable"]!);
 
         }
+
         [TestInitialize]
         public async Task Setup()
         {
@@ -1007,26 +1008,12 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             Assert.AreEqual(actual.StatusCode, StatusCodes.Status401Unauthorized);
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        [TestCleanup]
-        public async Task Cleanup()
-        {
-            await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.COLLABORATOR_PROFILES).ConfigureAwait(false);
-            await _fileService.DeleteDir("/Collaborators").ConfigureAwait(false);
-        }
+        //[TestCleanup]
+        //public async Task Cleanup()
+        //{
+        //    await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.COLLABORATOR_PROFILES).ConfigureAwait(false);
+        //    await _fileService.DeleteDir("/Collaborators").ConfigureAwait(false);
+        //}
 
 
         // Making an IFormFile for testing, it streams the location of the file into a file object
