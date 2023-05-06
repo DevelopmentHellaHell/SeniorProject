@@ -63,6 +63,7 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
       });
     const [ratingError, setRatingError] = useState<string | undefined>(undefined);
 
+    // TODO: Check if rating is owner to hide rating, Check if they having booking history with the rating
     useEffect(() => {
         const getData = async () => {
             const response = await Ajax.post<IViewListingData>('/listingprofile/viewListing', { listingId: state.listingId });
@@ -248,7 +249,9 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                             anonymous:  !rating.anonymous
                                         });
                                     }}/>
-                                    {data && data.Ratings && data.Ratings.find(rating => rating.userId == authData?.sub) ?
+
+                                    
+                                    {data && data.Ratings && data.Ratings.find(rating => rating.userId == authData?.sub) ? // TODO: REPLACE THIS CODE WITH: Check a rating already exists
                                         <div>
                                             <Button theme={ButtonTheme.DARK} title={"Edit"} loading={!loaded} onClick={async () => {
                                                 setLoaded(false);
