@@ -68,7 +68,7 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
     useEffect(() => {
         const getData = async () => {
             const response = await Ajax.post<IViewListingData>('/listingprofile/viewListing', { listingId: state.listingId });
-            console.log(response.data);
+            
             if (response.data) {
                 setData(response.data);
                 setIsPublished(response.data.Listing.published!);
@@ -147,7 +147,7 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
 
     const handleDeleteClick = async () => {
         const response = await Ajax.post<null>('/listingprofile/deleteListing', { ListingId: data?.Listing.listingId })
-        console.log(response)
+        
         if (response.error) {
             setError("Listing deletion error. Refresh page or try again later.\n" + response.error);
             return;

@@ -14,11 +14,15 @@ using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Notification.Manager.Implementations;
+using DevelopmentHell.Hubba.Notification.Service.Abstractions;
 using DevelopmentHell.Hubba.Notification.Service.Implementations;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Manager.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
+using DevelopmentHell.Hubba.Scheduling.Manager.Abstraction;
+using DevelopmentHell.Hubba.Scheduling.Service.Abstractions;
+using DevelopmentHell.Hubba.Scheduling.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
@@ -39,6 +43,13 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
         private readonly AuthenticationService _authenticationService;
         private readonly RegistrationService _registrationService;
         private readonly NotificationManager _notificationManager;
+        private readonly ListingsDataAccess _listingsDataAccess;
+        private readonly ListingAvailabilitiesDataAccess _listingAvailabilitiesDataAccess;
+        private readonly BookingsDataAccess _bookingsDataAccess;
+        private readonly BookedTimeFramesDataAccess _bookedTimeFramesDataAccess;
+        private readonly BookingService _bookingService;
+        private readonly AvailabilityService _availabilityService;
+        private readonly SchedulingManager _schedulingManager;
         private readonly AccountSystemManager _accountSystemManager;
         private readonly RegistrationManager _registrationManager;
         private readonly AuthenticationManager _authenticationManager;
@@ -47,6 +58,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
         private readonly ICryptographyService _cryptographyService;
         private readonly OTPService _otpService;
         private readonly OTPDataAccess _otpDataAccess;
+        private readonly ISchedulingManager _schedlingManager;
 
         public ManagerIntegrationTests() 
         {
@@ -67,6 +79,10 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
             );
             _accountSystemService = new AccountSystemService(
                 _userAccountDataAccess,
+            new BookingsDataAccess(
+                ConfigurationManager.AppSettings["SchedulingsConnectionString"]!,
+                ConfigurationManager.AppSettings["BookingsTable"]!
+            ),
                 loggerService
             );
             _cryptographyService = new CryptographyService(
@@ -147,6 +163,35 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
                 loggerService
             );
 
+            // listingsDAO, listingAvailDAO, bookingsDAO, bookedTimeFramesDAO
+            _listingsDataAccess = new ListingsDataAccess(
+                ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+                ConfigurationManager.AppSettings["ListingsTable"]!
+            );
+            _listingAvailabilitiesDataAccess = new ListingAvailabilitiesDataAccess(
+                ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+                ConfigurationManager.AppSettings["ListingAvailabilitiesTable"]!
+            );
+            _bookingsDataAccess = new BookingsDataAccess(
+                ConfigurationManager.AppSettings["SchedulingsConnectionString"]!,
+                ConfigurationManager.AppSettings["BookingsTable"]!
+            );
+            _bookedTimeFramesDataAccess = new BookedTimeFramesDataAccess(
+                ConfigurationManager.AppSettings["SchedulingsConnectionString"]!,
+                ConfigurationManager.AppSettings["BookedTimeFramesTable"]!
+            );
+            // bookingService, availabilityService
+            _bookingService = new BookingService(_bookingsDataAccess, _bookedTimeFramesDataAccess);
+            _availabilityService = new AvailabilityService(_listingsDataAccess, _listingAvailabilitiesDataAccess, _bookedTimeFramesDataAccess);
+
+            _schedulingManager = new SchedulingManager(
+                _bookingService,
+                _availabilityService,
+                _authorizationService,
+                _notificationService,
+                loggerService
+            );
+
             _accountSystemManager = new AccountSystemManager(
                 _accountSystemService,
                 _otpService,
@@ -154,6 +199,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
                 _cryptographyService,
                 _notificationManager,
                 new ValidationService(),
+                _schedlingManager,
                 loggerService
             );
             _registrationManager = new RegistrationManager(

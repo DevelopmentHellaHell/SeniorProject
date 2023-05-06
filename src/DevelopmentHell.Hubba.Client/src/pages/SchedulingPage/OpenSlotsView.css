@@ -75,10 +75,12 @@
   padding-bottom: 3px;
 }
 .opentimeslots-sidebar-wrapper {
+  display: flex;
+  flex-flow: column;
   background-color: rgb(var(--primary-background-light));
   border: none;
   padding-bottom: 20px;
-  justify-content: center;
+  align-items: center;
 }
 .opentimeslots-sidebar {
   display: flex;
@@ -190,6 +192,8 @@
   border: none;
   border-radius: 10px;
   text-align: center;
+  justify-content: center;
+  align-items: center;
 }
 .confirmation-card .h1 {
   font-size: 32px;
@@ -208,8 +212,8 @@
   text-align: left;
   width: fit-content;
   font-size: 14px;
-  padding-left: 20px;
   padding-bottom: 20px;
+  justify-content: center;
 }
 .details .info {
   padding-left: 20px;
@@ -223,6 +227,7 @@
   text-align: center;
   justify-content: center;
   padding-top: 20px;
+  padding-bottom: 5px;
   border-top: 1px dotted;
 }
 .info-bold .info-left {

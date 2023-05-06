@@ -107,6 +107,11 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
 				var updateListingHistory = await _listingHistoryDAO.AddUser(listingId, userId).ConfigureAwait(false);
 				if (!updateListingHistory.IsSuccessful)
 				{
+                    // User already added
+                    if (updateListingHistory.ErrorMessage == "Unable to add user.")
+                    {
+                        return Result<bool>.Success(true);
+                    }
 					return new(Result.Failure(updateListingHistory.ErrorMessage!, updateListingHistory.StatusCode));
 				}
 				return Result<bool>.Success(true);
