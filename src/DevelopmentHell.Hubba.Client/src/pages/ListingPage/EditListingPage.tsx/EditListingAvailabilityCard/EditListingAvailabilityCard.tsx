@@ -34,17 +34,12 @@ const EditListingAvailability: React.FC<IEditListingAvailabilityCardProps> = (pr
         }
         return navigate("/viewlisting", { state: {listingId: props.availability.listingId}});
     };
-    return (
-        <div>
-            <tbody>
-            <tr>
-                <td><Button theme={ButtonTheme.DARK} onClick={() => {handleDeleteClick() } } title={"Delete"} /></td>
-                <td>{props.availability.startTime ? new Date(props.availability.startTime ).toLocaleString(): '-'}</td>
-                <td>{props.availability.endTime ? new Date(props.availability.endTime ).toLocaleString() : '-'}</td>
-            </tr>
-            </tbody>
-
-        </div>
-    );
+    return <> 
+        <tr>
+            <td><Button theme={ButtonTheme.DARK} onClick={() => {handleDeleteClick() } } title={"Delete"} /></td>
+            <td>{props.availability.startTime ? new Date(props.availability.startTime ).toLocaleString(): '-'}</td>
+            <td>{props.availability.endTime ? new Date(props.availability.endTime ).toLocaleString() : '-'}</td>
+        </tr>
+    </>
 };
 export default EditListingAvailability;

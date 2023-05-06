@@ -11,7 +11,7 @@ export namespace Auth {
         iss: string,
         aud: string,
         azp?: string,
-        sub: string,
+        sub: number,
         iat: number,
         exp: number,
         role?: string

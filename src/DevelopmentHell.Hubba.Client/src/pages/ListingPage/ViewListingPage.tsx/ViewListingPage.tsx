@@ -53,7 +53,15 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
     const authData = Auth.getAccessData();
     const [isPublished, setIsPublished] = useState<boolean>(false);
     const [currentImage, setCurrentImage] = useState<number>(0);
-    const [defaultError] = useState<string>("Listings failed to load. Refresh page or try again later.")
+    const [rating, setRating] = useState<IRating>({
+        listingId: state.listingId,
+        userId: Number(authData?.sub),
+        rating: 0,
+        comment: "",
+        anonymous: true,
+        lastEdited: new Date(),
+      });
+    const [ratingError, setRatingError] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         const getData = async () => {
@@ -83,6 +91,34 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
             prevImage === (data?.Files?.length ?? 0) - 1 ? 0 : prevImage + 1
         );
     };
+
+    const validateComment = (comment?: string) => {
+        if (!comment) {
+            setRatingError("Comment is empty.");
+            return false;
+        }
+
+        if (comment.length > 200) {
+            setRatingError("Comment is too long.");
+            return false;
+        }
+
+        return true;
+    }
+
+    const validateRating = (rating?: number) => {
+        if (!rating) {
+            setRatingError("You must provide a rating.");
+            return false;
+        }
+
+        if (rating < 0 || rating > 5) {
+            setRatingError("Rating must be between 0 to 5.");
+            return false;
+        }
+
+        return true;
+    }
 
     useEffect(() => {
         if (error !== undefined) {
@@ -122,7 +158,7 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                         <div className="Buttons">
                             <div className="listing-page-status"> {isPublished ? 'Public' : 'Draft'} </div>
                             {/** REDIRECT TO SCHEDULING FEATURE */}
-                            {isPublished && authData?.sub != data.Listing.ownerId.toString() &&
+                            {isPublished && authData?.sub != data.Listing.ownerId &&
                             <Button title="Check Calendar"
                                 onClick={() => {
                                     navigate("/scheduling", {
@@ -135,15 +171,17 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                     })
                                 }} />
                             }
-                            {authData?.sub == data.Listing.ownerId.toString() && <div>
-                                <p><Button theme={ButtonTheme.HOLLOW_DARK} onClick={async () => {
+                            {authData?.sub == data.Listing.ownerId && <div>
+                                { data.Listing.published && <p><Button theme={ButtonTheme.HOLLOW_DARK} onClick={async () => {
                                     const response = await Ajax.post("/listingprofile/unpublishListing", { listingId: data.Listing.listingId })
                                     if (response.error) {
                                         setError("Publishing listing error. Refresh page or try again later.\n" + response.error);
                                         return;
                                     }
                                     setIsPublished(false);
-                                }} title={"Unpublish Listing"} /></p>
+                                    window.location.reload();
+                                    }} title={"Unpublish Listing"} /></p>
+                                }
                                 <p><Button theme={ButtonTheme.HOLLOW_DARK} onClick={() => { navigate("/editlisting", { state: { listingId: data.Listing.listingId } }) }} title={"Edit Listing"} /></p>
                                 
                                 <p><Button theme={ButtonTheme.DARK} onClick={() => { handleDeleteClick() }} title={"Delete Listing"} /></p>
@@ -190,6 +228,86 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                       
                         <div className="Ratings">
                             <h2>Ratings</h2>
+                            {authData && authData.role !== Auth.Roles.DEFAULT_USER &&
+                                <div className="rating-inputs">
+                                    <input id="listing-page-ratings-comment" type="text" onChange={(event) => {
+                                        setRating({
+                                            ...rating,
+                                            comment: event.target.value,
+                                        });
+                                    }}/>
+                                    <input id="listing-page-ratings-comment" type="number" onChange={(event) => {
+                                        setRating({
+                                            ...rating,
+                                            rating: parseInt(event.target.value),
+                                        });
+                                    }}/>
+                                    <Button theme={rating.anonymous ? ButtonTheme.DARK : ButtonTheme.HOLLOW_DARK} title={"Anonymous"} onClick={() => {
+                                        setRating({
+                                            ...rating,
+                                            anonymous:  !rating.anonymous
+                                        });
+                                    }}/>
+                                    {data && data.Ratings && data.Ratings.find(rating => rating.userId == authData?.sub) ?
+                                        <div>
+                                            <Button theme={ButtonTheme.DARK} title={"Edit"} loading={!loaded} onClick={async () => {
+                                                setLoaded(false);
+                                                if (!validateComment(rating.comment)) {
+                                                    setLoaded(true);
+                                                    return;
+                                                }
+
+                                                if (!validateRating(rating.rating)) {
+                                                    setLoaded(true);
+                                                    return;
+                                                }
+                                                
+                                                // TODO: Ajax call to edit
+                                                const response = await Ajax.post<null>('/listingprofile/editRating', { ListingId: data.Listing.listingId, Rating: rating.rating, Comment: rating.comment, Anonymous: rating.anonymous })
+                                                console.log(response)
+                                                if (response.error) {
+                                                    setError("Listing review editing error. Refresh page or try again later.\n" + response.error);
+                                                    return;
+                                                }
+
+                                                setLoaded(true);
+                                            }}/> 
+                                            <Button theme={ButtonTheme.DARK} title={"Delete"} loading={!loaded} onClick={async () => {
+                                                const response = await Ajax.post<null>('/listingprofile/deleteRating', { ListingId: data.Listing.listingId })
+                                                console.log(response)
+                                                if (response.error) {
+                                                    setError("Review deletion error. Refresh page or try again later.\n" + response.error);
+                                                    return;
+                                                }
+                                            }} />
+                                        </div> :
+                                        <Button theme={ButtonTheme.DARK} title={"Submit"} loading={!loaded} onClick={async () => {
+                                            setLoaded(false);
+                                            if (!validateComment(rating.comment)) {
+                                                setLoaded(true);
+                                                return;
+                                            }
+                                            
+                                            if (!validateRating(rating.rating)) {
+                                                setLoaded(true);
+                                                return;
+                                            }
+
+                                            // TODO: Ajax call to submit rating
+                                            const response = await Ajax.post<null>("/listingprofile/addRating", { ListingId: state.listingId, Rating: rating.rating, Comment: rating.comment, Anonymous: rating.anonymous });
+                                            if (response.error) {
+                                                setError("Listing rating and comment error. Ratings failed to upload. Refresh page or try again later.\n" +response.error);
+                                                return;
+                                            }
+                                            
+                                            setLoaded(true);
+                                        }}/>
+                                    }
+                                    {ratingError && loaded &&
+                                        <p className="error">{ratingError}</p>
+                                    }
+                                </div>
+                            }
                             <table>
                                 <thead>
                                     <tr>
@@ -208,12 +326,9 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                         </div>
                     </div>
                 }
-
                 {error && loaded &&
                     <p className="error">{error}</p>
                 }
-                
-                
             <Footer />
         </div>
     );

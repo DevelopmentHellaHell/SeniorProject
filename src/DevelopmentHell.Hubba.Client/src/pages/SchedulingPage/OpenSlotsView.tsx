@@ -125,7 +125,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
         }
         const total = bookedTimeFrames.length * state.price + (bookedTimeFrames.length * state.price * tax) + bookedTimeFrames.length * state.price * fee;
         setReserveTimeSlots({
-            userId: parseInt(authData!.sub),
+            userId: authData!.sub,
             listingId: listingId,
             listingTile: state.listingTitle,
             fullPrice: total,
