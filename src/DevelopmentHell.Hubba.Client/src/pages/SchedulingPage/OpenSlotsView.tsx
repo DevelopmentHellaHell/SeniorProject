@@ -15,8 +15,9 @@ import { use } from 'chai';
 
 const findListingAvailabilityRoute: string = "/scheduling/findlistingavailabilitybymonth/";
 const reserveRoute: string = "/scheduling/reserve";
-const localeLanguage: string = "en-US";
-const localeCurrency: object = { style: "currency", currency: "USD" };
+const localeUSLanguage: string = "en-US";
+const localeUSCurrency: object = { style: "currency", currency: "USD" };
+const localeUSTime: object = { hour: "2-digit", minute: "2-digit"};
 const defaultTax: number = 0.0785;
 const defaultFee: number = 0.15;
 
@@ -67,7 +68,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
     const [listingAvailabilityData, setListingAvailabilityData] = useState<IListingAvailabilityData[] | null>(null);
 
     const [selectedHours, setSelectedHours] = useState<Date[]>([]);
-    const [fullPrice, setFullPrice] = useState<number>(bookedTimeFrames.length * state.price);
+    const [fullPrice, setFullPrice] = useState<number>((bookedTimeFrames.length / 2) * state.price);
     const [fee, setFee] = useState<number>(state.fee ?? defaultFee);
     const [tax, setTax] = useState<number>(state.tax ?? defaultTax);
 
@@ -106,7 +107,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
     }, []);
 
     useEffect(() => {
-        setFullPrice(bookedTimeFrames.length * state.price);
+        setFullPrice((bookedTimeFrames.length / 2) * state.price);
     }, [bookedTimeFrames])
 
     useEffect(() => {
@@ -183,6 +184,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
             case 12: return "December";
         };
     };
+
     const convertToDayName = (index: number) => {
         switch (index) {
             case 0: return "SUN";
@@ -220,7 +222,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
 
                     return <>
                         <div className='buttons'>
-                            <HourBarButton key={halfhour.toLocaleTimeString()} theme={theme} title={halfhour.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })} onClick={() => {
+                            <HourBarButton key={halfhour.toLocaleTimeString()} theme={theme} title={halfhour.toLocaleTimeString(localeUSLanguage, localeUSTime)} onClick={() => {
                                 if (authData && authData.role !== Auth.Roles.DEFAULT_USER) {
                                     if (matchingTimeSlot) {
                                         const startTime = new Date(date);
@@ -376,17 +378,16 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
         }
         const printedDate: string[] = Array.from(new Set(bookedTimeFrames.map((date) => date.startDateTime.toDateString()) ?? []));
         return <>
-            <div className='opentimeslots-sidebar'>
                 {printedDate.map((date) => {
                     return <>
                         {/* display chosen date and hours */}
                         <div className='details'>
-                            {new Date(date).toLocaleDateString()} ({bookedTimeFrames.length / 2} hours)
+                            {new Date(date).toLocaleDateString(localeUSLanguage)} ({bookedTimeFrames.length / 2} hours)
                             {bookedTimeFrames.sort((a, b) => a.startDateTime.getTime() - b.startDateTime.getTime()).map((time) => {
                                 return <>
                                     {time.startDateTime.toDateString() == date &&
                                         <div className='info'>
-                                            + {time.startDateTime.toLocaleTimeString()} - {time.endDateTime.toLocaleTimeString()}
+                                            + {time.startDateTime.toLocaleTimeString(localeUSLanguage, localeUSTime)} - {time.endDateTime.toLocaleTimeString(localeUSLanguage, localeUSTime)}
                                         </div>}
                                 </>
                             })}
@@ -402,15 +403,14 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                             </div>
                             <div className='info-right'>
                                 <div className='block'>{bookedTimeFrames.length / 2} hr(s)</div>
-                                <div className='block'>{(fullPrice).toLocaleString(localeLanguage, localeCurrency)}</div>
-                                <div className='block'>{(fullPrice * tax).toLocaleString(localeLanguage, localeCurrency)}</div>
-                                <div className='block'>{(fullPrice * fee).toLocaleString(localeLanguage, localeCurrency)}</div>
-                                <div className='block'>{(fullPrice + fullPrice * fee + fullPrice * tax).toLocaleString(localeLanguage, localeCurrency)}</div>
+                                <div className='block'>{(fullPrice).toLocaleString(localeUSLanguage, localeUSCurrency)}</div>
+                                <div className='block'>{(fullPrice * tax).toLocaleString(localeUSLanguage, localeUSCurrency)}</div>
+                                <div className='block'>{(fullPrice * fee).toLocaleString(localeUSLanguage, localeUSCurrency)}</div>
+                                <div className='block'>{(fullPrice + fullPrice * fee + fullPrice * tax).toLocaleString(localeUSLanguage, localeUSCurrency)}</div>
                             </div>
                         </div>
                     </>
                 })}
-            </div>
         </>
     }
 
@@ -527,7 +527,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                                         onSideBarError("Owner can not book their own listing");
                                         return;
                                     }
-                                    setFullPrice(bookedTimeFrames.length * state.price);
+                                    setFullPrice((bookedTimeFrames.length / 2) * state.price);
                                     setShowConfirmation(true);
                                 }} />
                             </div>
@@ -539,7 +539,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                 {!showConfirmation &&
                     <div className="main-wrapper">
                         <h1>{state.listingTitle}</h1>
-                        <h2>{state.price.toLocaleString(localeLanguage, localeCurrency)}</h2>
+                        <h2>{state.price.toLocaleString(localeUSLanguage, localeUSCurrency)}/hour</h2>
                         <div className='second-wrapper'>
                             <div className="view-wrapper">
                                 <div className='calendar'>
