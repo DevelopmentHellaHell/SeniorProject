@@ -14,7 +14,6 @@ import CollaboratorEditView from "./CollaboratorProfileView/CollaboratorEditView
 import CollaboratorDeletionView from "./CollaboratorProfileView/CollaboratorDeletionView/CollaboratorDeletionView";
 import { Ajax } from "../../Ajax";
 import ProjectShowcaseView from "./ProjectShowcasesView/ProjectShowcaseView";
-import SchedulingHistoryView from "./SchedulingHistory/SchedulingHistoryView";
 import UpdatePasswordView from "./LoginSecurityView/UpdatePasswordView/UpdatePasswordView";
 import OtpVerificationPasswordView from "./LoginSecurityView/UpdatePasswordView/OtpVerificationPasswordView";
 import OtpVerificationEmailView from "./EditProfileView/OtpVerificationEmailView";
@@ -33,7 +32,6 @@ enum AccountViews {
     LOGIN_SECURITY_UPDATE_PASSWORD = "Update Password",
     LOGIN_SECURITY_ACCOUNT_DELETION = "Account Deletion",
     NOTIFICATION_SETTINGS = "Notification Settings",
-    SCHEDULING_HISTORY = "Scheduling History",
     BOOKING_HISTORY = "Booking History",
     MANAGE_LISTINGS = "Manage Listings",
     PROJECT_SHOWCASES = "Project Showcases",
@@ -93,8 +91,6 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
                 return <DeleteAccountView onCancelClick={() => { setView(AccountViews.LOGIN_SECURITY) }}/>;
             case AccountViews.NOTIFICATION_SETTINGS:
                 return <NotificationSettingsView />; //TODO
-            case AccountViews.SCHEDULING_HISTORY:
-                return <SchedulingHistoryView />; //TODO
             case AccountViews.BOOKING_HISTORY:
                 return <BookingHistoryView/>; //TODO
             case AccountViews.MANAGE_LISTINGS:
