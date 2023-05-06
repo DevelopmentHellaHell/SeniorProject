@@ -46,9 +46,9 @@ context("Scheduling E2E Test Suite on existed test data", () => {
             cy.get(".halfday").should("not.exist");
 
             // Available dates are highlighted in light color, PASS"
-            cy.get(".header").contains(">").click().click();
-            cy.wait(500);
-            cy.get(".month").contains("4").click();
+            cy.get(".header").contains(">").click().click().click();
+            cy.wait(3000);
+            cy.get(".day").eq(31).click();
             cy.wait(500);
 
             // Hour bars rendered by clicking highlighted date
@@ -56,18 +56,12 @@ context("Scheduling E2E Test Suite on existed test data", () => {
         });
 
         it("Unauthenticated user get a message when trying to select time frame", () => {
+            
+            cy.get(".header").contains(">").click();
             cy.wait(3000);
-            cy.get(".header").contains(">").click()
-            cy.get(".header").contains("<").click()
-                .then(() => {
-                    cy.get(".month").contains("4").click()
-                        .then((response) => {
-                            if (response) {
-                                cy.contains("14:00").click();
-                                cy.get(".error").should("exist").and("be.visible");
-                            }
-                        });
-                });
+            cy.get(".day").eq(30).click();
+            cy.contains("14:00").click();
+            cy.get(".error").should("exist").and("be.visible");
         });
     });
 
@@ -120,7 +114,7 @@ context("Scheduling E2E Test Suite on existed test data", () => {
         });
     });
 
-    describe.only("Owner can't book their own listing",() => {
+    describe("Owner can't book their own listing", () => {
         it("Owner can't book their own listing, message displayed, PASS", () => {
             cy.LoginViaApi(hostEmail, testPassword);
             cy.visit("/listingprofile");
@@ -138,7 +132,7 @@ context("Scheduling E2E Test Suite on existed test data", () => {
 
     describe("User cancels their booing in Scheduling History, Kevin's responsilble, FAILED", () => {
 
-        it("Should see their booking listed in Rental History, status CONFIRMED", () => {
+        it("Should see their booking listed in Scheduling History, status CONFIRMED", () => {
 
         });
 
