@@ -87,27 +87,29 @@ const CollaboratorPage: React.FC<ICollaboratorPage> = (props) => {
                     <div className="collaborator-page-profile">
                         <div className="collaborator-page-information-wrapper">
                             <div className="collaborator-page-information-leftcolumn-wrapper">
-                                <h2 id='collaborator-page-title' className="collaborator-page-title">{data.name}</h2>
+                                <div className="collaborator-page-vote-title-wrapper">
+                                    <div className="collaborator-page-votes-wrapper">
+                                        <div className="vote-control">
+                                                <div className="h-stack">
+                                                    <p id='up-vote' className="up-vote" onClick={() => {
+                                                        handleUpvoteClick();
+                                                    }}>↑</p>
+                                                    <p className="down-vote" onClick={() => {
+                                                        handleDownvoteClick();
+                                                    }}>↓</p> 
+                                                </div>
+                                            </div>
+                                        <div className = "vote-count">
+                                            <p id="vote-count-label" className="vote-count-label">
+                                                {data.votes ? data.votes: 0}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <h2 id='collaborator-page-title' className="collaborator-page-title">{data.name}</h2>
+                                </div>
                                 <div className="collaborator-page-tags-wrapper">
                                     <p id="tags-label" className="tags-label">Tags: </p>
                                     <p id="tags-list" className="tags-list">{data.tags ? data.tags : "No tags provided."}</p>
-                                </div>
-                                <div className="collaborator-page-votes-wrapper">
-                                    <div className="vote-control">
-                                            <div className="h-stack">
-                                                <p id='up-vote' className="up-vote" onClick={() => {
-                                                    handleUpvoteClick();
-                                                }}>↑</p>
-                                                <p className="down-vote" onClick={() => {
-                                                    handleDownvoteClick();
-                                                }}>↓</p> 
-                                            </div>
-                                        </div>
-                                    <div className = "vote-count">
-                                        <p id="vote-count-label" className="vote-count-label">
-                                            {data.votes ? data.votes: 0} Votes
-                                        </p>
-                                    </div>
                                 </div>
                                 <div className="collaborator-page-description-wrapper">
                                     <h3 className="collaborator-page-description-title">Description</h3>
@@ -131,7 +133,7 @@ const CollaboratorPage: React.FC<ICollaboratorPage> = (props) => {
                             </div>
                         </div>
                         <div className="collaborator-page-loaded-images-wrapper">
-                            <h2>Previous work</h2>
+                            <h3>Previous work</h3>
                             {data.collabUrls && (
                                 <div className="collaborator-page-image-wrapper">
                                     <div id="collaborator-page-images" className="collaborator-page-images">
