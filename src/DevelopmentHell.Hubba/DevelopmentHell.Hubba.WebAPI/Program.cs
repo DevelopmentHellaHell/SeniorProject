@@ -470,6 +470,11 @@ builder.Services.AddTransient<IAccountSystemManager, AccountSystemManager>(s =>
             HubbaConfig.ConfigurationManager.AppSettings["SchedulingsConnectionString"]!,
             HubbaConfig.ConfigurationManager.AppSettings["BookingsTable"]!
         ),
+        new ListingHistoryDataAccess
+        (
+            HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["ListingHistoryTable"]!
+        ),
             s.GetService<ILoggerService>()!
         ),
         s.GetService<IOTPService>()!,

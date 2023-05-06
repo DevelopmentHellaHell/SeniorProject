@@ -214,6 +214,13 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
                 return result;
             }
 
+            if (stringAccountEmail == newEmail)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "You need to enter a different email or press cancel. ";
+                return result;
+            }
+
             //extract user ID from JWT Token
             var accountId = int.Parse(stringAccountId);
 
@@ -223,6 +230,14 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = checkResult.ErrorMessage;
+                return result;
+            }
+
+            Result checkEmailResult = await _accountSystemService.CheckNewEmail(newEmail).ConfigureAwait(false);
+            if (!checkEmailResult.IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = checkEmailResult.ErrorMessage;
                 return result;
             }
 
@@ -452,6 +467,32 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             return result;
         }
 
+        public async Task<Result<List<Reservations>>> GetReservations()
+        {
+            Result<List<Reservations>> result = new Result<List<Reservations>>();
+            var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
+            if (stringAccountId is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error, invalid access token format. ";
+                return result;
+            }
+
+            var accountId = int.Parse(stringAccountId);
+
+            var getResult = await _accountSystemService.GetReservations(accountId).ConfigureAwait(false);
+            if (!getResult.IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = getResult.ErrorMessage;
+                return result;
+            }
+            result.IsSuccessful = true;
+            result.StatusCode = 200;
+            result.Payload = getResult.Payload;
+            return result;
+        }
 
         //Check proper credentials of user
         private async Task<Result> CheckPassword(int accountId, string email, string password) //MOVE

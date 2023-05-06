@@ -44,13 +44,12 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
             setData(response.data && response.data.length ? response.data : [] );
             setError(response.error);
             setLoaded(response.loaded);
-            console.log(response.data);
         });
     }
 
     useEffect(() => {
         getData();
-    }, [])
+    }, []);
 
     useEffect(() => {
         prevDataRef.current = data;
@@ -58,7 +57,6 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
 
     const createBookingHistoryTableRow = (bookingHistoryData: IBookingHistoryData) => {
         const id = bookingHistoryData.bookingId;
-        console.log("test");
         console.log(bookingHistoryData);
         return (
             <tr key={`booking-${bookingHistoryData.bookingId}`}>

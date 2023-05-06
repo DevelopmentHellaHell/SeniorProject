@@ -165,7 +165,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         public async Task<Result<List<BookingHistory>>> GetBookingHistory(int userId)
         {
-            List<BookingHistory> result = new ();
+            List<BookingHistory> result = new List<BookingHistory>();
             var selectResult = await _selectDataAccess.Select(
                 SQLManip.InnerJoinTables(
                     new Joiner(
@@ -216,9 +216,3 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
     }
 }
 
-/*BookingId = (int)row[nameof(Booking.BookingId)],
-                        UserId = (int)row[nameof(Booking.UserId)],
-                        ListingId = (int)row[nameof(Booking.ListingId)],
-                        BookingStatusId = (BookingStatus)row[nameof(Booking.BookingStatusId)],
-                        FullPrice = Convert.ToSingle(row[nameof(Booking.FullPrice)]),
-                        LastEditUser = (int)row[nameof(Booking.LastEditUser)]*/

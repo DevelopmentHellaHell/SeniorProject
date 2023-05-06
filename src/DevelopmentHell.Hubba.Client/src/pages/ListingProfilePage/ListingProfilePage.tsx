@@ -6,7 +6,7 @@ import NavbarUser from "../../components/NavbarUser/NavbarUser";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import MyListingsView from "./MyListingsView/MyListingsView";
 import './ListingProfilePage.css';
-import BookingHistoryView from "./BookingHistoryView/BookingHistoryView";
+import ReservationView from "./ReservationView/ReservationView";
 
 
 interface IListingProfilePageProps {
@@ -15,7 +15,7 @@ interface IListingProfilePageProps {
 
 enum ListingProfileViews {
     MY_LISTINGS = "My Listings",
-    BOOKING_HISTORY = "Booking History"
+    RESERVATIONS = "Reservations",
 }
 
 const ListingProfilePage: React.FC<IListingProfilePageProps> = (props) => {
@@ -26,8 +26,8 @@ const ListingProfilePage: React.FC<IListingProfilePageProps> = (props) => {
         switch(view) {
             case ListingProfileViews.MY_LISTINGS:
                 return <MyListingsView />;
-            case ListingProfileViews.BOOKING_HISTORY:
-                return <BookingHistoryView/>;
+            case ListingProfileViews.RESERVATIONS:
+                return <ReservationView/>;
         }
     }
 
@@ -39,7 +39,7 @@ const ListingProfilePage: React.FC<IListingProfilePageProps> = (props) => {
 
                 <Sidebar>
                     <li><p onClick={() => { setView(ListingProfileViews.MY_LISTINGS) }}> My Listings</p></li>
-                    <li><p onClick={() => { setView(ListingProfileViews.BOOKING_HISTORY) }}> Booking History</p></li>
+                    <li><p onClick={() => { setView(ListingProfileViews.RESERVATIONS) }}> Reservation</p></li>
                 </Sidebar>
 
                 <div className="listingprofile-wrapper">
