@@ -95,7 +95,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return deleteResult;
         }
 
-        public async Task<Result<List<Reservations>>> GetListingHistory(int ownerID)
+        public async Task<Result<List<Reservations>>> GetReservations(int ownerID)
         {
             List<Reservations> result = new List<Reservations>();
             var selectResult = await _selectDataAccess.Select(
@@ -120,10 +120,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             if (!selectResult.IsSuccessful || selectResult.Payload is null)
             {
                 return new(Result.Failure("Reservation Access Error"));
-            }
-            if (selectResult.Payload.Count < 1)
-            {
-                return new(Result.Failure("No reservations found"));
             }
             else
             {

@@ -94,7 +94,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Implementations
 
         public async Task<Result<List<Reservations>>> GetReservations(int ownerId)
         {
-            return await _listHistoryDataAccess.GetListingHistory(ownerId).ConfigureAwait(false);
+            return await _listHistoryDataAccess.GetReservations(ownerId).ConfigureAwait(false);
         }
 
     }

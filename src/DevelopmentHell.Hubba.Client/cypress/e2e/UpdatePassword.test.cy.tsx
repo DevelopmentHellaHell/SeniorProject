@@ -2,12 +2,7 @@
 import { Ajax } from "../../src/Ajax";
 import { Database } from "./TestModels/Database";
 
-/**
- * Test Notification functionality
- * User register, login, change Notification Settings, Notification Menu
- * Delete test data from database after testing
- */
-describe('Navigate to Notification Settings', () => {
+describe('Tests involving Update Password', () => {
     let baseUrl: string = Cypress.env('baseUrl') + "/";
     let loginUrl: string = Cypress.env('baseUrl') + "/login";
     let realEmail: string = Cypress.env("realEmail");
@@ -18,7 +13,7 @@ describe('Navigate to Notification Settings', () => {
         //clear all sessions include the backend and cache
         Cypress.session.clearAllSavedSessions();
         cy.RegisterViaApi(Cypress.env('realEmail'), Cypress.env('standardPassword'));
-    })
+    });
 
     after(async () => {
         await Ajax.post(testsRoute, { database: Database.Databases.USERS });
@@ -45,7 +40,7 @@ describe('Navigate to Notification Settings', () => {
         cy.contains("Account");
     });
 
-    it('user cancels change password process', () => {
+    it('Update Email failures', () => {
         cy.LoginViaApi(realEmail, standardPassword);
         cy.visit('/account');
         cy.contains("Login & Security").click();

@@ -57,7 +57,6 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
 
     const createBookingHistoryTableRow = (bookingHistoryData: IBookingHistoryData) => {
         const id = bookingHistoryData.bookingId;
-        console.log("test");
         console.log(bookingHistoryData);
         return (
             <tr key={`booking-${bookingHistoryData.bookingId}`}>

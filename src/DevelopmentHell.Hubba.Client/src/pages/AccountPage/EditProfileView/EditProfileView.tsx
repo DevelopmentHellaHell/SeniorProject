@@ -16,12 +16,18 @@ export interface IEditProfileData{
 const EditProfileView: React.FC<IEditProfileViewProps> = (props) => {
     const [data, setData] = useState<IEditProfileData| null>(null);
     const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
     const [loaded, setLoaded] = useState(false);
     const[firstName, setFirstName] = useState<string|null>(null);
     const[lastName, setLastName] = useState<string|null>(null);
-   
+
     
     const onError = (message: string) => {
+        setError(message);
+        setLoaded(true);
+    }
+
+    const onSuccess = (message: string) => {
         setError(message);
         setLoaded(true);
     }
@@ -78,13 +84,14 @@ const EditProfileView: React.FC<IEditProfileViewProps> = (props) => {
                             onError(response.error);
                             return;
                         }
-                        setLoaded(true);
                         
+                        onSuccess("Your username has been saved. ");
+
                     } }/>
                 </div>
             </div>
-            {error && 
-                <p className="error">{error}</p>
+            {(error && 
+                <p className="error">{error}</p>) 
             }
         </div>
     )

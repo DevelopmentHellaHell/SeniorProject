@@ -6,7 +6,7 @@ import NavbarUser from "../../components/NavbarUser/NavbarUser";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import MyListingsView from "./MyListingsView/MyListingsView";
 import './ListingProfilePage.css';
-import BookingHistoryView from "../AccountPage/BookingHistoryView/BookingHistoryView";
+import ReservationView from "./ReservationView/ReservationView";
 
 
 interface IListingProfilePageProps {
@@ -27,7 +27,7 @@ const ListingProfilePage: React.FC<IListingProfilePageProps> = (props) => {
             case ListingProfileViews.MY_LISTINGS:
                 return <MyListingsView />;
             case ListingProfileViews.RESERVATIONS:
-                return <></>;//TODO
+                return <ReservationView/>;
         }
     }
 
@@ -39,7 +39,7 @@ const ListingProfilePage: React.FC<IListingProfilePageProps> = (props) => {
 
                 <Sidebar>
                     <li><p onClick={() => { setView(ListingProfileViews.MY_LISTINGS) }}> My Listings</p></li>
-                    <li><p onClick={() => { setView(ListingProfileViews.RESERVATIONS) }}> Booking History</p></li>
+                    <li><p onClick={() => { setView(ListingProfileViews.RESERVATIONS) }}> Reservation</p></li>
                 </Sidebar>
 
                 <div className="listingprofile-wrapper">

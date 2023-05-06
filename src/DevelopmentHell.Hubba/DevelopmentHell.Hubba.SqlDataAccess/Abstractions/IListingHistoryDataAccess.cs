@@ -16,7 +16,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
         Task<Result> AddUser(int listingId, int userId);
 
         Task<Result> DeleteUser(int listingId, int userId);
-        Task<Result<List<Reservations>>> GetListingHistory(int ownerID);
+        Task<Result<List<Reservations>>> GetReservations(int ownerID);
     }
 }
 
