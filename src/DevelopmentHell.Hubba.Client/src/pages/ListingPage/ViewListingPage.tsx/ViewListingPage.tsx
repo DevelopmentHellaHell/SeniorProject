@@ -7,7 +7,6 @@ import Footer from "../../../components/Footer/Footer";
 import "./ViewListingPage.css";
 import Button, { ButtonTheme } from "../../../components/Button/Button";
 import { Auth } from "../../../Auth";
-import ViewListingRatingsPage from "./ViewListingRatingsPage/ViewListingRatingsPage";
 import ListingAvailabilityCard from "./ViewListingRatingsPage/ListingAvailabilityCard/ListingAvailabilityCard";
 import NavbarGuest from "../../../components/NavbarGuest/NavbarGuest";
 import ListingRatingCard from "./ViewListingRatingsPage/ListingRatingCard/ListingRatingCard";
@@ -62,6 +61,8 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
         lastEdited: new Date(),
       });
     const [ratingError, setRatingError] = useState<string | undefined>(undefined);
+    const [hasBooked, setHasBooked] = useState<boolean>(false);
+    const [hasRating, setHasRating] = useState<boolean>(false);
 
     // TODO: Check if rating is owner to hide rating, Check if they having booking history with the rating
     useEffect(() => {
@@ -71,6 +72,25 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
             if (response.data) {
                 setData(response.data);
                 setIsPublished(response.data.Listing.published!);
+                if (authData?.role !== Auth.Roles.DEFAULT_USER)
+                {
+                    const userHistory = await Ajax.post<string>('/listingprofile/hasListingHistory',  { listingId: state.listingId } );
+                    if (userHistory.data) {
+                        console.log(userHistory.data);
+                        if (userHistory.data == "none") {
+                            setHasBooked(false);
+                            setHasRating(false);
+                        }
+                        else if (userHistory.data == "history") {
+                            setHasBooked(true);
+                            setHasRating(false);
+                        }
+                        else if (userHistory.data == "rating") {
+                            setHasBooked(true);
+                            setHasRating(true);
+                        }
+                    }
+                }
             }
             if (response.error) {
                 setError("Listing failed to load. Refresh page or try again later.\n" + response.error);
@@ -94,12 +114,8 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
     };
 
     const validateComment = (comment?: string) => {
-        if (!comment) {
-            setRatingError("Comment is empty.");
-            return false;
-        }
 
-        if (comment.length > 200) {
+        if (comment && comment.length > 200) {
             setRatingError("Comment is too long.");
             return false;
         }
@@ -229,15 +245,15 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                       
                         <div className="Ratings">
                             <h2>Ratings</h2>
-                            {authData && authData.role !== Auth.Roles.DEFAULT_USER &&
+                            {authData && authData.role !== Auth.Roles.DEFAULT_USER && data.Listing.ownerId != authData.sub && hasBooked &&
                                 <div className="rating-inputs">
-                                    <input id="listing-page-ratings-comment" type="text" onChange={(event) => {
+                                    <input id="listing-page-ratings-comment" placeholder={data.Ratings?.find(rating => rating.userId == authData.sub)?.comment ? data.Ratings?.find(rating => rating.userId == authData.sub)?.comment : "Comment"} type="text" onChange={(event) => {
                                         setRating({
                                             ...rating,
                                             comment: event.target.value,
                                         });
                                     }}/>
-                                    <input id="listing-page-ratings-comment" type="number" onChange={(event) => {
+                                    <input id="listing-page-ratings-comment" placeholder={data.Ratings?.find(rating => rating.userId == authData.sub)?.rating ? data.Ratings?.find(rating => rating.userId == authData.sub)?.rating.toString() : "0-5"} type="number" onChange={(event) => {
                                         setRating({
                                             ...rating,
                                             rating: parseInt(event.target.value),
@@ -251,9 +267,9 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                     }}/>
 
                                     
-                                    {data && data.Ratings && data.Ratings.find(rating => rating.userId == authData?.sub) ? // TODO: REPLACE THIS CODE WITH: Check a rating already exists
+                                    {data && data.Ratings && hasRating ? // TODO: REPLACE THIS CODE WITH: Check a rating already exists
                                         <div>
-                                            <Button theme={ButtonTheme.DARK} title={"Edit"} loading={!loaded} onClick={async () => {
+                                            <Button theme={ButtonTheme.DARK} title={"Edit Comment"} loading={!loaded} onClick={async () => {
                                                 setLoaded(false);
                                                 if (!validateComment(rating.comment)) {
                                                     setLoaded(true);
@@ -272,16 +288,18 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                                     setError("Listing review editing error. Refresh page or try again later.\n" + response.error);
                                                     return;
                                                 }
-
+                                                window.location.reload();
                                                 setLoaded(true);
+                                                
                                             }}/> 
-                                            <Button theme={ButtonTheme.DARK} title={"Delete"} loading={!loaded} onClick={async () => {
+                                            <Button theme={ButtonTheme.DARK} title={"Delete Comment"} loading={!loaded} onClick={async () => {
                                                 const response = await Ajax.post<null>('/listingprofile/deleteRating', { ListingId: data.Listing.listingId })
                                                 console.log(response)
                                                 if (response.error) {
                                                     setError("Review deletion error. Refresh page or try again later.\n" + response.error);
                                                     return;
                                                 }
+                                                window.location.reload();
                                             }} />
                                         </div> :
                                         <Button theme={ButtonTheme.DARK} title={"Submit"} loading={!loaded} onClick={async () => {
@@ -302,7 +320,7 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                                 setError("Listing rating and comment error. Ratings failed to upload. Refresh page or try again later.\n" +response.error);
                                                 return;
                                             }
-                                            
+                                            window.location.reload();
                                             setLoaded(true);
                                         }}/>
                                     }

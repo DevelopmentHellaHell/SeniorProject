@@ -58,6 +58,7 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
     const [listingUpdate, setListingUpdate] = useState<boolean>(false);
     const [filesUpdate, setFilesUpdate] = useState<boolean>(false);
     const [availabilitiesUpdate, setAvailabilitiesUpdate] = useState<boolean>(false);
+    const [attemptPublish, setAttemptPublish] = useState<boolean>(false);
     
     useEffect(() => {
         const getData = async () => {
@@ -181,15 +182,25 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
         setFiles(newFiles);
       };
     
-    const handlePublishSubmit = async () =>  {
-        handleSaveChanges();
-        const response = await Ajax.post<null>("/listingprofile/publishListing", { ListingId: data?.Listing.listingId});
+      const handlePublishSubmit = async () => {
+        setAttemptPublish(true);
+      
+        const response = await Ajax.post<null>("/listingprofile/publishListing", { ListingId: data?.Listing.listingId });
+      
         if (response.error) {
-            setError("Publishing listing error. Refresh page or try again later.\n" + response.error);
-            return;
+          setError("Publishing listing error. Refresh page or try again later.\n" + response.error);
+          setAttemptPublish(false);
+          return;
         }
-        return navigate("/viewlisting", { state: {listingId: state.listingId}});
-    }
+      
+        navigate("/viewlisting", { state: { listingId: state.listingId } });
+      };
+      
+      useEffect(() => {
+        if (attemptPublish) {
+          handleSaveChanges();
+        }
+      }, [attemptPublish]);
 
     // const handleSaveAllAvailabilities = async () =>  {
     //     const availabilities = timeList.map(time => {
@@ -295,8 +306,10 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
             } catch (error) {
             }
         }
-
-        // navigate("/viewlisting", { state: { listingId: data?.Listing.listingId } });
+        if (!attemptPublish) {
+            navigate("/viewlisting", { state: { listingId: data?.Listing.listingId } });
+        }
+        
     }
 
     return (
@@ -330,8 +343,9 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
                                         setError("Publishing listing error. Refresh page or try again later.\n" + response.error);
                                         return;
                                     }
-                                    window.location.reload();
-                                    }} title={"Unpublish Listing"} />                                
+                                    window.location.reload(); 
+                                    }} title={"Unpublish Listing"} />        
+                                                           
                             </p>
                             </>
                             ) : (
@@ -343,7 +357,7 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
                                     }}
                                     title={'Preview Listing'} /></p>
                                     
-                                    <p><Button theme={ButtonTheme.HOLLOW_DARK} title={"Publish"} onClick={ handlePublishSubmit } /></p>
+                                    <p><Button theme={ButtonTheme.HOLLOW_DARK} title={"Publish"} onClick={handlePublishSubmit } /></p>
                                     
                                 </>
                         )}
