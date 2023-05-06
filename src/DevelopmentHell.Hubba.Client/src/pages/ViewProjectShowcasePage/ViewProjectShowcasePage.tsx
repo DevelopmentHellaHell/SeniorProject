@@ -8,6 +8,7 @@ import "./ViewProjectShowcasePage.css";
 import LikeButton from "../../components/Heart/Heart";
 import Button, { ButtonTheme } from "../../components/Button/Button";
 import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
+import { set } from "cypress/types/lodash";
 
 interface IViewProjectShowcasePageProps {
 
@@ -78,9 +79,24 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
     const getData = async () => {
         await Ajax.get<IPackagedProjectShowcase>(`/showcases/packaged?s=${showcaseId}`).then((response) => {
             if(response.data) {
-                setComments(response.data.comments);
-                setShowcase(response.data.showcase);
-                setImages(response.data.filePaths);
+                if (response.data.comments) {
+                    setComments(response.data.comments);
+                }
+                else {
+                    setCommentsError("Unable to load comments")
+                }
+                if (response.data.showcase) {
+                    setShowcase(response.data.showcase);
+                }
+                else {
+                    setShowcaseError("Unable to load showcase")
+                }
+                if (response.data.filePaths) {
+                    setImages(response.data.filePaths);
+                }
+                else {
+                    setImagesError("Unable to load images")
+                }
                 setShowcaseLikes(response.data.showcase.rating);
             }
             if (images.length == 0) {
@@ -103,7 +119,9 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
             setComments(response.data && response.data.length ? response.data : []);
             setCommentsLoaded(response.loaded);
             setCommentsError(response.error);
-            alert(response.error);
+            if (response.error){
+                alert(response.error);
+            }
         });
     }
 
@@ -319,7 +337,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                             }
                             {comments.map((comment) => {
                                 return (
-                                    <div className="comment" >
+                                    <div className="comment" key={`comment-${comment.id}`}>
                                         <hr></hr>
                                         <div className="h-stack">
                                             <h4>{comment.commenterEmail.split("@")[0]}</h4>
