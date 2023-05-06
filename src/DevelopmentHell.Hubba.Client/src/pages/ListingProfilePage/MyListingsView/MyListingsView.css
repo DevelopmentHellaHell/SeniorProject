@@ -4,8 +4,6 @@
     align-items: center;
   }
   
-
-  
 .my-listing-view-container .listings-found table {
     width: 100%;
 }
@@ -23,6 +21,17 @@
     text-align: left;
 }
 
+.create-listing-process {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 auto;
+    max-width: 500px;
+  }
+  
+.create-listing-process .input-field {
+  font-weight: bold;
+}
   
 /* .no-listings {
     margin-top: 20px;

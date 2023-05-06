@@ -7,16 +7,12 @@ interface IListingRatingCardProps {
 const ListingRatingCard: React.FC<IListingRatingCardProps> = (props) => {
     console.log(props.rating);
     return (
-        <div>
-            
             <tr>
-                <td>{props.rating.rating}</td>
-                <td>{props.rating.comment}</td>
-                <td>{props.rating.anonymous ? "Anonymous" : props.rating.username}</td>
-                <td>{props.rating.lastEdited ? new Date(props.rating.lastEdited).toLocaleString() : '-'}</td>
+                <td style={{width: '5%'}}>{props.rating.rating}</td>
+                <td style={{width: '70%'}}>{props.rating.comment}</td>
+                <td style={{width: '15%'}}>{props.rating.anonymous ? "Anonymous" : props.rating.username}</td>
+                <td style={{width: '10%'}}>{props.rating.lastEdited ? new Date(props.rating.lastEdited).toLocaleString() : '-'}</td>
                 </tr>
-
-        </div>
     );
 };
 export default ListingRatingCard;

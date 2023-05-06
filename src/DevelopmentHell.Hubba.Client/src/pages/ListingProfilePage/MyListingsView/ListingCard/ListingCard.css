@@ -1,0 +1,22 @@
+.my-listing-view-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+  
+.listing-card-row table {
+    width: 100%;
+}
+
+.listing-card-row table , th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+.listing-card-row table, th {
+    text-align: center;
+}
+
+.listing-card-row table, td {
+    text-align: left;
+}
