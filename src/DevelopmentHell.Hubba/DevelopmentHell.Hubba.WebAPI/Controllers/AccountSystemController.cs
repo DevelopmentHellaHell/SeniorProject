@@ -215,6 +215,27 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 return StatusCode(result.StatusCode, result.Payload);
             }).ConfigureAwait(false);
         }
+
+        [HttpGet]
+        [Route("getReservations")]
+        public async Task<IActionResult> GetReservations()
+        {
+            return await GuardedWorkload(async () =>
+            {
+                if (!ModelState.IsValid)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest);
+                }
+
+                var result = await _accountSystemManager.GetReservations().ConfigureAwait(false);
+                if (!result.IsSuccessful)
+                {
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
+                }
+
+                return StatusCode(result.StatusCode, result.Payload);
+            }).ConfigureAwait(false);
+        }
     }
 
 }

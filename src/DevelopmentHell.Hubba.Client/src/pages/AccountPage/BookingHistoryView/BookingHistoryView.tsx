@@ -44,13 +44,12 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
             setData(response.data && response.data.length ? response.data : [] );
             setError(response.error);
             setLoaded(response.loaded);
-            console.log(response.data);
         });
     }
 
     useEffect(() => {
         getData();
-    }, [])
+    }, []);
 
     useEffect(() => {
         prevDataRef.current = data;

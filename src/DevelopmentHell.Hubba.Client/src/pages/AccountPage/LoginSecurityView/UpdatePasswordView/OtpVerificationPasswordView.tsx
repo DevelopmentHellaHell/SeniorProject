@@ -1,18 +1,30 @@
-import { useState } from "react";
-import { redirect } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { redirect, useNavigate } from "react-router-dom";
 import "./OtpCard.css";
-import { Auth } from "../../../../../Auth";
-import Button, { ButtonTheme } from "../../../../../components/Button/Button";
-import { Ajax } from "../../../../../Ajax";
+import { Auth } from "../../../../Auth";
+import Button, { ButtonTheme } from "../../../../components/Button/Button";
+import { Ajax } from "../../../../Ajax";
 
-interface IOtpPassProps {
+interface IOtpCardProps {
     onSuccess: () => void;
 }
 
-const OtpPass: React.FC<IOtpPassProps> = (props) => {
+
+const OtpVerificationPasswordView: React.FC<IOtpCardProps> = (props) => {
     const [otp, setOtp] = useState("");
     const [error, setError] = useState("");
     const [loaded, setLoaded] = useState(true);
+
+    const sendOTP = async () => {
+        await Ajax.post("/accountsystem/verifyaccount", {}).then((response) => {
+            setError(response.error);
+            setLoaded(response.loaded);
+        })
+    }
+
+    useEffect(() => {
+        sendOTP();
+    }, [])
 
     const onError = (message: string) => {
         setError(message);
@@ -21,7 +33,7 @@ const OtpPass: React.FC<IOtpPassProps> = (props) => {
 
     const authData = Auth.getAccessData();
     if (!authData) {
-        redirect("/login");
+        redirect("/");
         return null;
     }
     
@@ -39,21 +51,20 @@ const OtpPass: React.FC<IOtpPassProps> = (props) => {
                 
                 <div className="buttons">
                     <Button title="Submit" loading={!loaded} theme={ButtonTheme.DARK} onClick={async () => {
-                        
                         setLoaded(false);
                         if (!otp) {
                             onError("OTP cannot be empty.");
                             return;
                         }
-                        
-/*                         const response = await Ajax.post("/accountsystem/otpverification", ({ otp: otp }));
+
+                        const response = await Ajax.post("/accountsystem/otpverification", ({ otp: otp }));
                         if (response.error) {
                             onError(response.error);
                             return;
-                        }*/
+                        }
                         
                         setLoaded(true);
-                        props.onSuccess(); 
+                        props.onSuccess();
                     }}/>
                 </div>
                 {error &&
@@ -64,4 +75,4 @@ const OtpPass: React.FC<IOtpPassProps> = (props) => {
     );
 }
 
-export default OtpPass;
+export default OtpVerificationPasswordView;

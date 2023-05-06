@@ -94,5 +94,51 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             return deleteResult;
         }
+
+        public async Task<Result<List<Reservations>>> GetListingHistory(int ownerID)
+        {
+            List<Reservations> result = new List<Reservations>();
+            var selectResult = await _selectDataAccess.Select(
+                SQLManip.InnerJoinTables(
+                    new Joiner(
+                        _tableName,
+                        "Listings",
+                        nameof(Reservations.ListingId),
+                        nameof(Reservations.ListingId))),
+                new List<string>()
+                {
+                    nameof(Reservations.OwnerId),
+                    _tableName + "." + nameof(Reservations.ListingId),
+                    nameof(Reservations.UserId),
+                    nameof(Reservations.Title)
+                },
+                new List<Comparator>()
+                {
+                    new Comparator("OwnerId", "=", ownerID)
+                }    
+            ).ConfigureAwait(false);
+            if (!selectResult.IsSuccessful || selectResult.Payload is null)
+            {
+                return new(Result.Failure("Reservation Access Error"));
+            }
+            if (selectResult.Payload.Count < 1)
+            {
+                return new(Result.Failure("No reservations found"));
+            }
+            else
+            {
+                foreach(var row in selectResult.Payload) 
+                {
+                    result.Add(new Reservations()
+                    {
+                        OwnerId = (int)row[nameof(Reservations.OwnerId)],
+                        UserId = (int)row[nameof(Reservations.UserId)],
+                        ListingId = (int)row[nameof(Reservations.ListingId)],
+                        Title = (string)row[nameof(Reservations.Title)]
+                    });
+                }
+            }
+            return Result<List<Reservations>>.Success(result);
+        }
     }
 }
