@@ -93,14 +93,14 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                 }
                 if (response.data.filePaths) {
                     setImages(response.data.filePaths);
+                    if (response.data.filePaths.length == 0) {
+                        setImagesError("No images available");
+                    }
                 }
                 else {
                     setImagesError("Unable to load images")
                 }
                 setShowcaseLikes(response.data.showcase.rating);
-            }
-            if (images.length == 0) {
-                setImagesError("Unable to load images");
             }
             if (!response.error){
                 setShowcaseLoaded(true);
@@ -246,7 +246,12 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                             </div>
                         </div>
                         <Button theme={ButtonTheme.DARK} title="Go To Listing" onClick={() => {
-                            navigate('/viewListing', { state: { listingId: showcase?.listingId} })
+                            if (showcase && showcase.listingId){
+                                navigate(`/listings/view?l=${showcase.listingId}`);
+                            }
+                            else {
+                                alert("Unable to navigate to listing.")
+                            }
                         }}/>
                         <div className="h-stack">
                             <LikeButton size="50" enabled={true} defaultOn={false} 
@@ -322,7 +327,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                     if (response.error){
                                         setCommentsError(response.error);
                                     }
-                                    if(response.data) {
+                                    else {
                                         alert("Comment submitted successfully");
                                         getComments();
                                     }
