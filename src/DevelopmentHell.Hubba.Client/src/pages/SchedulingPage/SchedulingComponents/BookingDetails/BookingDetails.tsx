@@ -91,8 +91,6 @@ const BookingDetails: React.FC<IBookingDetailsProp> = (props) => {
             })}
         </>
     }
-    console.log("LOADED", loaded);
-    console.log("ERROR", error)
     return (
         <div className='bookingdetails-view-container'>
             {authData && authData.role !== Auth.Roles.DEFAULT_USER ?

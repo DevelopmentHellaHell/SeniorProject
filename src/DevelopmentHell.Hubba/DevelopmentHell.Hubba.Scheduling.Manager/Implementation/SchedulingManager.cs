@@ -32,6 +32,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager.Abstraction
 			var authzResult = _authorizationService.Authorize(new string[] { "AdminUser", "VerifiedUser" });
 			if (!authzResult.IsSuccessful)
 			{
+				_loggerService.Log(LogLevel.ERROR, Category.DATA, authzResult.ErrorMessage!);
 				return new(Result.Failure(authzResult.ErrorMessage!, StatusCodes.Status401Unauthorized));
 			}
 
@@ -44,7 +45,6 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager.Abstraction
 			// Extracted user Id from JWT token
 			if (int.TryParse(stringAccountId, out int accountId))
 			{
-
 				if (userId != accountId)
 				{
 					return new(Result.Failure("Unsupported operation. User can't book on other's behalf", StatusCodes.Status400BadRequest));
@@ -65,7 +65,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager.Abstraction
 				{
 					return new(Result.Failure("System error. Please contact admin.", deleteIncompleteBooking.StatusCode));
 				}
-				_loggerService.Log(LogLevel.ERROR, Category.BUSINESS, notifyUser.ErrorMessage!);
+				_loggerService.Log(LogLevel.ERROR, Category.DATA, notifyUser.ErrorMessage!);
 				return new(Result.Failure("Scheduling error. Please try again later or contact admin.", notifyUser.StatusCode));
 			}
 
@@ -79,7 +79,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager.Abstraction
 				{
 					return new(Result.Failure("System error. Booking incomplete. Please contact admin."));
 				}
-				_loggerService.Log(LogLevel.ERROR, Category.BUSINESS, notifyUser.ErrorMessage!);
+				_loggerService.Log(LogLevel.ERROR, Category.DATA, notifyUser.ErrorMessage!);
 				return new(Result.Failure("Notification error. Booking not complete. Please try again later or contact admin.", notifyOwner.StatusCode));
 			}
 
@@ -98,10 +98,12 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager.Abstraction
 			var getBooking = await _bookingService.GetBookingByBookingId(bookingId).ConfigureAwait(false);
 			if (!getBooking.IsSuccessful || getBooking.Payload == null)
 			{
+				_loggerService.Log(LogLevel.ERROR, Category.DATA, getBooking.ErrorMessage!);
 				return new(Result.Failure(getBooking.ErrorMessage!, getBooking.StatusCode));
 			}
 			if (userId != getBooking.Payload.UserId)
 			{
+				_loggerService.Log(LogLevel.ERROR, Category.BUSINESS, "UserId invalid for booking cancellation");
 				return new(Result.Failure("Booking not found. Unable to make the cancellation.", StatusCodes.Status400BadRequest));
 			}
 			int listingId = getBooking.Payload.ListingId;
@@ -109,12 +111,14 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager.Abstraction
 			// If Booking already cancelled
 			if (getBooking.Payload.BookingStatusId == BookingStatus.CANCELLED)
 			{
+				_loggerService.Log(LogLevel.WARNING, Category.BUSINESS, getBooking.ErrorMessage!);
 				return new(Result.Failure("Booking already cancelled.", StatusCodes.Status400BadRequest));
 			}
 			// Get Listing ownerId
 			var getListingDetails = await _availabilityService.GetListingDetails(getBooking.Payload.ListingId).ConfigureAwait(false);
 			if (!getListingDetails.IsSuccessful)
 			{
+				_loggerService.Log(LogLevel.ERROR, Category.DATA, getListingDetails.ErrorMessage!);
 				return new(Result.Failure(getListingDetails.ErrorMessage!, getListingDetails.StatusCode));
 			}
 			int ownerId = (int)getListingDetails.Payload!.OwnerId!;
@@ -123,6 +127,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager.Abstraction
 			var cancelBooking = await _bookingService.CancelBooking(bookingId).ConfigureAwait(false);
 			if (!cancelBooking.IsSuccessful)
 			{
+				_loggerService.Log(LogLevel.ERROR, Category.DATA, cancelBooking.ErrorMessage!);
 				return new(Result.Failure(cancelBooking.ErrorMessage!, cancelBooking.StatusCode));
 			}
 
@@ -137,6 +142,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager.Abstraction
 			var removeUserFromListingHistory = await _bookingService.RemoveUserFromListingHistory(listingId, userId);
 			if(!removeUserFromListingHistory.IsSuccessful)
 			{
+				_loggerService.Log(LogLevel.ERROR, Category.DATA, removeUserFromListingHistory.ErrorMessage!);
 				return new (Result.Failure(removeUserFromListingHistory.ErrorMessage!, removeUserFromListingHistory.StatusCode));
 			}
 
@@ -149,6 +155,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager.Abstraction
 			// TODO: what if someone else booked during this searching?
 			if (!getOpenTimeSlots.IsSuccessful || getOpenTimeSlots.Payload == null)
 			{
+				_loggerService.Log(LogLevel.ERROR, Category.DATA, getOpenTimeSlots.ErrorMessage!);
 				return new(Result.Failure(getOpenTimeSlots.ErrorMessage!, getOpenTimeSlots.StatusCode));
 			}
 			return Result<List<ListingAvailabilityDTO>>.Success(getOpenTimeSlots.Payload);
@@ -159,6 +166,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager.Abstraction
 			// Time frame can't be null
 			if (chosenTimeframes == null)
 			{
+				_loggerService.Log(LogLevel.ERROR, Category.DATA, "Invalid parameter");
 				return new(Result.Failure("Time Frames can't be empty.", StatusCodes.Status400BadRequest));
 			}
 			// Authorize user 
@@ -172,12 +180,14 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager.Abstraction
 			var getListingDetails = await _availabilityService.GetListingDetails(listingId).ConfigureAwait(false);
 			if (!getListingDetails.IsSuccessful || getListingDetails.Payload == null)
 			{
+				_loggerService.Log(LogLevel.ERROR, Category.DATA, getListingDetails.ErrorMessage!);
 				return new(Result.Failure(getListingDetails.ErrorMessage!, getListingDetails.StatusCode));
 			}
 
 			int ownerId = (int)getListingDetails.Payload!.OwnerId!;
 			if (userId == ownerId)
 			{
+				_loggerService.Log(LogLevel.ERROR, Category.BUSINESS, "Owner attempted to book their own listing.");
 				return new(Result.Failure("Owner can't book their own listing", StatusCodes.Status400BadRequest));
 			}
 
@@ -187,12 +197,14 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager.Abstraction
 				// Each pair of Start and End Time must be on the same date
 				if (timeframe.StartDateTime.Date != timeframe.EndDateTime.Date)
 				{
+					_loggerService.Log(LogLevel.ERROR, Category.DATA, "Start and End Date are not the same.");
 					return new(Result.Failure("Invalid chosen time frame. Start and End time must be on the same date", StatusCodes.Status400BadRequest));
 				}
 				// Check each chosen time frame against the BookedTimeFrames table
 				var isOpentoBook = await _availabilityService.ValidateChosenTimeFrames(timeframe).ConfigureAwait(false);
 				if (!isOpentoBook.IsSuccessful) //timeframe already booked
 				{
+					_loggerService.Log(LogLevel.ERROR, Category.BUSINESS, "Attempt to reserve time slots already booked");
 					return new(Result.Failure(isOpentoBook.ErrorMessage!, isOpentoBook.StatusCode));
 				}
 			}
@@ -228,6 +240,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager.Abstraction
 			var updateListingHistory = await _bookingService.AddUserToListingHistory(listingId,userId).ConfigureAwait(false);
 			if(!updateListingHistory.IsSuccessful)
 			{
+				_loggerService.Log(LogLevel.ERROR, Category.DATA, updateListingHistory.ErrorMessage!);
 				return new(Result.Failure(notifyUsers.ErrorMessage!, notifyUsers.StatusCode));
 			}
 
@@ -257,6 +270,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager.Abstraction
 			var getBookedTimeFrames = await _bookingService.GetBookedTimeFramesByBookingId(bookingId).ConfigureAwait(false);
 			if (!getBookedTimeFrames.IsSuccessful)
 			{
+				_loggerService.Log(LogLevel.ERROR, Category.DATA, getBookedTimeFrames.ErrorMessage!);
 				return new(Result.Failure(getBookedTimeFrames.ErrorMessage!, getBookedTimeFrames.StatusCode));
 			}
 			var bookingViewDTO = new BookingViewDTO();
