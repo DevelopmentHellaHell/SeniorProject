@@ -150,7 +150,7 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
                                             setError("You can only select one Booking to Cancel at a time.");
                                             return;
                                         }
-
+                                        alert("Warning: Once cancellation occurs, it cannot be reverted. ");
                                         const response = await Ajax.post("accountsystem/cancelbooking", { bookingId: selectBooking[0] });
                                         if (!response.error) {
                                             setData([]);
@@ -164,7 +164,6 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
                         </div>
                     </div>
                 }
-
             </div>
             {error &&
                 <p className="error">{error}</p>

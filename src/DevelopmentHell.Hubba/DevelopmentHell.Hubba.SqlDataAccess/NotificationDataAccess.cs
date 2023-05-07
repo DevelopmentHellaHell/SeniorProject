@@ -49,7 +49,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 {
                     new Comparator("UserId", "=", userId),
                     new Comparator("Hide", "=", 0)
-                }
+                },
+                "",
+                "",
+                50
             ).ConfigureAwait(false);
 
             if (!selectResult.IsSuccessful || selectResult.Payload is null)

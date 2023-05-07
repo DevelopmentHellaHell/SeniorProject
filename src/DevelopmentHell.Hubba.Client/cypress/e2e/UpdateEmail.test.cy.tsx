@@ -13,6 +13,7 @@ describe('Navigate to Notification Settings', () => {
     let realEmail: string = Cypress.env("realEmail");
     let standardPassword: string = Cypress.env("standardPassword");
     let testsRoute: string = '/tests/deleteDatabaseRecords';
+    
 
     before(()=>{
         //clear all sessions include the backend and cache
@@ -33,7 +34,15 @@ describe('Navigate to Notification Settings', () => {
         cy.contains("Change Email");
         cy.contains('Update').click();
 
-        cy.get('#otp').clear().type("K1ZFsdGc");
+        cy.request('GET', Cypress.env('serverUrl') + "/tests/getotp")
+        .then((response) => {
+            cy.wrap(response.body).as('returnedOtp');
+            cy.get('@returnedOtp')
+                .then((otpString) => {
+                    let otp = otpString.toString();
+                    cy.get('#otp').clear().type(otp);
+                });
+        });
         cy.contains("Submit").click();
 
         cy.get('#newEmail').clear().type(Cypress.env('standardEmail'));
@@ -58,7 +67,15 @@ describe('Navigate to Notification Settings', () => {
         cy.contains("Change Email");
         cy.contains('Update').click();
 
-        cy.get('#otp').clear().type("K1ZFsdGc");
+        cy.request('GET', Cypress.env('serverUrl') + "/tests/getotp")
+        .then((response) => {
+            cy.wrap(response.body).as('returnedOtp');
+            cy.get('@returnedOtp')
+                .then((otpString) => {
+                    let otp = otpString.toString();
+                    cy.get('#otp').clear().type(otp);
+                });
+        });
         cy.contains("Submit").click();
 
         //typed in duplicate email
@@ -66,7 +83,6 @@ describe('Navigate to Notification Settings', () => {
         cy.get('#password').clear().type(Cypress.env('standardPassword'));
         cy.contains("Submit").click();
         cy.get("p.error").contains("You need to enter a different email or press cancel.")
-        cy.pause()
         cy.wait(1000);
 
         //typed in already existing email

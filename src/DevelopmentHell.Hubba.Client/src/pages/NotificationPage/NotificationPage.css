@@ -29,7 +29,7 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
-    width: 550px;
+    width: 600px;
 }
 
 .notification-container .notification-card table {

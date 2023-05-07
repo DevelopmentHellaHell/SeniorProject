@@ -61,7 +61,7 @@ const EditProfileView: React.FC<IEditProfileViewProps> = (props) => {
                 <h2>Change Name: </h2>
                 <div className="input-field">
                     <label>First Name</label>
-                    <input id='firstName' type="text" placeholder={data?.firstName ? data.firstName : ""} onChange={(event: 
+                    <input id='firstName' type="text" placeholder={data?.firstName ? data.firstName : "first name"} onChange={(event: 
                     React.ChangeEvent<HTMLInputElement>) =>{
                         setFirstName(event.target.value);
                     }}/>

@@ -116,7 +116,11 @@ const NotificationPage: React.FC<INotificationPageProps> = (props) => {
                     <div className="notification-card">
                         <div className="filters-wrapper">
                             <div className="filters">
-                                <p>Filters:</p>
+                                <p>Filters:</p>                                
+                                {filters.length > 0 && 
+                                    <Button title="Clear" theme={ButtonTheme.DARK} onClick={() => 
+                                        setFilters([])}/>
+                                }
                                 {Object.keys(Filters).map(key => {
                                     return createFilterButton(+key as NotificationType);
                                 })}

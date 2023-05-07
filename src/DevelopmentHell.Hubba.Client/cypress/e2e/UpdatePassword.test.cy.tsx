@@ -26,7 +26,15 @@ describe('Tests involving Update Password', () => {
         cy.contains('Update').click();
 
         //this was hard coded, please check to see if we can extract later
-        cy.get('#otp').clear().type("K1ZFsdGc");
+        cy.request('GET', Cypress.env('serverUrl') + "/tests/getotp")
+        .then((response) => {
+            cy.wrap(response.body).as('returnedOtp');
+            cy.get('@returnedOtp')
+                .then((otpString) => {
+                    let otp = otpString.toString();
+                    cy.get('#otp').clear().type(otp);
+                });
+        });
         cy.contains("Submit").click();
 
         cy.get('#oldPassword').clear().type(Cypress.env('standardPassword'));
@@ -47,7 +55,15 @@ describe('Tests involving Update Password', () => {
         cy.contains('Update').click();
 
         //this was hard coded, please check to see if we can extract later
-        cy.get('#otp').clear().type("K1ZFsdGc");
+        cy.request('GET', Cypress.env('serverUrl') + "/tests/getotp")
+        .then((response) => {
+            cy.wrap(response.body).as('returnedOtp');
+            cy.get('@returnedOtp')
+                .then((otpString) => {
+                    let otp = otpString.toString();
+                    cy.get('#otp').clear().type(otp);
+                });
+        });
         cy.contains("Submit").click();
         cy.wait(1000);
         cy.contains("Change Password");
