@@ -117,7 +117,7 @@ Cypress.Commands.add("CreateShowcase", (showcaseId, title, description, files:Fi
   
         reader.onerror = reject;
       })));
-    cy.request('POST', Cypress.env('serverUrl') + "/showcases/new", { showcaseId: showcaseId, title: title, description: description, files: fileDataList })
+    cy.request('POST', Cypress.env('serverUrl') + "/showcases/p/new", { showcaseId: showcaseId, title: title, description: description, files: fileDataList })
         .its('status').should('eq', 200);
 });
 

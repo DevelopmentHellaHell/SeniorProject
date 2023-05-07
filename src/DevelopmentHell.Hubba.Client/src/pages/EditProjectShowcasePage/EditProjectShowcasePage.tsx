@@ -116,7 +116,7 @@ const EditProjectShowcasePage: React.FC<IEditProjectShowcasePageProps> = (props)
                     console.log(response)
                     setProcEdit(false);
                   } else {
-                    navigate(`/showcases/view?s=${showcaseId}`);
+                    navigate(`/showcases/p/view?s=${showcaseId}`);
                   }
             }
           );

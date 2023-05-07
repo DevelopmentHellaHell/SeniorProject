@@ -352,7 +352,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                                     {authData && comment.commenterId == authData.sub &&
                                                         <div className="owned-comment">
                                                             <button onClick={() => {
-                                                                navigate(`/showcases/comments/edit?cid=${comment.id}`);
+                                                                navigate(`/showcases/p/comments/edit?cid=${comment.id}`);
                                                             }}>edit</button>
                                                             <button onClick={() => {
                                                                 Ajax.post(`/showcases/comments/delete?cid=${comment.id}`, {}).then((response) => {

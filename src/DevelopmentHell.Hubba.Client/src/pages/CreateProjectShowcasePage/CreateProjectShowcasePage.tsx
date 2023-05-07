@@ -112,7 +112,7 @@ const CreateProjectShowcasePage: React.FC<ICreateProjectShowcasePageProps> = (pr
                     console.log(response)
                     setProcCreate(false);
                   } else {
-                    navigate(`/showcases/view?s=${response.data}`);
+                    navigate(`/showcases/p/view?s=${response.data}`);
                   }
             }
           );

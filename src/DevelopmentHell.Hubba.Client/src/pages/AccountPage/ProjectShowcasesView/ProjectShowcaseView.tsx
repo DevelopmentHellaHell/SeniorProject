@@ -53,7 +53,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
     }
 
     function EditShowcase(showcaseId: string) {
-        navigate(`/showcases/edit?s=${showcaseId}`);
+        navigate(`/showcases/p/edit?s=${showcaseId}`);
     }
 
     useEffect(() => {
@@ -222,7 +222,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
                     navigate('/viewListing', { state: { listingId: showcaseData.listingId} })
                 }}>{showcaseData.listingId!=null && <p>Click to go to listing: {showcaseData.listingId}</p>}</td>
                 <td className="table-title">
-                    <Link to={`/showcases/view?s=${showcaseData.id}`}>{showcaseData.title}</Link>
+                    <Link to={`/showcases/p/view?s=${showcaseData.id}`}>{showcaseData.title}</Link>
                 </td>
                 <td className="table-pubstatus">{
                     <svg className =  "vector-circle" width = "25" height = "25">
@@ -258,7 +258,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
 
             <div className="my-showcases-container">
                 <Button theme={ButtonTheme.DARK} onClick={() => {
-                    navigate('/showcases/new');
+                    navigate('/showcases/p/new');
                 }} title={"Create New Showcase"}/>
                 <table className="my-showcases-table">
                     <thead className="my-showcases-table-header">

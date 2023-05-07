@@ -46,8 +46,8 @@ const App: React.FC<IAppProps> = (props) => {
 						<Route path="/unauthorized" element={<Unauthorized />} />
 						<Route path="/viewlisting" element={<ViewListingPage />} />
 						<Route path="/scheduling" element={<OpenSlotsView />} />	
-						<Route path="/showcases/view" element={<ViewProjectShowcasePage/>}/>
-						<Route path="/showcases/listing" element={<ListingProjectShowcasesPage/>}/>
+						<Route path="/showcases/p/view" element={<ViewProjectShowcasePage/>}/>
+						<Route path="/showcases/p/listing" element={<ListingProjectShowcasesPage/>}/>
 						
 						{/* Public routes - no auth */}
 						<Route path="/registration" element={
@@ -75,9 +75,9 @@ const App: React.FC<IAppProps> = (props) => {
 							<Route path="/collaborator" element={<CollaboratorPage/>}/>
 							<Route path="/listingprofile" element={<ListingProfilePage />} />
 							<Route path="/editlisting" element={<EditListingPage />} />
-							<Route path="/showcases/new" element={<CreateProjectShowcasePage />}/>
-							<Route path="/showcases/edit" element={<EditProjectShowcasePage />}/>
-							<Route path="/showcases/comments/edit" element={<EditProjectShowcaseCommentPage />}/>
+							<Route path="/showcases/p/new" element={<CreateProjectShowcasePage />}/>
+							<Route path="/showcases/p/edit" element={<EditProjectShowcasePage />}/>
+							<Route path="/showcases/p/comments/edit" element={<EditProjectShowcaseCommentPage />}/>
 						</Route>
 						<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.ADMIN_USER]}/>}>
 							<Route path="/admin-dashboard" element={<AdminDashboardPage />} />

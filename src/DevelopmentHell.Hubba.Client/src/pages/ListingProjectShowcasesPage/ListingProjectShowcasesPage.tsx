@@ -53,7 +53,7 @@ const createShowcaseTableRow = (showcaseData: IShowcaseData) => {
         <tr key={`showcase-${showcaseData.id}`}>
             <td className="table-rating"> {showcaseData.rating}</td>
             <td className="table-title">
-                <Link to={`/showcases/view?s=${showcaseData.id}`}>{showcaseData.title}</Link>
+                <Link to={`/showcases/p/view?s=${showcaseData.id}`}>{showcaseData.title}</Link>
             </td>
         </tr>
     );
@@ -98,7 +98,7 @@ const ListingProjectShowcasesPage: React.FC<IListingProjectShowcasePageProps> = 
                 <div className="listing-project-showcases-header">
                         <h1>Project Showcases</h1>
                         <Button theme={ButtonTheme.DARK} onClick={() => {
-                            navigate(`/showcases/new?l=${searchParams.get("l")}`);
+                            navigate(`/showcases/p/new?l=${searchParams.get("l")}`);
                         }} title= "Create new Showcase"/>
                     <p>Here you can view all the project showcases for this listing.</p>
                 </div>

@@ -92,7 +92,7 @@ const EditProjectShowcaseCommentPage: React.FC<IEditProjectShowcaseCommentPagePr
                                 })
                                     .then((result) => {
                                         if (!result.error) {
-                                            navigate(`/showcases/view?s=${showcaseId}`);
+                                            navigate(`/showcases/p/view?s=${showcaseId}`);
                                         } else {
                                             setError(result.error);
                                         }

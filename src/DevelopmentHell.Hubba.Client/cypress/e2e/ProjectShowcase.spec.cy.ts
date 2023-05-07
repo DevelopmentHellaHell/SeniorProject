@@ -19,10 +19,10 @@ let testuserBody: { email: string, password: string } = { email: userEmail, pass
 let testadminBody: { email: string, password: string } = { email: adminEmail, password: adminPassword }
 
 let accountRoute: string = 'http://localhost:3000/account';
-let showcaseRoute: string = 'http://localhost:3000/showcases/view?s=';
-let createShowcaseRoute = '/showcases/new';
-let getShowcaseRoute = '/showcases/view';
-let getUserShowcasesRoute = '/showcases/user';
+let showcaseRoute: string = 'http://localhost:3000/showcases/p/view?s=';
+let createShowcaseRoute = '/showcases/p/new';
+let getShowcaseRoute = '/showcases/p/view';
+let getUserShowcasesRoute = '/showcases/p/user';
 
 let testFile1 = 'cypress/fixtures/test1.png';
 let testFile2 = 'cypress/fixtures/test2.png';
@@ -69,7 +69,7 @@ describe ('Showcase Tests', () => {
     cy.get('input[type=file]').selectFile([testFile1]);
     cy.wait(3000);
     cy.get('button[type=submit]').click();
-    cy.url().should('include', Cypress.env("baseUrl")+"/showcases/view");
+    cy.url().should('include', Cypress.env("baseUrl")+"/showcases/p/view");
     cy.url().then((url) => {
       showcaseId = url.slice(url.search('=')+1);
     });
