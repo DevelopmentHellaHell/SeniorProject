@@ -1,0 +1,34 @@
+.listing-project-showcases-container {
+    position: relative;
+    display: flex;
+    flex-flow: column;
+    flex-grow: 1
+}
+
+.listing-project-showcases-container .listing-project-showcases-content {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 2.5rem;
+    flex-grow: 1;
+}
+
+.listing-project-showcases-container .listing-project-showcases-content .listing-project-showcases-wrapper {
+    display: flex;
+    margin-top: 10vh;
+    width: 70%;
+    flex-direction: column;
+}
+
+.listing-project-showcases-content .h-stack{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.listing-project-showcases-content .v-stack{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
