@@ -22,6 +22,27 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         }
         public async Task<Result> Downvote(int collabId, int accountId)
         {
+            var selectUpvoteResult = await _selectDataAccess.Select(
+                _tableName,
+                new List<string>() { _accountIdColumn },
+                new List<Comparator>()
+                {
+                    new Comparator(_collaboratorIdColumn, "=", collabId),
+                    new Comparator(_accountIdColumn, "=", accountId)
+                }
+            ).ConfigureAwait(false);
+            if (!selectUpvoteResult.IsSuccessful)
+            {
+                return selectUpvoteResult;
+            }
+            if (selectUpvoteResult.Payload!.Count > 1)
+            {
+                return new(Result.Failure("User has voted multiple times."));
+            }
+            else if (selectUpvoteResult.Payload!.Count == 0)
+            {
+                return new(Result.Failure("User has never voted."));
+            }
             var deleteUpvoteResult = await _deleteDataAccess.Delete(
                 _tableName,
                 new List<Comparator>()
@@ -50,11 +71,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
             if(selectUpvoteResult.Payload!.Count > 1)
             {
-                return new(Result.Failure("User has already voted multiple times. "));
+                return new(Result.Failure("User has already voted multiple times."));
             }
             else if(selectUpvoteResult.Payload!.Count == 1)
             {
-                return new Result() { IsSuccessful = true };
+                return new(Result.Failure("User has already voted."));
             }
             var insertUpvoteResult = await _insertDataAccess.Insert(
                     _tableName,
