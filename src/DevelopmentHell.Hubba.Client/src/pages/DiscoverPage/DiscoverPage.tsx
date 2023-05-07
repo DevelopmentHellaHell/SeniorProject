@@ -6,7 +6,7 @@ import "./DiscoverPage.css";
 import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
 import { Ajax } from "../../Ajax";
 import Dropdown from "../../components/Dropdown/Dropdown";
-import Button from "../../components/Button/Button";
+import Button, { ButtonTheme } from "../../components/Button/Button";
 import CuratedView from "./CuratedView/CuratedView";
 import SearchView from "./SearchView/SearchView";
 
@@ -49,6 +49,11 @@ export enum Category {
     COLLABORATORS = "collaborators",
 }
 
+export enum Filter {
+    NONE = "none",
+    POPULARITY = "popular",
+}
+
 enum DiscoverViews {
     CURATED,
     SEARCH,
@@ -62,15 +67,17 @@ export interface SearchQuery {
 
 const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
     const [data, setData] = useState<ICuratedData | null>(null);
+    const [searchError, setSearchError] = useState<string | undefined>(undefined);
     const [error, setError] = useState("");
     const [loaded, setLoaded] = useState(false);
     const [searchQuery, setSearchQuery] = useState<SearchQuery>({
         query: "",
         category: Category.LISTINGS,
-        filter: "none"
+        filter: Filter.NONE
     });
     const [lastSearchQuery, setLastSearchQuery] = useState<SearchQuery>(searchQuery);
     const [view, setView] = useState(DiscoverViews.CURATED);
+    const [searchHistory, setSearchHistory] = useState<string[]>([]);
 
     const authData = Auth.getAccessData();
 
@@ -136,9 +143,21 @@ const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
                     <div className="sidebar-box">
                         <div className="search-group search">
                             <h3>Search</h3>
-                            <input id="search-input" placeholder="Search" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                setSearchQuery((previous) => { return {...previous, query: event.target.value} });
+                            <input id="search-input" list="search-history" placeholder="Search" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                const input = event.target.value;
+                                if (!input.match(/^[a-zA-Z0-9_]*$/)) {
+                                    setSearchError("Invalid search query. Input must be alphanumeric.");
+                                } else {
+                                    setSearchError(undefined);
+                                }
+
+                                setSearchQuery((previous) => { return {...previous, query: input} });
                             }}/>
+                            <datalist id="search-history">
+                                {searchHistory.map(query => {
+                                    return <option value={query}/>
+                                })}
+                            </datalist>
                             <div id="search-button" className="search-button">
                                 <Button
                                     title="🔎"
@@ -153,11 +172,19 @@ const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
                                             return;
                                         }
 
+                                        if (!searchQuery.query.match(/^[a-zA-Z0-9_]*$/)) {
+                                            return;
+                                        }
+
                                         setLastSearchQuery(searchQuery);
+                                        setSearchHistory((previous) => [...previous, searchQuery.query])
                                         setView(DiscoverViews.SEARCH);
                                     }}
                                 />
                             </div>
+                            {searchError &&
+                                <p className="error">{searchError}</p>
+                            }
                         </div>
                        
                         <div className="search-group">
@@ -171,14 +198,28 @@ const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
                             </div>
                         </div>
                         <div className="search-group">
-                            <h3>Filter</h3>
+                            <h3>Sort</h3>
                             <div id="filter">
                                 <Dropdown title={searchQuery.filter} id={"filter-dropdown"}>
-                                    <p id="filter-none" onClick={() => { setSearchQuery((previous) => { return {...previous, filter: "none"} }) }}>None</p>
-                                    <p id="filter-popularity" onClick={() => { setSearchQuery((previous) => { return {...previous, filter: "popular"} }) }}>Popularity</p>
+                                    <p id="filter-none" onClick={() => { setSearchQuery((previous) => { return {...previous, filter: Filter.NONE} }) }}>None</p>
+                                    <p id="filter-popularity" onClick={() => { setSearchQuery((previous) => { return {...previous, filter: Filter.POPULARITY} }) }}>Popularity</p>
                                 </Dropdown>
                             </div>
-                        </div>                        
+                        </div>
+                        <div className="search-group">
+                            {(searchQuery.category != Category.LISTINGS || searchQuery.filter != Filter.NONE) &&
+                                <Button theme={ButtonTheme.DARK} title={"Clear Filters"} onClick={() => {
+                                    setSearchQuery((previous) => { 
+                                        return {
+                                            ...previous,
+                                            filter: Filter.NONE,
+                                            category: Category.LISTINGS,
+                                        }
+                                    })
+                                }}/>
+                            }
+                              
+                        </div>       
                     </div>
                 </div>
 
