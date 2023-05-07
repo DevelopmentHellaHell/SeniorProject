@@ -1,10 +1,12 @@
-import { redirect, useLocation, useNavigate } from "react-router-dom";
+import { redirect, useLocation } from "react-router-dom";
 import { Auth } from "../../Auth";
 import Footer from "../../components/Footer/Footer";
 import NavbarUser from "../../components/NavbarUser/NavbarUser";
 import { Ajax } from "../../Ajax";
 import { useEffect, useState } from "react";
 import "./CollaboratorPage.css"
+import React from "react";
+import { Markdown } from "../../Markdown";
 
 interface ICollaboratorPage {
     
@@ -17,7 +19,7 @@ export interface ICollaboratorData {
     tags?: string,
     description: string,
     availability?: string,
-    votes?: number,
+    votes: number,
     collabUrls: string[],
     published: boolean,
 }
@@ -27,55 +29,52 @@ const CollaboratorPage: React.FC<ICollaboratorPage> = (props) => {
     const [error, setError] = useState<string>("Error");
     const [loaded, setLoaded] = useState<boolean>(false);
     const [data, setData] = useState<ICollaboratorData | null>(null);
-    const [voted, setVoted] = useState<boolean | null>(null);
-    const navigate = useNavigate();
-    const authData = Auth.getAccessData();
-    const isPublished = data?.published;
     const [selectedImageUrl, setSelectedImageUrl] = useState<string>('');
-    const collabId = state.CollaboratorId;
 
+    const authData = Auth.getAccessData();
 
     if(!authData){
         redirect("/login")
         return null;
     }
+
     useEffect(() => {
         const getData = async () => {
             const response = await Ajax.post<ICollaboratorData>("collaborator/getcollaborator", {collaboratorId: state.CollaboratorId});
             setData(response.data);
             setError(response.error);
-            setLoaded(response.loaded);
             if(response.data){
                 setSelectedImageUrl(response.data.collabUrls[0]);
             }
+            setLoaded(response.loaded);
         };
         getData();
     }, []);
 
     const handleUpvoteClick = async () => {
-        await Ajax.post("/collaborator/votecollaborator", {
+        const response = await Ajax.post("/collaborator/votecollaborator", {
             CollaboratorId: state.CollaboratorId,
             Upvote: true
-        }).then((response) => {
-            setVoted(true);
-            setError(response.error);
-            setLoaded(response.loaded);
         });
+        setLoaded(response.loaded);
+        if (!response.error) {
+            setData((previous) => {
+                return previous ? {...previous, votes: previous.votes + 1} : null;
+            });
+        }
     }
     
     const handleDownvoteClick = async () => {
-        await Ajax.post("/collaborator/votecollaborator", {
+        const response = await Ajax.post("/collaborator/votecollaborator", {
             CollaboratorId: state.CollaboratorId,
             Upvote: false
-        }).then((response) => {
-            setVoted(false)
-            setError(response.error);
-            setLoaded(response.loaded);
         });
-    }
-
-    const handleImageClick = (imageUrl: string) => {
-        setSelectedImageUrl(imageUrl);
+        setLoaded(response.loaded);
+        if (!response.error) {
+            setData((previous) => {
+                return previous ? {...previous, votes: previous.votes - 1} : null;
+            });
+        }
     }
 
     return(
@@ -113,7 +112,7 @@ const CollaboratorPage: React.FC<ICollaboratorPage> = (props) => {
                                 </div>
                                 <div className="collaborator-page-description-wrapper">
                                     <h3 className="collaborator-page-description-title">Description</h3>
-                                    <p id="description-label" className="description-label">{data.description}</p>
+                                    <div id="description-label" className="description-label">{Markdown.parseMarkdownToHtml(data.description)}</div>
                                 </div>
                                 <div className="collaborator-page-availability-wrapper">
                                     <h3 id="collaborator-page-availability-title" className="collaborator-page-availability-title">Availability</h3>
@@ -128,7 +127,7 @@ const CollaboratorPage: React.FC<ICollaboratorPage> = (props) => {
                                 )}
                                 <div className="collaborator-page-contact-information-wrapper">
                                     <h3 id="collaborator-page-contact-information-title" className="collaborator-page-contact-information-title">Contact Information</h3>
-                                    <p>{data.contactInfo}</p>
+                                    <div>{Markdown.parseMarkdownToHtml(data.contactInfo)}</div>
                                 </div>
                             </div>
                         </div>
@@ -140,7 +139,7 @@ const CollaboratorPage: React.FC<ICollaboratorPage> = (props) => {
                                         {data.collabUrls.map((url) => (
                                             <img id="collaborator-page-image" className="collaborator-page-image"
                                             key={url} src={url} 
-                                            onClick={() => handleImageClick(url)}/>
+                                            onClick={() => setSelectedImageUrl(url)}/>
                                         ))}
                                     </div>
                                 </div>
