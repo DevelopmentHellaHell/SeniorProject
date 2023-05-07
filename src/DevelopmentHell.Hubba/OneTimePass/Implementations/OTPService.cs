@@ -24,10 +24,8 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service.Implementations
         public async Task<Result<string>> NewOTP(int accountId)
         {
             Random random = new((int)(DateTime.Now.Ticks << 4 >> 4));
-            //string otp = new(Enumerable.Repeat(validChars, 8).Select(s => s[random.Next(s.Length)]).ToArray());
+            string otp = new(Enumerable.Repeat(validChars, 8).Select(s => s[random.Next(s.Length)]).ToArray());
 
-            //TODO: Revert back
-            string otp = "K1ZFsdGc";
             byte[] eotp = _cryptographyService.Encrypt(otp);
             DateTime expiration = DateTime.Now.AddMinutes(2); // TODO: move to config
 
