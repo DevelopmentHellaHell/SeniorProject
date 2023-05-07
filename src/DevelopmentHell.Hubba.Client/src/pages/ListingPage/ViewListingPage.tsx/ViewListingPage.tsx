@@ -76,7 +76,6 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                 {
                     const userHistory = await Ajax.post<string>('/listingprofile/hasListingHistory',  { listingId: state.listingId } );
                     if (userHistory.data) {
-                        console.log(userHistory.data);
                         if (userHistory.data == "none") {
                             setHasBooked(false);
                             setHasRating(false);

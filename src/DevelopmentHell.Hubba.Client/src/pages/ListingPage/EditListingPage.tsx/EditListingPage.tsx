@@ -304,6 +304,7 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
                 setFileData(null);
               }
             } catch (error) {
+                setError(error+ "\nRefresh page and try again.");
             }
         }
         if (!attemptPublish) {
