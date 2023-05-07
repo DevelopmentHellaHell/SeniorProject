@@ -12,6 +12,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include=".well-known\acme-challenge\KIbJlX3nVJlswPIZgnQ1LDkJ8oXeitdqVes2qFSCKrw">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include=".well-known\acme-challenge\XS0Ax_ZOQGC3Yun_py5-4I4ar2g5O-hhIUaRr7Dmxjo">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\App.config" Link="App.config" />
   </ItemGroup>
 
@@ -40,6 +49,37 @@
     <ProjectReference Include="..\DevelopmentHell.Hubba.UserManagement.Manager\DevelopmentHell.Hubba.UserManagement.Manager.csproj" />
     <ProjectReference Include="..\ProjectShowcaseManager\DevelopmentHell.Hubba.ProjectShowcase.Manager.csproj" />
 	<ProjectReference Include="..\DevelopmentHell.Hubba.AccountSystem.Manager\DevelopmentHell.Hubba.AccountSystem.Manager.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ClientBuild\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="ClientBuild\build\manifest.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="ClientBuild\build\index.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ClientBuild\build\static\css\main.1406b595.css">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ClientBuild\build\static\js\main.75980ae3.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ssl\fullchain.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ssl\privkey.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

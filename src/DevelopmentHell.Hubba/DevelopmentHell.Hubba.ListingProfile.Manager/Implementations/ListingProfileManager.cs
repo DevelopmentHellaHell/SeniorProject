@@ -124,6 +124,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             Result<List<ListingViewDTO>> getUserListingsResult = await _listingsService.GetUserListings(ownerId).ConfigureAwait(false);
             if (!getUserListingsResult.IsSuccessful)
             {
+                Console.WriteLine(getUserListingsResult.ErrorMessage);
                 return new(Result.Failure("Unable to retrieve user listings.", StatusCodes.Status400BadRequest));
             }
             

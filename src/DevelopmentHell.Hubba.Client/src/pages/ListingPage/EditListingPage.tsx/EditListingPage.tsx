@@ -400,10 +400,11 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
                                     )}
                                 <p>
                                     <Button theme={ButtonTheme.DARK} title="Delete Image" onClick={() => handleDeleteImage(currentImage)} />
-                                    <input type="file" accept=".jpg,.jpeg,.png,.mp4" multiple onChange={handleFileSelect} />
+                                    
                                 </p>
                         </div>
                     )}
+                    <input type="file" accept=".jpg,.jpeg,.png,.mp4" multiple onChange={handleFileSelect} />
                     
                 </div>
                 <div className="Files-List">

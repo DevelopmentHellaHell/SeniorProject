@@ -40,7 +40,6 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 return BadRequest(result.ErrorMessage);
             }
 
-
             HttpContext.Response.Cookies.Append("access_token", result.Payload, new CookieOptions { SameSite = SameSiteMode.None, Secure = true });
             return Ok();
         }
