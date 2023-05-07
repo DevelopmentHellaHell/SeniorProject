@@ -1,13 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { redirect, useNavigate } from "react-router-dom";
 import Dropdown from "../Dropdown/Dropdown";
 import { Auth } from "../../Auth";
 import './NavbarUser.css';
-import { INotificationData } from "../../pages/NotificationPage/NotificationPage";
-import { Ajax } from "../../Ajax";
-import { triggerNotification } from "../../Notification";
-import NotificationStateProvider from "../../NotificationStateProvider";
-import ListingProfilePage from "../../pages/ListingProfilePage/ListingProfilePage";
 
 interface INavbarUserProps {
 
@@ -26,7 +21,6 @@ const NavbarUser: React.FC<INavbarUserProps> = (props) => {
         <header className="nav-user">
             <p className="logo" onClick={() => {navigate("/")}}>HUBBA</p>
             <nav className="nav-links">
-                <li><p onClick={() => { alert("1") }}>Profile</p></li>
                 <li><p onClick={() => {navigate("/discover")}}>Discover</p></li>
                 <li><p onClick={() => {navigate("/mylistings")}}>My Listings</p></li>
                 
