@@ -380,6 +380,21 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return Result<List<Dictionary<string, object>>>.Success(result.Payload!);
         }
 
+        public async Task<Result<List<Dictionary<string, object>>>> GetListingShowcases(int listingId)
+        {
+            List<string> selectList = new() { $"Id", "ShowcaseUserId", "ListingId", "Title", "IsPublished", "Rating", "PublishTimestamp", "EditTimestamp" };
+            var result = await _selectDataAccess.Select
+            (
+                _showcaseTableName,
+                selectList,
+                new() { new($"ListingId", "=", listingId) }
+            ).ConfigureAwait(false);
+            if (!result.IsSuccessful)
+            {
+                return new(Result.Failure("Unknown error occured while trying to retrieve Listing's showcases from Db"));
+            }
+            return Result<List<Dictionary<string, object>>>.Success(result.Payload!);
+        }
 
         public async Task<Result<List<Dictionary<string, object>>>> GetAllShowcaseReports()
         {

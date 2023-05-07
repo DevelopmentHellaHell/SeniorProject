@@ -178,6 +178,30 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         }
 
         [HttpGet]
+        [Route("listing")]
+        public async Task<IActionResult> GetListingShowcases([FromQuery(Name = "l")] int? listingId = null)
+        {
+            try
+            {
+                if (listingId == null)
+                {
+                    return BadRequest("Listing not included in request.");
+                }
+                var showcaseResult = await _projectShowcaseManager.GetListingShowcases((int) listingId);
+                if (!showcaseResult.IsSuccessful)
+                {
+                    return GetFuncCode((int)showcaseResult.StatusCode!)(GetErrorMessage(showcaseResult.StatusCode));
+                }
+                return Ok(showcaseResult.Payload);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Models.Category.SERVER, $"Error in GetListingShowcases: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
+            }
+        }
+
+        [HttpGet]
         [Route("userDetails")]
         public async Task<IActionResult> GetUserShowcaseDetails([FromQuery(Name = "u")] int? accountId = null)
         {

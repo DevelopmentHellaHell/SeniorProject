@@ -14,6 +14,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
         Task<Result<string>> GetCommentShowcase(long commentId);
         Task<Result<Dictionary<string, object>>> GetShowcase(string showcaseId);
         Task<Result<List<Dictionary<string, object>>>> GetUserShowcases(int userId, bool includeDescription = true);
+        Task<Result<List<Dictionary<string, object>>>> GetListingShowcases(int listingId);
         Task<Result<List<Dictionary<string, object>>>> GetComments(string showcaseId, int commentCount, int page);
         Task<Result<Dictionary<string,object>>> GetComment(long commentId);
         Task<Result<List<Dictionary<string, object>>>> GetAllShowcaseReports();

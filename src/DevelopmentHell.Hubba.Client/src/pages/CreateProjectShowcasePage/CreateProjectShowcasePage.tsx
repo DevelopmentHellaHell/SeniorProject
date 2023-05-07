@@ -1,5 +1,5 @@
 import React, {  useEffect, useState } from "react";
-import { redirect, useLocation, useNavigate } from "react-router-dom";
+import { redirect, useLocation, useNavigate, useSubmit } from "react-router-dom";
 import { Auth } from "../../Auth";
 import { Ajax } from "../../Ajax";
 import Footer from "../../components/Footer/Footer";
@@ -34,6 +34,8 @@ interface IShowcaseDTO {
 
 
 const CreateProjectShowcasePage: React.FC<ICreateProjectShowcasePageProps> = (props) => {
+    const { search } = useLocation();
+    const searchParams = new URLSearchParams(search);
     const [error, setError] = useState("");
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
@@ -43,9 +45,14 @@ const CreateProjectShowcasePage: React.FC<ICreateProjectShowcasePageProps> = (pr
     const [data, setData] = useState<IShowcaseDTO | null>(null);
     const [fileData, setFileData] = useState<{ Item1: string, Item2: string} []>([]);
     const [listingId, setListingId] = useState<number>(0);
+    const [procCreate, setProcCreate] = useState(false);
 
     const authData = Auth.getAccessData();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        searchParams.get("l") ? parseInt(searchParams.get("l")!) : 0
+    }, []);
 
     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
@@ -94,6 +101,7 @@ const CreateProjectShowcasePage: React.FC<ICreateProjectShowcasePageProps> = (pr
       
             reader.onerror = reject;
           })));
+          setProcCreate(true);
       
           console.log("file data: ", fileDataList);
           const response = await Ajax.post<string>("/showcases/new", { files: fileDataList,  title: title, description: description, listingId:  listingId });
@@ -163,7 +171,10 @@ const CreateProjectShowcasePage: React.FC<ICreateProjectShowcasePageProps> = (pr
                                 </div>
                             </ul>
                             }
-                        <button type="submit" >Create Project Showcase</button>
+                        {procCreate 
+                        ? <p>Creating Project Showcase... If stuck for longer than 5 seconds, please retry.</p>
+                        :<button type="submit">Create Project Showcase</button>
+                        }
                         </form>
                     </div>
                 </div>
