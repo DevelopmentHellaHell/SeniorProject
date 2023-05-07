@@ -27,7 +27,8 @@ namespace DevelopmentHell.Hubba.Discovery.Manager.Implementations
 			var result = await _discoveryService.GetCurated(offset).ConfigureAwait(false);
             if (!result.IsSuccessful)
             {
-                return new (Result.Failure(result.ErrorMessage!, result.StatusCode));
+                _loggerService.Log(LogLevel.ERROR, Category.BUSINESS, result.ErrorMessage!);
+                return new (Result.Failure("Discovery curated data error. Refresh page or try again later.", result.StatusCode));
             }
 
             var payload = result.Payload!;
@@ -55,7 +56,8 @@ namespace DevelopmentHell.Hubba.Discovery.Manager.Implementations
 			var result = await _discoveryService.GetSearch(query, category, filter, offset).ConfigureAwait(false);
 			if (!result.IsSuccessful)
 			{
-				return new(Result.Failure(result.ErrorMessage!, result.StatusCode));
+                _loggerService.Log(LogLevel.ERROR, Category.BUSINESS, result.ErrorMessage!);
+				return new(Result.Failure("Discovery search error. Refresh page or try again later.", result.StatusCode));
 			}
 
 			var payload = result.Payload!;
