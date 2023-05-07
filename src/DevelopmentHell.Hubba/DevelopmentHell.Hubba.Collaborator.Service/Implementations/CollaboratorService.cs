@@ -104,7 +104,13 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
 
                 // storing the url and uploaded files
                 string fileExtension = Path.GetExtension(pfpFile.FileName);
-                string pfpUrl = string.Format("http://{0}/{1}/{2}{3}", _ftpServer, _dirPath + $"/{accountIdStr}", createPfpFileResult.Payload, fileExtension);
+                string pfpPath = string.Format("{0}/{1}{2}", _dirPath + $"/{accountIdStr}", createPfpFileResult.Payload, fileExtension);
+                var pfpUrlResult = await _fileService.GetFileReference(pfpPath).ConfigureAwait(false);
+                string pfpUrl = "";
+                if (pfpUrlResult.IsSuccessful && pfpUrlResult.Payload is not null)
+                {
+                    pfpUrl = pfpUrlResult.Payload;
+                }
                 successfullyUploadedFileIds.Add(createPfpFileResult.Payload);
 
                 // update the file url in the file database, if they fail remove the file from the server
@@ -144,11 +150,16 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
 
                 // storing the url and uploaded files
                 string fileExtension = Path.GetExtension(collabFiles[i].FileName);
-                string collabUrl = string.Format("http://{0}/{1}/{2}{3}", _ftpServer, _dirPath + $"/{accountIdStr}", fileResult.Payload, fileExtension);
-
+                string filePath = string.Format("{0}/{1}{2}", _dirPath + $"/{accountIdStr}", fileResult.Payload, fileExtension);
+                var fileUrlResult = await _fileService.GetFileReference(filePath).ConfigureAwait(false);
+                string fileUrl = "";
+                if (fileUrlResult.IsSuccessful && fileUrlResult.Payload is not null)
+                {
+                    fileUrl = fileUrlResult.Payload;
+                }
                 successfullyUploadedFileIds.Add(fileResult.Payload);
 
-                var updateFileResult = await _collaboratorFileDataAccess.UpdateFileUrl(fileResult.Payload, collabUrl);
+                var updateFileResult = await _collaboratorFileDataAccess.UpdateFileUrl(fileResult.Payload, fileUrl);
                 if (!updateFileResult.IsSuccessful)
                 {
                     // remove all the previously uploaded files
@@ -412,10 +423,16 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
 
                 // storing the url and uploaded files
                 string fileExtension = Path.GetExtension(pfpFile.FileName);
-                collab.PfpUrl = string.Format("http://{0}/{1}/{2}{3}", _ftpServer, _dirPath + $"/{accountIdStr}", createPfpFileResult.Payload, fileExtension);
+                string pfpPath = string.Format("{0}/{1}{2}", _dirPath + $"/{accountIdStr}", createPfpFileResult.Payload, fileExtension);
+                var pfpUrlResult = await _fileService.GetFileReference(pfpPath).ConfigureAwait(false);
+                collab.PfpUrl = "";
+                if (pfpUrlResult.IsSuccessful && pfpUrlResult.Payload is not null)
+                {
+                    collab.PfpUrl = pfpUrlResult.Payload;
+                }
                 successfullyUploadedFileIds.Add(createPfpFileResult.Payload);
 
-                // updating the profile picture to the sql server 
+                // update the file url in the file database, if they fail remove the file from the server
                 var updatePfpFileResult = await _collaboratorFileDataAccess.UpdateFileUrl(createPfpFileResult.Payload, collab.PfpUrl);
                 if (!updatePfpFileResult.IsSuccessful)
                 {
@@ -454,11 +471,18 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
                     // storing the url and uploaded files
                     string fileExtension = Path.GetExtension(collabFiles[i].FileName);
                     successfullyUploadedFileIds.Add(fileResult.Payload);
-                    if(collab.CollabUrls == null)
+                    if (collab.CollabUrls == null)
                     {
                         collab.CollabUrls = new List<string>();
                     }
-                    collab.CollabUrls!.Add(string.Format("http://{0}/{1}/{2}{3}", _ftpServer, _dirPath + $"/{accountIdStr}", fileResult.Payload, fileExtension));
+                    string filePath = string.Format("{0}/{1}{2}", _dirPath + $"/{accountIdStr}", fileResult.Payload, fileExtension);
+                    var fileUrlResult = await _fileService.GetFileReference(filePath).ConfigureAwait(false);
+                    string fileUrl = "";
+                    if (fileUrlResult.IsSuccessful && fileUrlResult.Payload is not null)
+                    {
+                        fileUrl = fileUrlResult.Payload;
+                    }
+                    collab.CollabUrls!.Add(fileUrl);
 
                     var updateFileResult = await _collaboratorFileDataAccess.UpdateFileUrl(fileResult.Payload, collab.CollabUrls[i]);
                     if (!updateFileResult.IsSuccessful)
