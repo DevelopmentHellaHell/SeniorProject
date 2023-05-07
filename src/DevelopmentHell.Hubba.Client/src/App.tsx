@@ -26,6 +26,7 @@ import ViewProjectShowcasePage from "./pages/ViewProjectShowcasePage/ViewProject
 import CreateProjectShowcasePage from "./pages/CreateProjectShowcasePage/CreateProjectShowcasePage";
 import EditProjectShowcasePage from "./pages/EditProjectShowcasePage/EditProjectShowcasePage";
 import EditProjectShowcaseCommentPage from "./pages/EditProjectShowcaseCommentPage/EditProjectShowcaseCommentPage";
+import BookingDetails from "./pages/SchedulingPage/SchedulingComponents/BookingDetails/BookingDetails";
 
 interface IAppProps {
 
@@ -66,6 +67,7 @@ const App: React.FC<IAppProps> = (props) => {
 						{/* Protect/private routes - with auth */}
 						<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.VERIFIED_USER, Auth.Roles.ADMIN_USER]} />}>
 							<Route path="/account" element={<AccountPage />} />
+							<Route path="/bookingdetails" element={<BookingDetails />} />
 							<Route path="/logout" element={<LogoutPage />} />
 							<Route path="/notification" element={<NotificationPage />} />
 							<Route path="/collaborator" element={<CollaboratorPage/>}/>

@@ -1,46 +1,48 @@
 
-import Loading from '../../../components/Loading/Loading';
-import './HourBarButton.css';
 
-interface IHourBarButtonProps {
-    theme?: HourBarButtonTheme;
+import Loading from '../../../../components/Loading/Loading';
+import './DateButton.css';
+
+interface IDateButtonProps {
+    id : string
+    theme?: DateButtonTheme;
     title: string;
     onClick?: () => void;
     loading?: boolean;
 }
 
-export enum HourBarButtonTheme {
+export enum DateButtonTheme {
     LIGHT = "light",
     DARK = "dark",
-    HOLLOW_DARK = "hollow_dark",
-    GREY = "grey",
+    HOLLOW_LIGHT = "hollow_light",
+    GREY = "hollow_dark",
 }
 
-const HourBarButton: React.FC<IHourBarButtonProps> = (props) => {
+const DateButton: React.FC<IDateButtonProps> = (props) => {
 
     const getColor = (theme: string) => {
         return getComputedStyle(document.documentElement).getPropertyValue(theme);
     }
 
     const themes: {
-        [style in HourBarButtonTheme]: any
+        [style in DateButtonTheme]: any
      } = {
-        [HourBarButtonTheme.LIGHT]: {
+        [DateButtonTheme.LIGHT]: {
             background: `rgb(${getColor("--primary-button-light")})`,
             color: `rgb(${getColor("--primary-text-dark")})`,
             border: `2px solid rgb(${getColor("--primary-button-light")})`,
         },
-        [HourBarButtonTheme.DARK]: {
+        [DateButtonTheme.DARK]: {
             background: `rgb(${getColor("--primary-button-dark")})`,
             color: `rgb(${getColor("--primary-text-light")})`,
-            border: `4px solid rgb(${getColor("--primary-button-dark")})`,
+            border: `2px solid rgb(${getColor("--primary-button-dark")})`,
         },
-        [HourBarButtonTheme.HOLLOW_DARK]: {
+        [DateButtonTheme.HOLLOW_LIGHT]: {
             background: "rgb(0, 0, 0, 0)",
-            color: `rgb(${getColor("--primary-text-dark")})`,
-            border: `2px solid rgb(${getColor("--primary-text-dark")})`
+            color: `rgb(${getColor("--primary-text-light")})`,
+            border: `2px solid rgb(${getColor("--primary-text-light")})`
         },
-        [HourBarButtonTheme.GREY]: {
+        [DateButtonTheme.GREY]: {
             background: "rgb(0, 0, 0, 0.09)",
             color: `rgb(0, 0, 0, 0.09)`,
             border: `2px solid rgb(${getColor("--primary-text-light")})`
@@ -49,10 +51,11 @@ const HourBarButton: React.FC<IHourBarButtonProps> = (props) => {
 
     return (
         <button 
-            className="hour-btn" 
+            className="date-btn" 
+            id={props.id}
             onClick={ props.onClick }
             style={
-                themes[props.theme ?? HourBarButtonTheme.GREY]
+                themes[props.theme ?? DateButtonTheme.GREY]
             }>
             {!props.loading ?
                 props.title :
@@ -62,4 +65,4 @@ const HourBarButton: React.FC<IHourBarButtonProps> = (props) => {
     );
 }
 
-export default HourBarButton;
+export default DateButton;

@@ -244,5 +244,27 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager.Abstraction
 
 			return Result<BookingViewDTO>.Success(confirmation);
 		}
+		public async Task<Result<BookingViewDTO>> GetBookingDetails(int userId, int bookingId)
+		{
+			// Authorize user 
+			var authzUser = AuthorizeUser(userId);
+			if (!authzUser.IsSuccessful)
+			{
+				return new(Result.Failure(authzUser.ErrorMessage!, authzUser.StatusCode));
+			}
+
+			// Get booking details
+			var getBookedTimeFrames = await _bookingService.GetBookedTimeFramesByBookingId(bookingId).ConfigureAwait(false);
+			if (!getBookedTimeFrames.IsSuccessful)
+			{
+				return new(Result.Failure(getBookedTimeFrames.ErrorMessage!, getBookedTimeFrames.StatusCode));
+			}
+			var bookingViewDTO = new BookingViewDTO();
+			bookingViewDTO.UserId = userId;
+			bookingViewDTO.BookingId = bookingId;
+			bookingViewDTO.BookedTimeFrames = getBookedTimeFrames.Payload;
+
+			return Result<BookingViewDTO>.Success(bookingViewDTO);
+		}
 	}
 }

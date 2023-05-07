@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation} from 'react-router-dom';
 import Button, { ButtonTheme } from '../../components/Button/Button';
 import Footer from '../../components/Footer/Footer';
 import NavbarGuest from '../../components/NavbarGuest/NavbarGuest';
 import { Ajax } from '../../Ajax';
 import { Auth } from '../../Auth';
 import NavbarUser from '../../components/NavbarUser/NavbarUser';
-import DateButton, { DateButtonTheme } from './SchedulingComponents/DateButton';
-import HourBarButton, { HourBarButtonTheme } from './SchedulingComponents/HourBarButton';
+import DateButton, { DateButtonTheme } from './SchedulingComponents/DateButton/DateButton';
+import HourBarButton, { HourBarButtonTheme } from './SchedulingComponents/HourBarButton/HourBarButton';
 import "./OpenSlotsView.css";
-import { IListing } from '../ListingProfilePage/MyListingsView/MyListingsView';
-import { render } from '@fullcalendar/core/preact';
-import { use } from 'chai';
 
 const findListingAvailabilityRoute: string = "/scheduling/findlistingavailabilitybymonth/";
 const reserveRoute: string = "/scheduling/reserve";
@@ -33,7 +30,7 @@ interface IListingAvailabilityData {
     endTime: Date
 }
 
-interface IBookedTimeFrame {
+export interface IBookedTimeFrame {
     availabilityId: number,
     startDateTime: Date,
     endDateTime: Date
@@ -47,7 +44,7 @@ interface IReservedTimeSlots {
     chosenTimeFrames: IBookedTimeFrame[]
 }
 
-interface IBookingView {
+interface IBookingDetails {
     userId: number,
     bookingId: number,
     fullPrice: number,
@@ -56,10 +53,10 @@ interface IBookingView {
 
 const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
     const { state } = useLocation();
-    const [bookingView, setBookingView] = useState<IBookingView | null>(null);
+    const [bookingView, setBookingView] = useState<IBookingDetails | null>(null);
 
     const [listingId, setListingId] = useState<number>(state.listingId);
-    const [initialDate, setInitialDate] = useState<string>((new Date()).toDateString());
+    const [initialDate, setInitialDate] = useState<string>("");
 
     const [reserveTimeSlots, setReserveTimeSlots] = useState<IReservedTimeSlots | null>(null);
 
@@ -96,15 +93,9 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
     useEffect(() => {
         setShowConfirmation(false);
         setChosenDate("");
-        setListingAvailabilityData([]);
         setBookingView(null);
         setError("");
     }, [initialDate, onDoneBooking, loaded]);
-
-    useEffect(() => {
-        const today = new Date();
-        setInitialDate(today.toDateString());
-    }, []);
 
     useEffect(() => {
         setFullPrice((bookedTimeFrames.length / 2) * state.price);
@@ -163,11 +154,13 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
             });
         }
     };
-    useEffect(() => {
-        const today = new Date(Date.now());
-        getListingAvailabilityData(today.getFullYear(), today.getMonth() + 1);
-    }, []);
 
+    useEffect(() => {
+        const today: Date = new Date();
+        getListingAvailabilityData(today.getFullYear(), today.getMonth() + 1);
+        setInitialDate(today.toDateString());
+    },[])
+    
     const convertToMonthName = (initialDate: number) => {
         switch (initialDate) {
             case 1: return "January";
@@ -372,8 +365,8 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
         </>;
     }
 
-    const renderSummary = (bookedTimeFrames: IBookedTimeFrame[], error: string) => {
-        if (!bookedTimeFrames || error) {
+    const renderSummary = (bookedTimeFrames: IBookedTimeFrame[]) => {
+        if (!bookedTimeFrames) {
             return;
         }
         const printedDate: string[] = Array.from(new Set(bookedTimeFrames.map((date) => date.startDateTime.toDateString()) ?? []));
@@ -450,7 +443,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                 <div className='h2'>Listing: {state.listingTitle}</div>
                 <p className='h2'>Booking details:</p>
 
-                {renderSummary(bookedTimeFrames, error)}
+                {renderSummary(bookedTimeFrames)}
                 {!onSuccess && !error &&
                     <div className='buttons'>
                         <Button title="No" theme={ButtonTheme.HOLLOW_DARK} onClick={() => history.go(-1)} />
@@ -465,7 +458,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                                     if (response.error || response.data == null) {
                                         onError("Scheduling Error. Please refresh page or try again later.")
                                     }
-                                    const data = response.data as IBookingView;
+                                    const data = response.data as IBookingDetails;
                                     if (data !== null) {
                                         setBookingView({
                                             userId: data?.userId,
@@ -503,11 +496,9 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                         {error}
                     </div>}
             </div>
-
-
         </>
     }
-
+    
     return (
         <div className="opentimeslots-view-container">
             {authData && authData.role !== Auth.Roles.DEFAULT_USER ?
@@ -519,7 +510,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                 {!showConfirmation &&
                     <div className='opentimeslots-sidebar-wrapper'>
                         {renderSidebar(sidebarError)}
-                        {renderSummary(bookedTimeFrames, error)}
+                        {renderSummary(bookedTimeFrames)}
                         {readyToSubmit &&
                             <div className='buttons'>
                                 <Button title="Reserve" theme={ButtonTheme.DARK} onClick={async () => {
@@ -536,7 +527,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                 }
 
                 {/** Render calendar and hour bars after chosing the date*/}
-                {!showConfirmation &&
+                {!showConfirmation && loaded &&
                     <div className="main-wrapper">
                         <h1>{state.listingTitle}</h1>
                         <h2>{state.price.toLocaleString(localeUSLanguage, localeUSCurrency)}/hour</h2>

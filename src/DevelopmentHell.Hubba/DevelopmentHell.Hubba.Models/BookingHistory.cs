@@ -14,5 +14,6 @@ namespace DevelopmentHell.Hubba.Models
         public int BookingStatusId { get; set; }
         public string? Title { get; set; }
         public string? Location { get; set; }
+        public List<BookedTimeFrame>? BookedTimeFrames { get; set; }
     }
 }
