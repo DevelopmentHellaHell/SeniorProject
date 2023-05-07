@@ -230,7 +230,7 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
 
             return;
         }
-        navigate("/listingprofile");
+        navigate("/mylistings");
     };
 
     const [date, setDate] = useState('');

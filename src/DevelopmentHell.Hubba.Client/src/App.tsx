@@ -73,7 +73,7 @@ const App: React.FC<IAppProps> = (props) => {
 							<Route path="/logout" element={<LogoutPage />} />
 							<Route path="/notification" element={<NotificationPage />} />
 							<Route path="/collaborator" element={<CollaboratorPage/>}/>
-							<Route path="/listingprofile" element={<ListingProfilePage />} />
+							<Route path="/mylistings" element={<ListingProfilePage />} />
 							<Route path="/editlisting" element={<EditListingPage />} />
 							<Route path="/showcases/new" element={<CreateProjectShowcasePage />}/>
 							<Route path="/showcases/edit" element={<EditProjectShowcasePage />}/>

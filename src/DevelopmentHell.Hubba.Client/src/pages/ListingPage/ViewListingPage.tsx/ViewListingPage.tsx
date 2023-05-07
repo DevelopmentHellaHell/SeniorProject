@@ -152,7 +152,7 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
             setError("Listing deletion error. Refresh page or try again later.\n" + response.error);
             return;
         }
-        navigate("/listingprofile");
+        navigate("/mylistings");
     };
 
     return (
