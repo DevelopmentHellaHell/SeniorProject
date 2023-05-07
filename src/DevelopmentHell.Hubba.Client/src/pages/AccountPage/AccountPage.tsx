@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { redirect, useNavigate } from "react-router-dom";
+import { redirect, useLocation, useNavigate } from "react-router-dom";
 import { Auth } from "../../Auth";
 import Footer from "../../components/Footer/Footer";
 import NavbarUser from "../../components/NavbarUser/NavbarUser";
@@ -25,7 +25,7 @@ interface IAccountPageProps {
 
 }
 
-enum AccountViews {
+export enum AccountViews {
     EDIT_PROFILE = "Edit Profile",
     EDIT_PROFILE_UPDATE_EMAIL = "Update Email",
     LOGIN_SECURITY = "Login & Security",
@@ -54,12 +54,11 @@ const SubViews: {
 }
 
 const AccountPage: React.FC<IAccountPageProps> = (props) => {
-    const [view, setView] = useState(AccountViews.EDIT_PROFILE);
+    const { state } = useLocation();
+    const [view, setView] = useState(state ? state.view : AccountViews.EDIT_PROFILE);
     const authData = Auth.getAccessData();
     const accountId = authData?.sub;
     const [collaboratorId, setCollaboratorId] = useState<number>();
-
-
     const navigate = useNavigate();
 
     if (!authData) {

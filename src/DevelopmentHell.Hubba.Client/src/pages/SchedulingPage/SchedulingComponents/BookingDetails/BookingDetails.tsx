@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import "./BookingDetails.css";
 import { Auth } from '../../../../Auth';
 import { IBookedTimeFrame } from '../../OpenSlotsView';
@@ -9,6 +9,7 @@ import { IBookingHistoryData } from '../../../AccountPage/BookingHistoryView/Boo
 import NavbarUser from '../../../../components/NavbarUser/NavbarUser';
 import NavbarGuest from '../../../../components/NavbarGuest/NavbarGuest';
 import Footer from '../../../../components/Footer/Footer';
+import { AccountViews } from '../../../AccountPage/AccountPage';
 
 interface IBookingDetailsProp {
 }
@@ -30,6 +31,8 @@ const BookingDetails: React.FC<IBookingDetailsProp> = (props) => {
     const [refresh, setRefresh] = useState(false);
     const [error, setError] = useState("");
     const [bookingDetailsData, setBookingDetailsData] = useState<IBookingDetails | null>(null);
+
+    const navigate = useNavigate();
 
     const authData = Auth.getAuthData();
 
@@ -113,7 +116,7 @@ const BookingDetails: React.FC<IBookingDetailsProp> = (props) => {
                         <div className='buttons'>
                             <Button title="Close" theme={ButtonTheme.DARK} onClick={() => {
                                 setRefresh(true);
-                                history.go(-1);
+                                navigate("/account", { state: { view: AccountViews.BOOKING_HISTORY }})
                             }} />
                         </div>
                     </div>
