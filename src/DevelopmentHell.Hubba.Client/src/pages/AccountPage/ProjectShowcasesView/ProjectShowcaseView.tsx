@@ -44,7 +44,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
     const [error, setError] = useState("");
     const [loaded, setLoaded] = useState(false);
     const [procPub, setProcPub] = useState(false);
-    const [publishQueue, setPublishQueue] = useState<Set<[string,boolean]>>(new Set());
+    const [publishQueue, setPublishQueue] = useState<{ showcaseId: string, isPublish: boolean }[]>([]);
     const authData = Auth.getAccessData();
     
     if(!authData) {
@@ -57,42 +57,46 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
     }
 
     useEffect(() => {
-        if(publishQueue.size > 0 && !procPub) {
+        console.log("Detected queue update");
+        if(publishQueue.length > 0 && !procPub) {
+            console.log("processing queue");
             setProcPub(true);
-            const showcaseId = publishQueue.values().next().value[0];
-            const isPublish = publishQueue.values().next().value[1];
+            const showcaseId = publishQueue[0].showcaseId;
+            const isPublish = publishQueue[0].isPublish;
             if(isPublish) {
-                Publish(showcaseId);
+                Publish(showcaseId).then(() => {
+                    setPublishQueue(prevQueue => prevQueue.filter(item => !(item.showcaseId === showcaseId)));
+                    setProcPub(false);
+                });
             }
             else {
-                Unpublish(showcaseId);
+                Unpublish(showcaseId).then(() => {
+                    setPublishQueue(prevQueue => prevQueue.filter(item => !(item.showcaseId === showcaseId)));
+                    setProcPub(false);
+                });
             }
-            setPublishQueue((prevQueue) => {
-                prevQueue.delete([showcaseId, isPublish]);
-                return prevQueue;
-            });
-            setProcPub(false);
         }
-    }, [publishQueue]);
+    }, [publishQueue, procPub]);
     
-    function Unpublish(showcaseId: string) {
-        Ajax.post(`/showcases/unpublish?s=${showcaseId}`, {}).then((response) => {
+    const Unpublish = async (showcaseId: string) => {
+        await Ajax.post(`/showcases/unpublish?s=${showcaseId}`, {}).then((response) => {
             if (response.error) {
                 setError("Error unpublishing showcase");
             } else {
                 setData((prevData) =>
                     prevData.map((showcaseData) =>
-                            showcaseData.id === showcaseId
-                            ? { ...showcaseData, isPublished: false}
-                            : showcaseData
-                        )
-                    );
+                        showcaseData.id === showcaseId
+                        ? { ...showcaseData, isPublished: false }
+                        : showcaseData
+                    )
+                );
             }
         });
-    }
+    };
+    
 
-    function Publish(showcaseId: string) {
-        Ajax.post(`/showcases/publish?s=${showcaseId}`, {}).then((response) => {
+    const Publish = async (showcaseId: string) => {
+        await Ajax.post(`/showcases/publish?s=${showcaseId}`, {}).then((response) => {
             if (response.error) {
                 setError(`Error publishing showcase: ${response.error}`);
             } else {
@@ -105,9 +109,9 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
                     );
             }
         });
-    }
+    };
 
-    function DeleteShowcase(showcaseId: string) {
+    const DeleteShowcase = async (showcaseId: string) => {
         Ajax.post(`/showcases/delete?s=${showcaseId}`, {}).then((response) => {
             if (response.error) {
                 setError("Error deleting showcase");
@@ -124,7 +128,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
         });
     }
 
-    function UnlinkShowcase(showcaseId: string) {
+    const UnlinkShowcase = async (showcaseId: string) => {
         Ajax.post(`/showcase/unlink?s=${showcaseId}`, {}).then((response) => {
             if (response.error) {
                 setError("Error deleting showcase");
@@ -148,6 +152,13 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
             setLoaded(response.loaded);
         });
     } 
+
+    const addToPublishQueue = (showcaseId: string, isPublish: boolean) => {
+        setPublishQueue((prevQueue) => {
+            const updatedQueue = [...prevQueue, { showcaseId, isPublish }];
+            return updatedQueue;
+        });
+    }
 
     const ShowConfirmButtons = (showcaseDatam : IShowcaseData) =>{
         return (
@@ -228,16 +239,12 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
                     <svg className =  "vector-circle" width = "25" height = "25">
                         <circle cx = "12.5" cy = "12.5" r = "10" className = {IsPublishedClass} onClick={() => {
                             if(showcaseData.isPublished) {
-                                setPublishQueue((prevQueue) => {
-                                    prevQueue.add([showcaseData.id, false]);
-                                    return prevQueue;
-                                });
+                                console.log(`Unpublishing showcase ${showcaseData.id}`);
+                                addToPublishQueue(showcaseData.id, false);
                             }
                             else{
-                                setPublishQueue((prevQueue) => {
-                                    prevQueue.add([showcaseData.id, true]);
-                                    return prevQueue;
-                                });
+                                console.log(`Publishing showcase ${showcaseData.id}`);
+                                addToPublishQueue(showcaseData.id, true);
                             }
                         }}/>
                     </svg>

@@ -4,6 +4,7 @@ using DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions;
 using DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Files.Service.Abstractions;
+using DevelopmentHell.Hubba.ListingProfile.Service.Abstractions;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -19,12 +20,14 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
     {
         private readonly IProjectShowcaseService _projectShowcaseService;
         private readonly IFileService _fileService;
+        private readonly IListingProfileService _listingProfileService;
         private readonly ILoggerService _logger;
         private readonly IAuthorizationService _authorizationService;
-        public ProjectShowcaseManager(IProjectShowcaseService projectShowcaseService, IFileService fileService, ILoggerService loggerService, IAuthorizationService authorizationService) 
+        public ProjectShowcaseManager(IProjectShowcaseService projectShowcaseService, IFileService fileService, IListingProfileService listingProfileService, ILoggerService loggerService, IAuthorizationService authorizationService) 
         {
             _projectShowcaseService = projectShowcaseService;
             _fileService = fileService;
+            _listingProfileService = listingProfileService;
             _logger = loggerService;
             _authorizationService = authorizationService;
         }
@@ -40,6 +43,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
             return Result<List<string>>.Success(getFilesResult.Payload!);
         }
+        
         public async Task<Result> AddComment(string showcaseId, string commentText)
         {
 
@@ -608,6 +612,25 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             {
                 _logger.Warning(Category.BUSINESS, $"Error in unlinking showcase: {ex.Message}", "ShowcaseManager");
                 return new(Result.Failure("Error in unlinking showcase"));
+            }
+        }
+
+        public async Task<Result> Link(string showcaseId, int listingId)
+        {
+            try
+            {
+                var checkResult = await IsAdminOrOwnerOf(showcaseId).ConfigureAwait(false);
+                if (!checkResult.IsSuccessful || !checkResult.Payload)
+                {
+                    return checkResult;
+                }
+
+                return await _projectShowcaseService.Link(showcaseId, listingId).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in linking showcase: {ex.Message}", "ShowcaseManager");
+                return new(Result.Failure("Error in linking showcase"));
             }
         }
 

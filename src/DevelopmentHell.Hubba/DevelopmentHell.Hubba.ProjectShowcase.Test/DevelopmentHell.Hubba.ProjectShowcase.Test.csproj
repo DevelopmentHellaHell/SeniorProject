@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DevelopmentHell.Hubba.Authentication\DevelopmentHell.Hubba.Authentication.Service.csproj" />
+    <ProjectReference Include="..\DevelopmentHell.Hubba.ListingProfile.Service\DevelopmentHell.Hubba.ListingProfile.Service.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.Registration\DevelopmentHell.Hubba.Registration.Service.csproj" />
     <ProjectReference Include="..\DevelopmentHell.Hubba.Testing.Service\DevelopmentHell.Hubba.Testing.Service.csproj" />
     <ProjectReference Include="..\ProjectShowcaseManager\DevelopmentHell.Hubba.ProjectShowcase.Manager.csproj" />

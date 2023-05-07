@@ -527,6 +527,17 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }).ConfigureAwait(false);
             return updateResult;
         }
+        public async Task<Result> LinkShowcaseListing(string showcaseId, int listingId)
+        {
+            var updateResult = await _updateDataAccess.Update(_showcaseTableName, new()
+            {
+                new("Id","=",showcaseId)
+            },
+            new() {
+                { "ListingId", listingId }
+            }).ConfigureAwait(false);
+            return updateResult;
+        }
 
         public async Task<Result> UpdateComment(long commentId, string commentText, DateTime time)
         {

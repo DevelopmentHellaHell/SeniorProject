@@ -37,7 +37,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
         Task<Result> AddCommentReport(long commentId, int reporterId, string reason, DateTime time);
         Task<Result> AddShowcaseReport(string showcaseId, int reporterId, string reason, DateTime time);
         Task<Result> RemoveShowcaseListing(string showcaseId);
-		Task<Result<List<Dictionary<string, object>>>> Curate(int offset = 0);
+        Task<Result> LinkShowcaseListing(string showcaseId, int listingId);
+
+        Task<Result<List<Dictionary<string, object>>>> Curate(int offset = 0);
 		Task<Result<List<Dictionary<string, object>>>> Search(string query, int offset = 0, double FTTWeight = 0.5, double RWeight = 0.5);
 	}
 }

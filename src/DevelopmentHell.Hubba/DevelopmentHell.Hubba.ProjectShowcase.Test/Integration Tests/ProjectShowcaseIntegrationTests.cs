@@ -32,7 +32,8 @@ using Microsoft.AspNetCore.Http;
 using Moq;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.Design;
-
+using DevelopmentHell.Hubba.ListingProfile.Service.Abstractions;
+using DevelopmentHell.Hubba.ListingProfile.Service.Implementations;
 
 namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
 {
@@ -63,6 +64,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
         private readonly ILoggerService _loggerService;
         private readonly IFileService _fileService;
         private readonly IAuthorizationService _authorizationService;
+        private readonly IListingProfileService _listingProfileService;
         private readonly ILoggerDataAccess _loggerDataAccess;
         private readonly IJWTHandlerService _jwtHandlerService;
 
@@ -114,6 +116,23 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
                 _ftpUsername,
                 _ftpPassword,
                 _loggerService);
+            _listingProfileService = new ListingProfileService(
+                new ListingsDataAccess(
+                    _showcaseConnectionString,
+                    ConfigurationManager.AppSettings["ListingsTable"]!),
+                new ListingAvailabilitiesDataAccess(
+                    _showcaseConnectionString,
+                    ConfigurationManager.AppSettings["ListingAvailabilitiesTable"]!),
+                new ListingHistoryDataAccess(
+                    _showcaseConnectionString,
+                    ConfigurationManager.AppSettings["ListingHistoryTable"]!),
+                new RatingDataAccess(
+                    _showcaseConnectionString,
+                    ConfigurationManager.AppSettings["ListingRatingsTable"]!),
+                _userAccountDataAccess,
+                _loggerService
+                );
+
             _jwtHandlerService = new JWTHandlerService(
                 _jwtKey);
             _authorizationService = new AuthorizationService(
@@ -123,6 +142,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             _projectShowcaseManager = new ProjectShowcaseManager(
                 _projectShowcaseService,
                 _fileService,
+                _listingProfileService,
                 _loggerService,
                 _authorizationService);
 

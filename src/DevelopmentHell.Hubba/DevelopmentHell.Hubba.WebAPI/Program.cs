@@ -442,6 +442,7 @@ builder.Services.AddTransient<IProjectShowcaseManager, ProjectShowcaseManager>(s
     new ProjectShowcaseManager(
         s.GetService<IProjectShowcaseService>()!,
         s.GetService<IFileService>()!,
+        s.GetService<IListingProfileService>()!,
         s.GetService<ILoggerService>()!,
         s.GetService<IAuthorizationService>()!
     )

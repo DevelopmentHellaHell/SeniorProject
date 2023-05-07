@@ -80,5 +80,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions
         Task<Result> ReportComment(long commentId, string reasonText);
         Task<Result> ReportShowcase(string showcaseId, string reasonText);
         Task<Result> Unlink(string showcaseId);
+        Task<Result> Link(string showcaseId, int listingId);
     }
 }

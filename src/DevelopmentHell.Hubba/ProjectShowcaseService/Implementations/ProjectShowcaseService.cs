@@ -697,6 +697,24 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             }
         }
 
+        public async Task<Result> Link(string showcaseId, int listingId)
+        {
+            try
+            {
+                var linkResult = await _projectShowcaseDataAccess.LinkShowcaseListing(showcaseId, listingId);
+                if (!linkResult.IsSuccessful)
+                {
+                    return linkResult;
+                }
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in linking showcase: {ex.Message}", "ShowcaseService");
+                return new(Result.Failure("Error in linking showcase"));
+            }
+        }
+
         public async Task<Result> Unpublish(string showcaseId)
         {
             try
