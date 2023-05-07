@@ -68,16 +68,10 @@
     <None Update="ClientBuild\build\index.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="ClientBuild\build\static\css\main.1406b595.css">
+    <None Update="ClientBuild\build\static\css\main.19bbc81b.css">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="ClientBuild\build\static\js\main.75980ae3.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ssl\fullchain.pem">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ssl\privkey.pem">
+    <None Update="ClientBuild\build\static\js\main.85932132.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
