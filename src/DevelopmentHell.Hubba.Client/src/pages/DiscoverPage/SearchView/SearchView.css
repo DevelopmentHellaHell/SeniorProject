@@ -8,4 +8,7 @@
     height: 200px;
     padding: 10px 10px;
     margin-bottom: 120px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
 }

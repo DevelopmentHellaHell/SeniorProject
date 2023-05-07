@@ -90,6 +90,21 @@ const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
         }
     }
 
+    const validateSearchQuery = (query: string) => {
+        if (searchQuery.query.length >= 200) {
+            setSearchError("Query is longer than 200 characters.");
+            return false;
+        }
+
+        if (!searchQuery.query.match(/^[\w\-\s]+$/)) {
+            setSearchError("Invalid search query. Input must be alphanumeric.");
+            return false;
+        }
+
+        setSearchError(undefined);
+        return true;
+    } 
+
     useEffect(() => {
         const getData = async () => {
             const response = await Ajax.post<ICuratedData>("/discovery/getCurated", { "Offset": 0 });
@@ -145,11 +160,7 @@ const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
                             <h3>Search</h3>
                             <input id="search-input" list="search-history" placeholder="Search" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                                 const input = event.target.value;
-                                if (!input.match(/^[a-zA-Z0-9_]*$/)) {
-                                    setSearchError("Invalid search query. Input must be alphanumeric.");
-                                } else {
-                                    setSearchError(undefined);
-                                }
+                                validateSearchQuery(input);
 
                                 setSearchQuery((previous) => { return {...previous, query: input} });
                             }}/>
@@ -162,17 +173,12 @@ const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
                                 <Button
                                     title="🔎"
                                     onClick={ () => {
-                                        if (!searchQuery.query || !searchQuery.query.length || searchQuery.query.length == 0) {
-                                            setError("Empty search query. Please try again.");
+                                        if (!searchQuery.query || searchQuery.query.length == 0) {
+                                            setSearchError("Empty search query. Please try again.");
                                             return;
                                         }
 
-                                        if (searchQuery.query.length >= 200) {
-                                            setError("Query is longer than 200 characters.");
-                                            return;
-                                        }
-
-                                        if (!searchQuery.query.match(/^[a-zA-Z0-9_]*$/)) {
+                                        if (!validateSearchQuery(searchQuery.query)) {
                                             return;
                                         }
 
