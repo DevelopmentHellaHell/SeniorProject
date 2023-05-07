@@ -43,6 +43,8 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
     const [data, setData] = useState<IShowcaseData[]>([]);
     const [error, setError] = useState("");
     const [loaded, setLoaded] = useState(false);
+    const [procPub, setProcPub] = useState(false);
+    const [publishQueue, setPublishQueue] = useState<Set<[string,boolean]>>(new Set());
     const authData = Auth.getAccessData();
     
     if(!authData) {
@@ -53,6 +55,25 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
     function EditShowcase(showcaseId: string) {
         navigate(`/showcases/edit?s=${showcaseId}`);
     }
+
+    useEffect(() => {
+        if(publishQueue.size > 0 && !procPub) {
+            setProcPub(true);
+            const showcaseId = publishQueue.values().next().value[0];
+            const isPublish = publishQueue.values().next().value[1];
+            if(isPublish) {
+                Publish(showcaseId);
+            }
+            else {
+                Unpublish(showcaseId);
+            }
+            setPublishQueue((prevQueue) => {
+                prevQueue.delete([showcaseId, isPublish]);
+                return prevQueue;
+            });
+            setProcPub(false);
+        }
+    }, [publishQueue]);
     
     function Unpublish(showcaseId: string) {
         Ajax.post(`/showcases/unpublish?s=${showcaseId}`, {}).then((response) => {
@@ -73,7 +94,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
     function Publish(showcaseId: string) {
         Ajax.post(`/showcases/publish?s=${showcaseId}`, {}).then((response) => {
             if (response.error) {
-                setError("Error publishing showcase");
+                setError(`Error publishing showcase: ${response.error}`);
             } else {
                 setData((prevData) =>
                     prevData.map((showcaseData) =>
@@ -207,10 +228,16 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
                     <svg className =  "vector-circle" width = "25" height = "25">
                         <circle cx = "12.5" cy = "12.5" r = "10" className = {IsPublishedClass} onClick={() => {
                             if(showcaseData.isPublished) {
-                                Unpublish(showcaseData.id);
+                                setPublishQueue((prevQueue) => {
+                                    prevQueue.add([showcaseData.id, false]);
+                                    return prevQueue;
+                                });
                             }
                             else{
-                                Publish(showcaseData.id);
+                                setPublishQueue((prevQueue) => {
+                                    prevQueue.add([showcaseData.id, true]);
+                                    return prevQueue;
+                                });
                             }
                         }}/>
                     </svg>

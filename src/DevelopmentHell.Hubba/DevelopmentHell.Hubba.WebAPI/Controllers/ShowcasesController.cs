@@ -426,12 +426,12 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     if (editResult.StatusCode != 500)
                     {
-                        return GetFuncCode((int)editResult.StatusCode!)(GetErrorMessage(editResult.StatusCode));
+                        return GetFuncCode((int)editResult.StatusCode!)(editResult.ErrorMessage!);
                     }
                     editResult = await _projectShowcaseManager.EditShowcase(showcaseId, editedShowcase.ListingId, editedShowcase.Title, editedShowcase.Description, editedShowcase.Files);
                     if (!editResult.IsSuccessful)
                     {
-                        return GetFuncCode((int)editResult!.StatusCode!)(GetErrorMessage(editResult.StatusCode));
+                        return GetFuncCode((int)editResult!.StatusCode!)(editResult.ErrorMessage!);
                     }
                 }
 
@@ -492,12 +492,12 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     if (publishResult.StatusCode != 500)
                     {
-                        return GetFuncCode((int)publishResult.StatusCode!)(GetErrorMessage(publishResult.StatusCode));
+                        return GetFuncCode((int)publishResult.StatusCode!)(publishResult.ErrorMessage!);
                     }
                     publishResult = await _projectShowcaseManager.Publish(showcaseId, listingId);
                     if (!publishResult.IsSuccessful)
                     {
-                        return GetFuncCode((int)publishResult!.StatusCode!)(GetErrorMessage(publishResult.StatusCode));
+                        return GetFuncCode((int)publishResult!.StatusCode!)(publishResult.ErrorMessage!);
                     }
                 }
 
