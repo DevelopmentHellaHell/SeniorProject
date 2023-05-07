@@ -453,6 +453,60 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             }
         }
 
+        public async Task<Result<List<Showcase>>> GetListingShowcases(int listingId)
+        {
+            try
+            {
+                var getResult = await _projectShowcaseDataAccess.GetListingShowcases(listingId).ConfigureAwait(false);
+                if (!getResult.IsSuccessful)
+                {
+                    return new(Result.Failure($"Error in getting showcases from DAC: {getResult.ErrorMessage}"));
+                }
+                List<Showcase> output = new();
+                Dictionary<string, string> varSqlVarMap = new()
+                {
+                    { "Id", "Id" },
+                    { "ShowcaseUserId", "ShowcaseUserId" },
+                    { "ListingId", "ListingId" },
+                    { "Title", "Title" },
+                    { "Description", "Description" },
+                    { "IsPublished", "IsPublished" },
+                    { "Rating", "Rating" },
+                    { "PublishTimestamp","PublishTimestamp" },
+                    { "EditTimestamp", "EditTimestamp" }
+                };
+                foreach (var showcaseDict in getResult.Payload!)
+
+                {
+                    var valDict = MapToAttDict(varSqlVarMap, showcaseDict);
+                    Showcase nextShowcase = new();
+                    nextShowcase.PublishTimestamp = valDict["PublishTimestamp"].GetType() == typeof(DBNull) ? null : (DateTime)valDict["PublishTimestamp"];
+                    nextShowcase.IsPublished = valDict["IsPublished"].GetType() == typeof(DBNull) ? null : (bool)valDict["IsPublished"];
+                    nextShowcase.EditTimestamp = valDict["EditTimestamp"].GetType() == typeof(DBNull) ? null : (DateTime)valDict["EditTimestamp"];
+                    nextShowcase.Title = valDict["Title"].GetType() == typeof(DBNull) ? null : (string)valDict["Title"];
+                    nextShowcase.Description = valDict["Description"].GetType() == typeof(DBNull) ? null : (string)valDict["Description"];
+                    nextShowcase.ListingId = valDict["ListingId"].GetType() == typeof(DBNull) ? null : (int)valDict["ListingId"];
+                    nextShowcase.Rating = valDict["Rating"].GetType() == typeof(DBNull) ? null : (double)valDict["Rating"];
+                    nextShowcase.Id = valDict["Id"].GetType() == typeof(DBNull) ? null : (string)valDict["Id"];
+                    nextShowcase.ShowcaseUserId = valDict["ShowcaseUserId"].GetType() == typeof(DBNull) ? null : (int)valDict["ShowcaseUserId"];
+
+                    var userResult = await _userAccountDataAccess.GetUser((int)nextShowcase.ShowcaseUserId!).ConfigureAwait(false);
+                    if (!userResult.IsSuccessful)
+                    {
+                        return new(Result.Failure($"Unable to get user email: {userResult.ErrorMessage}"));
+                    }
+                    nextShowcase.ShowcaseUserEmail = userResult.Payload!.Email;
+                    output.Add(nextShowcase);
+                }
+                return Result<List<Showcase>>.Success(output);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in getting showcases: {ex.Message}", "ShowcaseService");
+                return new(Result.Failure("Error in getting showcases"));
+            }
+        }
+
         public async Task<Result<double>> LikeShowcase(string showcaseId)
         {
             try
@@ -497,11 +551,32 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
                         return Result.Failure("Unable to Edit showcase for publishing");
                     }
                 }
+                var selectResult = await _projectShowcaseDataAccess.GetShowcase(showcaseId);
+                if (!selectResult.IsSuccessful || selectResult.Payload == null)
+                {
+                    return Result.Failure("Unable to check if showcase is in state to be published.");
+                }
+
+                if (selectResult.Payload != null)
+                {
+                    if ( selectResult.Payload["Description"].ToString()!.Length < 250)
+                    {
+                        return Result.Failure("Description needs to be at least 250 characters", 400);
+                    }
+                    if (selectResult.Payload["Title"].ToString()!.Length < 5)
+                    {
+                        return Result.Failure("Title needs to be at least 5 characters", 400);
+                    }
+                    if (selectResult.Payload!["ListingId"] == DBNull.Value)
+                    {
+                        return Result.Failure("Showcase needs to be linked to listing to be published", 400);
+                    }
+                }
 
                 var pubResult = await _projectShowcaseDataAccess.ChangePublishStatus(showcaseId, true, DateTime.UtcNow).ConfigureAwait(false);
                 if (!pubResult.IsSuccessful)
                 {
-                    return Result.Failure("Unable to upate publish status");
+                    return Result.Failure("Unable to update publish status");
                 }
 
                 return new()

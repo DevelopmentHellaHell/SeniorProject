@@ -34,6 +34,8 @@ interface IShowcaseDTO {
 
 
 const EditProjectShowcasePage: React.FC<IEditProjectShowcasePageProps> = (props) => {
+    const { search } = useLocation();
+    const searchParams = new URLSearchParams(search);
     const [error, setError] = useState("");
     const [title, setTitle] = useState<string | null>(null);
     const [description, setDescription] = useState<String | null>(null);
@@ -42,13 +44,18 @@ const EditProjectShowcasePage: React.FC<IEditProjectShowcasePageProps> = (props)
     const [uploadResponse, setUploadResponse] = useState<IShowcaseDTO>();
     const [data, setData] = useState<IShowcaseDTO | null>(null);
     const [fileData, setFileData] = useState<{ Item1: string, Item2: string} []>([]);
+    const [procEdit, setProcEdit] = useState(false);
     const [listingId, setListingId] = useState<number>(0);
-    const { search } = useLocation();
-    const searchParams = new URLSearchParams(search);
     const showcaseId = searchParams.get("s");
 
     const authData = Auth.getAccessData();
     const navigate = useNavigate();
+
+    
+    useEffect(() => {
+        setListingId(searchParams.get("l") ? parseInt(searchParams.get("l")!) : 0)
+    }, []);
+
 
     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
@@ -99,15 +106,20 @@ const EditProjectShowcasePage: React.FC<IEditProjectShowcasePageProps> = (props)
           })));
       
           console.log("file data: ", fileDataList);
-          const response = await Ajax.post<string>(`/showcases/edit?s=${showcaseId}`, { files: fileDataList,  title: title, description: description, listingId:  listingId });
-      
-          if (response.error) {
-            setError(response.error);
-            console.log(response.error)
-            console.log(response)
-          } else {
-            navigate(`/showcases/view?s=${showcaseId}`);
-          }
+          setProcEdit(true);
+          const response = await Ajax.post<string>(`/showcases/edit?s=${showcaseId}`, { files: fileDataList,  title: title, description: description, listingId:  listingId }).then(
+            (response) => 
+            {
+                if (response.error) {
+                    setError(response.error);
+                    console.log(response.error)
+                    console.log(response)
+                    setProcEdit(false);
+                  } else {
+                    navigate(`/showcases/view?s=${showcaseId}`);
+                  }
+            }
+          );
         } catch (error) {
           //setError(error);
           console.log(error);
@@ -128,54 +140,61 @@ const EditProjectShowcasePage: React.FC<IEditProjectShowcasePageProps> = (props)
 
             <div className="edit-project-showcase-content">
                 <div className="edit-project-showcase-content-wrapper">
-                    <h1>Edit Project Showcase</h1>
-                    <div className='h-stack'>
-                        <h4>Project Title: </h4>
-                        <div className='v-stack'>
-                            <input className="input-title" type='text' onChange={() => {
-                                setTitle((document.getElementsByClassName("input-title")[0] as HTMLInputElement).value);
-                            }}/>
-                            <text>{`${title?.length}/50`}</text>
+                    <div className="v-stack">
+                        <h1>Edit Project Showcase</h1>
+                        <div className='h-stack'>
+                            <h4>Project Title: </h4>
+                            <div className='v-stack'>
+                                <input className="input-title" type='text' onChange={() => {
+                                    setTitle((document.getElementsByClassName("input-title")[0] as HTMLInputElement).value);
+                                }} />
+                                <text>{`${title?.length}/50`}</text>
+                            </div>
                         </div>
-                    </div>
-                    <div className='h-stack'>
-                        <h4>Project Description: </h4>
-                        <div className='v-stack'>
-                            <textarea className="input-description" rows={10} cols={50} onChange={() => {
-                                setDescription((document.getElementsByClassName("input-description")[0] as HTMLInputElement).value);
-                            }}/>
-                            <text>{`${description?.length}/3000`}</text>
+                        <div className='h-stack'>
+                            <h4>Project Description: </h4>
+                            <div className='v-stack'>
+                                <textarea className="input-description" rows={10} cols={50} onChange={() => {
+                                    setDescription((document.getElementsByClassName("input-description")[0] as HTMLInputElement).value);
+                                }} />
+                                <text>{`${description?.length}/3000`}</text>
+                            </div>
                         </div>
-                    </div>
-                    <div className='h-stack'>
-                        <h4>Upload photos/videos</h4>
-                        <form onSubmit={handleSubmisison}>
-                            <input type="file" accept=".jpg,.jpeg,.png" multiple onChange={handleFileSelect}/>
-                            {files.length >0 &&
-                                <ul>
-                                <div>File(s) to add:
-                                    {files.map((file, index) => (
-                                        <li key={file.name}>
-                                            <input
-                                                type="text"
-                                                value={file.name}
-                                                onChange={(e) => handleFileNameChange(index, e.target.value)}
-                                            />
-                                        </li>
-                                    ))}
-                                </div>
-                            
-                            </ul>
-                            }
-                        <button type="submit" >Edit Project Showcase</button>
-                        <button type="submit" >Preview Changes</button>
-                        </form>
+                        <div className='h-stack'>
+                            <h4>Upload photos/videos</h4>
+                            <form onSubmit={handleSubmisison}>
+                                <input type="file" accept=".jpg,.jpeg,.png" multiple onChange={handleFileSelect} />
+                                {files.length > 0 &&
+                                    <ul>
+                                        <div>File(s) to add:
+                                            {files.map((file, index) => (
+                                                <li key={file.name}>
+                                                    <input
+                                                        type="text"
+                                                        value={file.name}
+                                                        onChange={(e) => handleFileNameChange(index, e.target.value)}
+                                                    />
+                                                </li>
+                                            ))}
+                                        </div>
+
+                                    </ul>
+                                }
+                                {procEdit 
+                                    ? <p>Processing...</p> 
+                                    : <div className="v-stack">
+                                        <button type="submit" >Edit Project Showcase</button>
+                                        <button type="submit" >Preview Changes</button>
+                                    </div>
+                                }
+                            </form>
+                            <p className='error-output'>{error ? error + " please try again later" : ""}</p>
+                        </div>
                     </div>
                 </div>
             </div>
-            <p className='error-output'>{error ? error + " please try again later" : ""}</p>
             <Footer />
-        </div> 
+        </div>
     );
 }
 

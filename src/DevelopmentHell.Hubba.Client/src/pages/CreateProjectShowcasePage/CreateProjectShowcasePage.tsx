@@ -1,5 +1,5 @@
 import React, {  useEffect, useState } from "react";
-import { redirect, useLocation, useNavigate } from "react-router-dom";
+import { redirect, useLocation, useNavigate, useSubmit } from "react-router-dom";
 import { Auth } from "../../Auth";
 import { Ajax } from "../../Ajax";
 import Footer from "../../components/Footer/Footer";
@@ -34,6 +34,8 @@ interface IShowcaseDTO {
 
 
 const CreateProjectShowcasePage: React.FC<ICreateProjectShowcasePageProps> = (props) => {
+    const { search } = useLocation();
+    const searchParams = new URLSearchParams(search);
     const [error, setError] = useState("");
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
@@ -43,9 +45,14 @@ const CreateProjectShowcasePage: React.FC<ICreateProjectShowcasePageProps> = (pr
     const [data, setData] = useState<IShowcaseDTO | null>(null);
     const [fileData, setFileData] = useState<{ Item1: string, Item2: string} []>([]);
     const [listingId, setListingId] = useState<number>(0);
+    const [procCreate, setProcCreate] = useState(false);
 
     const authData = Auth.getAccessData();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        setListingId(searchParams.get("l") ? parseInt(searchParams.get("l")!) : 0)
+    }, []);
 
     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
@@ -94,17 +101,21 @@ const CreateProjectShowcasePage: React.FC<ICreateProjectShowcasePageProps> = (pr
       
             reader.onerror = reject;
           })));
+          setProcCreate(true);
       
           console.log("file data: ", fileDataList);
-          const response = await Ajax.post<string>("/showcases/new", { files: fileDataList,  title: title, description: description, listingId:  listingId });
-      
-          if (response.error) {
-            setError(response.error);
-            console.log(response.error)
-            console.log(response)
-          } else {
-            navigate(`/showcases/view?s=${response.data}`);
-          }
+          const response = await Ajax.post<string>("/showcases/new", { files: fileDataList,  title: title, description: description, listingId:  listingId }).then(
+            (response) => {
+                if (response.error) {
+                    setError(response.error);
+                    console.log(response.error)
+                    console.log(response)
+                    setProcCreate(false);
+                  } else {
+                    navigate(`/showcases/view?s=${response.data}`);
+                  }
+            }
+          );
         } catch (error) {
           //setError(error);
           console.log(error);
@@ -124,6 +135,7 @@ const CreateProjectShowcasePage: React.FC<ICreateProjectShowcasePageProps> = (pr
             <NavbarUser />
 
             <div className="create-project-showcase-content">
+                <div className="v-stack">
                 <div className="create-project-showcase-content-wrapper">
                     <h1>Create Project Showcase</h1>
                     <div className='h-stack'>
@@ -163,12 +175,16 @@ const CreateProjectShowcasePage: React.FC<ICreateProjectShowcasePageProps> = (pr
                                 </div>
                             </ul>
                             }
-                        <button type="submit" >Create Project Showcase</button>
+                        {procCreate 
+                        ? <p>Creating Project Showcase... If stuck for longer than 5 seconds, please retry.</p>
+                        :<button type="submit">Create Project Showcase</button>
+                        }
                         </form>
                     </div>
                 </div>
+                <p className='error-output'>{error ? error + " please try again later" : ""}</p>
+                </div>
             </div>
-            <p className='error-output'>{error ? error + " please try again later" : ""}</p>
             <Footer />
         </div> 
     );

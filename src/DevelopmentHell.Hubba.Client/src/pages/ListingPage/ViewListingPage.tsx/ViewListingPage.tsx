@@ -202,6 +202,8 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                 <p><Button theme={ButtonTheme.HOLLOW_DARK} onClick={() => { navigate("/editlisting", { state: { listingId: data.Listing.listingId } }) }} title={"Edit Listing"} /></p>
                                 
                                 <p><Button theme={ButtonTheme.DARK} onClick={() => { handleDeleteClick() }} title={"Delete Listing"} /></p>
+
+                                <p><Button theme={ButtonTheme.DARK} onClick={() => {navigate(`/showcases/listing?l=${data.Listing.listingId}`)}} title={"View Showcases"}/></p>
                             </div>
                             }
                         </div>

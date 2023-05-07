@@ -434,6 +434,19 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
         }
 
+        public async Task<Result<List<Showcase>>> GetListingShowcases(int listingId)
+        {
+            try
+            {
+                return await _projectShowcaseService.GetListingShowcases(listingId).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Error in getting listing showcases: {ex.Message}", "ShowcaseManager");
+                return new(Result.Failure("Error in getting listing showcases"));
+            }
+        }
+
         public async Task<Result<List<ShowcaseReport>>> GetAllShowcaseReports()
         {
             try
@@ -497,6 +510,16 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 if (!checkResult.IsSuccessful || !checkResult.Payload)
                 {
                     return new(checkResult);
+                }
+
+                var fileResult = await GetShowcaseFiles(showcaseId).ConfigureAwait(false);
+                if (!fileResult.IsSuccessful)
+                {
+                    return new(Result.Failure("Error in getting showcase files"));
+                }
+                if (fileResult.Payload!.Count == 0)
+                {
+                    return new(Result.Failure("Showcase must have at least one file to be published"));
                 }
 
                 return await _projectShowcaseService.Publish(showcaseId, listingId).ConfigureAwait(false);

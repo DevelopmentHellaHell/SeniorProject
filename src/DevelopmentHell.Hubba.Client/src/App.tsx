@@ -26,6 +26,7 @@ import ViewProjectShowcasePage from "./pages/ViewProjectShowcasePage/ViewProject
 import CreateProjectShowcasePage from "./pages/CreateProjectShowcasePage/CreateProjectShowcasePage";
 import EditProjectShowcasePage from "./pages/EditProjectShowcasePage/EditProjectShowcasePage";
 import EditProjectShowcaseCommentPage from "./pages/EditProjectShowcaseCommentPage/EditProjectShowcaseCommentPage";
+import ListingProjectShowcasesPage from "./pages/ListingProjectShowcasesPage/ListingProjectShowcasesPage";
 import BookingDetails from "./pages/SchedulingPage/SchedulingComponents/BookingDetails/BookingDetails";
 
 interface IAppProps {
@@ -45,7 +46,8 @@ const App: React.FC<IAppProps> = (props) => {
 						<Route path="/unauthorized" element={<Unauthorized />} />
 						<Route path="/viewlisting" element={<ViewListingPage />} />
 						<Route path="/scheduling" element={<OpenSlotsView />} />	
-						<Route path="/showcases/view" element={<ViewProjectShowcasePage />}/>
+						<Route path="/showcases/view" element={<ViewProjectShowcasePage/>}/>
+						<Route path="/showcases/listing" element={<ListingProjectShowcasesPage/>}/>
 						
 						{/* Public routes - no auth */}
 						<Route path="/registration" element={
