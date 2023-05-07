@@ -73,6 +73,7 @@ using DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.Hosting;
 using System.Security.Cryptography.X509Certificates;
+using DevelopmentHell.Hubba.ListingProfile.Service.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 
