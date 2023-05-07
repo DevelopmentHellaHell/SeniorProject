@@ -8,6 +8,8 @@ interface ICuratedViewProps {
 }
 
 const CuratedView: React.FC<ICuratedViewProps> = (props) => {
+    console.log("loading curated view ^-^");
+    console.log(props.data);
     return (
         <div id="curated-view-wrapper" className="curated-view-wrapper">
             <h3 className="category">Listings</h3>
