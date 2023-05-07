@@ -8,19 +8,17 @@ interface ICuratedViewProps {
 }
 
 const CuratedView: React.FC<ICuratedViewProps> = (props) => {
-    console.log("loading curated view ^-^");
-    console.log(props.data);
     return (
         <div id="curated-view-wrapper" className="curated-view-wrapper">
             <h3 className="category">Listings</h3>
             <div className="catalogue">
-                {props.data?.listings.length == 0 &&
+                {props.data && props.data.listings.length == 0 &&
                     <p id="empty-listings">No Listings found.</p>
                 }
-                {props.data && 
+                {props.data && props.data.listings && props.data.listings.length > 0 &&
                     props.data.listings.map(item => {
                         return (
-                            <ListingCard data={item} />
+                            <ListingCard key={`listing-card-${item.ListingId}`} data={item} />
                         );
                     })
                 }
@@ -34,7 +32,7 @@ const CuratedView: React.FC<ICuratedViewProps> = (props) => {
                 {props.data && 
                     props.data.showcases.map(item => {
                         return (
-                            <ProjectShowcaseCard data={item} />
+                            <ProjectShowcaseCard key={`showcase-card-${item.Id}`} data={item} />
                         );
                     })
                 }
@@ -48,7 +46,7 @@ const CuratedView: React.FC<ICuratedViewProps> = (props) => {
                 {props.data && 
                     props.data.collaborators.map(item => {
                         return (
-                            <CollaboratorCard data={item} />
+                            <CollaboratorCard key={`collaborator-card-${item.CollaboratorId}`} data={item} />
                         );
                     })
                 }
