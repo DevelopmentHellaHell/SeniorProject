@@ -500,6 +500,10 @@ builder.Services.AddTransient<IAccountSystemManager, AccountSystemManager>(s =>
             HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
             HubbaConfig.ConfigurationManager.AppSettings["ListingHistoryTable"]!
         ),
+        new ListingsDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["ListingsTable"]!
+        ),
             s.GetService<ILoggerService>()!
         ),
         s.GetService<IOTPService>()!,

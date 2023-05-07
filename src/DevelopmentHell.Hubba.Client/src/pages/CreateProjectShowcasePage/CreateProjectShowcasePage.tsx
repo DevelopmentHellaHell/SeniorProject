@@ -137,7 +137,8 @@ const CreateProjectShowcasePage: React.FC<ICreateProjectShowcasePageProps> = (pr
             <div className="create-project-showcase-content">
                 <div className="v-stack">
                 <div className="create-project-showcase-content-wrapper">
-                    <h1>Create Project Showcase</h1>
+                    <h1>Create Project Showcase{listingId === 0? "" : ` For Listing Id ${listingId}`}</h1>
+                    <p>This is where you can create a showcase to share with the world</p>
                     <div className='h-stack'>
                         <h4>Project Title: </h4>
                         <div className='v-stack'>

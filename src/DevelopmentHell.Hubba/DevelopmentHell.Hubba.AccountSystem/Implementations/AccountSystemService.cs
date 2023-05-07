@@ -11,13 +11,15 @@ namespace DevelopmentHell.Hubba.AccountSystem.Implementations
         private IUserAccountDataAccess _userAccountDataAccess;
         private IBookingsDataAccess _bookingDataAccess;
         private IListingHistoryDataAccess _listHistoryDataAccess;
+        private IListingsDataAccess _listingDataAccess;
         private ILoggerService _loggerService;
 
-        public AccountSystemService(IUserAccountDataAccess userAccountDataAccess, IBookingsDataAccess bookingsDataAccess, IListingHistoryDataAccess listingHistoryDataAccess, ILoggerService loggerService)
+        public AccountSystemService(IUserAccountDataAccess userAccountDataAccess, IBookingsDataAccess bookingsDataAccess, IListingHistoryDataAccess listingHistoryDataAccess, IListingsDataAccess listingsDataAccess, ILoggerService loggerService)
         {
             _userAccountDataAccess = userAccountDataAccess;
             _bookingDataAccess = bookingsDataAccess;
             _listHistoryDataAccess = listingHistoryDataAccess;
+            _listingDataAccess = listingsDataAccess;
             _loggerService = loggerService;
         }
         //TODO: Remember to write what needs to be checked in this layer
@@ -87,15 +89,19 @@ namespace DevelopmentHell.Hubba.AccountSystem.Implementations
             return result;
         }
 
-        public async Task<Result<List<BookingHistory>>> GetBookingHistory(int userId)
+        public async Task<Result<List<BookingHistory>>> GetBookingHistory(int userId, int bookingCount, int page)
         {
-            return await _bookingDataAccess.GetBookingHistory(userId).ConfigureAwait(false);
+            return await _bookingDataAccess.GetBookingHistory(userId, bookingCount, page).ConfigureAwait(false);
         }
 
-        public async Task<Result<List<Reservations>>> GetReservations(int ownerId)
+        public async Task<Result<List<Reservations>>> GetReservations(int ownerId, string sort, int reservationCount, int page)
         {
-            return await _listHistoryDataAccess.GetReservations(ownerId).ConfigureAwait(false);
+            return await _listHistoryDataAccess.GetReservations(ownerId, sort, reservationCount, page).ConfigureAwait(false);
         }
 
+        public async Task<Result<List<Reservations>>> GetRerservationsQuery(int ownerId, string query)
+        {
+            return await _listingDataAccess.GetReservationsSearch(ownerId, query).ConfigureAwait(false);
+        }
     }
 }
