@@ -9,11 +9,15 @@ namespace DevelopmentHell.Hubba.AccountSystem.Implementations
     public class AccountSystemService : IAccountSystemService
     {
         private IUserAccountDataAccess _userAccountDataAccess;
+        private IBookingsDataAccess _bookingDataAccess;
+        private IListingHistoryDataAccess _listHistoryDataAccess;
         private ILoggerService _loggerService;
 
-        public AccountSystemService(IUserAccountDataAccess userAccountDataAccess, ILoggerService loggerService)
+        public AccountSystemService(IUserAccountDataAccess userAccountDataAccess, IBookingsDataAccess bookingsDataAccess, IListingHistoryDataAccess listingHistoryDataAccess, ILoggerService loggerService)
         {
             _userAccountDataAccess = userAccountDataAccess;
+            _bookingDataAccess = bookingsDataAccess;
+            _listHistoryDataAccess = listingHistoryDataAccess;
             _loggerService = loggerService;
         }
         //TODO: Remember to write what needs to be checked in this layer
@@ -56,7 +60,17 @@ namespace DevelopmentHell.Hubba.AccountSystem.Implementations
 
         public async Task<Result<AccountSystemSettings>> GetAccountSettings(int userId)
         {
-            return await _userAccountDataAccess.GetAccountSettings(userId).ConfigureAwait(false);
+            Result<AccountSystemSettings> result = new Result<AccountSystemSettings>();
+            Result<AccountSystemSettings> getResult = await _userAccountDataAccess.GetAccountSettings(userId).ConfigureAwait(false);
+            if (!getResult.IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = getResult.ErrorMessage;
+                return result;
+            }
+            result.IsSuccessful = true;
+            result.Payload = getResult.Payload;
+            return result;
         }
 
         public async Task<Result> CheckNewEmail(string newEmail)
@@ -71,6 +85,16 @@ namespace DevelopmentHell.Hubba.AccountSystem.Implementations
             }
             result.IsSuccessful = true;
             return result;
+        }
+
+        public async Task<Result<List<BookingHistory>>> GetBookingHistory(int userId)
+        {
+            return await _bookingDataAccess.GetBookingHistory(userId).ConfigureAwait(false);
+        }
+
+        public async Task<Result<List<Reservations>>> GetReservations(int ownerId)
+        {
+            return await _listHistoryDataAccess.GetReservations(ownerId).ConfigureAwait(false);
         }
 
     }

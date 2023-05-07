@@ -10,5 +10,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Abstractions
         Task<Result> UpdateUserName(int userId, string firstName, string lastName);
         Task<Result<AccountSystemSettings>> GetAccountSettings(int userId);
         Task<Result> CheckNewEmail(string newEmail);
+        Task<Result<List<BookingHistory>>> GetBookingHistory(int userId);
+        Task<Result<List<Reservations>>> GetReservations(int ownerId); 
     }
 }

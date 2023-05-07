@@ -11,5 +11,8 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Abstractions
         Task<Result> UpdatePassword(string oldPassword, string newPassword, string newPasswordDupe);
         Task<Result> UpdateUserName(string firstName, string lastName);
         Task<Result<AccountSystemSettings>> GetAccountSettings();
+        Task<Result> CancelBooking(int bookingId);
+        Task<Result<List<BookingHistory>>> GetBookingHistory();
+        Task<Result<List<Reservations>>> GetReservations();
     }
 }

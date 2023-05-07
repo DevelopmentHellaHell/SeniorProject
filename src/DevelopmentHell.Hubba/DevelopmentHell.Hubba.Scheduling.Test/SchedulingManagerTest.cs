@@ -715,5 +715,47 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             Assert.IsNotNull(actual);
             Assert.IsFalse(actual.IsSuccessful);
         }
+
+        [TestMethod]
+        public async Task GetBookingDetails()
+        {
+			// Arrange
+			//  - Setup user and initial state
+			var credentialEmail = "test@gmail.com";
+			var credentialPassword = "12345678";
+			await _registrationManager.Register(credentialEmail, credentialPassword).ConfigureAwait(false);
+			var userIdResult = await _userAccountDataAccess.GetId(credentialEmail).ConfigureAwait(false);
+			var userId = userIdResult.Payload;
+
+			var accessTokenResult = await _authorizationService.GenerateAccessToken(userId, false).ConfigureAwait(false);
+			var idTokenResult = _authenticationService.GenerateIdToken(userId, accessTokenResult.Payload!);
+			if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+			{
+				_testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+
+			}
+			//  - Setup test data
+			var testData = await SetUpTestData().ConfigureAwait(false);
+			int listingId = (int)testData["ListingId"];
+			int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId!;
+			float fullPrice = 100;
+			List<BookedTimeFrame> chosenTimeFrames = new()
+			{
+				new BookedTimeFrame(){ListingId = listingId, AvailabilityId = availabilityId, StartDateTime = DateTime.Today.AddDays(2).AddHours(11),EndDateTime = DateTime.Today.AddDays(2).AddHours(12) },
+			};
+
+			// reserve a booking
+			var reserveBooking = await _schedulingManager.ReserveBooking(userId, listingId, fullPrice, chosenTimeFrames).ConfigureAwait(false);
+			int bookingId = reserveBooking.Payload!.BookingId;
+			var cancelBooking = await _schedulingManager.CancelBooking(userId, bookingId).ConfigureAwait(false);
+
+			//Act
+			var actual = await _schedulingManager.GetBookingDetails(userId, bookingId).ConfigureAwait(false);
+
+			//Assert
+			Assert.IsNotNull(actual);
+			Assert.IsTrue(actual.IsSuccessful);
+            Assert.IsTrue(actual.Payload!.GetType() == typeof(BookingViewDTO));
+		}
     }
 }

@@ -227,7 +227,7 @@ context.only('Login operation', () => {
             /**
              * OTP expired
              */
-            xit('OTP expired', () => {
+            it('OTP expired', () => {
                 cy.get('#email').as('email').type(Cypress.env('realEmail')).should('have.value', Cypress.env('realEmail'));
                 cy.get('#password').as('password').type(Cypress.env('standardPassword')).should('have.value', Cypress.env('standardPassword'));
                 cy.contains('Submit').click()
@@ -258,45 +258,3 @@ context.only('Login operation', () => {
         });
     });
 });
-
-// describe('login failed case - valid email, password, empty/invalid/expired OTP', () => {
-//     let testsRoute: string = '/tests/deleteDatabaseRecords';
-
-//     beforeEach(() => {
-//         cy.loginViaApi(Cypress.env("realEmail"), Cypress.env("standardPassword"));
-//     });
-//     // after(async () => {
-//     //     await Ajax.post(testsRoute, { database: Database.Databases.USERS });
-//     // })
-//     it('empty/invalid OTP', () => {
-//         cy.get('#otp').should('exist').and('be.visible');
-//         //empty OTP
-//         cy.contains('Submit').click()
-//             .then(()=>{
-//                 cy.get('.otp-card .error').should('exist').and('be.visible');
-//             });
-//         //invalid OTP
-//         cy.get('#otp').type('123').should('have.value', '123');
-//         cy.contains('Submit').click()
-//             .then(()=>{
-//                 cy.get('.otp-card .error').should('exist').and('be.visible');
-//             });
-//         cy.get('#otp').clear();
-
-//         //expired OTP
-//         cy.wait(180000);
-//         cy.request('GET', Cypress.env('serverUrl')+'tests/getotp')
-//             .then((response) => {
-//                 cy.wrap(response.body).as('returnedOtp');
-//                 cy.get('@returnedOtp')
-//                     .then((otp)=>{
-//                         cy.get('#otp').type(otp).should('have.value', otp);
-//                         cy.contains('Submit').click()
-//                             .then(()=>{
-//                                 cy.get('.otp-card .error').should('exist').and('be.visible');
-//                             });
-//                     })
-//             });
-        
-//     });
-// });

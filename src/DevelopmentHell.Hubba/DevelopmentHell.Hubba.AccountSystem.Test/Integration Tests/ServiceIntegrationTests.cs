@@ -54,6 +54,15 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
             );
             _accountSystemService = new AccountSystemService(
                 _userAccountDataAccess,
+            new BookingsDataAccess(
+                ConfigurationManager.AppSettings["SchedulingsConnectionString"]!,
+                ConfigurationManager.AppSettings["BookingsTable"]!
+            ),
+            new ListingHistoryDataAccess
+            (
+                ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+                ConfigurationManager.AppSettings["ListingHistoryTable"]!
+            ),
                 loggerService
             );
             _cryptographyService = new CryptographyService(

@@ -24,13 +24,13 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
-
+              
                 var result = await _accountSystemManager.VerifyAccount().ConfigureAwait(false);
                 if (!result.IsSuccessful)
                 {
                     return StatusCode(result.StatusCode, result.ErrorMessage);
                 }
-
+                
                 return StatusCode(result.StatusCode);
             }).ConfigureAwait(false);
         }
@@ -83,7 +83,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 
         [HttpPost]
         [Route("updateEmailInformation")]
-        public async Task<IActionResult> updateEmailInformation(string newEmail, string password)
+        public async Task<IActionResult> UpdateEmailInformation(UpdateEmail emailInfo)
         {
             return await GuardedWorkload(async () =>
             {
@@ -91,6 +91,8 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
+                var newEmail = emailInfo.newEmail;
+                var password = emailInfo.password;
 
                 var result = await _accountSystemManager.UpdateEmailInformation(newEmail, password).ConfigureAwait(false);
                 if (!result.IsSuccessful)
@@ -171,5 +173,69 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 return StatusCode(result.StatusCode, result.Payload);
             }).ConfigureAwait(false);
         }
+
+        [HttpPost]
+        [Route("cancelBooking")]
+        public async Task<IActionResult> CancelBooking(CancelBookingDTO cancelBookingInfo)
+        {
+            return await GuardedWorkload(async() =>
+            {
+                if (!ModelState.IsValid)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest);
+                }
+
+                var result = await _accountSystemManager.CancelBooking(cancelBookingInfo.bookingId).ConfigureAwait(false);
+                if(!result.IsSuccessful) 
+                {
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
+                }
+
+                return StatusCode(result.StatusCode);
+            }).ConfigureAwait(false);
+        }
+
+        [HttpGet]
+        [Route("getBookingHistory")]
+        public async Task<IActionResult> GetBookingHistory()
+        {
+            return await GuardedWorkload(async () =>
+            {
+                if (!ModelState.IsValid)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest);
+                }
+
+                var result = await _accountSystemManager.GetBookingHistory().ConfigureAwait(false);
+                if (!result.IsSuccessful)
+                {
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
+                }
+
+                return StatusCode(result.StatusCode, result.Payload);
+            }).ConfigureAwait(false);
+        }
+
+        [HttpGet]
+        [Route("getReservations")]
+        public async Task<IActionResult> GetReservations()
+        {
+            return await GuardedWorkload(async () =>
+            {
+                if (!ModelState.IsValid)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest);
+                }
+
+                var result = await _accountSystemManager.GetReservations().ConfigureAwait(false);
+                if (!result.IsSuccessful)
+                {
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
+                }
+
+                return StatusCode(result.StatusCode, result.Payload);
+            }).ConfigureAwait(false);
+        }
     }
+
 }

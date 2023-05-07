@@ -5,10 +5,11 @@ using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using System.Security.Claims;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
-using Microsoft.Identity.Client;
 using DevelopmentHell.Hubba.Notification.Manager.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
+using DevelopmentHell.Hubba.Scheduling.Service.Abstractions;
+using DevelopmentHell.Hubba.Scheduling.Manager.Abstraction;
 
 namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
 {
@@ -20,8 +21,10 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
         private ICryptographyService _cryptographyService;
         private INotificationManager _notificationManager;
         private IValidationService _validationService;
+        private ISchedulingManager _schedulingManager;
         private ILoggerService _loggerService;
-        public AccountSystemManager(IAccountSystemService accountSystemService, IOTPService otpService, IAuthorizationService authorizationService, ICryptographyService cryptographyService, INotificationManager notificationManager, IValidationService validationService, ILoggerService loggerService)
+        public AccountSystemManager(IAccountSystemService accountSystemService, IOTPService otpService, IAuthorizationService authorizationService, ICryptographyService cryptographyService,
+            INotificationManager notificationManager, IValidationService validationService, ISchedulingManager schedulingManager, ILoggerService loggerService)
         {
             _accountSystemService = accountSystemService;
             _otpService = otpService;
@@ -29,14 +32,12 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             _cryptographyService = cryptographyService;
             _notificationManager = notificationManager;
             _validationService = validationService;
+            _schedulingManager = schedulingManager;
             _loggerService = loggerService;
         }
-        //TODO: Check this function
         public async Task<Result> VerifyAccount()
         {
             Result result = new Result();
-
-            //TODO: sanitation check for email
 
             //Check prinicpal of user
             if (!_authorizationService.Authorize(new string[] { "AdminUser", "VerifiedUser" }).IsSuccessful)
@@ -86,6 +87,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             }
 
             result.IsSuccessful = true;
+            result.StatusCode = 200;
             return result;
         }
 
@@ -159,6 +161,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             }
 
             result.IsSuccessful = true;
+            result.StatusCode = 200;
             return result;
         }
 
@@ -183,8 +186,9 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
                 result.ErrorMessage = checkOTPResult.ErrorMessage;
                 return result;
             }
-
+            
             result.IsSuccessful = true;
+            result.StatusCode = 200;
             return result;
         }
 
@@ -210,6 +214,13 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
                 return result;
             }
 
+            if (stringAccountEmail == newEmail)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "You need to enter a different email or press cancel. ";
+                return result;
+            }
+
             //extract user ID from JWT Token
             var accountId = int.Parse(stringAccountId);
 
@@ -222,6 +233,14 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
                 return result;
             }
 
+            Result checkEmailResult = await _accountSystemService.CheckNewEmail(newEmail).ConfigureAwait(false);
+            if (!checkEmailResult.IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = checkEmailResult.ErrorMessage;
+                return result;
+            }
+
             Result updateResult = await _accountSystemService.UpdateEmailInformation(accountId, newEmail);
             if(!updateResult.IsSuccessful) 
             {
@@ -231,6 +250,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             }
 
             result.IsSuccessful = true;
+            result.StatusCode = 200;
             await _notificationManager.CreateNewNotification(accountId, "Your email has sucessfully changed. ", 0, true);
             return result;
         }
@@ -305,6 +325,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             }
 
             result.IsSuccessful = true;
+            result.StatusCode = 200;
             await _notificationManager.CreateNewNotification(accountId, "You've successfully changed your password. ", 0, true);
             return result;
         }
@@ -341,6 +362,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             }
 
             result.IsSuccessful = true;
+            result.StatusCode = 200;
             await _notificationManager.CreateNewNotification(accountId, "You've successfully changed your Account Settings. " +
                 "If this was not you, please contact administration for further assistance. ", 0, true);
             return result;
@@ -383,8 +405,93 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
                 return result;
             }
 
-            return getResult;
+            result.Payload = getResult.Payload;
+            result.IsSuccessful = true;
+            result.StatusCode = 200;
+            return result;
 
+        }
+
+        public async Task<Result> CancelBooking(int bookingId)
+        {
+            Result result = new Result();
+            var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
+            if (stringAccountId is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error, invalid access token format. ";
+                return result;
+            }
+
+            var accountId = int.Parse(stringAccountId);
+
+            Result<bool> cancelResult = await _schedulingManager.CancelBooking(accountId, bookingId).ConfigureAwait(false);
+            if(!cancelResult.IsSuccessful || cancelResult.Payload is false) 
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = cancelResult.ErrorMessage;
+                return result;
+            }
+
+            result.IsSuccessful = true;
+            result.StatusCode = 200;
+            return result;
+
+        }
+
+        public async Task<Result<List<BookingHistory>>> GetBookingHistory()
+        {
+            Result<List<BookingHistory>> result = new Result<List<BookingHistory>>();
+            var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
+            if (stringAccountId is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error, invalid access token format. ";
+                return result;
+            }
+
+            var accountId = int.Parse(stringAccountId);
+
+            var getResult = await _accountSystemService.GetBookingHistory(accountId).ConfigureAwait(false);
+            if(!getResult.IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = getResult.ErrorMessage;
+                return result;
+            }
+            result.IsSuccessful = true;
+            result.StatusCode = 200;
+            result.Payload = getResult.Payload;
+            return result;
+        }
+
+        public async Task<Result<List<Reservations>>> GetReservations()
+        {
+            Result<List<Reservations>> result = new Result<List<Reservations>>();
+            var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
+            if (stringAccountId is null)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = "Error, invalid access token format. ";
+                return result;
+            }
+
+            var accountId = int.Parse(stringAccountId);
+
+            var getResult = await _accountSystemService.GetReservations(accountId).ConfigureAwait(false);
+            if (!getResult.IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = getResult.ErrorMessage;
+                return result;
+            }
+            result.IsSuccessful = true;
+            result.StatusCode = 200;
+            result.Payload = getResult.Payload;
+            return result;
         }
 
         //Check proper credentials of user

@@ -341,7 +341,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                         <hr></hr>
                                         <div className="h-stack">
                                             <h4>{comment.commenterEmail.split("@")[0]}</h4>
-                                            {authData && comment.commenterId.toString() == authData.sub &&
+                                            {authData && comment.commenterId == authData.sub &&
                                                 <div className="owned-comment">
                                                     <button onClick={() => {
                                                         navigate(`/showcases/comments/edit?cid=${comment.id}`);

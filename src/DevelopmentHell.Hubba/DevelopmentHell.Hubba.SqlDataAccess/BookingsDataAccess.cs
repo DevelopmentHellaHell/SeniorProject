@@ -162,5 +162,57 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
             return new (Result.Success());
         }
+
+        public async Task<Result<List<BookingHistory>>> GetBookingHistory(int userId)
+        {
+            List<BookingHistory> result = new List<BookingHistory>();
+            var selectResult = await _selectDataAccess.Select(
+                SQLManip.InnerJoinTables(
+                    new Joiner(
+                        _tableName,
+                        "Listings",
+                        nameof(BookingHistory.ListingId),
+                        nameof(BookingHistory.ListingId))),
+                new List<string>()
+                {
+                    nameof(BookingHistory.BookingId),
+                    _tableName + "." + nameof(BookingHistory.ListingId),
+                    nameof(BookingHistory.FullPrice),
+                    nameof(BookingHistory.BookingStatusId),
+                    nameof(BookingHistory.Title),
+                    nameof(BookingHistory.Location)
+                },
+                new List<Comparator>()
+                { 
+                    new Comparator("UserId", "=", userId)
+                }
+            ).ConfigureAwait(false);
+            if (!selectResult.IsSuccessful || selectResult.Payload is null) 
+            {
+                return new(Result.Failure("Booking Data Access Error"));
+            }
+
+            if (selectResult.Payload.Count < 1)
+            {
+                return new(Result.Failure("No booking found", StatusCodes.Status404NotFound));
+            }
+            else
+            {
+                foreach(var row in selectResult.Payload)
+                {
+                    result.Add(new BookingHistory()
+                    {
+                        BookingId = (int)row["BookingId"],
+                        ListingId = (int)row["ListingId"],
+                        FullPrice = decimal.ToDouble((decimal)row["FullPrice"]),
+                        BookingStatusId = (int)row["BookingStatusId"],
+                        Title = (string)row["Title"],
+                        Location = (string)row["Location"]
+                    });
+                }
+            }
+            return Result<List<BookingHistory>>.Success(result);
+        }
     }
 }
+

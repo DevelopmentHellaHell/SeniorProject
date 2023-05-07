@@ -19,8 +19,6 @@ const CuratedView: React.FC<ISearchViewProps> = (props) => {
 
     useEffect(() => {
         const getData = async () => {
-            console.log(props.searchQuery.query, props.searchQuery.category, props.searchQuery.filter);
-
             const response = await Ajax.post<any>("/discovery/getSearch", {
                 Query: props.searchQuery.query,
                 Category: props.searchQuery.category,

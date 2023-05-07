@@ -160,7 +160,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
         {
             //Arrange
             var testData = await SetUp();
-            int testMonth = 2;
+            int testMonth = 0;
             //Act
             var actual = await _availabilityService.GetOpenTimeSlotsByMonth(
                 (int)testData[nameof(Listing.ListingId)],
