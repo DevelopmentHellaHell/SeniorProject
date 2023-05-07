@@ -15,8 +15,7 @@ const NavbarGuest: React.FC<INavbarGuestProps> = (props) => {
             <p className="logo" onClick={() => {navigate("/")}}>HUBBA</p>
             <nav className="nav-links">
                 <li><p onClick={() => {navigate("/discover")}}>Discover</p></li>
-                <li><p onClick={() => {alert("2")}}>About Us</p></li>
-                <li> <p onClick={() => { navigate("/listingprofile") }}>My Listings</p></li>
+                <li> <p onClick={() => { navigate("/mylistings") }}>My Listings</p></li>
             </nav>
             <div className="buttons">
                 <Button title="Sign Up" theme={ButtonTheme.HOLLOW_LIGHT} onClick={() => { navigate("/registration") }}/>

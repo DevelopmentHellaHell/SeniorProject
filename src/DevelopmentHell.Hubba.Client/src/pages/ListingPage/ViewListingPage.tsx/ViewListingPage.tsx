@@ -76,7 +76,6 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                 {
                     const userHistory = await Ajax.post<string>('/listingprofile/hasListingHistory',  { listingId: state.listingId } );
                     if (userHistory.data) {
-                        console.log(userHistory.data);
                         if (userHistory.data == "none") {
                             setHasBooked(false);
                             setHasRating(false);
@@ -152,7 +151,7 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
             setError("Listing deletion error. Refresh page or try again later.\n" + response.error);
             return;
         }
-        navigate("/listingprofile");
+        navigate("/mylistings");
     };
 
     return (

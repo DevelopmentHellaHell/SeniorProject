@@ -70,10 +70,29 @@ using HubbaConfig = System.Configuration;
 using DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions;
 using DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions;
 using DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.Hosting;
+using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+
+//builder.WebHost.UseKestrel(options =>
+//{
+//    options.ListenAnyIP(443, listenOptions =>
+//    {
+//        listenOptions.UseHttps();
+//    });
+//});
+
+builder.WebHost.ConfigureKestrel((context, options) =>
+{
+    options.ConfigureHttpsDefaults(httpsOptions =>
+    {
+        httpsOptions.ServerCertificate = LoadCertificate();
+    });
+});
 
 builder.Services.AddSingleton<ITestingService, TestingService>(s =>
 {
@@ -82,6 +101,11 @@ builder.Services.AddSingleton<ITestingService, TestingService>(s =>
         new TestsDataAccess()
     );
 });
+//builder.Services.AddHttpsRedirection(options =>
+//{
+//    options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
+//    options.HttpsPort = 443;
+//});
 
 // Transient new instance for every controller and service
 // Scoped is same object from same request but different for other requests??
@@ -590,5 +614,38 @@ app.UseCors(x => x
 
 app.UseRouting();
 
-app.MapControllers();
+app.UseDefaultFiles();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "ClientBuild", "build")),
+    RequestPath = "/ClientBuild/build"
+});
+//app.UseStaticFiles(); // <-- don't forget this
+//app.UseStaticFiles(new StaticFileOptions
+//{
+//    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), ".well-known", "acme-challenge")),
+//    RequestPath = new PathString("/.well-known/acme-challenge"),
+//    ServeUnknownFileTypes = true
+//});
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    endpoints.MapFallback(async context =>
+    {
+        context.Response.ContentType = "text/html";
+        await context.Response.SendFileAsync(Path.Combine("ClientBuild", "build", "index.html"));
+    });
+});
 app.Run();
+
+X509Certificate2 LoadCertificate()
+{
+    // Load your Origin CA certificate and private key here
+    var certificatePath = Path.Combine("ssl", "fullchain.pem");
+    var privateKeyPath = Path.Combine("ssl", "privkey.pem");
+    var cert = new X509Certificate2(certificatePath, privateKeyPath);
+    return cert;
+}
