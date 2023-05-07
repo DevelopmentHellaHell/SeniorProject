@@ -247,7 +247,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                         </div>
                         <Button theme={ButtonTheme.DARK} title="Go To Listing" onClick={() => {
                             if (showcase && showcase.listingId){
-                                navigate(`/listings/view?l=${showcase.listingId}`);
+                                navigate(`/viewlisting`, {state: {listingId: showcase.listingId}});
                             }
                             else {
                                 alert("Unable to navigate to listing.")

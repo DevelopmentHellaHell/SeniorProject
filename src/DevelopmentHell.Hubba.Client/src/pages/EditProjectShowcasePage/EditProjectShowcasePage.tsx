@@ -44,11 +44,17 @@ const EditProjectShowcasePage: React.FC<IEditProjectShowcasePageProps> = (props)
     const [uploadResponse, setUploadResponse] = useState<IShowcaseDTO>();
     const [data, setData] = useState<IShowcaseDTO | null>(null);
     const [fileData, setFileData] = useState<{ Item1: string, Item2: string} []>([]);
-    const [listingId, setListingId] = useState<number>(searchParams.get("l") ? parseInt(searchParams.get("l")!) : 0);
+    const [listingId, setListingId] = useState<number>(0);
     const showcaseId = searchParams.get("s");
 
     const authData = Auth.getAccessData();
     const navigate = useNavigate();
+
+    
+    useEffect(() => {
+        setListingId(searchParams.get("l") ? parseInt(searchParams.get("l")!) : 0)
+    }, []);
+
 
     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {

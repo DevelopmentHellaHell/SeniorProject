@@ -64,6 +64,10 @@
     width: 100%;
 }
 
+.my-showcases-wrapper .table-listing p{
+    cursor: pointer;
+}
+
 .my-showcases-wrapper .table-rating {
     text-align: center;
 }

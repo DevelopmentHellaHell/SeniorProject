@@ -51,7 +51,7 @@ const CreateProjectShowcasePage: React.FC<ICreateProjectShowcasePageProps> = (pr
     const navigate = useNavigate();
 
     useEffect(() => {
-        searchParams.get("l") ? parseInt(searchParams.get("l")!) : 0
+        setListingId(searchParams.get("l") ? parseInt(searchParams.get("l")!) : 0)
     }, []);
 
     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,15 +104,18 @@ const CreateProjectShowcasePage: React.FC<ICreateProjectShowcasePageProps> = (pr
           setProcCreate(true);
       
           console.log("file data: ", fileDataList);
-          const response = await Ajax.post<string>("/showcases/new", { files: fileDataList,  title: title, description: description, listingId:  listingId });
-      
-          if (response.error) {
-            setError(response.error);
-            console.log(response.error)
-            console.log(response)
-          } else {
-            navigate(`/showcases/view?s=${response.data}`);
-          }
+          const response = await Ajax.post<string>("/showcases/new", { files: fileDataList,  title: title, description: description, listingId:  listingId }).then(
+            (response) => {
+                if (response.error) {
+                    setError(response.error);
+                    console.log(response.error)
+                    console.log(response)
+                    setProcCreate(false);
+                  } else {
+                    navigate(`/showcases/view?s=${response.data}`);
+                  }
+            }
+          );
         } catch (error) {
           //setError(error);
           console.log(error);
@@ -132,6 +135,7 @@ const CreateProjectShowcasePage: React.FC<ICreateProjectShowcasePageProps> = (pr
             <NavbarUser />
 
             <div className="create-project-showcase-content">
+                <div className="v-stack">
                 <div className="create-project-showcase-content-wrapper">
                     <h1>Create Project Showcase</h1>
                     <div className='h-stack'>
@@ -178,8 +182,9 @@ const CreateProjectShowcasePage: React.FC<ICreateProjectShowcasePageProps> = (pr
                         </form>
                     </div>
                 </div>
+                <p className='error-output'>{error ? error + " please try again later" : ""}</p>
+                </div>
             </div>
-            <p className='error-output'>{error ? error + " please try again later" : ""}</p>
             <Footer />
         </div> 
     );

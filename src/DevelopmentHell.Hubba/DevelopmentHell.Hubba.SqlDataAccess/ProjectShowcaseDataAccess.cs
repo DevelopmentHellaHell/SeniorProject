@@ -479,15 +479,21 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         public async Task<Result> InsertShowcase(int accountId, string showcaseId, int? listingId, string title, string description, DateTime time)
         {
-            return await _insertDataAccess.Insert(_showcaseTableName, new() {
+            Dictionary<string, object> insertDict = new Dictionary<string, object>()
+            {
                 { "Id", showcaseId },
                 { "ShowcaseUserId", accountId },
                 { "Title", title },
                 { "Description", description },
                 { "IsPublished", false },
                 { "Rating", 0 },
-                { "EditTimestamp", time }
-            }).ConfigureAwait(false);
+                { "EditTimestamp", time },
+            };
+            if (listingId != null && listingId != 0)
+            {
+                insertDict["ListingId"] = listingId;
+            }
+            return await _insertDataAccess.Insert(_showcaseTableName, insertDict).ConfigureAwait(false);
         }
 
         public async Task<Result> InsertUserCommentRating(long commentId, int voterId, bool isUpvote)

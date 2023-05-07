@@ -13,8 +13,8 @@ interface IProjectShowcaseViewProps {
 export interface IShowcaseData {
     id: string,
     showcaseUserId: number,
-    linkedListingId: string,
-    linkedListingTitle: string,
+    listingId: string,
+    listingTitle: string,
     title: string,
     description: string,
     isPublished: boolean,
@@ -166,7 +166,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
                         )
                     );
                 }} title={"Delete"}/>
-                {showcaseDatam.linkedListingId!=null&&
+                {showcaseDatam.listingId!=null&&
                     <Button theme={ButtonTheme.DARK} onClick={() => {
                         setData((prevData) =>
                         prevData.map((showcaseData) =>
@@ -198,8 +198,8 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
             <tr key={`showcase-${showcaseData.id}`}>
                 <td className="table-rating"> {showcaseData.rating}</td>
                 <td className="table-listing" onClick={() => {
-                    navigate('/viewListing', { state: { listingId: showcaseData.linkedListingId} })
-                }}>{showcaseData.linkedListingId!=null && `Click to go to listing: ${showcaseData.linkedListingId}`}</td>
+                    navigate('/viewListing', { state: { listingId: showcaseData.listingId} })
+                }}>{showcaseData.listingId!=null && <p>Click to go to listing: {showcaseData.listingId}</p>}</td>
                 <td className="table-title">
                     <Link to={`/showcases/view?s=${showcaseData.id}`}>{showcaseData.title}</Link>
                 </td>
