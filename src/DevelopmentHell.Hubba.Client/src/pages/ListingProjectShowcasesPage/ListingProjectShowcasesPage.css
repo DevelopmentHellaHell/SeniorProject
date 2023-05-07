@@ -32,3 +32,24 @@
     align-items: center;
     justify-content: center;
 }
+
+.listing-project-showcases-content .header-likes {
+    min-width: 50px;
+}
+
+.listing-project-showcases-content .header-listing {
+    min-width: 250px;
+}
+
+
+.listing-project-showcases-content .my-showcases-table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    margin: 3px
+}
+
+.listing-project-showcases-content .my-showcases-table-header th, td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 5px;
+}

@@ -484,7 +484,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
                     nextShowcase.IsPublished = valDict["IsPublished"].GetType() == typeof(DBNull) ? null : (bool)valDict["IsPublished"];
                     nextShowcase.EditTimestamp = valDict["EditTimestamp"].GetType() == typeof(DBNull) ? null : (DateTime)valDict["EditTimestamp"];
                     nextShowcase.Title = valDict["Title"].GetType() == typeof(DBNull) ? null : (string)valDict["Title"];
-                    nextShowcase.Description = valDict["Description"].GetType() == typeof(DBNull) ? null : (string)valDict["Description"];
                     nextShowcase.ListingId = valDict["ListingId"].GetType() == typeof(DBNull) ? null : (int)valDict["ListingId"];
                     nextShowcase.Rating = valDict["Rating"].GetType() == typeof(DBNull) ? null : (double)valDict["Rating"];
                     nextShowcase.Id = valDict["Id"].GetType() == typeof(DBNull) ? null : (string)valDict["Id"];

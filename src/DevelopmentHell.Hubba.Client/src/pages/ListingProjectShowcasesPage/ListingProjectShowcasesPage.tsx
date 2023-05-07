@@ -94,6 +94,7 @@ const ListingProjectShowcasesPage: React.FC<IListingProjectShowcasePageProps> = 
             {!authData && <NavbarGuest />}
             <NavbarUser />
             <div className="listing-project-showcases-content">
+                <div className="v-stack">
                 <div className="listing-project-showcases-header">
                         <h1>Project Showcases</h1>
                         <Button theme={ButtonTheme.DARK} onClick={() => {
@@ -130,6 +131,7 @@ const ListingProjectShowcasesPage: React.FC<IListingProjectShowcasePageProps> = 
                             </tbody>
                         </table>
                     </div>
+                </div>
                 </div>
             </div>
 
