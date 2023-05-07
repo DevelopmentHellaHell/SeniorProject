@@ -63,6 +63,10 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
                 ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
                 ConfigurationManager.AppSettings["ListingHistoryTable"]!
             ),
+           new ListingsDataAccess(
+                ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+                ConfigurationManager.AppSettings["ListingsTable"]!
+            ),
                 loggerService
             );
             _cryptographyService = new CryptographyService(

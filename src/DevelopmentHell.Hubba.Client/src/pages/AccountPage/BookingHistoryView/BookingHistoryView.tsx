@@ -39,12 +39,18 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
     const [error, setError] = useState("");
     const [loaded, setLoaded] = useState(false);
     const [showDetails, setShowDetails] = useState(false);
+    const [filters, setFilters] = useState<BookingStatus[]>([]);
     const [showBookingId, setShowBookingId] = useState(0);
+    
+   
+    const [bookingPage, setBookingPage] = useState(1);
+    const [bookingCount, setBookingCount] = useState(10);
+   
     const [selectBooking, setSelectedBooking] = useState<number[]>([]);
     const prevDataRef = useRef<IBookingHistoryData[]>();
 
-    const getData = async () => {
-        await Ajax.get<IBookingHistoryData[]>("/accountsystem/getbookinghistory").then((response) => {
+    const getData = async () => { 
+        await Ajax.post<IBookingHistoryData[]>("/accountsystem/getbookinghistory", {bookingCount: bookingCount, page: bookingPage}).then((response) => {
             setData(response.data && response.data.length ? response.data : []);
             setError(response.error);
             setLoaded(response.loaded);
@@ -102,12 +108,40 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
         );
     }
 
+    const createFilterButton = (filter: BookingStatus) => {
+        return (
+            <div key={`${filter}-filter`}>
+                <Button theme={filters.includes(filter) ? ButtonTheme.DARK : ButtonTheme.HOLLOW_DARK} title={Filters[filter]} onClick={() => {
+                    if (filters.includes(filter)) {
+                        filters.splice(filters.indexOf(filter), 1);
+                        setFilters([...filters]);
+                        return;
+                    } 
+
+                    setFilters([...filters, filter]);
+                }}/>
+            </div>
+        );
+    }
+
     return (
         <div className="booking-history-container">
             <div className="booking-history-content">
                 {!showDetails &&
                     <div className="booking-history-wrapper">
                         <h1>Booking History</h1>
+                        <div className="filters-wrapper">
+                            <div className="filters">
+                                <p>Filters:</p>                                
+                                {filters.length > 0 && 
+                                    <Button title="Clear" theme={ButtonTheme.DARK} onClick={() => 
+                                        setFilters([])}/>
+                                }
+                                {Object.keys(Filters).map(key => {
+                                    return createFilterButton(+key as BookingStatus);
+                                })}
+                            </div>
+                        </div>
                         <table>
                             <thead>
                                 <tr>
@@ -132,6 +166,7 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
                                     </tr>
                                 }
                                 {loaded && data && data.map(value => {
+                                    if (filters.length > 0 && !filters.includes(value.bookingStatusId)) return <></>;
                                     return createBookingHistoryTableRow(value);
                                 })}
                             </tbody>
@@ -162,10 +197,62 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
                                     }} />
                             </div>
                         </div>
+                                    
                     </div>
                 }
             </div>
-            {error &&
+            <div className="booking-control">
+                <div className="booking-count-control">
+                    <p>bookings per page:</p>
+                    <div className="h-stack">
+                        <Button theme={bookingCount == 10 ? ButtonTheme.DARK : ButtonTheme.HOLLOW_DARK} title="10"
+                        onClick={() => {
+                            if (bookingCount != 10){
+                                setLoaded(false);
+                                setBookingPage(1);
+                                setBookingCount(10);
+                                getData();
+                            }
+                        }}></Button>
+                        <Button theme={bookingCount == 20 ? ButtonTheme.DARK : ButtonTheme.HOLLOW_DARK} title="20" 
+                        onClick={() => {
+                            if (bookingCount != 20){
+                                setLoaded(false);
+                                setBookingPage(1);
+                                setBookingCount(20);
+                                getData();
+                            }
+                        }}/>
+                        <Button theme={bookingCount == 50 ? ButtonTheme.DARK : ButtonTheme.HOLLOW_DARK} title="50" 
+                        onClick={() => {
+                            if (bookingCount != 50){
+                                setLoaded(false);
+                                setBookingPage(1);
+                                setBookingCount(50);
+                                getData();
+                            }
+                        }}/>
+                    </div>
+                    <div className="booking-page-control">
+                        <p>page #{bookingPage}:</p>
+                        <div className="h-stack">
+                            {bookingPage > 1 &&
+                                <Button theme={ButtonTheme.DARK} title="prev" onClick={() => {
+                                    setBookingPage(bookingPage - 1);
+                                    getData();
+                                }}></Button>
+                            }
+                            {data.length == bookingCount &&
+                                <Button theme={ButtonTheme.DARK} title="next" onClick={() => {
+                                    setBookingPage(bookingPage + 1);
+                                    getData();
+                                }}/>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {error && 
                 <p className="error">{error}</p>
             }
         </div>

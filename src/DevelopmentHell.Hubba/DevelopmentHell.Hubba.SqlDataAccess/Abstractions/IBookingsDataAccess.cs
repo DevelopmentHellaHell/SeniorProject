@@ -14,6 +14,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
         Task<Result<int>> CreateBooking(Booking booking);
         Task<Result<bool>> UpdateBooking(Dictionary<string, object> values, List<Comparator> filters);
         Task<Result<bool>> DeleteBooking(List<Tuple<string, object>> filter);
-        Task<Result<List<BookingHistory>>> GetBookingHistory(int userId);
+        Task<Result<List<BookingHistory>>> GetBookingHistory(int userId, int bookingCount, int page);
     }
 }
