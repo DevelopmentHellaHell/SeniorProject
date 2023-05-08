@@ -55,12 +55,12 @@ export namespace Auth {
         }
     
         const decodedJwt = parseJwt<IJWTDecoded>(cookie);
-        // if (decodedJwt.exp * 1000 < Date.now()) {
-        //     clearCookies();
-        //     alert("Session expired. Please log in again.");
-        //     redirect("/login");
-        //     return;
-        // }
+        if (decodedJwt.exp * 1000 < Date.now()) {
+            clearCookies();
+            alert("Session expired. Please log in again.");
+            redirect("/login");
+            return;
+        }
     
         return decodedJwt;
     }
