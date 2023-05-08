@@ -57,7 +57,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
                 setData((prevData) =>
                     prevData.map((showcaseData) =>
                         showcaseData.id === showcaseId
-                        ? { ...showcaseData, processing: false, message: "Error unpublishing showcase" }
+                        ? { ...showcaseData, processing: false, message: "Project showcase was not unpublished. Refresh page or try again later." }
                         : showcaseData
                     )
                 );
@@ -65,7 +65,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
                 setData((prevData) =>
                     prevData.map((showcaseData) =>
                         showcaseData.id === showcaseId
-                        ? { ...showcaseData, isPublished: false, processing: false, message: "Successfully unpublished showcase" }
+                        ? { ...showcaseData, isPublished: false, processing: false, message: "Project showcase was successfully unpublished." }
                         : showcaseData
                     )
                 );
@@ -87,7 +87,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
                 setData((prevData) =>
                     prevData.map((showcaseData) =>
                         showcaseData.id === showcaseId
-                        ? { ...showcaseData, processing: false, message: `Error publishing showcase: ${response.error}` }
+                        ? { ...showcaseData, processing: false, message: "Project showcase was not published. Refresh page or try again later." }
                         : showcaseData
                     )
                 );
@@ -95,7 +95,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
                 setData((prevData) =>
                     prevData.map((showcaseData) =>
                             showcaseData.id === showcaseId
-                            ? { ...showcaseData, isPublished: true, processing: false, message: "Successfully published showcase"}
+                            ? { ...showcaseData, isPublished: true, processing: false, message: "Project showcase was successfully published."}
                             : showcaseData
                         )
                     );
@@ -116,7 +116,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
                 setData((prevData) =>
                     prevData.map((showcaseData) =>
                         showcaseData.id === showcaseId
-                        ? { ...showcaseData, processing: false, message: "Error deleting showcase" }
+                        ? { ...showcaseData, processing: false, message: "Project showcase was not deleted. Refresh page or try again later." }
                         : showcaseData
                     )
                 );
@@ -124,7 +124,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
                 setData((prevData) =>
                     prevData.map((showcaseData) =>
                         showcaseData.id === showcaseId
-                            ? { ...showcaseData, confirmShowing: false, processing:false, message: "Successfully deleted showcase" }
+                            ? { ...showcaseData, confirmShowing: false, processing:false, message: "Project showcase deleted successfully." }
                             : showcaseData
                     )
                 );
@@ -146,7 +146,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
                 setData((prevData) =>
                     prevData.map((showcaseData) =>
                         showcaseData.id === showcaseId
-                        ? { ...showcaseData, processing: false, message: "Error unlinking showcase" }
+                        ? { ...showcaseData, processing: false, message: "Project was not unlinked. Refresh page or try again later." }
                         : showcaseData
                     )
                 );
@@ -154,7 +154,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
                 setData((prevData) =>
                     prevData.map((showcaseData) =>
                         showcaseData.id === showcaseId
-                            ? { ...showcaseData, confirmShowing: false, processing:false, message: "Successfully unlinked showcase" }
+                            ? { ...showcaseData, confirmShowing: false, processing:false, message: "Project unlinked successfully." }
                             : showcaseData
                     )
                 );
@@ -166,7 +166,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
     const getData = async () => {
         await Ajax.get<IShowcaseData[]>("/showcases/user").then((response) => {
             setData(response.data && response.data.length ? response.data : []);
-            setError(response.error);
+            setError("Unable to load project showcase. Refresh page or try again later.");
             setLoaded(response.loaded);
         });
     }
