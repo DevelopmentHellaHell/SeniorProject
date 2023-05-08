@@ -260,13 +260,6 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
         public Result ValidateImageFile(IFormFile file)
         {
             Result result = new Result();
-            if (!Regex.IsMatch(file.FileName, @"^[a-zA-Z0-9_. ]*$"))
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "File names must consist of only letters, numbers, spaces, and underscores.";
-                result.StatusCode = StatusCodes.Status412PreconditionFailed;
-                return result;
-            }
             if (file == null || file.Length == 0)
             {
                 result.IsSuccessful = false;
