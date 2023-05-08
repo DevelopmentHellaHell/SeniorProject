@@ -17,7 +17,7 @@ GO
 USE [master]
 GO
 
-/****** Object:  Database [DevelopmentHell.Hubba.Users]    Script Date: 5/1/2023 3:52:02 PM ******/
+/****** Object:  Database [DevelopmentHell.Hubba.Users]    Script Date: 5/8/2023 3:46:30 PM ******/
 CREATE DATABASE [DevelopmentHell.Hubba.Users]
  CONTAINMENT = NONE
  ON  PRIMARY 
@@ -93,111 +93,100 @@ ALTER DATABASE [DevelopmentHell.Hubba.Users] SET DELAYED_DURABILITY = DISABLED
 GO
 ALTER DATABASE [DevelopmentHell.Hubba.Users] SET ACCELERATED_DATABASE_RECOVERY = OFF  
 GO
-EXEC sys.sp_db_vardecimal_storage_format N'DevelopmentHell.Hubba.Users', N'ON'
-GO
 ALTER DATABASE [DevelopmentHell.Hubba.Users] SET QUERY_STORE = OFF
 GO
-/****** Object:  Login [NT SERVICE\Winmgmt]    Script Date: 5/1/2023 3:52:03 PM ******/
-CREATE LOGIN [NT SERVICE\Winmgmt] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
-GO
-/****** Object:  Login [NT SERVICE\SQLWriter]    Script Date: 5/1/2023 3:52:03 PM ******/
-CREATE LOGIN [NT SERVICE\SQLWriter] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
-GO
-/****** Object:  Login [NT SERVICE\SQLTELEMETRY]    Script Date: 5/1/2023 3:52:03 PM ******/
-CREATE LOGIN [NT SERVICE\SQLTELEMETRY] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
-GO
-/****** Object:  Login [NT SERVICE\SQLSERVERAGENT]    Script Date: 5/1/2023 3:52:03 PM ******/
-CREATE LOGIN [NT SERVICE\SQLSERVERAGENT] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
-GO
-/****** Object:  Login [NT Service\MSSQLSERVER]    Script Date: 5/1/2023 3:52:03 PM ******/
-CREATE LOGIN [NT Service\MSSQLSERVER] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
-GO
-/****** Object:  Login [NT AUTHORITY\SYSTEM]    Script Date: 5/1/2023 3:52:03 PM ******/
+/****** Object:  Login [NT AUTHORITY\SYSTEM]    Script Date: 5/8/2023 3:46:30 PM ******/
 CREATE LOGIN [NT AUTHORITY\SYSTEM] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
+/****** Object:  Login [NT AUTHORITY\NETWORK SERVICE]    Script Date: 5/8/2023 3:46:30 PM ******/
+CREATE LOGIN [NT AUTHORITY\NETWORK SERVICE] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
+GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [distributor_admin]    Script Date: 5/1/2023 3:52:03 PM ******/
-CREATE LOGIN [distributor_admin] WITH PASSWORD=N'ttYLGVjyeECkQawUPekQhGEys+tGBK7ye+92PBzTFRY=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
+/****** Object:  Login [HubbaAdmin]    Script Date: 5/8/2023 3:46:30 PM ******/
+CREATE LOGIN [HubbaAdmin] WITH PASSWORD=N'p12etuwEKRBAtwkQ1nJQT5d5uVtVW+bX31z952IvXcU=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=ON, CHECK_POLICY=ON
+GO
+ALTER LOGIN [HubbaAdmin] DISABLE
+GO
+/* For security reasons the login is created disabled and with a random password. */
+/****** Object:  Login [distributor_admin]    Script Date: 5/8/2023 3:46:30 PM ******/
+CREATE LOGIN [distributor_admin] WITH PASSWORD=N'qtzKrDJP0QYUXnGwgE+szS6srW3ocvwEmnaaxWszzA4=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
 GO
 ALTER LOGIN [distributor_admin] DISABLE
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.User]    Script Date: 5/1/2023 3:52:03 PM ******/
+/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.User]    Script Date: 5/8/2023 3:46:30 PM ******/
 CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.User] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
 GO
 ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.User] ENABLE
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.ProjectShowcase]    Script Date: 5/1/2023 3:52:03 PM ******/
+/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.Scheduling]    Script Date: 5/8/2023 3:46:30 PM ******/
+CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.Scheduling] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
+GO
+ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.Scheduling] ENABLE
+GO
+/* For security reasons the login is created disabled and with a random password. */
+/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.ProjectShowcase]    Script Date: 5/8/2023 3:46:30 PM ******/
 CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.ProjectShowcase] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
 GO
 ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.ProjectShowcase] ENABLE
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.Notification]    Script Date: 5/1/2023 3:52:03 PM ******/
+/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.Notification]    Script Date: 5/8/2023 3:46:30 PM ******/
 CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.Notification] WITH PASSWORD=N'password', DEFAULT_DATABASE=[DevelopmentHell.Hubba.Notifications], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
 GO
 ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.Notification] ENABLE
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.Logging]    Script Date: 5/1/2023 3:52:03 PM ******/
+/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.Logging]    Script Date: 5/8/2023 3:46:30 PM ******/
 CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
 GO
 ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.Logging] ENABLE
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.ListingProfile]    Script Date: 5/1/2023 3:52:03 PM ******/
+/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.ListingProfile]    Script Date: 5/8/2023 3:46:30 PM ******/
 CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.ListingProfile] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
 GO
 ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.ListingProfile] ENABLE
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.CollaboratorProfile]    Script Date: 5/1/2023 3:52:03 PM ******/
+/****** Object:  Login [DevelopmentHell.Hubba.SqlUser.CollaboratorProfile]    Script Date: 5/8/2023 3:46:30 PM ******/
 CREATE LOGIN [DevelopmentHell.Hubba.SqlUser.CollaboratorProfile] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
 GO
 ALTER LOGIN [DevelopmentHell.Hubba.SqlUser.CollaboratorProfile] ENABLE
 GO
-/****** Object:  Login [BUILTIN\Users]    Script Date: 5/1/2023 3:52:03 PM ******/
-CREATE LOGIN [BUILTIN\Users] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
-GO
-/****** Object:  Login [BRYANS-LAPTOP\bryan]    Script Date: 5/1/2023 3:52:03 PM ******/
-CREATE LOGIN [BRYANS-LAPTOP\bryan] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
+/****** Object:  Login [BUILTIN\Administrators]    Script Date: 5/8/2023 3:46:30 PM ******/
+CREATE LOGIN [BUILTIN\Administrators] FROM WINDOWS WITH DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english]
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [##MS_PolicyTsqlExecutionLogin##]    Script Date: 5/1/2023 3:52:03 PM ******/
-CREATE LOGIN [##MS_PolicyTsqlExecutionLogin##] WITH PASSWORD=N'x53jrNvfiqDZG70qghMHHI0QDxRNdjQjaEv7u4MJXYo=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
+/****** Object:  Login [##MS_PolicyTsqlExecutionLogin##]    Script Date: 5/8/2023 3:46:30 PM ******/
+CREATE LOGIN [##MS_PolicyTsqlExecutionLogin##] WITH PASSWORD=N'gnyGqIMm39wQyax/LmabQbrT1W/o7DGgCnpO4gqJ2WQ=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
 GO
 ALTER LOGIN [##MS_PolicyTsqlExecutionLogin##] DISABLE
 GO
 /* For security reasons the login is created disabled and with a random password. */
-/****** Object:  Login [##MS_PolicyEventProcessingLogin##]    Script Date: 5/1/2023 3:52:03 PM ******/
-CREATE LOGIN [##MS_PolicyEventProcessingLogin##] WITH PASSWORD=N'QKJ867iVSzraQlcZrSd+CZQVGV3KK/u30FmmeU+hj4c=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
+/****** Object:  Login [##MS_PolicyEventProcessingLogin##]    Script Date: 5/8/2023 3:46:30 PM ******/
+CREATE LOGIN [##MS_PolicyEventProcessingLogin##] WITH PASSWORD=N'30x6FAKrvWlmhJr57U+MMe1Db0mrhQmeq/+RXhOvIxA=', DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
 GO
 ALTER LOGIN [##MS_PolicyEventProcessingLogin##] DISABLE
 GO
-ALTER AUTHORIZATION ON DATABASE::[DevelopmentHell.Hubba.Users] TO [BRYANS-LAPTOP\bryan]
+ALTER AUTHORIZATION ON DATABASE::[DevelopmentHell.Hubba.Users] TO [sa]
 GO
-ALTER SERVER ROLE [sysadmin] ADD MEMBER [NT SERVICE\Winmgmt]
-GO
-ALTER SERVER ROLE [sysadmin] ADD MEMBER [NT SERVICE\SQLWriter]
-GO
-ALTER SERVER ROLE [sysadmin] ADD MEMBER [NT SERVICE\SQLSERVERAGENT]
-GO
-ALTER SERVER ROLE [sysadmin] ADD MEMBER [NT Service\MSSQLSERVER]
+ALTER SERVER ROLE [sysadmin] ADD MEMBER [NT AUTHORITY\NETWORK SERVICE]
 GO
 ALTER SERVER ROLE [sysadmin] ADD MEMBER [distributor_admin]
 GO
-ALTER SERVER ROLE [sysadmin] ADD MEMBER [BRYANS-LAPTOP\bryan]
+ALTER SERVER ROLE [sysadmin] ADD MEMBER [BUILTIN\Administrators]
 GO
 USE [DevelopmentHell.Hubba.Users]
 GO
-/****** Object:  User [DevelopmentHell.Hubba.SqlUser.User]    Script Date: 5/1/2023 3:52:03 PM ******/
+/****** Object:  User [DevelopmentHell.Hubba.SqlUser.User]    Script Date: 5/8/2023 3:46:38 PM ******/
 CREATE USER [DevelopmentHell.Hubba.SqlUser.User] FOR LOGIN [DevelopmentHell.Hubba.SqlUser.User] WITH DEFAULT_SCHEMA=[dbo]
 GO
-/****** Object:  User [DevelopmentHell.Hubba.SqlUser.ProjectShowcase]    Script Date: 5/1/2023 3:52:03 PM ******/
+/****** Object:  User [DevelopmentHell.Hubba.SqlUser.ProjectShowcase]    Script Date: 5/8/2023 3:46:38 PM ******/
 CREATE USER [DevelopmentHell.Hubba.SqlUser.ProjectShowcase] FOR LOGIN [DevelopmentHell.Hubba.SqlUser.ProjectShowcase] WITH DEFAULT_SCHEMA=[dbo]
 GO
-/****** Object:  User [DevelopmentHell.Hubba.SqlUser.CollaboratorProfile]    Script Date: 5/1/2023 3:52:03 PM ******/
+/****** Object:  User [DevelopmentHell.Hubba.SqlUser.CollaboratorProfile]    Script Date: 5/8/2023 3:46:38 PM ******/
 CREATE USER [DevelopmentHell.Hubba.SqlUser.CollaboratorProfile] FOR LOGIN [DevelopmentHell.Hubba.SqlUser.CollaboratorProfile] WITH DEFAULT_SCHEMA=[dbo]
 GO
 ALTER ROLE [db_datareader] ADD MEMBER [DevelopmentHell.Hubba.SqlUser.User]
@@ -226,7 +215,7 @@ GRANT VIEW ANY COLUMN ENCRYPTION KEY DEFINITION TO [public] AS [dbo]
 GO
 GRANT VIEW ANY COLUMN MASTER KEY DEFINITION TO [public] AS [dbo]
 GO
-/****** Object:  Table [dbo].[RecoveryRequests]    Script Date: 5/1/2023 3:52:03 PM ******/
+/****** Object:  Table [dbo].[RecoveryRequests]    Script Date: 5/8/2023 3:46:38 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -242,7 +231,7 @@ CREATE TABLE [dbo].[RecoveryRequests](
 GO
 ALTER AUTHORIZATION ON [dbo].[RecoveryRequests] TO  SCHEMA OWNER 
 GO
-/****** Object:  Table [dbo].[UserAccounts]    Script Date: 5/1/2023 3:52:03 PM ******/
+/****** Object:  Table [dbo].[UserAccounts]    Script Date: 5/8/2023 3:46:39 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -263,12 +252,16 @@ CREATE TABLE [dbo].[UserAccounts](
  CONSTRAINT [PK_UserAccounts] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+ CONSTRAINT [UK_UserAccounts] UNIQUE NONCLUSTERED 
+(
+	[Email] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
 ALTER AUTHORIZATION ON [dbo].[UserAccounts] TO  SCHEMA OWNER 
 GO
-/****** Object:  Table [dbo].[UserLogins]    Script Date: 5/1/2023 3:52:03 PM ******/
+/****** Object:  Table [dbo].[UserLogins]    Script Date: 5/8/2023 3:46:39 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -285,7 +278,7 @@ CREATE TABLE [dbo].[UserLogins](
 GO
 ALTER AUTHORIZATION ON [dbo].[UserLogins] TO  SCHEMA OWNER 
 GO
-/****** Object:  Table [dbo].[UserNames]    Script Date: 5/1/2023 3:52:03 PM ******/
+/****** Object:  Table [dbo].[UserNames]    Script Date: 5/8/2023 3:46:39 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -303,7 +296,7 @@ CREATE TABLE [dbo].[UserNames](
 GO
 ALTER AUTHORIZATION ON [dbo].[UserNames] TO  SCHEMA OWNER 
 GO
-/****** Object:  Table [dbo].[UserOTPs]    Script Date: 5/1/2023 3:52:03 PM ******/
+/****** Object:  Table [dbo].[UserOTPs]    Script Date: 5/8/2023 3:46:39 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -338,7 +331,7 @@ ON DELETE CASCADE
 GO
 ALTER TABLE [dbo].[UserOTPs] CHECK CONSTRAINT [FK_UserOTPs_UserAccounts]
 GO
-/****** Object:  Trigger [dbo].[tr_UserAccounts_CascadingDelete]    Script Date: 5/1/2023 3:52:03 PM ******/
+/****** Object:  Trigger [dbo].[tr_UserAccounts_CascadingDelete]    Script Date: 5/8/2023 3:46:39 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -363,4 +356,3 @@ USE [master]
 GO
 ALTER DATABASE [DevelopmentHell.Hubba.Users] SET  READ_WRITE 
 GO
-
