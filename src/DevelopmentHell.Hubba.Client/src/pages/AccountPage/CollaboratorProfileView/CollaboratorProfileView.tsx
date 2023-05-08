@@ -1,4 +1,3 @@
-import { redirect } from "react-router-dom";
 import Button from "../../../components/Button/Button";
 import "./CollaboratorProfileView.css";
 
