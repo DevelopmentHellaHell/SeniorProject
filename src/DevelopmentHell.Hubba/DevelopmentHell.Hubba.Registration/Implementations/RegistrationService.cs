@@ -50,13 +50,6 @@ namespace DevelopmentHell.Hubba.Registration.Service.Implementations
                 return result;
             }
 
-            if (getResult.Payload != 0)
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "An account with that email already exists.";
-                return result;
-            }
-
             HashData hashData = GetPasswordHash(password);
             Result createResult = await _userAccountDataAccess.CreateUserAccount(email, hashData, accountType);
             return createResult;
