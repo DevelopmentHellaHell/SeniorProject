@@ -34,14 +34,15 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
         {
             if (collabId < 0)
             {
-                return new(Result.Failure("Invalid collaborator id.", StatusCodes.Status412PreconditionFailed));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Cannot change visibility of invalid negative collaborator id.");
+                return new(Result.Failure("Profile changes failed. Invalid collaborator selected. " +
+                    "Refresh page or try again later.", StatusCodes.Status412PreconditionFailed));
             }
             Result result = new Result();
             if (Thread.CurrentPrincipal is null)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, user is not logged in.";
-                return result;
+                return new(Result.Failure("Profile changes failed. User is not logged in. " +
+                    "Refresh page or try again later.", StatusCodes.Status412PreconditionFailed));
             }
             Result authorizationResult = _authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" });
 
@@ -53,20 +54,23 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             var ownerIdResult = await _collaboratorService.GetOwnerId(collabId).ConfigureAwait(false);
             if (!ownerIdResult.IsSuccessful)
             {
-                return new(Result.Failure("Could not find owner to change visibility. " + ownerIdResult.ErrorMessage));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Could not find owner to change visibility.");
+                return new(Result.Failure("Profile changes failed. Could not find owner to change visiblity. " +
+                    "Refresh page or try again later.", StatusCodes.Status412PreconditionFailed));
             }
             // check if the user is authorized to change visibility
             if (ownerIdResult.Payload != accountIdInt)
             {
-                return new(Result.Failure("Unauthorized to change visibility.", StatusCodes.Status401Unauthorized));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Invalid collaborator id for visibility change.");
+                return new(Result.Failure("Profile changes failed. Invalid collaborator id. Refresh page or try again later.", StatusCodes.Status401Unauthorized));
             }
 
             var changeVisibilityResult = await _collaboratorService.UpdatePublished(collabId, isPublic).ConfigureAwait(false);
 
             if (!changeVisibilityResult.IsSuccessful)
             {
-                return new(Result.Failure("Could not update public viewing status. " + changeVisibilityResult.ErrorMessage
-                    , changeVisibilityResult.StatusCode));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Could not update visibility status of collaborator.");
+                return new(Result.Failure("Profile changes failed. Refresh page or try again later.", changeVisibilityResult.StatusCode));
             }
 
             return new Result()
@@ -83,24 +87,24 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             Result result = new Result();
             if (Thread.CurrentPrincipal is null)
             {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, user is not logged in.";
-                return result;
+                return new(Result.Failure("Unable to create collaborator. User is not logged in. " +
+                    "Refresh page or try again later.", StatusCodes.Status401Unauthorized));
             }
             Result authorizationResult = _authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" });
             if (!(authorizationResult.IsSuccessful))
             {
-                return authorizationResult;
+                return new(Result.Failure("Unable to create collaborator. User is not authorized. " +
+                    "Refresh page or try again later.", StatusCodes.Status401Unauthorized));
             }
 
             // validating file inputs
             if (collabDTO.UploadedFiles == null)
             {
-                return new(Result.Failure("No files uploaded.", StatusCodes.Status412PreconditionFailed));
+                return new(Result.Failure("Unable to create collaborator. No files uploaded.", StatusCodes.Status412PreconditionFailed));
             }
             if(collabDTO.UploadedFiles.Length > 10)
             {
-                return new(Result.Failure("More than 10 files uploaded.", StatusCodes.Status412PreconditionFailed));
+                return new(Result.Failure("Unable to create collaborator. More than 10 files uploaded.", StatusCodes.Status412PreconditionFailed));
             }
             // check if collaborator files are valid
             foreach(var file in collabDTO.UploadedFiles)
@@ -108,7 +112,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
                 var validImageResult = _validationService.ValidateImageFile(file);
                 if (!validImageResult.IsSuccessful)
                 {
-                    return validImageResult;
+                    return new(Result.Failure("Unable to create collaborator. Invalid image uploaded. " + validImageResult.ErrorMessage, StatusCodes.Status412PreconditionFailed));
                 }
             }
             // check if pfpfile is valid
@@ -117,7 +121,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
                 var validPfpImageResult = _validationService.ValidateImageFile(collabDTO.PfpFile);
                 if (!validPfpImageResult.IsSuccessful)
                 {
-                    return validPfpImageResult;
+                    return new(Result.Failure("Unable to create collaborator. Invalid image uploaded. " + validPfpImageResult.ErrorMessage, StatusCodes.Status412PreconditionFailed));
                 }
             }
 
@@ -139,7 +143,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
 
             if (!(collabValidation.IsSuccessful))
             {
-                return collabValidation;
+                return new(Result.Failure("Unable to create collaborator. Invalid collaborator profile. " + collabValidation.ErrorMessage, StatusCodes.Status412PreconditionFailed));
             }
 
             // will work regardless of if pfpFile is null or not
@@ -147,8 +151,8 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
 
             if (!createCollabResult.IsSuccessful)
             {
-                result.ErrorMessage = "Unable to create collaborator. " + createCollabResult.ErrorMessage;
-                return result;
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Unable to create collaborator.");
+                return new(Result.Failure("Unable to create collaborator. Refresh page or try again later.", StatusCodes.Status500InternalServerError));
             }
 
             return new Result()
@@ -163,12 +167,14 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
         {
             if (collabId < 0)
             {
-                return new(Result.Failure("Invalid collaborator id.", StatusCodes.Status412PreconditionFailed));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Cannot delete negative collaborator id.");
+                return new(Result.Failure("Unable to delete collaborator. Invalid collaborator selected.", StatusCodes.Status412PreconditionFailed));
             }
             // check if user is logged in
             if (Thread.CurrentPrincipal is null)
             {
-                return new(Result.Failure("Error, user is not logged in", StatusCodes.Status401Unauthorized));
+                return new(Result.Failure("Unable to delete collaborator. User is not logged in. " +
+                    "Refresh page or try again later.", StatusCodes.Status401Unauthorized));
             }
 
             // get ownerid of collaborator
@@ -176,8 +182,9 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
 
             if(!getCollabAccountId.IsSuccessful)
             {
-                return new(Result.Failure("Could not find owner in Collaborators for deletion.",
-                    StatusCodes.Status412PreconditionFailed));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Could not find owner id of collaborator.");
+                return new(Result.Failure("Unable to delete collaborator. Could not find owner of collaborator profile. " +
+                    "Refresh page or try again later.", StatusCodes.Status412PreconditionFailed));
             }
             int ownerId = (int)getCollabAccountId.Payload;
 
@@ -190,13 +197,16 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             Result authorizationResult = _authorizationService.Authorize(new string[] { "AdminUser" });
             if (!(authorizationResult.IsSuccessful) && ownerId != accountIdInt)
             {
-                return new(Result.Failure("Error, user is not authorized for this request.", StatusCodes.Status401Unauthorized));
+                return new(Result.Failure("Unable to delete collaborator. User is not authorized. " +
+                    "Refresh page or try again later.", StatusCodes.Status401Unauthorized));
             }
 
             var deletionResult = await _collaboratorService.DeleteCollaborator(collabId).ConfigureAwait(false);
             if(!(deletionResult.IsSuccessful))
             {
-                return new(Result.Failure($"Unable to delete specified account." + deletionResult.ErrorMessage));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Unable to delete collaborator.");
+                return new(Result.Failure("Unable to delete collaborator. " +
+                    "Refresh page or try again later.", StatusCodes.Status500InternalServerError));
             }
 
             return new Result()
@@ -210,12 +220,15 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
         {
             if (collabId < 0)
             {
-                return new(Result.Failure("Invalid collaborator id.", StatusCodes.Status412PreconditionFailed));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Unable to remove invalid negative collaborator id.");
+                return new(Result.Failure("Profile removal failed. Invalid collaborator profile. " +
+                    "Refresh page or try again later.", StatusCodes.Status412PreconditionFailed));
             }
             // check if user is logged in
             if (Thread.CurrentPrincipal is null)
             {
-                return new(Result.Failure("Error, user is not logged in", StatusCodes.Status401Unauthorized));
+                return new(Result.Failure("Profile removal failed. User is not logged in. " +
+                    "Refresh page or try again later.", StatusCodes.Status401Unauthorized));
             }
 
             // Get the ID of current thread
@@ -226,8 +239,9 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             var getCollabAccountId = await _collaboratorService.GetOwnerId(collabId).ConfigureAwait(false);
             if(!getCollabAccountId.IsSuccessful)
             {
-                return new(Result.Failure("Unable to find associated user with collaborator provided. "
-                    + getCollabAccountId.ErrorMessage, StatusCodes.Status404NotFound));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Unable to find owner id of collaborator for removal.");
+                return new(Result.Failure("Profile removal failed. Unable to find associated collaborator profile. " +
+                    "Refresh page or try again later.", StatusCodes.Status404NotFound));
             }
             int ownerId = getCollabAccountId.Payload;
             
@@ -235,13 +249,17 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             Result authorizationResult = _authorizationService.Authorize(new string[] { "AdminUser" });
             if (!(authorizationResult.IsSuccessful) && ownerId != accountIdInt)
             {
-                return new(Result.Failure("Error, user is not authorized for this request.", StatusCodes.Status401Unauthorized));
+                return new(Result.Failure("Profile removal failed. User is not authorized for this request. " +
+                    "Refresh page or try again later.", StatusCodes.Status401Unauthorized));
+
             }
 
             var removeResult = await _collaboratorService.RemoveCollaborator(collabId).ConfigureAwait(false);
             if (!removeResult.IsSuccessful)
             {
-                return new(Result.Failure("Unable to remove collaborator. " + removeResult.ErrorMessage, removeResult.StatusCode));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Unable to remove collaborator profile.");
+                return new(Result.Failure("Profile removal failed. " +
+                    "Refresh page or try again later.", StatusCodes.Status500InternalServerError));
             }
             return new Result()
             {
@@ -255,7 +273,8 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             // check if user is logged in
             if (Thread.CurrentPrincipal is null)
             {
-                return new(Result.Failure("Error, user is not logged in", StatusCodes.Status401Unauthorized));
+                return new(Result.Failure("Profile removal failed. User is not logged in. " +
+                    "Refresh page or try again later.", StatusCodes.Status401Unauthorized));
             }
             // Get the ID of current thread
             var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
@@ -265,11 +284,15 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             var getCollaboratorId = await _collaboratorService.GetCollaboratorId(accountIdInt).ConfigureAwait(false);
             if(!getCollaboratorId.IsSuccessful)
             {
-                return new(Result.Failure("Error finding collaborator for removal. "));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Unable to find collaborator for removal.");
+                return new(Result.Failure("Profile removal failed. Unable to collaborator profile. " +
+                    "Refresh page or try again later.", StatusCodes.Status412PreconditionFailed));
             }
             if(getCollaboratorId.Payload == null)
             {
-                return new(Result.Failure("Account has no associated collaborator. ", StatusCodes.Status404NotFound));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Account has no collaborator to remove.");
+                return new(Result.Failure("Profile removal failed. Account has no collaborator profile. " +
+                    "Refresh page or try again later.", StatusCodes.Status404NotFound));
             }
 
             int collabId = (int)getCollaboratorId.Payload;
@@ -277,7 +300,9 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
 
             if (!removeResult.IsSuccessful)
             {
-                return new(Result.Failure("Unable to remove account's collaborator profile. " + removeResult.ErrorMessage, removeResult.StatusCode));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Unable to remove collaborator profile.");
+                return new(Result.Failure("Profile removal failed. " +
+                    "Refresh page or try again later.", StatusCodes.Status500InternalServerError));
             }
             return new Result()
             {
@@ -291,7 +316,8 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             // check if user is logged in
             if (Thread.CurrentPrincipal is null)
             {
-                return new(Result.Failure("Error, user is not logged in", StatusCodes.Status401Unauthorized));
+                return new(Result.Failure("Unable to delete collaborator. User is not logged in. " +
+                    "Refresh page or try again later.", StatusCodes.Status401Unauthorized));
             }
 
             // Get the ID of current thread
@@ -303,13 +329,16 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             Result authorizationResult = _authorizationService.Authorize(new string[] { "AdminUser" });
             if (!(authorizationResult.IsSuccessful) && accountId != accountIdInt)
             {
-                return new(Result.Failure("Error, user is not authorized for this request.", StatusCodes.Status401Unauthorized));
+                return new(Result.Failure("Unable to delete collaborator. User is not authorized. " +
+                    "Refresh page or try again later.", StatusCodes.Status401Unauthorized));
             }
 
             var deletionResult = await _collaboratorService.DeleteCollaboratorWithAccountId(accountId).ConfigureAwait(false);
             if (!(deletionResult.IsSuccessful))
             {
-                return new(Result.Failure($"Unable to delete specified account." + deletionResult.ErrorMessage));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Unable to delete collaborator.");
+                return new(Result.Failure("Unable to delete collaborator. " +
+                    "Refresh page or try again later.", StatusCodes.Status500InternalServerError));
             }
 
             return new Result()
@@ -323,13 +352,15 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
         {
             if (Thread.CurrentPrincipal is null)
             {
-                return new(Result.Failure("Error, user is not logged in", StatusCodes.Status401Unauthorized));
+                return new(Result.Failure("Profile edits failed. " +
+                    "Refresh page or try again later.", StatusCodes.Status401Unauthorized));
             }
 
             Result authorizationResult = _authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" });
             if (!(authorizationResult.IsSuccessful))
             {
-                return new(Result.Failure("Error, user is not authorized for this request.", StatusCodes.Status401Unauthorized));
+                return new(Result.Failure("Profile edits failed. User is not authorized. " +
+                    "Refresh page or try again later.", StatusCodes.Status401Unauthorized));
             }
             // validating file inputs
             if (collabDTO.UploadedFiles != null)
@@ -339,7 +370,8 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
                     var validImageResult = _validationService.ValidateImageFile(file);
                     if (!validImageResult.IsSuccessful)
                     {
-                        return validImageResult;
+                        return new(Result.Failure("Profile edits failed. " + validImageResult.ErrorMessage +
+                            " Refresh page or try again later.", StatusCodes.Status412PreconditionFailed));
                     }
                 }
             }
@@ -348,7 +380,8 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
                 var validPfpImageResult = _validationService.ValidateImageFile(collabDTO.PfpFile);
                 if (!validPfpImageResult.IsSuccessful)
                 {
-                    return validPfpImageResult;
+                    return new(Result.Failure("Profile edits failed. " + validPfpImageResult.ErrorMessage +
+                        "Refresh page or try again later.", StatusCodes.Status412PreconditionFailed));
                 }
             }
 
@@ -383,14 +416,17 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             var countFilesResult = await _collaboratorService.CountFilesWithoutPfp(accountIdInt).ConfigureAwait(false);
             if (!countFilesResult.IsSuccessful)
             {
-                return new(Result.Failure("Unable to determine number of uploaded files currently stored in database. " + countFilesResult.ErrorMessage));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Could not determine count of collaborator files in database.");
+                return new(Result.Failure("Profile edits failed. Image file is not valid. Unable to determine number of uploaded files currently stored in database. " +
+                    "Refresh page or try again later.", StatusCodes.Status412PreconditionFailed));
             }
 
             // check if they are removing the pfp since it is optional to have and doesn't count towards total
             var pfpurl = await _collaboratorService.GetPfpUrl(accountIdInt).ConfigureAwait(false);
             if (!pfpurl.IsSuccessful)
             {
-                return new(Result.Failure("Unable to check if profile picture is being removed. "));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Could not get profile picture url of collaborator.");
+                return new(Result.Failure("Profile edits failed. Unable to check if profile picture is being removed. Refresh page or try again later."));
             }
             if (pfpurl.Payload != null)
             {
@@ -416,7 +452,8 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             // doesn't count towards total number of files stored
             if (uploadedCount + countFilesResult.Payload - removedCount <= 0)
             {
-                return new(Result.Failure("A minimum of 1 file needs to be stored on the server to display a collaborator profile.", StatusCodes.Status412PreconditionFailed));
+                return new(Result.Failure("A minimum of 1 file needs to be stored on the server to display a collaborator profile, " +
+                    "excluding the profile picture.", StatusCodes.Status412PreconditionFailed));
              
             }
 
@@ -424,14 +461,16 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
 
             if (!validateCollab.IsSuccessful)
             {
-                return new(Result.Failure("New collaborator updates not valid. ", StatusCodes.Status412PreconditionFailed));
+                return new(Result.Failure("New collaborator updates not valid. " + validateCollab.ErrorMessage, StatusCodes.Status412PreconditionFailed));
             }
 
             var updateCollabResult = await _collaboratorService.EditCollaborator(collab, collabFiles, removedFiles, pfpFile).ConfigureAwait(false);
 
             if (!updateCollabResult.IsSuccessful)
             {
-                return Result.Failure(updateCollabResult.ErrorMessage!);
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Unable to edit collaborator profile.");
+                return new(Result.Failure("Profile edits failed. " +
+                    "Refresh page or try again later.", StatusCodes.Status500InternalServerError));
             }
 
             return new Result()
@@ -445,28 +484,36 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
         {
             if (collabId < 0)
             {
-                return new(Result.Failure("Invalid collaborator id.", StatusCodes.Status412PreconditionFailed));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Unable to get invalid negative collaborator id");
+                return new(Result.Failure("Profile failed to load. Invalid collaborator profile. " +
+                    "Refresh page or try again later.", StatusCodes.Status412PreconditionFailed));
             }
             if (Thread.CurrentPrincipal is null)
             {
-                return new (Result.Failure("Error, user is not logged in", StatusCodes.Status401Unauthorized));
+                return new(Result.Failure("Profile failed to load. User is not logged in. " +
+                    "Refresh page or try again later.", StatusCodes.Status401Unauthorized));
             }
 
             Result authorizationResult = _authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" });
             if (!(authorizationResult.IsSuccessful))
             {
-                return new(Result.Failure("Error, user is not authorized for this page.", StatusCodes.Status401Unauthorized));
+                return new(Result.Failure("Profile failed to load. User is not authorized for this request. " +
+                    "Refresh page or try again later.", StatusCodes.Status401Unauthorized));
             }
 
             Result<CollaboratorProfile> getCollabResult = await _collaboratorService.GetCollaborator(collabId).ConfigureAwait(false);
 
             if (!getCollabResult.IsSuccessful)
             {
-                return new(Result.Failure(getCollabResult.ErrorMessage!, StatusCodes.Status500InternalServerError));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Failed to retrieve collaborator profile.");
+                return new(Result.Failure("Profile failed to load. " +
+                    "Refresh page or try again later.", StatusCodes.Status500InternalServerError));
             }
             if(getCollabResult.Payload == null)
             {
-                return new(Result.Failure("Collaborator not found." + getCollabResult.ErrorMessage, StatusCodes.Status404NotFound));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Cannot find collaborator.");
+                return new(Result.Failure("Profile failed to load. Could not find collaborator profile. " +
+                    "Refresh page or try again later.", StatusCodes.Status404NotFound));
             }
 
             // check if the profile is publicly visible
@@ -479,12 +526,14 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
                 var ownerIdResult = await _collaboratorService.GetOwnerId(collabId).ConfigureAwait(false);
                 if (!ownerIdResult.IsSuccessful)
                 {
-                    return new(Result.Failure("Unable to validate owner and collaborator is hidden " +
-                        "from public view.", StatusCodes.Status401Unauthorized));
+                    _loggerService.Log(Models.LogLevel.INFO, Category.BUSINESS, "Hidden collaborator cannot be viewed and owner cannot be found.");
+                    return new(Result.Failure("Profile failed to load. Hidden from public view. " +
+                        "Refresh page or try again later.", StatusCodes.Status401Unauthorized));
                 }
                 else if (ownerIdResult.Payload != accountIdInt)
                 {
-                    return new(Result.Failure("Collaborator is hidden from public view.", StatusCodes.Status401Unauthorized));
+                    return new(Result.Failure("Profile failed to load. Hidden from public view. " +
+                        "Refresh page or try again later.", StatusCodes.Status401Unauthorized));
                 }
             }
 
@@ -496,24 +545,29 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
         {
             if (Thread.CurrentPrincipal is null)
             {
-                return new(Result.Failure("Error, user is not logged in", StatusCodes.Status401Unauthorized));
+                return new(Result.Failure("Profile failed to load. User is not logged in. " +
+                    "Refresh page or try again later.", StatusCodes.Status401Unauthorized));
             }
 
             Result authorizationResult = _authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" });
             if (!(authorizationResult.IsSuccessful))
             {
-                return new(Result.Failure("Error, user is not authorized for this request.", StatusCodes.Status401Unauthorized));
+                return new(Result.Failure("Profile failed to load. User is not authorized. " +
+                    "Refresh page or try again later.", StatusCodes.Status401Unauthorized));
             }
 
             var getCollabIdResult = await _collaboratorService.GetCollaboratorId(accountId).ConfigureAwait(false);
             if (!getCollabIdResult.IsSuccessful)
             {
-                return new(Result.Failure("Error while retrieving collaborator Id. " + 
-                    getCollabIdResult.ErrorMessage, StatusCodes.Status404NotFound));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Failed to retrieve collaborator profile.");
+                return new(Result.Failure("Profile failed to load. " +
+                    "Refresh page or try again later.", StatusCodes.Status500InternalServerError));
             }
             if (getCollabIdResult.Payload == null)
             {
-                return new(Result.Failure("Could not find collaborator", StatusCodes.Status404NotFound));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Cannot find collaborator.");
+                return new(Result.Failure("Profile failed to load. Could not find collaborator profile. " +
+                    "Refresh page or try again later.", StatusCodes.Status404NotFound));
             }
 
             return new Result<int>
@@ -528,13 +582,15 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
         {
             if (Thread.CurrentPrincipal is null)
             {
-                return new(Result.Failure("Error, user is not logged in", StatusCodes.Status401Unauthorized));
+                return new(Result.Failure("Unable to check collaborator profile of user. User is not logged in. " +
+                    "Refresh page or try again later.", StatusCodes.Status401Unauthorized));
             }
 
             Result authorizationResult = _authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" });
             if (!(authorizationResult.IsSuccessful))
             {
-                return new(Result.Failure("Error, user is not authorized for this request.", StatusCodes.Status401Unauthorized));
+                return new(Result.Failure("Unable to check collaborator profile of user. User is not authorized. " +
+                    "Refresh page or try again later.", StatusCodes.Status401Unauthorized));
             }
             if (accountId == null)
             {
@@ -545,9 +601,13 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             }
 
             var hasCollaboratorResult = await _collaboratorService.HasCollaborator((int)accountId).ConfigureAwait(false);
-            if(hasCollaboratorResult.IsSuccessful)
-                hasCollaboratorResult.StatusCode = StatusCodes.Status200OK;
-
+            if (!hasCollaboratorResult.IsSuccessful)
+            {
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Error checking collaborator of user.");
+                return new(Result.Failure("Unable to check collaborator profile of user. " +
+                    "Refresh page or try again later.", StatusCodes.Status500InternalServerError));
+            }
+            hasCollaboratorResult.StatusCode = StatusCodes.Status200OK;
             return hasCollaboratorResult;
         }
 
@@ -555,23 +615,29 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
         {
             if (collabId < 0)
             {
-                return new(Result.Failure("Invalid collaborator id.", StatusCodes.Status412PreconditionFailed));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Cannot vote on invalid negative collaborator id.");
+                return new(Result.Failure("Vote error. Invalid collaborator profile page. " +
+                    "Refresh page or try again later.", StatusCodes.Status412PreconditionFailed));
             }
             if (Thread.CurrentPrincipal is null)
             {
-                return new(Result.Failure("Error, user is not logged in", StatusCodes.Status401Unauthorized));
+                return new(Result.Failure("Vote error. User is not logged in. " +
+                    "Refresh page or try again later.", StatusCodes.Status401Unauthorized));
             }
 
             Result authorizationResult = _authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" });
             if (!(authorizationResult.IsSuccessful))
             {
-                return new(Result.Failure("Error, user is not authorized for this request.", StatusCodes.Status401Unauthorized));
+                return new(Result.Failure("Vote error. User is not authorized. " +
+                    "Refresh page or try again later.", StatusCodes.Status401Unauthorized));
+
             }
 
             var voteResult = await _collaboratorService.Vote(collabId, upvote).ConfigureAwait(false);
             if (!(voteResult.IsSuccessful))
             {
-                return new(Result.Failure("Error, user is not authorized for this request.", StatusCodes.Status401Unauthorized));
+                return new(Result.Failure("Vote error. " + voteResult.ErrorMessage +
+                    " Refresh page or try again later.", StatusCodes.Status500InternalServerError));
             }
             return new Result() { 
                 IsSuccessful= true,
@@ -584,12 +650,17 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
         {
             if (collabId < 0)
             {
-                return new(Result.Failure("Invalid collaborator id.", StatusCodes.Status412PreconditionFailed));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Invalid negative collaborator id for get file urls.");
+                return new(Result.Failure("Unable to get collaborator files. " +
+                    "Refresh page or try again later.", StatusCodes.Status412PreconditionFailed));
             }
             var getFileUrlsResult = await _collaboratorService.GetFileUrls(collabId).ConfigureAwait(false);
             if (!getFileUrlsResult.IsSuccessful)
             {
-                return new(Result.Failure("Unable to retrieve file urls from provided collaborator. " + getFileUrlsResult.ErrorMessage, getFileUrlsResult.StatusCode));
+                _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Unable to retrieve file urls from provided collaborator.");
+                return new(Result.Failure("Unable to get collaborator files. " +
+                    "Refresh page or try again later.", StatusCodes.Status500InternalServerError));
+
             }
             return new Result<string[]>()
             {

@@ -574,6 +574,27 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                     return new(Result.Failure("Showcase must have at least one file to be published"));
                 }
 
+                var detailResult = await _projectShowcaseService.GetDetails(showcaseId).ConfigureAwait(false);
+                if (!detailResult.IsSuccessful)
+                {
+                    _logger.Error(Category.BUSINESS, $"Unabel to get showcase detials: {detailResult.ErrorMessage}", "ProjectShowcaseService");
+                    return new(Result.Failure("Unable to get showcase details."));
+                }
+                if (detailResult.Payload!["listingId"] != DBNull.Value){
+                    var histResult = await _listingProfileService.CheckListingHistory((int)detailResult.Payload!["listingId"], int.Parse((Thread.CurrentPrincipal as ClaimsPrincipal)?.FindFirstValue("sub")!)).ConfigureAwait(false);
+                    if (!histResult.IsSuccessful)
+                    {
+                        _logger.Error(Category.BUSINESS, $"Unable to check listing hsitory: {histResult.ErrorMessage}");
+                        return new(Result.Failure("Unable to check listing history"));
+                    }
+                    if (!histResult.Payload)
+                    {
+                        _logger.Warning(Category.BUSINESS, $"invalid attempt to publish", "ProjectShowcaseManager");
+                        await Unlink(showcaseId).ConfigureAwait(false);
+                        return new(Result.Failure("Listing no longer available, please refresh. If this seems to be incorrect, please try again later or contact an admin."));
+                    }
+                }
+
                 return await _projectShowcaseService.Publish(showcaseId, listingId).ConfigureAwait(false);
             }
             catch (Exception ex)
