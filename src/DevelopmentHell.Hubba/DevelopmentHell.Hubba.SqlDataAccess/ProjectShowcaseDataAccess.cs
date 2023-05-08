@@ -1,14 +1,7 @@
-﻿using Azure;
-using DevelopmentHell.Hubba.Models;
+﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
@@ -21,8 +14,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         private readonly string _showcaseReportTableName;
         private readonly string _commentReportTableName;
 
-		private readonly ExecuteDataAccess _executeDataAccess;
-		private readonly InsertDataAccess _insertDataAccess;
+        private readonly ExecuteDataAccess _executeDataAccess;
+        private readonly InsertDataAccess _insertDataAccess;
         private readonly UpdateDataAccess _updateDataAccess;
         private readonly SelectDataAccess _selectDataAccess;
         private readonly DeleteDataAccess _deleteDataAccess;
@@ -44,36 +37,36 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             _showcaseReportTableName = showcaseReportTableName;
             _commentReportTableName = commentReportTableName;
 
-			_executeDataAccess = new ExecuteDataAccess(connectionString);
-			_insertDataAccess = new InsertDataAccess(connectionString);
+            _executeDataAccess = new ExecuteDataAccess(connectionString);
+            _insertDataAccess = new InsertDataAccess(connectionString);
             _updateDataAccess = new UpdateDataAccess(connectionString);
             _selectDataAccess = new SelectDataAccess(connectionString);
             _deleteDataAccess = new DeleteDataAccess(connectionString);
         }
 
-		public async Task<Result<List<Dictionary<string, object>>>> Curate(int offset = 0)
-		{
-			var result = await _executeDataAccess.Execute("CurateShowcases", new Dictionary<string, object>() {
-				{ "Offset", offset },
-			}).ConfigureAwait(false);
+        public async Task<Result<List<Dictionary<string, object>>>> Curate(int offset = 0)
+        {
+            var result = await _executeDataAccess.Execute("CurateShowcases", new Dictionary<string, object>() {
+                { "Offset", offset },
+            }).ConfigureAwait(false);
 
-			return result;
-		}
+            return result;
+        }
 
-		public async Task<Result<List<Dictionary<string, object>>>> Search(string query, int offset = 0, double FTTWeight = 0.5, double RWeight = 0.5)
-		{
-			var result = await _executeDataAccess.Execute("SearchShowcases", new Dictionary<string, object>()
-			{
-				{ "Query", query },
-				{ "Offset", offset },
-				{ "FTTableRankWeight", FTTWeight },
-				{ "RatingsRankWeight", RWeight },
-			}).ConfigureAwait(false);
+        public async Task<Result<List<Dictionary<string, object>>>> Search(string query, int offset = 0, double FTTWeight = 0.5, double RWeight = 0.5)
+        {
+            var result = await _executeDataAccess.Execute("SearchShowcases", new Dictionary<string, object>()
+            {
+                { "Query", query },
+                { "Offset", offset },
+                { "FTTableRankWeight", FTTWeight },
+                { "RatingsRankWeight", RWeight },
+            }).ConfigureAwait(false);
 
-			return result;
-		}
+            return result;
+        }
 
-		public async Task<Result> AddComment(string showcaseId, int accountId, string commentText, DateTime time)
+        public async Task<Result> AddComment(string showcaseId, int accountId, string commentText, DateTime time)
         {
             if (showcaseId == null || showcaseId.Length == 0)
             {
@@ -237,7 +230,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             {
                 return new(Result.Failure($"Error in getting showcase comments from Db: {result.ErrorMessage}"));
             }
-            result.Payload = result.Payload!.Take(commentCount).ToList< Dictionary<string, object>>();
+            result.Payload = result.Payload!.Take(commentCount).ToList<Dictionary<string, object>>();
             return result;
         }
         public async Task<Result<Dictionary<string, object>>> GetComment(long commentId)
@@ -262,7 +255,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 return new(Result.Failure("Unable to find comment with Id"));
             }
 
-            return Result<Dictionary<string,object>>.Success(result.Payload![0]);
+            return Result<Dictionary<string, object>>.Success(result.Payload![0]);
         }
 
         public async Task<Result<string>> GetCommentShowcase(long commentId)

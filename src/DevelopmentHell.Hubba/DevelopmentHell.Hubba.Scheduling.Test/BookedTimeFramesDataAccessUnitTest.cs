@@ -1,9 +1,9 @@
-﻿using DevelopmentHell.Hubba.Models;
+﻿using System.Configuration;
+using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
-using System.Configuration;
 
 namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
 {
@@ -37,7 +37,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
         }
         [TestInitialize]
         [TestCleanup]
-        public async Task CleanUp() 
+        public async Task CleanUp()
         {
             await _testingService.DeleteTableRecords(Models.Tests.Databases.LISTING_PROFILES, Models.Tests.Tables.BOOKINGS).ConfigureAwait(false);
         }
@@ -195,10 +195,10 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
                             EndDateTime = DateTime.Now.AddDays(1).AddHours(1)
                         }
                 };
-            var addBookedTimeFrames = await _bookedtimeframeDAO.CreateBookedTimeFrames(bookingId,testtimeframes).ConfigureAwait(false);
+            var addBookedTimeFrames = await _bookedtimeframeDAO.CreateBookedTimeFrames(bookingId, testtimeframes).ConfigureAwait(false);
             // filter prep to get the inserted BookedTimeFrame
             List<Tuple<string, object>> filter = new List<Tuple<string, object>>() { new Tuple<string, object>(nameof(BookedTimeFrame.BookingId), bookingId) };
-            
+
             //Act
             var actual = await _bookedtimeframeDAO.GetBookedTimeFrames(filter).ConfigureAwait(false);
 

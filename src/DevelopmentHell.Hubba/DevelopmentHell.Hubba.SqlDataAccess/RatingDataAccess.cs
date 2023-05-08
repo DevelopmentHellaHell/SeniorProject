@@ -87,13 +87,13 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 result.ErrorMessage = "Cannot retrieve average rating.";
                 return result;
             }
-            
+
             result.IsSuccessful = true;
             if (selectResult.Payload[0]["AvgRating"] != DBNull.Value)
             {
                 result.Payload = Math.Round(Convert.ToDouble(selectResult.Payload[0]["AvgRating"]), 1, MidpointRounding.ToZero);
             }
-            
+
             return result;
         }
 
@@ -119,7 +119,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     if (ratingDict["AvgRating"] == DBNull.Value) continue;
 
                     int ratingId = Convert.ToInt32(ratingDict[feature.ToString() + "Id"]);
-                    
+
                     double avgRating = Math.Round(Convert.ToDouble(ratingDict["AvgRating"]), 1, MidpointRounding.ToZero);
 
                     ratings.Add(ratingId, avgRating);
@@ -258,11 +258,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             if (!selectResult.IsSuccessful)
             {
                 result.IsSuccessful = false;
-                result.ErrorMessage= selectResult.ErrorMessage;
+                result.ErrorMessage = selectResult.ErrorMessage;
                 return result;
             }
 
-            result.IsSuccessful= true;
+            result.IsSuccessful = true;
             result.Payload = selectResult.Payload;
             return selectResult;
         }

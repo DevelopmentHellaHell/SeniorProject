@@ -9,7 +9,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
     public class CollaboratorController : HubbaController
     {
         private readonly ICollaboratorManager _collaboratorManager;
-        
+
         public CollaboratorController(ICollaboratorManager collaboratorManager)
         {
             _collaboratorManager = collaboratorManager;
@@ -17,7 +17,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 
         [HttpPost]
         [Route("CreateCollaborator")]
-        public async Task<IActionResult> CreateCollaborator([FromForm]CreateCollaboratorDTO createCollaboratorDTO)
+        public async Task<IActionResult> CreateCollaborator([FromForm] CreateCollaboratorDTO createCollaboratorDTO)
         {
             return await GuardedWorkload(async () =>
             {

@@ -1,9 +1,9 @@
-﻿using Development.Hubba.JWTHandler.Service.Abstractions;
+﻿using System.Security.Claims;
+using Development.Hubba.JWTHandler.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
-using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.Authorization.Service.Implementations
 {

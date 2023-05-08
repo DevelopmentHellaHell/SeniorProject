@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
 using Development.Hubba.JWTHandler.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
 using DevelopmentHell.Hubba.AccountDeletion.Manager.Abstraction;
@@ -32,6 +34,7 @@ using DevelopmentHell.Hubba.Email.Service.Implementations;
 using DevelopmentHell.Hubba.Files.Service.Abstractions;
 using DevelopmentHell.Hubba.Files.Service.Implementations;
 using DevelopmentHell.Hubba.ListingProfile.Manager.Implementations;
+using DevelopmentHell.Hubba.ListingProfile.Service.Abstractions;
 using DevelopmentHell.Hubba.ListingProfile.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
@@ -41,11 +44,14 @@ using DevelopmentHell.Hubba.Notification.Service.Abstractions;
 using DevelopmentHell.Hubba.Notification.Service.Implementations;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
+using DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions;
+using DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations;
+using DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions;
+using DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Manager.Abstractions;
 using DevelopmentHell.Hubba.Registration.Manager.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
-using DevelopmentHell.Hubba.Scheduling.Manager;
 using DevelopmentHell.Hubba.Scheduling.Manager.Abstraction;
 using DevelopmentHell.Hubba.Scheduling.Service.Abstractions;
 using DevelopmentHell.Hubba.Scheduling.Service.Implementations;
@@ -61,19 +67,9 @@ using DevelopmentHell.Hubba.UserManagement.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
 using DevelopmentHell.ListingProfile.Manager.Abstractions;
-using Microsoft.Extensions.DependencyInjection;
-using DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations;
 using Microsoft.Net.Http.Headers;
-using System.Security.Claims;
 using HubbaAuthenticationManager = DevelopmentHell.Hubba.Authentication.Manager.Implementations;
 using HubbaConfig = System.Configuration;
-using DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions;
-using DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions;
-using DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.AspNetCore.Hosting;
-using System.Security.Cryptography.X509Certificates;
-using DevelopmentHell.Hubba.ListingProfile.Service.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -180,8 +176,8 @@ builder.Services.AddTransient<IListingsDataAccess, ListingsDataAccess>(s =>
 );
 
 builder.Services.AddTransient<ICollaboratorsDataAccess, CollaboratorsDataAccess>(s =>
-	new CollaboratorsDataAccess(
-		HubbaConfig.ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!,
+    new CollaboratorsDataAccess(
+        HubbaConfig.ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!,
         HubbaConfig.ConfigurationManager.AppSettings["CollaboratorsTable"]!
     )
 );
@@ -190,11 +186,11 @@ builder.Services.AddTransient<IDiscoveryManager, DiscoveryManager>(s =>
         new DiscoveryService(
             s.GetService<IListingsDataAccess>()!,
             s.GetService<ICollaboratorsDataAccess>()!,
-			s.GetService<IProjectShowcaseDataAccess>()!,
-			s.GetService<ILoggerService>()!
+            s.GetService<IProjectShowcaseDataAccess>()!,
+            s.GetService<ILoggerService>()!
         ),
-		s.GetService<ILoggerService>()!
-	)
+        s.GetService<ILoggerService>()!
+    )
 );
 builder.Services.AddTransient<IRegistrationService, RegistrationService>(s =>
     new RegistrationService(
@@ -369,18 +365,18 @@ builder.Services.AddTransient<ICollaboratorManager, CollaboratorManager>(s =>
 );
 builder.Services.AddTransient<IListingsDataAccess, ListingsDataAccess>(s =>
     new ListingsDataAccess(
-		HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
-		HubbaConfig.ConfigurationManager.AppSettings["ListingsTable"]!
+        HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+        HubbaConfig.ConfigurationManager.AppSettings["ListingsTable"]!
 ));
 builder.Services.AddTransient<IListingAvailabilitiesDataAccess, ListingAvailabilitiesDataAccess>(s =>
-	new ListingAvailabilitiesDataAccess(
-		HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
-		HubbaConfig.ConfigurationManager.AppSettings["ListingAvailabilitiesTable"]!
+    new ListingAvailabilitiesDataAccess(
+        HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+        HubbaConfig.ConfigurationManager.AppSettings["ListingAvailabilitiesTable"]!
 ));
 builder.Services.AddTransient<IListingHistoryDataAccess, ListingHistoryDataAccess>(s =>
-	new ListingHistoryDataAccess(
-		HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
-		HubbaConfig.ConfigurationManager.AppSettings["ListingHistoryTable"]!
+    new ListingHistoryDataAccess(
+        HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+        HubbaConfig.ConfigurationManager.AppSettings["ListingHistoryTable"]!
 ));
 
 builder.Services.AddTransient<IListingProfileService, ListingProfileService>(s =>
@@ -401,7 +397,7 @@ builder.Services.AddTransient<IListingProfileService, ListingProfileService>(s =
             ),
             s.GetService<ILoggerService>()!
     )
-); 
+);
 
 builder.Services.AddTransient<IListingProfileManager, ListingProfileManager>(s =>
     new ListingProfileManager
@@ -415,15 +411,15 @@ builder.Services.AddTransient<IListingProfileManager, ListingProfileManager>(s =
     )
 );
 builder.Services.AddTransient<IProjectShowcaseDataAccess, ProjectShowcaseDataAccess>(s =>
-	new ProjectShowcaseDataAccess(
-		HubbaConfig.ConfigurationManager.AppSettings["ProjectShowcasesConnectionString"]!,
-		HubbaConfig.ConfigurationManager.AppSettings["ShowcasesTable"]!,
-		HubbaConfig.ConfigurationManager.AppSettings["ShowcaseCommentsTable"]!,
-		HubbaConfig.ConfigurationManager.AppSettings["ShowcaseVotesTable"]!,
-		HubbaConfig.ConfigurationManager.AppSettings["ShowcaseCommentVotesTable"]!,
-		HubbaConfig.ConfigurationManager.AppSettings["ShowcaseReportsTable"]!,
-		HubbaConfig.ConfigurationManager.AppSettings["ShowcaseCommentReportsTable"]!
-	)
+    new ProjectShowcaseDataAccess(
+        HubbaConfig.ConfigurationManager.AppSettings["ProjectShowcasesConnectionString"]!,
+        HubbaConfig.ConfigurationManager.AppSettings["ShowcasesTable"]!,
+        HubbaConfig.ConfigurationManager.AppSettings["ShowcaseCommentsTable"]!,
+        HubbaConfig.ConfigurationManager.AppSettings["ShowcaseVotesTable"]!,
+        HubbaConfig.ConfigurationManager.AppSettings["ShowcaseCommentVotesTable"]!,
+        HubbaConfig.ConfigurationManager.AppSettings["ShowcaseReportsTable"]!,
+        HubbaConfig.ConfigurationManager.AppSettings["ShowcaseCommentReportsTable"]!
+    )
 );
 builder.Services.AddTransient<IProjectShowcaseService, ProjectShowcaseService>(s =>
     new ProjectShowcaseService(
@@ -447,16 +443,16 @@ builder.Services.AddTransient<IProjectShowcaseManager, ProjectShowcaseManager>(s
 );
 
 builder.Services.AddTransient<IBookingsDataAccess, BookingsDataAccess>(s =>
-	new BookingsDataAccess(
-			HubbaConfig.ConfigurationManager.AppSettings["SchedulingsConnectionString"]!,
-			HubbaConfig.ConfigurationManager.AppSettings["BookingsTable"]!
-	)
+    new BookingsDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["SchedulingsConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["BookingsTable"]!
+    )
 );
 builder.Services.AddTransient<IBookedTimeFramesDataAccess, BookedTimeFramesDataAccess>(s =>
-	new BookedTimeFramesDataAccess(
-			HubbaConfig.ConfigurationManager.AppSettings["SchedulingsConnectionString"]!,
-			HubbaConfig.ConfigurationManager.AppSettings["BookedTimeFramesTable"]!
-	)
+    new BookedTimeFramesDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["SchedulingsConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["BookedTimeFramesTable"]!
+    )
 );
 builder.Services.AddTransient<IAvailabilityService, AvailabilityService>(s =>
     new AvailabilityService(
@@ -654,6 +650,7 @@ app.MapControllers();
 
 app.Run();
 
+#if !DEBUG
 X509Certificate2 LoadCertificate()
 {
     // Load your Origin CA certificate and private key here
@@ -662,3 +659,4 @@ X509Certificate2 LoadCertificate()
     var cert = new X509Certificate2(certificatePath, privateKeyPath);
     return cert;
 }
+#endif

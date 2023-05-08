@@ -1,5 +1,4 @@
 ﻿using DevelopmentHell.Hubba.AccountRecovery.Manager.Abstractions;
-using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.WebAPI.DTO.AccountRecovery;
 using Microsoft.AspNetCore.Mvc;
 

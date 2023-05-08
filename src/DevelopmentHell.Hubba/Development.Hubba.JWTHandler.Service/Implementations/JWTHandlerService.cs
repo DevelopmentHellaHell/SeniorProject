@@ -1,7 +1,7 @@
-﻿using Development.Hubba.JWTHandler.Service.Abstractions;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Development.Hubba.JWTHandler.Service.Abstractions;
 
 namespace Development.Hubba.JWTHandler.Service.Implementations
 {

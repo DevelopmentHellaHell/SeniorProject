@@ -50,7 +50,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Implementations
                 return result;
             }
             Result updateResult = await _userAccountDataAccess.UpdateUserName(userId, firstName!, lastName!).ConfigureAwait(false);
-            if (!updateResult.IsSuccessful) 
+            if (!updateResult.IsSuccessful)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = updateResult.ErrorMessage;

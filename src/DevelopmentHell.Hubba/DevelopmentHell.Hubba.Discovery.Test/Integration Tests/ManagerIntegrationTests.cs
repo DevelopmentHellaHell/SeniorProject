@@ -1,8 +1,6 @@
+using System.Configuration;
 using Development.Hubba.JWTHandler.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
-using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
-using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
-using DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Implementations;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
@@ -10,13 +8,10 @@ using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
 using DevelopmentHell.Hubba.Discovery.Manager.Abstractions;
 using DevelopmentHell.Hubba.Discovery.Manager.Implementations;
 using DevelopmentHell.Hubba.Discovery.Service.Implemenatations;
-using DevelopmentHell.Hubba.Email.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Notification.Service.Abstractions;
 using DevelopmentHell.Hubba.Notification.Service.Implementations;
-using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
-using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Manager.Abstractions;
 using DevelopmentHell.Hubba.Registration.Manager.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
@@ -27,362 +22,361 @@ using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using System.Configuration;
 
 namespace DevelopmentHell.Hubba.Discovery.Test
 {
-	[TestClass]
-	public class ManagerIntegrationTests
-	{
-		private string _usersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
-		private string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
-		private string _userOTPsTable = ConfigurationManager.AppSettings["UserOTPsTable"]!;
-		private string _userLoginsTable = ConfigurationManager.AppSettings["UserLoginsTable"]!;
+    [TestClass]
+    public class ManagerIntegrationTests
+    {
+        private string _usersConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
+        private string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
+        private string _userOTPsTable = ConfigurationManager.AppSettings["UserOTPsTable"]!;
+        private string _userLoginsTable = ConfigurationManager.AppSettings["UserLoginsTable"]!;
 
-		private string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
-		private string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
+        private string _logsConnectionString = ConfigurationManager.AppSettings["LogsConnectionString"]!;
+        private string _logsTable = ConfigurationManager.AppSettings["LogsTable"]!;
 
-		private string _jwtKey = ConfigurationManager.AppSettings["JwtKey"]!;
-		private string _cryptographyKey = ConfigurationManager.AppSettings["CryptographyKey"]!;
+        private string _jwtKey = ConfigurationManager.AppSettings["JwtKey"]!;
+        private string _cryptographyKey = ConfigurationManager.AppSettings["CryptographyKey"]!;
 
-		private readonly string _listingProfileConnectionString = ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!;
-		private readonly string _listingsTable = ConfigurationManager.AppSettings["ListingsTable"]!;
+        private readonly string _listingProfileConnectionString = ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!;
+        private readonly string _listingsTable = ConfigurationManager.AppSettings["ListingsTable"]!;
 
-		private readonly string _showcaseConnectionString = ConfigurationManager.AppSettings["ProjectShowcasesConnectionString"]!;
-		private readonly string _showcasesTable = ConfigurationManager.AppSettings["ShowcasesTable"]!;
-		private readonly string _showcaseCommentsTable = ConfigurationManager.AppSettings["ShowcaseCommentsTable"]!;
-		private readonly string _showcaseVotesTable = ConfigurationManager.AppSettings["ShowcaseVotesTable"]!;
-		private readonly string _showcaseCommentVotesTable = ConfigurationManager.AppSettings["ShowcaseCommentVotesTable"]!;
-		private readonly string _showcaseReportsTable = ConfigurationManager.AppSettings["ShowcaseReportsTable"]!;
-		private readonly string _showcaseCommentReportsTable = ConfigurationManager.AppSettings["ShowcaseCommentReportsTable"]!;
+        private readonly string _showcaseConnectionString = ConfigurationManager.AppSettings["ProjectShowcasesConnectionString"]!;
+        private readonly string _showcasesTable = ConfigurationManager.AppSettings["ShowcasesTable"]!;
+        private readonly string _showcaseCommentsTable = ConfigurationManager.AppSettings["ShowcaseCommentsTable"]!;
+        private readonly string _showcaseVotesTable = ConfigurationManager.AppSettings["ShowcaseVotesTable"]!;
+        private readonly string _showcaseCommentVotesTable = ConfigurationManager.AppSettings["ShowcaseCommentVotesTable"]!;
+        private readonly string _showcaseReportsTable = ConfigurationManager.AppSettings["ShowcaseReportsTable"]!;
+        private readonly string _showcaseCommentReportsTable = ConfigurationManager.AppSettings["ShowcaseCommentReportsTable"]!;
 
-		// Class to test
-		private readonly IDiscoveryManager _discoveryManager;
+        // Class to test
+        private readonly IDiscoveryManager _discoveryManager;
 
-		// Helper Classes
-		private readonly IRegistrationManager _registrationManager;
-		private readonly IAuthorizationService _authorizationService;
-		private readonly INotificationService _notificationService;
-		private readonly IOTPDataAccess _otpDataAccess;
-		private readonly IUserAccountDataAccess _userAccountDataAccess;
-		private readonly IUserLoginDataAccess _userLoginDataAccess;
-		private readonly IRegistrationService _registrationService;
-		private readonly ITestingService _testingService;
-		private readonly ILoggerService _loggerService;
-		private readonly ICryptographyService _cryptographyService;
-		private readonly IValidationService _validationService;
+        // Helper Classes
+        private readonly IRegistrationManager _registrationManager;
+        private readonly IAuthorizationService _authorizationService;
+        private readonly INotificationService _notificationService;
+        private readonly IOTPDataAccess _otpDataAccess;
+        private readonly IUserAccountDataAccess _userAccountDataAccess;
+        private readonly IUserLoginDataAccess _userLoginDataAccess;
+        private readonly IRegistrationService _registrationService;
+        private readonly ITestingService _testingService;
+        private readonly ILoggerService _loggerService;
+        private readonly ICryptographyService _cryptographyService;
+        private readonly IValidationService _validationService;
 
-		public ManagerIntegrationTests()
-		{
-			_loggerService = new LoggerService(
-				new LoggerDataAccess(
-					_logsConnectionString,
-					_logsTable
-				)
-			);
+        public ManagerIntegrationTests()
+        {
+            _loggerService = new LoggerService(
+                new LoggerDataAccess(
+                    _logsConnectionString,
+                    _logsTable
+                )
+            );
 
-			_userAccountDataAccess = new UserAccountDataAccess(
-				_usersConnectionString,
-				_userAccountsTable
-			);
+            _userAccountDataAccess = new UserAccountDataAccess(
+                _usersConnectionString,
+                _userAccountsTable
+            );
 
-			_userLoginDataAccess = new UserLoginDataAccess(
-				_usersConnectionString,
-				_userLoginsTable
-			);
+            _userLoginDataAccess = new UserLoginDataAccess(
+                _usersConnectionString,
+                _userLoginsTable
+            );
 
-			_otpDataAccess = new OTPDataAccess(
-				_usersConnectionString,
-				_userOTPsTable
-			);
-			_cryptographyService = new CryptographyService(
-				_cryptographyKey
-			);
+            _otpDataAccess = new OTPDataAccess(
+                _usersConnectionString,
+                _userOTPsTable
+            );
+            _cryptographyService = new CryptographyService(
+                _cryptographyKey
+            );
 
-			_validationService = new ValidationService();
-			IJWTHandlerService jwtHandlerService = new JWTHandlerService(
-				_jwtKey
-			);
+            _validationService = new ValidationService();
+            IJWTHandlerService jwtHandlerService = new JWTHandlerService(
+                _jwtKey
+            );
 
-			_authorizationService = new AuthorizationService(
-				_userAccountDataAccess,
-				jwtHandlerService,
-				_loggerService
-			);
+            _authorizationService = new AuthorizationService(
+                _userAccountDataAccess,
+                jwtHandlerService,
+                _loggerService
+            );
 
-			_notificationService = new NotificationService(
-					new NotificationDataAccess(
-						ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
-						ConfigurationManager.AppSettings["UserNotificationsTable"]!
-					),
-					new NotificationSettingsDataAccess(
-						ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
-						ConfigurationManager.AppSettings["NotificationSettingsTable"]!
-					),
-					_userAccountDataAccess,
-					_loggerService
-			);
-			_registrationService = new RegistrationService(
-				_userAccountDataAccess,
-				_cryptographyService,
-				_validationService,
-				_loggerService
-			);
-			_registrationManager = new RegistrationManager(
-				_registrationService,
-				_authorizationService,
-				_cryptographyService,
-				_notificationService,
-				_loggerService
-			);
-			_discoveryManager = new DiscoveryManager(
-				new DiscoveryService(
-					new ListingsDataAccess(_listingProfileConnectionString, _listingsTable),
-					new CollaboratorsDataAccess(
-						ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!,
-						ConfigurationManager.AppSettings["CollaboratorsTable"]!
-					),
-					new ProjectShowcaseDataAccess(
-						_showcaseConnectionString,
-						_showcasesTable,
-						_showcaseCommentsTable,
-						_showcaseVotesTable,
-						_showcaseCommentVotesTable,
-						_showcaseReportsTable,
-						_showcaseCommentReportsTable
-					),
-					_loggerService
-				),
-				_loggerService
-			);
-			_testingService = new TestingService(
-				_jwtKey,
-				new TestsDataAccess()
-			);
-		}
+            _notificationService = new NotificationService(
+                    new NotificationDataAccess(
+                        ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
+                        ConfigurationManager.AppSettings["UserNotificationsTable"]!
+                    ),
+                    new NotificationSettingsDataAccess(
+                        ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
+                        ConfigurationManager.AppSettings["NotificationSettingsTable"]!
+                    ),
+                    _userAccountDataAccess,
+                    _loggerService
+            );
+            _registrationService = new RegistrationService(
+                _userAccountDataAccess,
+                _cryptographyService,
+                _validationService,
+                _loggerService
+            );
+            _registrationManager = new RegistrationManager(
+                _registrationService,
+                _authorizationService,
+                _cryptographyService,
+                _notificationService,
+                _loggerService
+            );
+            _discoveryManager = new DiscoveryManager(
+                new DiscoveryService(
+                    new ListingsDataAccess(_listingProfileConnectionString, _listingsTable),
+                    new CollaboratorsDataAccess(
+                        ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!,
+                        ConfigurationManager.AppSettings["CollaboratorsTable"]!
+                    ),
+                    new ProjectShowcaseDataAccess(
+                        _showcaseConnectionString,
+                        _showcasesTable,
+                        _showcaseCommentsTable,
+                        _showcaseVotesTable,
+                        _showcaseCommentVotesTable,
+                        _showcaseReportsTable,
+                        _showcaseCommentReportsTable
+                    ),
+                    _loggerService
+                ),
+                _loggerService
+            );
+            _testingService = new TestingService(
+                _jwtKey,
+                new TestsDataAccess()
+            );
+        }
 
-		[TestInitialize]
-		public async Task Setup()
-		{
-			await _testingService.DeleteAllRecords().ConfigureAwait(false);
-		}
+        [TestInitialize]
+        public async Task Setup()
+        {
+            await _testingService.DeleteAllRecords().ConfigureAwait(false);
+        }
 
-		[TestMethod]
-		public void ShouldInstansiateCtor()
-		{
-			Assert.IsNotNull(_discoveryManager);
-		}
+        [TestMethod]
+        public void ShouldInstansiateCtor()
+        {
+            Assert.IsNotNull(_discoveryManager);
+        }
 
-		[DataTestMethod]
-		[DataRow(0)]
-		[DataRow(1)]
-		[DataRow(100)]
-		public async Task GetCuratedWithValidOffset(int offset)
-		{
-			// Arrange
-			var expectedSuccess = true;
+        [DataTestMethod]
+        [DataRow(0)]
+        [DataRow(1)]
+        [DataRow(100)]
+        public async Task GetCuratedWithValidOffset(int offset)
+        {
+            // Arrange
+            var expectedSuccess = true;
 
-			// Act
-			var result = await _discoveryManager.GetCurated(offset);
-			Console.WriteLine(result.ErrorMessage);
-			// Assert
-			Assert.IsTrue(result.IsSuccessful == expectedSuccess);
-			Assert.IsNotNull(result.Payload);
-		}
+            // Act
+            var result = await _discoveryManager.GetCurated(offset);
+            Console.WriteLine(result.ErrorMessage);
+            // Assert
+            Assert.IsTrue(result.IsSuccessful == expectedSuccess);
+            Assert.IsNotNull(result.Payload);
+        }
 
-		[DataTestMethod]
-		[DataRow(-1)]
-		[DataRow(-100)]
-		public async Task GetCuratedWithInvalidOffset(int offset)
-		{
-			// Arrange
-			var expectedSuccess = false;
+        [DataTestMethod]
+        [DataRow(-1)]
+        [DataRow(-100)]
+        public async Task GetCuratedWithInvalidOffset(int offset)
+        {
+            // Arrange
+            var expectedSuccess = false;
 
-			// Act
-			var result = await _discoveryManager.GetCurated(offset).ConfigureAwait(false);
+            // Act
+            var result = await _discoveryManager.GetCurated(offset).ConfigureAwait(false);
 
-			// Assert
-			Assert.IsTrue(result.IsSuccessful == expectedSuccess);
-			Assert.IsNull(result.Payload);
-		}
+            // Assert
+            Assert.IsTrue(result.IsSuccessful == expectedSuccess);
+            Assert.IsNull(result.Payload);
+        }
 
-		[DataTestMethod]
-		[DataRow("woodworking")]
-		[DataRow("pottery")]
-		public async Task GetSearchWithValidQuery(string query)
-		{
-			// Arrange
-			var category = "listings";
-			var filter = "none";
-			var offset = 0;
-			var expectedSuccess = true;
+        [DataTestMethod]
+        [DataRow("woodworking")]
+        [DataRow("pottery")]
+        public async Task GetSearchWithValidQuery(string query)
+        {
+            // Arrange
+            var category = "listings";
+            var filter = "none";
+            var offset = 0;
+            var expectedSuccess = true;
 
-			// Act
-			var result = await _discoveryManager.GetSearch(query, category, filter, offset).ConfigureAwait(false);
+            // Act
+            var result = await _discoveryManager.GetSearch(query, category, filter, offset).ConfigureAwait(false);
 
-			// Assert
-			Assert.IsTrue(result.IsSuccessful == expectedSuccess);
-			Assert.IsNotNull(result.Payload);
-		}
+            // Assert
+            Assert.IsTrue(result.IsSuccessful == expectedSuccess);
+            Assert.IsNotNull(result.Payload);
+        }
 
-		[TestMethod]
-		public async Task GetSearchWithEmptyQuery()
-		{
-			// Arrange
-			var category = "listings";
-			var filter = "none";
-			var offset = 0;
-			var query = "";
-			var expectedSuccess = false;
+        [TestMethod]
+        public async Task GetSearchWithEmptyQuery()
+        {
+            // Arrange
+            var category = "listings";
+            var filter = "none";
+            var offset = 0;
+            var query = "";
+            var expectedSuccess = false;
 
-			// Act
-			var result = await _discoveryManager.GetSearch(query, category, filter, offset).ConfigureAwait(false);
+            // Act
+            var result = await _discoveryManager.GetSearch(query, category, filter, offset).ConfigureAwait(false);
 
-			// Assert
-			Assert.IsTrue(result.IsSuccessful == expectedSuccess);
-			Assert.IsNull(result.Payload);
-		}
+            // Assert
+            Assert.IsTrue(result.IsSuccessful == expectedSuccess);
+            Assert.IsNull(result.Payload);
+        }
 
-		[TestMethod]
-		public async Task GetSearchWithLongQuery()
-		{
-			// Arrange
-			var category = "listings";
-			var filter = "none";
-			var offset = 0;
-			var query = "";
-			var queryLength = 201;
-			for (int i = 0; i < queryLength; i++)
-			{
-				query += "1";
-			}
+        [TestMethod]
+        public async Task GetSearchWithLongQuery()
+        {
+            // Arrange
+            var category = "listings";
+            var filter = "none";
+            var offset = 0;
+            var query = "";
+            var queryLength = 201;
+            for (int i = 0; i < queryLength; i++)
+            {
+                query += "1";
+            }
 
-			var expectedSuccess = false;
+            var expectedSuccess = false;
 
-			// Act
-			var result = await _discoveryManager.GetSearch(query, category, filter, offset).ConfigureAwait(false);
+            // Act
+            var result = await _discoveryManager.GetSearch(query, category, filter, offset).ConfigureAwait(false);
 
-			// Assert
-			Assert.IsTrue(result.IsSuccessful == expectedSuccess);
-			Assert.IsNull(result.Payload);
-		}
+            // Assert
+            Assert.IsTrue(result.IsSuccessful == expectedSuccess);
+            Assert.IsNull(result.Payload);
+        }
 
-		[DataTestMethod]
-		[DataRow("listings")]
-		[DataRow("collaborators")]
-		[DataRow("showcases")]
-		public async Task GetSearchWithValidCategory(string category)
-		{
-			var filter = "none";
-			var query = "woodworking";
-			var offset = 0;
+        [DataTestMethod]
+        [DataRow("listings")]
+        [DataRow("collaborators")]
+        [DataRow("showcases")]
+        public async Task GetSearchWithValidCategory(string category)
+        {
+            var filter = "none";
+            var query = "woodworking";
+            var offset = 0;
 
-			var expectedSuccess = true;
+            var expectedSuccess = true;
 
-			// Act
-			var result = await _discoveryManager.GetSearch(query, category, filter, offset).ConfigureAwait(false);
+            // Act
+            var result = await _discoveryManager.GetSearch(query, category, filter, offset).ConfigureAwait(false);
 
-			// Assert
-			Assert.IsTrue(result.IsSuccessful == expectedSuccess);
-			Assert.IsNotNull(result.Payload);
-		}
+            // Assert
+            Assert.IsTrue(result.IsSuccessful == expectedSuccess);
+            Assert.IsNotNull(result.Payload);
+        }
 
-		[DataTestMethod]
-		[DataRow("")]
-		[DataRow("nonExistantCategory")]
-		[DataRow("12!%^.:/")]
-		public async Task GetSearchWithNonExistantCategory(string category)
-		{
-			var filter = "none";
-			var query = "woodworking";
-			var offset = 0;
+        [DataTestMethod]
+        [DataRow("")]
+        [DataRow("nonExistantCategory")]
+        [DataRow("12!%^.:/")]
+        public async Task GetSearchWithNonExistantCategory(string category)
+        {
+            var filter = "none";
+            var query = "woodworking";
+            var offset = 0;
 
-			var expectedSuccess = true;
+            var expectedSuccess = true;
 
-			// Act
-			var result = await _discoveryManager.GetSearch(query, category, filter, offset).ConfigureAwait(false);
+            // Act
+            var result = await _discoveryManager.GetSearch(query, category, filter, offset).ConfigureAwait(false);
 
-			// Assert
-			Assert.IsTrue(result.IsSuccessful == expectedSuccess);
-			Assert.IsNotNull(result.Payload);
-		}
+            // Assert
+            Assert.IsTrue(result.IsSuccessful == expectedSuccess);
+            Assert.IsNotNull(result.Payload);
+        }
 
-		[DataTestMethod]
-		[DataRow("none")]
-		[DataRow("popular")]
-		public async Task GetSearchWithValidFilter(string filter)
-		{
-			var category = "listings";
-			var query = "woodworking";
-			var offset = 0;
+        [DataTestMethod]
+        [DataRow("none")]
+        [DataRow("popular")]
+        public async Task GetSearchWithValidFilter(string filter)
+        {
+            var category = "listings";
+            var query = "woodworking";
+            var offset = 0;
 
-			var expectedSuccess = true;
+            var expectedSuccess = true;
 
-			// Act
-			var result = await _discoveryManager.GetSearch(query, category, filter, offset).ConfigureAwait(false);
+            // Act
+            var result = await _discoveryManager.GetSearch(query, category, filter, offset).ConfigureAwait(false);
 
-			// Assert
-			Assert.IsTrue(result.IsSuccessful == expectedSuccess);
-			Assert.IsNotNull(result.Payload);
-		}
+            // Assert
+            Assert.IsTrue(result.IsSuccessful == expectedSuccess);
+            Assert.IsNotNull(result.Payload);
+        }
 
-		[DataTestMethod]
-		[DataRow("")]
-		[DataRow("nonExistantFilter")]
-		[DataRow("12!%^.:/")]
-		public async Task GetSearchWithNonExistantFilter(string filter)
-		{
-			var category = "listings";
-			var query = "woodworking";
-			var offset = 0;
+        [DataTestMethod]
+        [DataRow("")]
+        [DataRow("nonExistantFilter")]
+        [DataRow("12!%^.:/")]
+        public async Task GetSearchWithNonExistantFilter(string filter)
+        {
+            var category = "listings";
+            var query = "woodworking";
+            var offset = 0;
 
-			var expectedSuccess = true;
+            var expectedSuccess = true;
 
-			// Act
-			var result = await _discoveryManager.GetSearch(query, category, filter, offset).ConfigureAwait(false);
+            // Act
+            var result = await _discoveryManager.GetSearch(query, category, filter, offset).ConfigureAwait(false);
 
-			// Assert
-			Assert.IsTrue(result.IsSuccessful == expectedSuccess);
-			Assert.IsNotNull(result.Payload);
-		}
+            // Assert
+            Assert.IsTrue(result.IsSuccessful == expectedSuccess);
+            Assert.IsNotNull(result.Payload);
+        }
 
-		[DataTestMethod]
-		[DataRow(0)]
-		[DataRow(1)]
-		[DataRow(100)]
-		public async Task GetSearchWithValidOffset(int offset)
-		{
-			var category = "listings";
-			var filter = "none";
-			var query = "woodworking";
+        [DataTestMethod]
+        [DataRow(0)]
+        [DataRow(1)]
+        [DataRow(100)]
+        public async Task GetSearchWithValidOffset(int offset)
+        {
+            var category = "listings";
+            var filter = "none";
+            var query = "woodworking";
 
-			var expectedSuccess = true;
+            var expectedSuccess = true;
 
-			// Act
-			var result = await _discoveryManager.GetSearch(query, category, filter, offset).ConfigureAwait(false);
+            // Act
+            var result = await _discoveryManager.GetSearch(query, category, filter, offset).ConfigureAwait(false);
 
-			// Assert
-			Assert.IsTrue(result.IsSuccessful == expectedSuccess);
-			Assert.IsNotNull(result.Payload);
-		}
+            // Assert
+            Assert.IsTrue(result.IsSuccessful == expectedSuccess);
+            Assert.IsNotNull(result.Payload);
+        }
 
-		[DataTestMethod]
-		[DataRow(-1)]
-		[DataRow(-100)]
-		public async Task GetSearchWithInvalidOffset(int offset)
-		{
-			var category = "listings";
-			var filter = "none";
-			var query = "woodworking";
+        [DataTestMethod]
+        [DataRow(-1)]
+        [DataRow(-100)]
+        public async Task GetSearchWithInvalidOffset(int offset)
+        {
+            var category = "listings";
+            var filter = "none";
+            var query = "woodworking";
 
-			var expectedSuccess = false;
+            var expectedSuccess = false;
 
-			// Act
-			var result = await _discoveryManager.GetSearch(query, category, filter, offset).ConfigureAwait(false);
+            // Act
+            var result = await _discoveryManager.GetSearch(query, category, filter, offset).ConfigureAwait(false);
 
-			// Assert
-			Assert.IsTrue(result.IsSuccessful == expectedSuccess);
-			Assert.IsNull(result.Payload);
-		}
-	}
+            // Assert
+            Assert.IsTrue(result.IsSuccessful == expectedSuccess);
+            Assert.IsNull(result.Payload);
+        }
+    }
 }

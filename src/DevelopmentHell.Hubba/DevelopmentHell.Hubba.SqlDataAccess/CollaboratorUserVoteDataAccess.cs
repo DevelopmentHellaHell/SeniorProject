@@ -60,20 +60,20 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 _tableName,
                 new List<string>() { _accountIdColumn },
                 new List<Comparator>()
-                { 
+                {
                     new Comparator(_collaboratorIdColumn, "=", collabId),
-                    new Comparator(_accountIdColumn, "=", accountId) 
+                    new Comparator(_accountIdColumn, "=", accountId)
                 }
             ).ConfigureAwait(false);
             if (!selectUpvoteResult.IsSuccessful)
             {
                 return selectUpvoteResult;
             }
-            if(selectUpvoteResult.Payload!.Count > 1)
+            if (selectUpvoteResult.Payload!.Count > 1)
             {
                 return new(Result.Failure("User has already voted multiple times."));
             }
-            else if(selectUpvoteResult.Payload!.Count == 1)
+            else if (selectUpvoteResult.Payload!.Count == 1)
             {
                 return new(Result.Failure("User has already voted."));
             }
@@ -84,7 +84,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                         {_collaboratorIdColumn,  collabId},
                         {_accountIdColumn,  accountId}
                     }).ConfigureAwait(false);
-            if(!insertUpvoteResult.IsSuccessful)
+            if (!insertUpvoteResult.IsSuccessful)
             {
                 return new(Result.Failure("Unable to insert vote. " + insertUpvoteResult.ErrorMessage));
             }

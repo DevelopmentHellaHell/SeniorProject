@@ -1,4 +1,5 @@
-﻿using DevelopmentHell.Hubba.Models;
+﻿using System.Configuration;
+using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Models.DTO;
 using DevelopmentHell.Hubba.Scheduling.Service.Abstractions;
 using DevelopmentHell.Hubba.Scheduling.Service.Implementations;
@@ -6,7 +7,6 @@ using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
-using System.Configuration;
 
 namespace DevelopmentHell.Hubba.Scheduling.Test.Service
 {
@@ -246,7 +246,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
             var testData = await SetUp().ConfigureAwait(false);
             int listingId = (int)testData[nameof(Listing.ListingId)];
             int availabilityId = (int)testData["availabilityId_1"];
-            
+
             List<BookedTimeFrame> invalidTimeFrames = new List<BookedTimeFrame>()
             {
                 new BookedTimeFrame()
@@ -267,7 +267,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
 
             //Act
             Result<bool> actual = new();
-            foreach(var timeFrame in invalidTimeFrames)
+            foreach (var timeFrame in invalidTimeFrames)
             {
                 actual = await _availabilityService.ValidateChosenTimeFrames(timeFrame).ConfigureAwait(false);
             }

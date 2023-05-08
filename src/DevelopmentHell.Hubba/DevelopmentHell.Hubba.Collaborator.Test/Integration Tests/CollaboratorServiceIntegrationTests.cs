@@ -1,36 +1,32 @@
-﻿using Development.Hubba.JWTHandler.Service.Abstractions;
+﻿using System.Configuration;
+using System.Security.Claims;
+using Development.Hubba.JWTHandler.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
+using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
+using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
+using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
+using DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Implementations;
-using DevelopmentHell.Hubba.Collaborator.Manager.Abstractions;
-using DevelopmentHell.Hubba.Collaborator.Manager.Implementations;
 using DevelopmentHell.Hubba.Collaborator.Service.Abstractions;
 using DevelopmentHell.Hubba.Collaborator.Service.Implementations;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
+using DevelopmentHell.Hubba.Email.Service.Implementations;
 using DevelopmentHell.Hubba.Files.Service.Abstractions;
 using DevelopmentHell.Hubba.Files.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
+using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
-using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess;
+using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using System.Configuration;
-using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
-using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using Microsoft.AspNetCore.Http;
-using DevelopmentHell.Hubba.Models;
-using Microsoft.Identity.Client;
-using System.Security.Claims;
-using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
-using DevelopmentHell.Hubba.Email.Service.Implementations;
-using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
-using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
-using DevelopmentHell.Hubba.Authentication.Service.Implementations;
 
 namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
 {
@@ -309,7 +305,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
 
             // Assert
             Assert.IsTrue(getFiles.IsSuccessful);
-            Assert.IsTrue(getFiles.Payload!.Length==2);
+            Assert.IsTrue(getFiles.Payload!.Length == 2);
         }
 
         [TestMethod]
@@ -345,12 +341,12 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
 
             // Act
             var deleteCollaborator = await _collaboratorService.DeleteCollaborator((int)getCollaboratorId.Payload!).ConfigureAwait(false);
-            var getCollaboratorAfterDeletion = await _collaboratorService.GetCollaborator(accountId).ConfigureAwait(false); 
+            var getCollaboratorAfterDeletion = await _collaboratorService.GetCollaborator(accountId).ConfigureAwait(false);
             // Assert
             Assert.IsTrue(deleteCollaborator.IsSuccessful);
             Assert.IsFalse(getCollaboratorAfterDeletion.IsSuccessful);
             Assert.IsNull(getCollaboratorAfterDeletion.Payload);
-            
+
         }
 
         [TestMethod]
@@ -500,7 +496,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             };
             IFormFile collabFile = CreateMockFormFile();
             await _collaboratorService.CreateCollaborator(collab, collabFiles, collabFile);
-            
+
 
             // Act
             var getCollaboratorIdResult = await _collaboratorService.GetCollaboratorId(accountId).ConfigureAwait(false);
@@ -649,5 +645,5 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             };
 
         }
-    } 
+    }
 }

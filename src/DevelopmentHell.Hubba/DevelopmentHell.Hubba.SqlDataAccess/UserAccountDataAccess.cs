@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using DevelopmentHell.Hubba.Models;
+﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
@@ -481,7 +480,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             Result updateResult = new Result();
 
-            if (firstName == null) 
+            if (firstName == null)
             {
                 updateResult = await _updateDataAccess.Update(
                     _tableName,

@@ -1,4 +1,6 @@
-﻿using Development.Hubba.JWTHandler.Service.Abstractions;
+﻿using System.Configuration;
+using System.Security.Claims;
+using Development.Hubba.JWTHandler.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
 using DevelopmentHell.Hubba.AccountRecovery.Manager.Abstractions;
 using DevelopmentHell.Hubba.AccountRecovery.Manager.Implementations;
@@ -30,8 +32,6 @@ using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using System.Configuration;
-using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
 {
@@ -137,10 +137,10 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             );
             _accountRecoveryManager = new AccountRecoveryManager(
                 new AccountRecoveryService(
-                    _userAccountDataAccess, 
-                    _userLoginDataAccess, 
-                    _recoveryRequestDataAccess, 
-                    _validationService, 
+                    _userAccountDataAccess,
+                    _userLoginDataAccess,
+                    _recoveryRequestDataAccess,
+                    _validationService,
                     _loggerService
                 ),
                 new OTPService(
@@ -150,15 +150,15 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
                     ),
                     _emailService,
                     _cryptographyService),
-                    _authenticationService, 
-                    _authorizationService, 
+                    _authenticationService,
+                    _authorizationService,
                     _loggerService
                 );
 
-            
-            
-            
-            
+
+
+
+
             _notificationService = new NotificationService(
                     new NotificationDataAccess(
                         ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
@@ -218,7 +218,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
 
             var expected = true;
             var expectedRole = "DefaultUser";
-            
+
             await _registrationManager.Register(email, password).ConfigureAwait(false);
 
             // Act
@@ -234,13 +234,13 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
 
             await _accountRecoveryManager.AuthenticateOTP(otp, dummyIp);
             var actual = await _accountRecoveryManager.AccountAccess(dummyIp);
-            
-            
+
+
             ClaimsPrincipal? actualPrincipal = null;
             if (actual.IsSuccessful && actual.Payload is not null)
             {
                 _testingService.DecodeJWT(actual.Payload!.Item1, actual.Payload!.Item2);
-                
+
             }
             actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 
@@ -407,7 +407,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
         {
             // Arrange
             string email = "accountrecoveryfailure";
-            
+
             var expected = false;
             var expectedErrorMessage = "Invalid email. Retry again or contact system admin";
 
@@ -468,7 +468,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             if (verificationResult.IsSuccessful)
             {
                 _testingService.DecodeJWT(verificationResult.Payload!);
-                
+
             }
             actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 
@@ -559,7 +559,7 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             if (authenticatedResult.IsSuccessful)
             {
                 _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
-                
+
             }
             actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 
@@ -619,4 +619,4 @@ namespace DevelopmentHell.Hubba.AccountRecovery.Test.Integration_Tests
             Assert.IsTrue(actualPrincipal.FindFirstValue("role")! == expectedRole);
         }
     }
-} 
+}

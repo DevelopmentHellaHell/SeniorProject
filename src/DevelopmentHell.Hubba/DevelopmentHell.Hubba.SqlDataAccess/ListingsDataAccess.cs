@@ -4,18 +4,12 @@ using DevelopmentHell.Hubba.Models.DTO;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
     public class ListingsDataAccess : IListingsDataAccess
     {
-        
+
         private readonly InsertDataAccess _insertDataAccess;
         private readonly UpdateDataAccess _updateDataAccess;
         private readonly SelectDataAccess _selectDataAccess;
@@ -290,27 +284,28 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return result;
         }
 
-        public async Task<Result<List<Dictionary<string, object>>>> Curate(int offset = 0) {
-			var result = await _executeDataAccess.Execute("CurateListings", new Dictionary<string, object>() {
-				{ "Offset", offset },
-			}).ConfigureAwait(false);
+        public async Task<Result<List<Dictionary<string, object>>>> Curate(int offset = 0)
+        {
+            var result = await _executeDataAccess.Execute("CurateListings", new Dictionary<string, object>() {
+                { "Offset", offset },
+            }).ConfigureAwait(false);
 
-			return result;
-		}
+            return result;
+        }
 
-		public async Task<Result<List<Dictionary<string, object>>>> Search(string query, int offset = 0, double FTTWeight = 0.5, double RWeight = 0.25, double RCWeight = 0.25)
-		{
-			var result = await _executeDataAccess.Execute("SearchListings", new Dictionary<string, object>()
-			{
-				{ "Query", query },
-				{ "Offset", offset },
-				{ "FTTableRankWeight", FTTWeight },
-				{ "RatingsRankWeight", RWeight },
-				{ "RatingsCountRankWeight", RCWeight },
-			}).ConfigureAwait(false);
+        public async Task<Result<List<Dictionary<string, object>>>> Search(string query, int offset = 0, double FTTWeight = 0.5, double RWeight = 0.25, double RCWeight = 0.25)
+        {
+            var result = await _executeDataAccess.Execute("SearchListings", new Dictionary<string, object>()
+            {
+                { "Query", query },
+                { "Offset", offset },
+                { "FTTableRankWeight", FTTWeight },
+                { "RatingsRankWeight", RWeight },
+                { "RatingsCountRankWeight", RCWeight },
+            }).ConfigureAwait(false);
 
-			return result;
-		}
+            return result;
+        }
 
         public async Task<Result> UnpublishListing(int listingId)
         {

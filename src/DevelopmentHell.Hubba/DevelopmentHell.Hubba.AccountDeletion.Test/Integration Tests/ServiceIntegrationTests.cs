@@ -1,4 +1,5 @@
-﻿using Development.Hubba.JWTHandler.Service.Abstractions;
+﻿using System.Configuration;
+using Development.Hubba.JWTHandler.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
 using DevelopmentHell.Hubba.AccountDeletion.Service.Abstractions;
 using DevelopmentHell.Hubba.AccountDeletion.Service.Implementations;
@@ -21,7 +22,6 @@ using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using System.Configuration;
 
 namespace DevelopmentHell.Hubba.AccountDeletion.Test.Integration_Tests
 {

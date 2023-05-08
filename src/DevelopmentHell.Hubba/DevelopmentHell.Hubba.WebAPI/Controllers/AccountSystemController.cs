@@ -24,13 +24,13 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
-              
+
                 var result = await _accountSystemManager.VerifyAccount().ConfigureAwait(false);
                 if (!result.IsSuccessful)
                 {
                     return StatusCode(result.StatusCode, result.ErrorMessage);
                 }
-                
+
                 return StatusCode(result.StatusCode);
             }).ConfigureAwait(false);
         }
@@ -178,7 +178,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         [Route("cancelBooking")]
         public async Task<IActionResult> CancelBooking(CancelBookingDTO cancelBookingInfo)
         {
-            return await GuardedWorkload(async() =>
+            return await GuardedWorkload(async () =>
             {
                 if (!ModelState.IsValid)
                 {
@@ -186,7 +186,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 }
 
                 var result = await _accountSystemManager.CancelBooking(cancelBookingInfo.bookingId).ConfigureAwait(false);
-                if(!result.IsSuccessful) 
+                if (!result.IsSuccessful)
                 {
                     return StatusCode(result.StatusCode, result.ErrorMessage);
                 }

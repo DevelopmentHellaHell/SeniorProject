@@ -1,10 +1,10 @@
 
+using System.Configuration;
+using System.Security.Claims;
 using Development.Hubba.JWTHandler.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
 using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
 using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
-using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
-using DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Implementations;
 using DevelopmentHell.Hubba.Collaborator.Manager.Abstractions;
@@ -29,13 +29,8 @@ using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
 using DevelopmentHell.Hubba.WebAPI.DTO.Collaborator;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.Identity.Client;
-using System.Configuration;
-using System.Security.Claims;
-using System.Security.Policy;
 using AuthenticationService = DevelopmentHell.Hubba.Authentication.Service.Implementations.AuthenticationService;
 
 namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
@@ -65,7 +60,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
         private readonly IOTPDataAccess _otpDataAccess;
         private readonly string dummyIp = "127.0.0.1";
 
-          
+
 
 
         public CollaboratorManagerIntegrationTests()
@@ -112,7 +107,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
                 loggerService,
                 _validationService
                 );
-            _collaboratorManager = new CollaboratorManager(_collaboratorService,_authorizationService,loggerService, _validationService);
+            _collaboratorManager = new CollaboratorManager(_collaboratorService, _authorizationService, loggerService, _validationService);
             _authenticationService = new AuthenticationService(
                 _userAccountDataAccess,
                 new UserLoginDataAccess(
@@ -274,7 +269,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             }
 
             var collab = MockCreateCollaboratorDTO();
-            collab.PfpFile= CreateMockFormFile();
+            collab.PfpFile = CreateMockFormFile();
 
 
             //Act
@@ -283,7 +278,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             //Assert
             Console.WriteLine(actual.ErrorMessage);
             Assert.IsTrue(actual.IsSuccessful);
-            
+
         }
 
         [TestMethod]
@@ -399,7 +394,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             IFormFile changedFile = CreateMockFormFile("changed");
             CreateCollaboratorDTO collab = MockCreateCollaboratorDTO();
             collab.PfpFile = CreateMockFormFile();
-            await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false); 
+            await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
 
             // create new editing DTO
             EditCollaboratorDTO changedCollab = MockEditCollaboratorDTO();
@@ -412,7 +407,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
 
             // remove the pfp from collaborator
             changedCollab.RemovedFiles = new string[] { getCollabResult.Payload!.PfpUrl! };
-            
+
             //Act
             var actual = await _collaboratorManager.EditCollaborator(changedCollab).ConfigureAwait(false);
             getCollabResult = await _collaboratorManager.GetCollaborator(collabId).ConfigureAwait(false);
@@ -454,7 +449,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
 
             // create new editing DTO
             EditCollaboratorDTO changedCollab = MockEditCollaboratorDTO();
-            changedCollab.PfpFile =  CreateMockFormFile();
+            changedCollab.PfpFile = CreateMockFormFile();
 
             // get the newly uploaded collaborator
             var collabIdResult = await _collaboratorsDataAccess.GetCollaboratorId(accountId).ConfigureAwait(false);
@@ -815,7 +810,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
 
             loginResult = await _authenticationManager.Login(email2, password, dummyIp).ConfigureAwait(false);
             getOtp = await _otpDataAccess.GetOTP(accountId2).ConfigureAwait(false);
-             otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            otp = _cryptographyService.Decrypt(getOtp.Payload!);
             _testingService.DecodeJWT(loginResult.Payload!);
             authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
             actualPrincipal = null;
@@ -962,7 +957,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             int accountId = accountIdResult.Payload;
 
             // log in as user
-            
+
             var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
             Result<byte[]> getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
             string otp = _cryptographyService.Decrypt(getOtp.Payload!);
@@ -1040,7 +1035,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
         }
 
         // creates a dummy iformfile
-        public  IFormFile CreateMockFormFile(string title = "mock")
+        public IFormFile CreateMockFormFile(string title = "mock")
         {
             var content = "This is a mock image file";
             var fileName = "mockimage.jpg";

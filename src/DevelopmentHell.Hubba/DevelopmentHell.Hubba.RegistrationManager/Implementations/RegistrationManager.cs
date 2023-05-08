@@ -1,11 +1,11 @@
-﻿using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
+﻿using System.Configuration;
+using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Notification.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Manager.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
-using System.Configuration;
 
 namespace DevelopmentHell.Hubba.Registration.Manager.Implementations
 {

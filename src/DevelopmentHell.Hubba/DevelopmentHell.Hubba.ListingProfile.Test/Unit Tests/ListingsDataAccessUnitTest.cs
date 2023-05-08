@@ -1,7 +1,7 @@
+using System.Configuration;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
-using System.Configuration;
 
 namespace DevelopmentHell.Hubba.ListingProfile.Test.DAL
 {

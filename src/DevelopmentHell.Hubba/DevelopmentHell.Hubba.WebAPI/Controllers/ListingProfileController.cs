@@ -1,5 +1,4 @@
 ﻿using DevelopmentHell.Hubba.Models.DTO;
-using DevelopmentHell.Hubba.WebAPI.DTO.Discovery;
 using DevelopmentHell.Hubba.WebAPI.DTO.ListingProfile;
 using DevelopmentHell.ListingProfile.Manager.Abstractions;
 using Microsoft.AspNetCore.Mvc;

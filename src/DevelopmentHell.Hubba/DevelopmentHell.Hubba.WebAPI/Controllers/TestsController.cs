@@ -1,10 +1,10 @@
-﻿using DevelopmentHell.Hubba.Models.Tests;
+﻿using System.Security.Claims;
+using DevelopmentHell.Hubba.Models.Tests;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
-using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
+using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.WebAPI.DTO.Tests;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.WebAPI.Controllers
 {

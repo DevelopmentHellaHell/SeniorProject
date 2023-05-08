@@ -1,18 +1,13 @@
-﻿using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
+﻿using System.Configuration;
+using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
-using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess;
+using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Configuration;
 
 namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
 {
@@ -155,7 +150,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
             int listingId = (int)listingIdResult.Payload;
 
             var userId = 2;
-            
+
 
             // Actual
             var getCountBeforeInsert = await _listingHistoryDataAccess.CountListingHistory(listingId, userId).ConfigureAwait(false);
