@@ -191,10 +191,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
                 {
                     return new(Result.Failure("Invalid title.", 400));
                 }
-                if (description != null && !_validationService.ValidateBodyText(description).IsSuccessful)
-                {
-                    return new(Result.Failure("Invalid body.", 400));
-                }
 
                 var editResult = await _projectShowcaseDataAccess.EditShowcase(showcaseId, title, description, DateTime.UtcNow).ConfigureAwait(false);
                 if (!editResult.IsSuccessful)

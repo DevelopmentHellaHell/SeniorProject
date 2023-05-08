@@ -8,6 +8,7 @@ import "./ViewProjectShowcasePage.css";
 import LikeButton from "../../components/Heart/Heart";
 import Button, { ButtonTheme } from "../../components/Button/Button";
 import NavbarGuest from "../../components/NavbarGuest/NavbarGuest";
+import {Markdown } from "../../Markdown";
 import { set } from "cypress/types/lodash";
 
 interface IViewProjectShowcasePageProps {
@@ -309,7 +310,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                             :
                             <div className="showcase-description">
                                 <h3>Description</h3>
-                                <p>{showcase?.description}</p>
+                                <p>{showcase?.description && Markdown.parseMarkdownToHtml(showcase?.description)}</p>
                             </div>
                         )}
                     {commentsError ?
