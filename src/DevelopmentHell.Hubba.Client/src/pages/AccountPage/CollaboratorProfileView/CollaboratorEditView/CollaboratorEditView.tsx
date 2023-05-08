@@ -157,7 +157,7 @@ const CollaboratorEditPage: React.FC<ICollaboratorEditPageProps> = (props) => {
         if(response.data){
             const responseCollabId = await Ajax.post<number>("/collaborator/getCollaboratorId", { AccountId: authData.sub });
             if(responseCollabId.data){
-                navigate("/collaborator", { state: { CollaboratorId: responseCollabId.data }});
+                navigate("/collaborators", { state: { CollaboratorId: responseCollabId.data }});
             }
         }
     };

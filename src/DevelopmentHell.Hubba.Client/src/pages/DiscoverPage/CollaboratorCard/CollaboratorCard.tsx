@@ -31,7 +31,7 @@ const CollaboratorCard: React.FC<ICollaboratorCardProps> = (props) => {
     }, [props.data]);
 
     return (
-        <div className="collaborator-card" onClick={() => { navigate("/collaborator", { state: { CollaboratorId: props.data.CollaboratorId } })}}>
+        <div className="collaborator-card" onClick={() => { navigate("/collaborators", { state: { CollaboratorId: props.data.CollaboratorId } })}}>
             {!error && 
                 <div>
                     <img className="thumbnail" src={thumbnail} />

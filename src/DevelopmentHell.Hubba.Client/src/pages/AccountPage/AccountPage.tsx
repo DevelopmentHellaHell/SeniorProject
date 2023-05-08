@@ -134,7 +134,7 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
         if(response.data){
             const responseCollabId = await Ajax.post<number>("/collaborator/getCollaboratorId", {AccountId: accountId});
             if(responseCollabId.data){
-                navigate("/collaborator", { state: { CollaboratorId: responseCollabId.data }});
+                navigate("/collaborators", { state: { CollaboratorId: responseCollabId.data }});
             }
         }
         setCollaboratorId(undefined);
