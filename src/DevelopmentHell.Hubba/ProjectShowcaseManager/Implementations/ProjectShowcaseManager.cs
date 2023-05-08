@@ -111,7 +111,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 for (int i = 0; i < files.Count; i++)
                 {
                     byte[] bytes = Convert.FromBase64String(files[i].Item2);
-                    var uploadResult = await _fileService.UploadFile($"ProjectShowcases/{createResult.Payload!}",$"0{i}_{files[i].Item1}", bytes);
+                    var uploadResult = await _fileService.UploadFile($"ProjectShowcases/{createResult.Payload!}",$"{i}_{files[i].Item1}", bytes);
                     if (!uploadResult.IsSuccessful)
                     {
                         await _fileService.Disconnect();
@@ -217,7 +217,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
         }
 
-        public async Task<Result> EditShowcase(string showcaseId, int? listingId, string? title, string? description, List<Tuple<string,string>>? files)
+        public async Task<Result> OrderShowcase(string showcaseId, string order)
         {
             try
             {
@@ -226,6 +226,87 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 {
                     _logger.Warning(Category.BUSINESS, $"Unable to verify ownership of showcase: {checkResult.ErrorMessage}", "ProjectShowcaseManager");
                     return new(checkResult);
+                }
+
+                var fileResult = await GetShowcaseFiles(showcaseId).ConfigureAwait(false);
+                if (!fileResult.IsSuccessful)
+                {
+                    _logger.Error(Category.BUSINESS, $"Unable to get files for showcase: {fileResult.ErrorMessage}", "ProjectShowcaseManager");
+                    return new(Result.Failure("Unable to get files to check order for showcase"));
+                }
+
+                var filePaths = fileResult.Payload!;
+
+                HashSet<int> neededVals = (Enumerable.Range(1, filePaths.Count).ToHashSet<int>());
+                List<int> orderNums = (order.Where(char.IsDigit).Select(c => int.Parse(c.ToString()))).ToList<int>();
+                //convert the numbers in order to HashSet of the numbers
+                HashSet<int> numbersSet = orderNums.ToHashSet<int>();
+                if (!neededVals.SetEquals(numbersSet))
+                {
+                    _logger.Warning(Category.BUSINESS, $"Must include all files in reorder only once", "ProjectShowcasemanager");
+                    return new(Result.Failure("Must include all files in reorder once and only once"));
+                }
+
+                var fileOrder = new Dictionary<int, string>();
+
+                string dirPath = $"ProjectShowcases/{showcaseId}";
+                foreach(string filePath in filePaths)
+                {
+                    var orderNum = int.Parse(filePath.Split("/").Last().Split("_").First());
+                    if(!fileOrder.TryAdd(orderNum, filePath.Split("/").Last().Split("_", 1).Last()))
+                    {
+                        await _fileService.DeleteFile(dirPath+ filePath.Split("/").Last().Split("_", 1).Last()).ConfigureAwait(false);
+                    }
+                }
+
+                for (int i = 0; i < filePaths.Count; i++)
+                {
+                    var renameResult = await _fileService.RenameFile(dirPath, fileOrder[orderNums[i]], $"{i + 1}_{fileOrder[orderNums[i]].Substring(fileOrder[orderNums[i]].IndexOf("_") + 1)}").ConfigureAwait(false);
+                }
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Category.BUSINESS, $"Unable to Edit Showcase: {ex.Message}", "ShowcaseManager");
+                return Result.Failure($"Unable to Edit showcase.");
+            }
+        }
+
+        public async Task<Result> EditShowcase(string showcaseId, int? listingId, string? title, string? description, List<Tuple<string,string>>? files)
+        {
+            try
+            {
+                var checkResult = await IsAdminOrOwnerOf(showcaseId).ConfigureAwait(false);
+                if (!checkResult.IsSuccessful || !checkResult.Payload)
+                {
+                    _logger.Warning(Category.BUSINESS, $"Unable to verify ownership of showcase: {checkResult.ErrorMessage}", "ProjectShowcaseManager");
+                    return Result.Failure($"Unable to Edit showcase.");
+                }
+
+                //if published, make sure entered fields are valid
+                var showcaseResult = await _projectShowcaseService.GetDetails(showcaseId).ConfigureAwait(false);
+                if (!showcaseResult.IsSuccessful)
+                {
+                    _logger.Error(Category.BUSINESS, $"Unable to get showcase details: {showcaseResult.ErrorMessage}", "ProjectShowcaseService");
+                    return Result.Failure($"Unable to Edit showcase.");
+                }
+                if ((bool)showcaseResult.Payload!["IsPublished"])
+                {
+                    if (title != null && (title.Length < 5 || title.Length > 250))
+                    {
+                        _logger.Warning(Category.BUSINESS, $"Published showcase must have title of at least 5 characters", "ProjectShowcaseService");
+                        return new(Result.Failure("PUblished showcase must have title of at least 5 characters"));
+                    }
+                    if (description != null && (description.Length < 250 || description.Length > 3000))
+                    {
+                        _logger.Warning(Category.BUSINESS, $"Published showcase must have description of at least 250 characters", "ProjectShowcaseService");
+                        return new(Result.Failure("Published showcase must have description of at least 250 characters"));
+                    }
+                    if (files != null && (files.Count == 0 || files.Count > 9))
+                    {
+                        _logger.Warning(Category.BUSINESS, $"Published showcase must have at least 1 file and up to 9.", "ProjectShowcaseService");
+                        return new(Result.Failure("Published showcase must have at least 1 file and up to 9 files"));
+                    }
                 }
 
                 var editResult = await _projectShowcaseService.EditShowcase(showcaseId, listingId, title, description).ConfigureAwait(false);
@@ -240,8 +321,8 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                     await _fileService.DeleteDir($"ProjectShowcases/{showcaseId}");
                     for (int i = 0; i < files.Count; i++)
                     {
-                        byte[] bytes = files[i].Item2.Select(c => (byte)c).ToArray();
-                        var uploadResult = await _fileService.UploadFile($"ProjectShowcases/{showcaseId}", $"0{i}_{files[i].Item1}", bytes);
+                        byte[] bytes = Convert.FromBase64String(files[i].Item2);
+                        var uploadResult = await _fileService.UploadFile($"ProjectShowcases/{showcaseId}", $"0{i+1}_{files[i].Item1}", bytes);
                         await _fileService.Disconnect();
                         if (!uploadResult.IsSuccessful)
                         {

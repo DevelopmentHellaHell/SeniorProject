@@ -120,6 +120,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
                         : showcaseData
                     )
                 );
+                getData();
             } else {
                 setData((prevData) =>
                     prevData.map((showcaseData) =>
@@ -141,7 +142,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
                 : showcaseData
             )
         );
-        Ajax.post(`/showcase/unlink?s=${showcaseId}`, {}).then((response) => {
+        Ajax.post(`/showcases/unlink?s=${showcaseId}`, {}).then((response) => {
             if (response.error) {
                 setData((prevData) =>
                     prevData.map((showcaseData) =>

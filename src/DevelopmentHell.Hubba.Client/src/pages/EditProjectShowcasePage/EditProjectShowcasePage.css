@@ -19,14 +19,14 @@
     flex-direction: column;
 }
 
-.edit-project-showcase-wrapper .h-stack{
+.edit-project-showcase-content .h-stack{
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
 }
 
-.edit-project-showcase-wrapper .v-stack{
+.edit-project-showcase-content .v-stack{
     display: flex;
     flex-direction: column;
     align-items: center;

@@ -178,14 +178,16 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
         };
 
         return (
-            <div>
+            <div className="v-stack">
                 <img src={images[currentImageIndex]} width={500} />
-                <button onClick={handlePrevClick} disabled={currentImageIndex === 0}>
-                    Prev
-                </button>
-                <button onClick={handleNextClick} disabled={currentImageIndex === images.length - 1}>
-                    Next
-                </button>
+                <div className="h-stack">
+                    <button onClick={handlePrevClick} disabled={currentImageIndex === 0}>
+                        Prev
+                    </button>
+                    <button onClick={handleNextClick} disabled={currentImageIndex === images.length - 1}>
+                        Next
+                    </button>
+                </div>
             </div>
         );
     };
@@ -366,6 +368,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                                         </div>
                                                     }
                                                 </div>
+                                                <p>Date: {comment.editTimestamp ? new Date(comment.editTimestamp).toUTCString() : comment.timestamp ? new Date(comment.timestamp).toUTCString() : "Unknown"}</p>
                                                 <p>{comment.text}</p>
                                                 <div className="vote-control">
                                                     <div className="h-stack">
@@ -375,7 +378,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                                                     alert(response.error);
                                                                 }
                                                                 if (response.data) {
-                                                                    alert("Comment submitted successfully");
+                                                                    alert("Upvote submitted successfully");
                                                                     getComments();
                                                                 }
                                                             });
@@ -387,7 +390,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                                                     alert(response.error);
                                                                 }
                                                                 if (response.data) {
-                                                                    alert("Comment submitted successfully");
+                                                                    alert("Downvote submitted successfully");
                                                                     getComments();
                                                                 }
                                                             });

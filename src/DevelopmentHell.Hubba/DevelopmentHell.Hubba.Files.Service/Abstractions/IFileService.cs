@@ -19,5 +19,6 @@ namespace DevelopmentHell.Hubba.Files.Service.Abstractions
         public Task<Result<string>> GetFileReference(string filePath);
         public Task<Result<List<string>>> GetFilesInDir(string dirPath);
         public Task<Result> Disconnect();
+        public Task<Result> RenameFile(string filePath, string fileName, string newFileName);
     }
 }

@@ -65,7 +65,11 @@ const LinkListingShowcasePagePage: React.FC<ILinkListingShowcasePagePageProps> =
 
     const authData = Auth.getAccessData();
     const navigate = useNavigate();
-
+    
+    useEffect(() => {
+        setListingId(searchParams.get("l") ? parseInt(searchParams.get("l")!) : 0)
+        getData();
+    }, []);
    
     const createShowcaseTableRow = (showcaseData: IShowcaseData) => {
         showcaseData.confirmShowing == null ? false : showcaseData.confirmShowing;
@@ -99,16 +103,14 @@ const LinkListingShowcasePagePage: React.FC<ILinkListingShowcasePagePageProps> =
         );
         Ajax.post(`/showcases/link?s=${showcaseId}&l=${listingId}`, null).then(
             (response) => {
-                if (response.status === 200) {
-                    if (response.data) {
-                        setData((prevData) => 
-                            prevData.map((showcaseData) =>
-                                showcaseData.id === showcaseId
-                                ? { ...showcaseData, listingId: listingId, processing: false }
-                                : showcaseData
-                            )
-                        );
-                    }
+                if (response.status === 200 || response.status === 204) {
+                    setData((prevData) => 
+                        prevData.map((showcaseData) =>
+                            showcaseData.id === showcaseId
+                            ? { ...showcaseData, listingId: listingId, processing: false }
+                            : showcaseData
+                        )
+                    );
                 }
                 else {
                     setError("Failed to link showcase.");
@@ -130,9 +132,6 @@ const LinkListingShowcasePagePage: React.FC<ILinkListingShowcasePagePageProps> =
         return null;
     }
 
-    useEffect(() => {
-        getData();
-    }, []);
 
     const getData = async () => {
         const response = await Ajax.get<IShowcaseData[]>(`/showcases/user?u=${authData.sub}`);

@@ -467,33 +467,6 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             return result;
         }
 
-        public async Task<Result<List<Reservations>>> GetReservations(string sort, int reservationCount, int page)
-        {
-            Result<List<Reservations>> result = new Result<List<Reservations>>();
-            var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
-            var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
-            if (stringAccountId is null)
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "Error, invalid access token format. ";
-                return result;
-            }
-
-            var accountId = int.Parse(stringAccountId);
-
-            var getResult = await _accountSystemService.GetReservations(accountId, sort, reservationCount, page).ConfigureAwait(false);
-            if (!getResult.IsSuccessful)
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = getResult.ErrorMessage;
-                return result;
-            }
-            result.IsSuccessful = true;
-            result.StatusCode = 200;
-            result.Payload = getResult.Payload;
-            return result;
-        }
-
         public async Task<Result<List<Reservations>>> GetReservationsQuery(string query)
         {
             Result<List<Reservations>> result = new Result<List<Reservations>>();

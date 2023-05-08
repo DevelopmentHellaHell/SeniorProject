@@ -147,5 +147,11 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
             }
             return Result.Success();
         }
+
+
+        public Task<Result> RenameFile(string filePath, string fileName, string newFileName)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

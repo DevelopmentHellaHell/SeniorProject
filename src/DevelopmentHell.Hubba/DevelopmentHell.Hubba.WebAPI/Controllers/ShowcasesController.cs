@@ -28,6 +28,11 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             public string? ReasonText { get; set; }
         }
 
+        public struct OrderDTO
+        {
+            public string? FileOrder { get; set; }
+        }
+
         private readonly IProjectShowcaseManager _projectShowcaseManager;
         private readonly ILoggerService _logger;
         public ShowcasesController(IProjectShowcaseManager projectShowcaseManager, ILoggerService loggerService)
@@ -380,12 +385,12 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         {
             try
             {
-                if (uploadedShowcase.Title == null || uploadedShowcase.Title == "" ||
-                    uploadedShowcase.Description == null || uploadedShowcase.Description == "" || 
+                if (uploadedShowcase.Title == null || uploadedShowcase.Title == "" || uploadedShowcase.Title.Length > 50 ||
+                    uploadedShowcase.Description == null || uploadedShowcase.Description == "" || uploadedShowcase.Description.Length > 3000|| 
                     uploadedShowcase.ListingId == null || 
-                    uploadedShowcase.Files == null || uploadedShowcase.Files.Count == 0)
+                    uploadedShowcase.Files == null || uploadedShowcase.Files.Count > 9)
                 {
-                    return BadRequest("Showcase Id missing from request");
+                    return BadRequest("Required fields invalid in request");
                 }
 
                 var createResult = await _projectShowcaseManager.CreateShowcase((int)uploadedShowcase.ListingId, uploadedShowcase.Title, uploadedShowcase.Description, uploadedShowcase.Files);
@@ -440,6 +445,30 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             catch (Exception ex)
             {
                 _logger.Warning(Models.Category.SERVER, $"Error in EditShowcase: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
+            }
+        }
+        [HttpPost]
+        [Route("order")]
+        public async Task<IActionResult> OrderFilesInShowcase([FromQuery(Name ="s")] string showcaseId, OrderDTO fileOrder)
+        {
+            try
+            {
+                if (fileOrder.FileOrder == null)
+                {
+                    return BadRequest("fileOrder missing");
+                }
+
+                var orderResult = await _projectShowcaseManager.OrderShowcase(showcaseId, fileOrder.FileOrder!).ConfigureAwait(false);
+                if (!orderResult.IsSuccessful)
+                {
+                    return GetFuncCode((int)orderResult.StatusCode!)(orderResult.ErrorMessage!);
+                }
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Models.Category.SERVER, $"Error in OrderFilesInShowcase: {ex.Message}", "ShowcaseController");
                 return StatusCode(500, "Unknown exception occured when attempting to complete your request");
             }
         }
@@ -798,7 +827,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 var linkResult = await _projectShowcaseManager.Link(showcaseId, listingId);
                 if (!linkResult.IsSuccessful)
                 {
-                    return GetFuncCode((int)linkResult.StatusCode!)(GetErrorMessage(linkResult.StatusCode));
+                    return GetFuncCode((int)linkResult.StatusCode!)(linkResult.ErrorMessage!);
                 }
 
                 return Ok();

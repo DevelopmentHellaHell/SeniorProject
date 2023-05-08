@@ -175,6 +175,7 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                             <div className="listing-page-status"> {isPublished ? 'Public' : 'Draft'} </div>
                             {/** REDIRECT TO SCHEDULING FEATURE */}
                             {isPublished && authData?.sub != data.Listing.ownerId &&
+                            <div>
                             <Button title="Check Calendar"
                                 onClick={() => {
                                     navigate("/scheduling", {
@@ -186,6 +187,9 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                         }
                                     })
                                 }} />
+
+                                <p><Button theme={ButtonTheme.DARK} onClick={() => {navigate(`/showcases/p/listing?l=${data.Listing.listingId}`)}} title={"View Showcases"}/></p>
+                                </div>
                             }
                             {authData?.sub == data.Listing.ownerId && <div>
                                 { data.Listing.published && <p><Button theme={ButtonTheme.HOLLOW_DARK} onClick={async () => {
@@ -201,8 +205,6 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                 <p><Button theme={ButtonTheme.HOLLOW_DARK} onClick={() => { navigate("/editlisting", { state: { listingId: data.Listing.listingId } }) }} title={"Edit Listing"} /></p>
                                 
                                 <p><Button theme={ButtonTheme.DARK} onClick={() => { handleDeleteClick() }} title={"Delete Listing"} /></p>
-
-                                <p><Button theme={ButtonTheme.DARK} onClick={() => {navigate(`/showcases/p/listing?l=${data.Listing.listingId}`)}} title={"View Showcases"}/></p>
                             </div>
                             }
                         </div>
