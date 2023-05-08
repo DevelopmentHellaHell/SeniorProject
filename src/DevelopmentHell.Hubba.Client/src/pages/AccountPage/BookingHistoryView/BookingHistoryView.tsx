@@ -45,12 +45,14 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
     const [showDetails, setShowDetails] = useState(false);
     const [filters, setFilters] = useState<BookingStatus[]>([]);
     const [showBookingId, setShowBookingId] = useState(0);
+    const [success, setSuccess] = useState("");
 
 
     const [bookingPage, setBookingPage] = useState(1);
     const [bookingCount, setBookingCount] = useState(10);
 
     const [selectBooking, setSelectedBooking] = useState<number[]>([]);
+    const [search, setSearch] = useState("");
     const prevDataRef = useRef<IBookingHistoryData[]>();
 
     const getData = async () => {
@@ -59,6 +61,14 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
             setError(response.error);
             setLoaded(response.loaded);
         });
+    }
+
+    const getSearch = async () => {
+        await Ajax.post<IBookingHistoryData[]>("/accountsystem/getbookinghistorysearch", {query: search}).then((response) => {
+            setData(response.data && response.data.length ? response.data : []);
+            setError(response.error);
+            setLoaded(response.loaded);
+        })
     }
 
     useEffect(() => {
@@ -137,6 +147,38 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
                 {!showDetails &&
                     <div className="booking-history-wrapper">
                         <h1>Booking History</h1>
+                        <div className="search-wrapper">
+                            <div className="search-input">
+                                <p>Search Booking History: </p>
+                                <div className="input-field">
+                                    <input id="seach-booking-history" type="text" placeholder="Search: " onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                        setSearch(event.target.value);
+                                        }}
+                                    />
+                                </div>
+                                <Button title="Go" theme={ButtonTheme.DARK} onClick={async () => {
+                                    setLoaded(false);
+                                    if(!search || search.length == 0){
+                                        setError("Please enter a search. ");
+                                        setLoaded(true);
+                                        return;
+                                    }
+                                    const response = await Ajax.post<IBookingHistoryData[]>("/accountsystem/getbookinghistorysearch", {query: search});
+                                    if(response.error)
+                                    {
+                                       setError(response.error);
+                                       setLoaded(true); 
+                                    }
+                                    
+                                    if(response.data){
+                                        setData(response.data);
+                                    }
+                                    setSuccess("Search Completed!");
+                                    setError("");
+                                    setLoaded(true);
+                                }}/>
+                            </div>
+                        </div>
                         <div className="filters-wrapper">
                             <div className="filters">
                                 <p>Filters:</p>
@@ -198,6 +240,7 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
                                             setData([]);
                                             setSelectedBooking([]);
                                             getData();
+                                            setSuccess("Cancellation complete!")
                                         } else {
                                             setError(response.error);
                                         }
@@ -258,10 +301,13 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
                         </div>
                     </div>
                 </div>
-            </div>
-            {error &&
+            {error && !success &&
                 <p className="error">{error}</p>
             }
+            {!error && success &&
+                <p className="sucess">{success}</p>
+            }
+            </div>
         </div>
     )
 }

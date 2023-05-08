@@ -220,8 +220,8 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         }
 
         [HttpPost]
-        [Route("getReservationsQuery")]
-        public async Task<IActionResult> GetReservationsQuery(GetReservationQueryDTO query)
+        [Route("getBookingHistorySearch")]
+        public async Task<IActionResult> GetBookingHistorySearch(GetReservationQueryDTO query)
         {
             return await GuardedWorkload(async () =>
             {
@@ -230,7 +230,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
 
-                var result = await _accountSystemManager.GetReservationsQuery(query.query!).ConfigureAwait(false);
+                var result = await _accountSystemManager.GetBookingHistorySearch(query.query!).ConfigureAwait(false);
                 if (!result.IsSuccessful)
                 {
                     return StatusCode(result.StatusCode, result.ErrorMessage);

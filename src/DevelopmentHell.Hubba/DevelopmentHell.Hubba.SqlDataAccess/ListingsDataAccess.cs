@@ -328,13 +328,13 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             return updateResult;
         }
-        public async Task<Result<List<Reservations>>> GetReservationsSearch(int ownerID, string query)
+        public async Task<Result<List<BookingHistory>>> GetBookingHistorySearch(int userId, string query)
         {
-            List<Reservations> result = new List<Reservations>();
-            var queryResult = await _executeDataAccess.Execute("SearchListingHistory", new Dictionary<string, object>()
+            List<BookingHistory> result = new List<BookingHistory>();
+            var queryResult = await _executeDataAccess.Execute("SearchBookingHistory", new Dictionary<string, object>()
             {
                 {"Query", query },
-                {"UserId", ownerID}
+                {"UserId", userId}
             }).ConfigureAwait(false);
 
             if (!queryResult.IsSuccessful)
@@ -347,16 +347,18 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
             foreach (var row in queryResult.Payload)
             {
-                result.Add(new Reservations()
+                result.Add(new BookingHistory()
                 {
-                    OwnerId = (int)row[nameof(Reservations.OwnerId)],
-                    UserId = (int)row[nameof(Reservations.UserId)],
-                    ListingId = (int)row[nameof(Reservations.ListingId)],
-                    Title = (string)row[nameof(Reservations.Title)]
+                    BookingId = (int)row[nameof(BookingHistory.BookingId)],
+                    ListingId = (int)row[nameof(BookingHistory.ListingId)],
+                    FullPrice = decimal.ToDouble((decimal)row[nameof(BookingHistory.FullPrice)]),
+                    BookingStatusId = (int)row[nameof(BookingHistory.BookingStatusId)],
+                    Title = (string)row[nameof(BookingHistory.Title)],
+                    Location = (string)row[nameof(BookingHistory.Location)]
                 });
             }
 
-            return Result<List<Reservations>>.Success(result);
+            return Result<List<BookingHistory>>.Success(result);
         }
     }
 }

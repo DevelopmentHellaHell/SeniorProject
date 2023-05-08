@@ -43,7 +43,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Implementations
         public async Task<Result> UpdateUserName(int userId, string? firstName, string? lastName)
         {
             Result result = new Result();
-            if (firstName == null && lastName == null) //MOVE
+            if (firstName == null && lastName == null)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Please enter a valid name for First Name and/or Last Name. ";
@@ -94,9 +94,9 @@ namespace DevelopmentHell.Hubba.AccountSystem.Implementations
             return await _bookingDataAccess.GetBookingHistory(userId, bookingCount, page).ConfigureAwait(false);
         }
 
-        public async Task<Result<List<Reservations>>> GetRerservationsQuery(int ownerId, string query)
+        public async Task<Result<List<BookingHistory>>> GetBookingHistorySearch(int userId, string query)
         {
-            return await _listingDataAccess.GetReservationsSearch(ownerId, query).ConfigureAwait(false);
+            return await _listingDataAccess.GetBookingHistorySearch(userId, query).ConfigureAwait(false);
         }
     }
 }

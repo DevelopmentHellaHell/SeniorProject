@@ -43,9 +43,6 @@ const ReservationView: React.FC<IReservationViewProps> = (props) => {
             setData(response.data && response.data.length ? response.data : [] );
             setError(response.error);
             setLoaded(response.loaded);
-            if(!error){
-                setSuccess("Sort Completed!");
-            }
         })
     }
 

@@ -467,9 +467,10 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
             return result;
         }
 
-        public async Task<Result<List<Reservations>>> GetReservationsQuery(string query)
+
+        public async Task<Result<List<BookingHistory>>> GetBookingHistorySearch(string query)
         {
-            Result<List<Reservations>> result = new Result<List<Reservations>>();
+            Result<List<BookingHistory>> result = new Result<List<BookingHistory>>();
             var claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             var stringAccountId = claimsPrincipal?.FindFirstValue("sub");
             if (stringAccountId is null)
@@ -481,7 +482,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
 
             var accountId = int.Parse(stringAccountId);
 
-            var getResult = await _accountSystemService.GetRerservationsQuery(accountId, query).ConfigureAwait(false);
+            var getResult = await _accountSystemService.GetBookingHistorySearch(accountId, query).ConfigureAwait(false);
             if (!getResult.IsSuccessful)
             {
                 result.IsSuccessful = false;
@@ -489,7 +490,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Implementations
                 return result;
             }
             result.IsSuccessful = true;
-            result.StatusCode = 200;
+            result.StatusCode = 200; 
             result.Payload = getResult.Payload;
             return result;
         }

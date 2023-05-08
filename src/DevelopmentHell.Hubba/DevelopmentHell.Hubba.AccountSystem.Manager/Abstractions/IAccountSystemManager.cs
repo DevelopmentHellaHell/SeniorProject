@@ -13,6 +13,6 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Abstractions
         Task<Result<AccountSystemSettings>> GetAccountSettings();
         Task<Result> CancelBooking(int bookingId);
         Task<Result<List<BookingHistory>>> GetBookingHistory(int bookingCount, int page);
-        Task<Result<List<Reservations>>> GetReservationsQuery(string query);
+        Task<Result<List<BookingHistory>>> GetBookingHistorySearch(string query);
     }
 }
