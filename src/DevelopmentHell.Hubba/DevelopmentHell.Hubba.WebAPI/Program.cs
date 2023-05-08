@@ -79,15 +79,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-
-//builder.WebHost.UseKestrel(options =>
-//{
-//    options.ListenAnyIP(443, listenOptions =>
-//    {
-//        listenOptions.UseHttps();
-//    });
-//});
-
 #if !DEBUG
 builder.WebHost.ConfigureKestrel((context, options) =>
 {
@@ -114,9 +105,6 @@ builder.Services.AddHttpsRedirection(options =>
 });
 #endif
 
-// Transient new instance for every controller and service
-// Scoped is same object from same request but different for other requests??
-// Singleton is one instance across all requests
 builder.Services.AddSingleton<ILoggerService, LoggerService>(s =>
 {
     return new LoggerService(
@@ -640,7 +628,7 @@ app.UseStaticFiles(new StaticFileOptions
 });
 #endif
 
-//app.UseStaticFiles(); // <-- don't forget this
+//app.UseStaticFiles();
 //app.UseStaticFiles(new StaticFileOptions
 //{
 //    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), ".well-known", "acme-challenge")),
