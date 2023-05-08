@@ -109,7 +109,7 @@ const EditProjectShowcasePage: React.FC<IEditProjectShowcasePageProps> = (props)
             (response) => 
             {
                 if (response.error) {
-                    setError(response.error);
+                    setError("Project showcase was not edited.");
                     setProcEdit(false);
                   } else {
                     navigate(`/showcases/p/view?s=${showcaseId}`);
@@ -183,7 +183,7 @@ const EditProjectShowcasePage: React.FC<IEditProjectShowcasePageProps> = (props)
                                     </div>
                                 }
                             </form>
-                            <p className='error-output'>{error ? error + " please try again later" : ""}</p>
+                            <p className='error-output'>{error ? error + " Refresh page or try again later." : ""}</p>
                         </div>
                     </div>
                 </div>
