@@ -52,7 +52,6 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
     const isPublished = data?.Listing.published;    
     const [currentImage, setCurrentImage] = useState<number>(0);
     const [files, setFiles] = useState<File[]>([]);
-    const [deletedImageName, setDeletedImageName] = useState("");
     const [fileData, setFileData] = useState<{ Item1: string, Item2: string}[] | null>([]);
     const [deletedFileNames, setDeletedFileNames] = useState<string[]>([]);
     const [listingUpdate, setListingUpdate] = useState<boolean>(false);
@@ -98,7 +97,7 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
         setFilesUpdate(true);
     };
 
-      const handleInputChange = (e: { target: any }) => {
+    const handleInputChange = (e: { target: any }) => {
         const target = e.target;
         const name = target.name;
         const value = target.type === 'checkbox' ? target.checked : target.type === 'number' ? parseFloat(target.value) : target.value;
@@ -112,27 +111,8 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
         });
         setListingUpdate(true);
       };
-      
 
-    //   const handleListingSubmit = async (e: { preventDefault: () => void }) => {
-    //     e.preventDefault();
-    //     setData({
-    //         ...data,
-    //         Listing: {
-    //             ...data!.Listing,
-    //             listingId: data?.Listing?.listingId ?? 0,
-    //         },
-    //     });
-      
-    //     const response = await Ajax.post<null>("/listingprofile/editListing", data?.Listing );
-    //     if (response.error) {
-    //         setError("Listing edits error. Refresh page or try again later./n" + response.error);
-    //     } else {
-    //         navigate("/viewlisting", { state: { listingId: data?.Listing.listingId } });
-    //     }
-    //   };
-
-      const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
             const selectedFiles = Array.from(event.target.files);
             const modifiedFiles = selectedFiles.map((file) => {
@@ -143,88 +123,29 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
         }
         setFilesUpdate(true);
     };
-
-
     
-    // const handleFileSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    //     event.preventDefault();
-    //     const fileDataList: { Item1: string, Item2: string }[] = [];
-    //     try {
-    //       await Promise.all(files.map(file => new Promise<void>((resolve, reject) => {
-    //         const reader = new FileReader();
-    //         reader.readAsDataURL(file);
-    //         reader.onload = () => {
-    //           const dataUrl = reader.result as string;
-    //           const base64String = dataUrl.split(',')[1];
-    //           const fileData = { Item1: file.name, Item2: base64String };
-    //           fileDataList.push(fileData);
-    //           if (fileDataList.length === files.length) {
-    //             setFileData(fileDataList);
-    //           }
-    //           resolve();
-    //         };
-    //         reader.onerror = reject;
-    //       })));
-    //       const response = await Ajax.post<null>("/listingprofile/editListingFiles", { ListingId: data?.Listing.listingId, DeleteNames: deletedFileNames,  AddFiles: fileDataList });
-    //       if (response.error) {
-    //         setError(response.error+ "\nRefresh page and try again.");
-    //         setFileData(null);
-    //       } else {
-    //         navigate("/viewlisting", { state: { listingId: data?.Listing.listingId } });
-    //       }
-    //     } catch (error) {
-    //     }
-    //   };
-
-      const handleFileNameChange = (index: number, name: string) => {
-        const newFiles = [...files];
-        newFiles[index] = new File([newFiles[index]], name, { type: newFiles[index].type });
-        setFiles(newFiles);
-      };
-    
-      const handlePublishSubmit = async () => {
+    const handlePublishSubmit = async () => {
         setAttemptPublish(true);
       
         const response = await Ajax.post<null>("/listingprofile/publishListing", { ListingId: data?.Listing.listingId });
       
         if (response.error) {
-          setError("Publishing listing error. Refresh page or try again later.\n" + response.error);
-          setAttemptPublish(false);
-          return;
+            setError("Publishing listing error. Refresh page or try again later.\n" + response.error);
+            setAttemptPublish(false);
+            return;
         }
       
         navigate("/viewlisting", { state: { listingId: state.listingId } });
-      };
+    };
       
-      useEffect(() => {
+    useEffect(() => {
         if (attemptPublish) {
-          handleSaveChanges();
+            handleSaveChanges();
         }
-      }, [attemptPublish]);
-
-    // const handleSaveAllAvailabilities = async () =>  {
-    //     const availabilities = timeList.map(time => {
-    //       return {
-    //         ListingId: state.listingId,
-    //         Date: time.date,
-    //         OwnerId: data?.Listing.ownerId,
-    //         StartTime: time.startTime,
-    //         EndTime: time.endTime,
-    //         Action: 1
-    //       };
-    //     });
-    //     const response = await Ajax.post<null>("/listingprofile/editListingAvailabilities", { reactAvailabilities: availabilities });
-    //     if (response.error) {
-    //       setError("Listing edits error. Refresh page or try again later.\n" + response.error);
-    //       return;
-    //     }
-    //     return navigate("/viewlisting", { state: {listingId: state.listingId}});
-    //   }
-
+    }, [attemptPublish]);
 
     const handleDeleteClick = async () => {
         const response = await Ajax.post<null>('/listingprofile/deleteListing', { ListingId: data?.Listing.listingId })
-        console.log(response)
         if (response.error) {
             setError("Listing deletion error. Refresh page or try again later.\n" + response.error);
 
@@ -398,14 +319,8 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
                                     </button>
                                     </>
                                 )}
-                                {deletedImageName && (
-                                <div className="listing-page__deleted-image">
-                                    {`Deleted image: ${deletedImageName}`}
-                                </div>
-                                    )}
                                 <p>
                                     <Button theme={ButtonTheme.DARK} title="Delete Image" onClick={() => handleDeleteImage(currentImage)} />
-                                    
                                 </p>
                         </div>
                     )}
@@ -414,20 +329,23 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
                 </div>
                 <div className="Files-List">
                     { deletedFileNames.length > 0 &&
-                        <div>File(s) to delete: { deletedFileNames.map(fileName => {
-                            return(
-                                <li>{fileName}</li> 
-                            )}) }
+                        <div>File{deletedFileNames.length > 1 ? "s" : ""}  to delete:
+                            {deletedFileNames.map(fileName => {
+                                return(
+                                    <li>{fileName}</li> 
+                                )})
+                            }
                         </div>
                     }
                     {files.length > 0 && (
                         <ul>
-                            <div>File(s) to add (rename if you'd like):
+                            <div>File{files.length > 1 ? "s" : ""} to be added:
                                 {files.map((file, index) => (
-                                <li key={file.name}>
-                                    <input type="text" value={file.name} onChange={(e) => handleFileNameChange(index, e.target.value)}  />
-                                </li>
-                                ))}
+                                    <li key={file.name}>
+                                        <p>{file.name}</p>
+                                    </li>
+                                    ))
+                                }
                             </div>   
                         </ul>
                     )}

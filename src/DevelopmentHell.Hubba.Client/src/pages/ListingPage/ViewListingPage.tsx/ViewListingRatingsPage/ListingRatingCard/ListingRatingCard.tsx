@@ -5,7 +5,6 @@ interface IListingRatingCardProps {
 }
 
 const ListingRatingCard: React.FC<IListingRatingCardProps> = (props) => {
-    console.log(props.rating);
     return (
             <tr>
                 <td style={{width: '5%'}}>{props.rating.rating}</td>

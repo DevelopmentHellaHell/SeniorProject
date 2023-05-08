@@ -256,11 +256,9 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
                             if(!showcaseData.processing)
                             {
                                 if(showcaseData.isPublished) {
-                                    console.log(`Unpublishing showcase ${showcaseData.id}`);
                                     Unpublish(showcaseData.id);
                                 }
                                 else{
-                                    console.log(`Publishing showcase ${showcaseData.id}`);
                                     Publish(showcaseData.id);
                                 }
                             }

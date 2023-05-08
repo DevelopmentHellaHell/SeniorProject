@@ -96,7 +96,6 @@ const EditProjectShowcasePage: React.FC<IEditProjectShowcasePageProps> = (props)
               if (fileDataList.length === files.length) {
                 // set state with the file data list
                 setFileData(fileDataList);
-                console.log("file data: ", fileDataList);
               }
       
               resolve();
@@ -105,15 +104,12 @@ const EditProjectShowcasePage: React.FC<IEditProjectShowcasePageProps> = (props)
             reader.onerror = reject;
           })));
       
-          console.log("file data: ", fileDataList);
           setProcEdit(true);
           const response = await Ajax.post<string>(`/showcases/edit?s=${showcaseId}`, { files: fileDataList,  title: title, description: description, listingId:  listingId }).then(
             (response) => 
             {
                 if (response.error) {
                     setError(response.error);
-                    console.log(response.error)
-                    console.log(response)
                     setProcEdit(false);
                   } else {
                     navigate(`/showcases/p/view?s=${showcaseId}`);
@@ -122,7 +118,6 @@ const EditProjectShowcasePage: React.FC<IEditProjectShowcasePageProps> = (props)
           );
         } catch (error) {
           //setError(error);
-          console.log(error);
         }
       };
 

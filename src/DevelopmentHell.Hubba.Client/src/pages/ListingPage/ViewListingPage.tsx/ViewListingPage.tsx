@@ -284,7 +284,6 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                                 
                                                 // TODO: Ajax call to edit
                                                 const response = await Ajax.post<null>('/listingprofile/editRating', { ListingId: data.Listing.listingId, Rating: rating.rating, Comment: rating.comment, Anonymous: rating.anonymous })
-                                                console.log(response)
                                                 if (response.error) {
                                                     setError("Listing review editing error. Refresh page or try again later.\n" + response.error);
                                                     return;
@@ -295,7 +294,6 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                             }}/> 
                                             <Button theme={ButtonTheme.DARK} title={"Delete Comment"} loading={!loaded} onClick={async () => {
                                                 const response = await Ajax.post<null>('/listingprofile/deleteRating', { ListingId: data.Listing.listingId })
-                                                console.log(response)
                                                 if (response.error) {
                                                     setError("Review deletion error. Refresh page or try again later.\n" + response.error);
                                                     return;

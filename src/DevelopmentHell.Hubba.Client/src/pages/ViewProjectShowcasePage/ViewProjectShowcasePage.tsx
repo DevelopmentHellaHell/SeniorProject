@@ -261,7 +261,6 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                         OnLike={() => {
                                             Ajax.post(`/showcases/like?s=${showcaseId}`, {}).then((response) => {
                                                 if (!response.error) {
-                                                    console.log("Liked");
                                                     setShowcaseLikes(showcaseLikes + 1);
                                                 }
                                                 else {
@@ -270,7 +269,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                             });
                                         }}
                                         OnUnlike={() => {
-                                            console.log("Unliked");
+
                                         }} />
                                     <h3 className="showcase-rating-text">{showcaseLikes} Likes</h3>
                                     <Button theme={ButtonTheme.DARK} title="Share This Showcase" onClick={() => {
@@ -324,7 +323,6 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                         setCommentText((document.getElementsByClassName("comment-input-box")[0] as HTMLInputElement).value)
                                     }}></textarea>
                                     <button onClick={() => {
-                                        console.log(commentText);
                                         setCommentsLoaded(false);
                                         Ajax.post(`/showcases/comments?s=${showcaseId}`, { commentText: commentText }).then((response) => {
                                             if (response.error) {
