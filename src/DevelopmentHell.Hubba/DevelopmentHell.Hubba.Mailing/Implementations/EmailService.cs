@@ -41,8 +41,7 @@ namespace DevelopmentHell.Hubba.Email.Service.Implementations
             Result result = new Result();
             try
             {
-                //if (!_disableSend) client.Send(message);
-                //Console.WriteLine(body);
+                if (!_disableSend) client.Send(message);
                 result.IsSuccessful = true;
                 return result;
             }

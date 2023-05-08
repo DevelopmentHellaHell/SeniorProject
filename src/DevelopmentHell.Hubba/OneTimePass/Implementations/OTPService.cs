@@ -68,13 +68,13 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service.Implementations
                 IsSuccessful = false,
             };
 
-            Console.WriteLine(otp);
-            /* Result sendEmail = _emailService.SendEmail(email, "Hubba Authentication", $"Your one time password is: {otp}");
-             if (!sendEmail.IsSuccessful)
-             {
+            //Console.WriteLine(otp);
+            Result sendEmail = _emailService.SendEmail(email, "Hubba Authentication", $"Your one time password is: {otp}");
+            if (!sendEmail.IsSuccessful)
+            {
                  result.ErrorMessage = "Serverside issue sending the OTP, please try again later.";
                  return result;
-             }*/
+            }
 
             result.IsSuccessful = true;
             return result;
