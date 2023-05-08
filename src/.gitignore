@@ -4,3 +4,4 @@
 .vs/
 **/.sql
 *.pem
+**/build/

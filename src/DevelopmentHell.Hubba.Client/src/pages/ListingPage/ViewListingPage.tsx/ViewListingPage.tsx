@@ -91,10 +91,10 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                     }
                 }
             }
-            if (response.error) {
+            if (response.error){
                 setError("Listing failed to load. Refresh page or try again later.\n" + response.error);
             }
-
+            
             setLoaded(response.loaded);
         };
         getData();

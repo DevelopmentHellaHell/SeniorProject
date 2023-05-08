@@ -87,13 +87,13 @@ builder.Services.AddControllers();
 //    });
 //});
 
-//builder.WebHost.ConfigureKestrel((context, options) =>
-//{
-//    options.ConfigureHttpsDefaults(httpsOptions =>
-//    {
-//        httpsOptions.ServerCertificate = LoadCertificate();
-//    });
-//});
+builder.WebHost.ConfigureKestrel((context, options) =>
+{
+    options.ConfigureHttpsDefaults(httpsOptions =>
+    {
+        httpsOptions.ServerCertificate = LoadCertificate();
+    });
+});
 
 builder.Services.AddSingleton<ITestingService, TestingService>(s =>
 {
@@ -234,14 +234,13 @@ builder.Services.AddTransient<IOTPService, OTPService>(s =>
     );
 });
 
-builder.Services.AddTransient<IFileService, FTPFileService>(s =>
-    new FTPFileService
-            (
-                HubbaConfig.ConfigurationManager.AppSettings["FTPServer"]!,
-                HubbaConfig.ConfigurationManager.AppSettings["FTPUsername"]!,
-                HubbaConfig.ConfigurationManager.AppSettings["FTPPassword"]!,
-                s.GetService<ILoggerService>()!
-            )
+builder.Services.AddTransient<IFileService, S3FileService>(s =>
+    new S3FileService(
+        HubbaConfig.ConfigurationManager.AppSettings["BucketName"]!,
+        HubbaConfig.ConfigurationManager.AppSettings["AccessKey"]!,
+        HubbaConfig.ConfigurationManager.AppSettings["SecretKey"]!,
+        s.GetService<ILoggerService>()!
+    )
 );
 builder.Services.AddTransient<IAuthorizationService, AuthorizationService>(s =>
     new AuthorizationService(
