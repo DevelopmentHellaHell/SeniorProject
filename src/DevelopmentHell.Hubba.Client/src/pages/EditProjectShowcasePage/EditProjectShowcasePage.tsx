@@ -163,7 +163,7 @@ const EditProjectShowcasePage: React.FC<IEditProjectShowcasePageProps> = (props)
             (response) => 
             {
                 if (response.error) {
-                    setError("Project showcase was not edited.");
+                    setError("Project showcase was not edited."+response.error);
                     setProcEdit(false);
                   } else {
                     navigate(`/showcases/p/view?s=${showcaseId}`);

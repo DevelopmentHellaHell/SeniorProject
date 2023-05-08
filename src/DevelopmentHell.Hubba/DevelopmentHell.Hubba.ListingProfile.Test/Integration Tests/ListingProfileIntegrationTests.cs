@@ -389,7 +389,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Integration_Tests
 
             //Act
             var actual = await _listingProfileManager.EditListingFiles(listingId, deleteFileNames, addfiles).ConfigureAwait(false);
-            Console.WriteLine(actual.ErrorMessage);
+            //Console.WriteLine(actual.ErrorMessage);
             var getFile1 = await _fileService.GetFileReference(dirPath + "/" + listingId + "/Pictures/" + file1Name).ConfigureAwait(false);
             var getFile2 = await _fileService.GetFileReference(dirPath + "/" + listingId + "/Pictures/" + file2Name).ConfigureAwait(false);
             //Assert

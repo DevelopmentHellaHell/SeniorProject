@@ -223,11 +223,9 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
                 return result;
             }
 
-            Regex regex = new(@"^((https?)://)?((www.)?[a-z0-9]+(.[a-z]+)|(([0-9]{1,3}.){3}([0-9]{1,3})))(/[a-zA-Z0-9#.]+/?)*/?$");
-
             // checking profile picture requirements
             // pfp is optional
-            if (collab.PfpUrl != null && !regex.IsMatch(collab.PfpUrl))
+            if (collab.PfpUrl != null)
             {
                 result.ErrorMessage = "Profile picture url provided does not meet expected format.";
                 return result;
@@ -251,11 +249,6 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
                 if (string.IsNullOrEmpty(collabUrl))
                 {
                     result.ErrorMessage = "An uploaded file url does not meet system requirements.";
-                    return result;
-                }
-                if (!regex.IsMatch(collabUrl))
-                {
-                    result.ErrorMessage = "An uploaded file url does not meet expected format.";
                     return result;
                 }
             }

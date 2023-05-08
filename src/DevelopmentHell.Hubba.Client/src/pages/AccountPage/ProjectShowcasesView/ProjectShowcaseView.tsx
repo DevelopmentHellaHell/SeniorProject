@@ -87,7 +87,7 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
                 setData((prevData) =>
                     prevData.map((showcaseData) =>
                         showcaseData.id === showcaseId
-                        ? { ...showcaseData, processing: false, message: "Project showcase was not published. Refresh page or try again later." }
+                        ? { ...showcaseData, processing: false, message: "Project showcase was not published. Refresh page or try again later: "+response.error }
                         : showcaseData
                     )
                 );

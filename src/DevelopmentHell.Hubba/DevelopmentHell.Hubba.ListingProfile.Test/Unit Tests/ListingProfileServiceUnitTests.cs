@@ -389,7 +389,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
 
             //Act
             var actual = await _listingProfileService.GetListingRatings(listingId).ConfigureAwait(false);
-            Console.WriteLine(actual.ErrorMessage);
+            //Console.WriteLine(actual.ErrorMessage);
 
             //Assert
             Assert.IsTrue(actual.IsSuccessful == expected);

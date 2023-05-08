@@ -678,7 +678,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
             Result actual = await _collaboratorManager.CreateCollaborator(exampleCollaborator).ConfigureAwait(false);
 
             //Assert
-            Console.WriteLine(actual.ErrorMessage);
+            //Console.WriteLine(actual.ErrorMessage);
 
             Assert.IsTrue(actual.IsSuccessful);
         }
