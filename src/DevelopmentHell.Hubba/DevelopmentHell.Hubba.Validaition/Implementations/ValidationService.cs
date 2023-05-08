@@ -508,18 +508,10 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
         {
             Result result = new Result();
 
-
-            if (!Regex.IsMatch(file.FileName, @"^[a-zA-Z0-9_.]*$"))
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "File names must consist of only letters, numbers, and underscores.";
-                return result;
-            }
-
             if (file == null || file.Length == 0)
             {
                 result.IsSuccessful = false;
-                result.ErrorMessage = $"File {file.FileName} is empty";
+                result.ErrorMessage = $"File is empty";
                 return result;
             }
 
