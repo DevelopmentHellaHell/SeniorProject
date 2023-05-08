@@ -79,6 +79,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
+
 //builder.WebHost.UseKestrel(options =>
 //{
 //    options.ListenAnyIP(443, listenOptions =>
@@ -87,6 +88,7 @@ builder.Services.AddControllers();
 //    });
 //});
 
+#if !DEBUG
 builder.WebHost.ConfigureKestrel((context, options) =>
 {
     options.ConfigureHttpsDefaults(httpsOptions =>
@@ -94,6 +96,7 @@ builder.WebHost.ConfigureKestrel((context, options) =>
         httpsOptions.ServerCertificate = LoadCertificate();
     });
 });
+#endif
 
 builder.Services.AddSingleton<ITestingService, TestingService>(s =>
 {
@@ -625,29 +628,38 @@ app.UseRouting();
 
 app.UseDefaultFiles();
 
+#if !DEBUG
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
         Path.Combine(Directory.GetCurrentDirectory(), "ClientBuild", "build")),
     RequestPath = "/ClientBuild/build"
 });
-//app.UseStaticFiles(); // <-- don't forget this
-//app.UseStaticFiles(new StaticFileOptions
-//{
-//    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), ".well-known", "acme-challenge")),
-//    RequestPath = new PathString("/.well-known/acme-challenge"),
-//    ServeUnknownFileTypes = true
-//});
+#endif
 
-app.UseEndpoints(endpoints =>
+#if DEBUG
+app.UseStaticFiles(); // <-- don't forget this
+app.UseStaticFiles(new StaticFileOptions
 {
-    endpoints.MapControllers();
-    endpoints.MapFallback(async context =>
-    {
-        context.Response.ContentType = "text/html";
-        await context.Response.SendFileAsync(Path.Combine("ClientBuild", "build", "index.html"));
-    });
+    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), ".well-known", "acme-challenge")),
+    RequestPath = new PathString("/.well-known/acme-challenge"),
+    ServeUnknownFileTypes = true
 });
+#endif
+
+//app.UseEndpoints(endpoints =>
+//{
+//    endpoints.MapControllers();
+//    endpoints.MapFallback(async context =>
+//    {
+//        context.Response.ContentType = "text/html";
+//        await context.Response.SendFileAsync(Path.Combine("ClientBuild", "build", "index.html"));
+//    });
+//});
+#if DEBUG
+app.MapControllers();
+#endif
+
 app.Run();
 
 X509Certificate2 LoadCertificate()
