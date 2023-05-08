@@ -23,11 +23,8 @@ const EditListingAvailability: React.FC<IEditListingAvailabilityCardProps> = (pr
     const handleDeleteClick = async () => {
         const availability = [{ ListingId: props.availability.listingId, AvailabilityId: props.availability.availabilityId, OwnerId: props.ownerId, StartTime: props.availability.startTime, EndTime: props.availability.endTime, Action: 3 }];
 
-        console.log(availability)
         const availabilityList = [availability]
-        console.log(availabilityList)
         const response = await Ajax.post<null>("/listingprofile/editListingAvailabilities", { reactAvailabilities: availability });
-        console.log(response.error)
         if (response.error) {
           setError(response.error);
           return;

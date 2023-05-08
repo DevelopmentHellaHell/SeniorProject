@@ -79,21 +79,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-//builder.WebHost.UseKestrel(options =>
-//{
-//    options.ListenAnyIP(443, listenOptions =>
-//    {
-//        listenOptions.UseHttps();
-//    });
-//});
-
-//builder.WebHost.ConfigureKestrel((context, options) =>
-//{
-//    options.ConfigureHttpsDefaults(httpsOptions =>
-//    {
-//        httpsOptions.ServerCertificate = LoadCertificate();
-//    });
-//});
+#if !DEBUG
+builder.WebHost.ConfigureKestrel((context, options) =>
+{
+    options.ConfigureHttpsDefaults(httpsOptions =>
+    {
+        httpsOptions.ServerCertificate = LoadCertificate();
+    });
+});
+#endif
 
 builder.Services.AddSingleton<ITestingService, TestingService>(s =>
 {
@@ -102,15 +96,15 @@ builder.Services.AddSingleton<ITestingService, TestingService>(s =>
         new TestsDataAccess()
     );
 });
-//builder.Services.AddHttpsRedirection(options =>
-//{
-//    options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
-//    options.HttpsPort = 443;
-//});
 
-// Transient new instance for every controller and service
-// Scoped is same object from same request but different for other requests??
-// Singleton is one instance across all requests
+#if !DEBUG
+builder.Services.AddHttpsRedirection(options =>
+{
+    options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
+    options.HttpsPort = 443;
+});
+#endif
+
 builder.Services.AddSingleton<ILoggerService, LoggerService>(s =>
 {
     return new LoggerService(
@@ -234,14 +228,13 @@ builder.Services.AddTransient<IOTPService, OTPService>(s =>
     );
 });
 
-builder.Services.AddTransient<IFileService, FTPFileService>(s =>
-    new FTPFileService
-            (
-                HubbaConfig.ConfigurationManager.AppSettings["FTPServer"]!,
-                HubbaConfig.ConfigurationManager.AppSettings["FTPUsername"]!,
-                HubbaConfig.ConfigurationManager.AppSettings["FTPPassword"]!,
-                s.GetService<ILoggerService>()!
-            )
+builder.Services.AddTransient<IFileService, S3FileService>(s =>
+    new S3FileService(
+        HubbaConfig.ConfigurationManager.AppSettings["BucketName"]!,
+        HubbaConfig.ConfigurationManager.AppSettings["AccessKey"]!,
+        HubbaConfig.ConfigurationManager.AppSettings["SecretKey"]!,
+        s.GetService<ILoggerService>()!
+    )
 );
 builder.Services.AddTransient<IAuthorizationService, AuthorizationService>(s =>
     new AuthorizationService(
@@ -626,13 +619,16 @@ app.UseRouting();
 
 app.UseDefaultFiles();
 
+#if !DEBUG
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
         Path.Combine(Directory.GetCurrentDirectory(), "ClientBuild", "build")),
     RequestPath = "/ClientBuild/build"
 });
-//app.UseStaticFiles(); // <-- don't forget this
+#endif
+
+//app.UseStaticFiles();
 //app.UseStaticFiles(new StaticFileOptions
 //{
 //    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), ".well-known", "acme-challenge")),
@@ -640,6 +636,7 @@ app.UseStaticFiles(new StaticFileOptions
 //    ServeUnknownFileTypes = true
 //});
 
+#if !DEBUG
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
@@ -649,6 +646,12 @@ app.UseEndpoints(endpoints =>
         await context.Response.SendFileAsync(Path.Combine("ClientBuild", "build", "index.html"));
     });
 });
+#endif
+
+#if DEBUG
+app.MapControllers();
+#endif
+
 app.Run();
 
 X509Certificate2 LoadCertificate()

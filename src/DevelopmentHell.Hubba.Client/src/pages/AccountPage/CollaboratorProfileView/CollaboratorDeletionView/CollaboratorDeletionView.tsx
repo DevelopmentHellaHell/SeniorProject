@@ -4,6 +4,8 @@ import { Ajax } from "../../../../Ajax";
 import { Auth } from "../../../../Auth";
 import Button from "../../../../components/Button/Button";
 import "./CollaboratorDeletionView.css";
+import { useNavigate } from "react-router";
+import { AccountViews } from "../../AccountPage";
 
 interface ICollaboratorDeletion {
     onCancelClick: () => void;
@@ -14,6 +16,8 @@ const CollaboratorDeletionView: React.FC<ICollaboratorDeletion> = (props) => {
     const [loaded, setLoaded] = useState(true);
 
     const [success, setSuccess] = useState("");
+
+    const navigate = useNavigate();
 
     const authData = Auth.getAccessData();
     const accountId = authData?.sub;
@@ -47,6 +51,8 @@ const CollaboratorDeletionView: React.FC<ICollaboratorDeletion> = (props) => {
                     }
                     setSuccess("Successfully deleted collaborator profile.");
                     setLoaded(true);
+                    window.location.reload();
+                    navigate("/account", { state: { view: AccountViews.COLLABORATOR_PROFILE }});
                 }}/>
             </div>
             {error &&

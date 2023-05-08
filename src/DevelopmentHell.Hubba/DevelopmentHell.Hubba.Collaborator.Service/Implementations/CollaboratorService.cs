@@ -22,7 +22,6 @@ namespace DevelopmentHell.Hubba.Collaborator.Service.Implementations
         private ILoggerService _loggerService;
         private IValidationService _validationService;
         private string _dirPath = "Collaborators";
-        private string _ftpServer = ConfigurationManager.AppSettings["FTPServer"]!;
 
         public CollaboratorService(ICollaboratorsDataAccess collaboratorDataAccess, ICollaboratorFileDataAccess collaboratorFileDataAccess,
             ICollaboratorFileJunctionDataAccess collaboratorFileJunctionDataAccess, ICollaboratorUserVoteDataAccess collaboratorUserVoteDataAccess,

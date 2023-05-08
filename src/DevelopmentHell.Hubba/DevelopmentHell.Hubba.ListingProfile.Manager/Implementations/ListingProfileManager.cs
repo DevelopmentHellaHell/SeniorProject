@@ -755,7 +755,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 return new(Result.Failure("Unauthorized user.", StatusCodes.Status401Unauthorized));
             }
             int picturesStored;
-            string dir = "ListingProfiles/" + listingId + "/";
+            string dir = "ListingProfiles/" + listingId;
             //for each file, validate model and validate file (name, type, size)
             if (addListingFiles is not null && addListingFiles.Count > 0)
             {
@@ -783,16 +783,16 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                         return new(Result.Failure("Invalid file type for " + file.Item1, StatusCodes.Status400BadRequest));
                     }
                 }
-                await _fileService.CreateDir(dir + "Pictures/").ConfigureAwait(false);
-                await _fileService.CreateDir(dir + "Videos/").ConfigureAwait(false);
+                await _fileService.CreateDir(dir + "/Pictures/").ConfigureAwait(false);
+                await _fileService.CreateDir(dir + "/Videos/").ConfigureAwait(false);
 
-                picturesStored = _fileService.GetFilesInDir(dir + "Pictures/").Result.Payload.Count();
+                picturesStored = (await _fileService.GetFilesInDir(dir + "/Pictures/").ConfigureAwait(false)).Payload!.Count();
                 if (picturesStored + pictureFiles.Count > 10)
                 {
                     return new(Result.Failure("Maximum of 10 pictures per listing.", StatusCodes.Status400BadRequest));
                 }
 
-                var videosStored = _fileService.GetFilesInDir(dir + "Videos/").Result.Payload.Count();
+                var videosStored = (await _fileService.GetFilesInDir(dir + "/Videos/").ConfigureAwait(false)).Payload!.Count();
                 if (videosStored + videoFiles.Count > 2)
                 {
                     return new(Result.Failure("Maximum of 2 videos per listing.", StatusCodes.Status400BadRequest));
@@ -804,7 +804,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 {
                     try
                     {
-                        Result uploadResult = await _fileService.UploadFile(dir + "Pictures/", file.Key, file.Value).ConfigureAwait(false);
+                        Result uploadResult = await _fileService.UploadFile(dir + "/Pictures", file.Key, file.Value).ConfigureAwait(false);
 
                         if (!uploadResult.IsSuccessful)
                         {
@@ -833,7 +833,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 {
                     try
                     {
-                        Result uploadResult = await _fileService.UploadFile(dir + "Vieos/", file.Key, file.Value).ConfigureAwait(false);
+                        Result uploadResult = await _fileService.UploadFile(dir + "/Videos", file.Key, file.Value).ConfigureAwait(false);
 
                         if (!uploadResult.IsSuccessful)
                         {
@@ -875,6 +875,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                         Result deleteResult = await _fileService.DeleteFile(dir + "/Pictures/" + filename).ConfigureAwait(false);
                         if (!deleteResult.IsSuccessful)
                         {
+                            Console.WriteLine(deleteResult.ErrorMessage);
                             fileDeleteResults.ErrorMessage += "Failed to delete " + filename + "\n";
                             deleteErrorFound = true;
                         }

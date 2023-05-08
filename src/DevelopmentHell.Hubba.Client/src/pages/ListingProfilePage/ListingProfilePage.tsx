@@ -44,8 +44,6 @@ const ListingProfilePage: React.FC<IListingProfilePageProps> = (props) => {
 
                 <div className="listingprofile-wrapper">
                     { renderView(view)}
-                        
-                    
                 </div>
                
             </div>

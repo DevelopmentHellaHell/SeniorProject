@@ -25,7 +25,7 @@ export interface ICollaboratorData {
 }
 
 const CollaboratorPage: React.FC<ICollaboratorPage> = (props) => {
-    const {state}=useLocation();
+    const { state } = useLocation();
     const [error, setError] = useState<string>("Error");
     const [loaded, setLoaded] = useState<boolean>(false);
     const [data, setData] = useState<ICollaboratorData | null>(null);
