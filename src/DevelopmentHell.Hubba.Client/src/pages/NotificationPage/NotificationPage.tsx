@@ -109,7 +109,6 @@ const NotificationPage: React.FC<INotificationPageProps> = (props) => {
             setLoaded(response.loaded);
             if (response.data) {
                 setGroupedData(createGrouping(response.data));
-                console.log(groupedData);
                 setNotificationData(groupedData.map((group, index) => {
                     let loadedNotifications: (INotificationData | IExpandableNotification)[] = [];
                     if(group.length > 1){
@@ -129,7 +128,6 @@ const NotificationPage: React.FC<INotificationPageProps> = (props) => {
 
     useEffect(() => {
         setGroupedData(createGrouping(data));
-        console.log(groupedData);
         setNotificationData(groupedData.map((group, index) => {
             let loadedNotifications: (INotificationData | IExpandableNotification)[] = [];
             if(group.length > 1){
