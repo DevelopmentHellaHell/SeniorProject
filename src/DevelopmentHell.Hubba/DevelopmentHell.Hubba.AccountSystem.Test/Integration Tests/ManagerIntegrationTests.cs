@@ -47,6 +47,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
         private readonly ListingAvailabilitiesDataAccess _listingAvailabilitiesDataAccess;
         private readonly BookingsDataAccess _bookingsDataAccess;
         private readonly BookedTimeFramesDataAccess _bookedTimeFramesDataAccess;
+        private readonly ListingHistoryDataAccess _listingHistoryDataAccess;
         private readonly BookingService _bookingService;
         private readonly AvailabilityService _availabilityService;
         private readonly SchedulingManager _schedulingManager;
@@ -86,6 +87,10 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
             new ListingHistoryDataAccess(
                 ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
                 ConfigurationManager.AppSettings["ListingHistoryTable"]!
+            ),
+            new ListingsDataAccess(
+                ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+                ConfigurationManager.AppSettings["ListingsTable"]!
             ),
                 loggerService
             );
@@ -184,8 +189,12 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
                 ConfigurationManager.AppSettings["SchedulingsConnectionString"]!,
                 ConfigurationManager.AppSettings["BookedTimeFramesTable"]!
             );
+            _listingHistoryDataAccess = new ListingHistoryDataAccess(
+                ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+                ConfigurationManager.AppSettings["ListingHistoryTable"]!
+            );
             // bookingService, availabilityService
-            _bookingService = new BookingService(_bookingsDataAccess, _bookedTimeFramesDataAccess);
+            _bookingService = new BookingService(_bookingsDataAccess, _bookedTimeFramesDataAccess, _listingHistoryDataAccess);
             _availabilityService = new AvailabilityService(_listingsDataAccess, _listingAvailabilitiesDataAccess, _bookedTimeFramesDataAccess);
 
             _schedulingManager = new SchedulingManager(

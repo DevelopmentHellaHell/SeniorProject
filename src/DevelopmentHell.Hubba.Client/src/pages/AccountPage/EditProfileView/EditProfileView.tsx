@@ -90,9 +90,12 @@ const EditProfileView: React.FC<IEditProfileViewProps> = (props) => {
                     } }/>
                 </div>
             </div>
-            {(error && 
+            {(error && !success &&
                 <p className="error">{error}</p>) 
             }
+            {(!error && success &&
+                <p className="success">{success}</p>) 
+            }            
         </div>
     )
 }

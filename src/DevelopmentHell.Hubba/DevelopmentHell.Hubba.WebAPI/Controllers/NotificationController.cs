@@ -7,7 +7,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class NotificationController : Controller
+    public class NotificationController : HubbaController
     {
         private readonly INotificationManager _notificationManager;
 

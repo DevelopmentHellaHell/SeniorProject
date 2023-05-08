@@ -328,5 +328,35 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             return updateResult;
         }
+        public async Task<Result<List<Reservations>>> GetReservationsSearch(int ownerID, string query)
+        {
+            List<Reservations> result = new List<Reservations>();
+            var queryResult = await _executeDataAccess.Execute("SearchListingHistory", new Dictionary<string, object>()
+            {
+                {"Query", query },
+                {"UserId", ownerID}
+            }).ConfigureAwait(false);
+
+            if (!queryResult.IsSuccessful)
+            {
+                return new(Result.Failure("Reservation Access Error"));
+            }
+            if (queryResult.Payload is null)
+            {
+                return new(Result.Failure("There were no reservations with your search. "));
+            }
+            foreach (var row in queryResult.Payload)
+            {
+                result.Add(new Reservations()
+                {
+                    OwnerId = (int)row[nameof(Reservations.OwnerId)],
+                    UserId = (int)row[nameof(Reservations.UserId)],
+                    ListingId = (int)row[nameof(Reservations.ListingId)],
+                    Title = (string)row[nameof(Reservations.Title)]
+                });
+            }
+
+            return Result<List<Reservations>>.Success(result);
+        }
     }
 }

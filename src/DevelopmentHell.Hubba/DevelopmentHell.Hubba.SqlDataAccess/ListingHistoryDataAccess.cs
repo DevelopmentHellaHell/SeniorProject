@@ -1,6 +1,7 @@
 ﻿
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
+using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 {
     public class ListingHistoryDataAccess : IListingHistoryDataAccess
     {
+        private readonly ExecuteDataAccess _executeDataAccess;
         private readonly InsertDataAccess _insertDataAccess;
         private readonly UpdateDataAccess _updateDataAccess;
         private readonly SelectDataAccess _selectDataAccess;
@@ -23,6 +25,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
         public ListingHistoryDataAccess(string connectionString, string tableName)
         {
+            _executeDataAccess = new ExecuteDataAccess(connectionString);
             _insertDataAccess = new InsertDataAccess(connectionString);
             _updateDataAccess = new UpdateDataAccess(connectionString);
             _selectDataAccess = new SelectDataAccess(connectionString);
@@ -95,7 +98,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return deleteResult;
         }
 
-        public async Task<Result<List<Reservations>>> GetReservations(int ownerID)
+        public async Task<Result<List<Reservations>>> GetReservations(int ownerID, string sort, int reservationCount, int page)
         {
             List<Reservations> result = new List<Reservations>();
             var selectResult = await _selectDataAccess.Select(
@@ -115,7 +118,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 new List<Comparator>()
                 {
                     new Comparator("OwnerId", "=", ownerID)
-                }    
+                },
+                "",
+                sort,
+                reservationCount,
+                (page - 1) * reservationCount
             ).ConfigureAwait(false);
             if (!selectResult.IsSuccessful || selectResult.Payload is null)
             {
@@ -136,5 +143,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
             return Result<List<Reservations>>.Success(result);
         }
+
+        
     }
 }

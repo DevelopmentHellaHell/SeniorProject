@@ -163,7 +163,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return new (Result.Success());
         }
 
-        public async Task<Result<List<BookingHistory>>> GetBookingHistory(int userId)
+        public async Task<Result<List<BookingHistory>>> GetBookingHistory(int userId, int bookingCount, int page)
         {
             List<BookingHistory> result = new List<BookingHistory>();
             var selectResult = await _selectDataAccess.Select(
@@ -185,17 +185,17 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 new List<Comparator>()
                 { 
                     new Comparator("UserId", "=", userId)
-                }
+                },
+                "",
+                "",
+                bookingCount,
+                (page - 1) * bookingCount
             ).ConfigureAwait(false);
             if (!selectResult.IsSuccessful || selectResult.Payload is null) 
             {
                 return new(Result.Failure("Booking Data Access Error"));
             }
 
-            if (selectResult.Payload.Count < 1)
-            {
-                return new(Result.Failure("No booking found", StatusCodes.Status404NotFound));
-            }
             else
             {
                 foreach(var row in selectResult.Payload)
