@@ -60,7 +60,7 @@
     user-select: none;
 }
 
-.view-project-showcase-wrapper .comment .vote-control .h-stack {
+.view-project-showcase-wrapper .comment .vote-control .h-stack p{
     font-size: 20px;
     vertical-align: middle;
     margin: 0;
