@@ -4,8 +4,8 @@ import { Ajax } from "../../../../Ajax";
 import { Auth } from "../../../../Auth";
 import Button from "../../../../components/Button/Button";
 import "./CollaboratorDeletionView.css";
-import { useNavigate } from "react-router";
 import { AccountViews } from "../../AccountPage";
+import { useNavigate } from "react-router-dom";
 
 interface ICollaboratorDeletion {
     onCancelClick: () => void;
