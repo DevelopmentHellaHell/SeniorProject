@@ -179,10 +179,11 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                 onClick={() => {
                                     navigate("/scheduling", {
                                         state: {
-                                            listingId: data?.Listing.listingId,
-                                            listingTitle: data?.Listing.title,
-                                            ownerId: data?.Listing.ownerId,
-                                            price: data?.Listing.price
+                                            listingId: data.Listing.listingId,
+                                            listingTitle: data.Listing.title,
+                                            listingLocation: data.Listing.location,
+                                            ownerId: data.Listing.ownerId,
+                                            price: data.Listing.price
                                         }
                                     })
                                 }} />

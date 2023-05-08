@@ -84,10 +84,10 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
                             setSelectedBooking([...selectBooking, bookingId]);
                         }} title={""} />}
                 </td>
+                <td>{bookingHistoryData.bookingId}</td>
                 <td className="table-listing-title" onClick={() => {navigate('/viewListing', { state: { listingId: bookingHistoryData.listingId} })}}>
                     <p>{bookingHistoryData.title}</p>
                 </td>
-                <td>{bookingHistoryData.listingId}</td>
                 <td>{bookingHistoryData.location}</td>
                 <td>{bookingHistoryData.fullPrice.toLocaleString(localeUSLanguage, localeUSCurrency)}</td>
                 <td>{BookingStatus[bookingHistoryData.bookingStatusId]}</td>
@@ -99,6 +99,7 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
                                     navigate("/bookingdetails", {
                                         state: {
                                             bookingId: bookingId,
+                                            listingId: bookingHistoryData.listingId,
                                             listingTitle: bookingHistoryData.title,
                                             listingLocation: bookingHistoryData.location,
                                             fullPrice: bookingHistoryData.fullPrice,
@@ -152,8 +153,8 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
                             <thead>
                                 <tr>
                                     <th></th>
+                                    <th>Confirmation #</th>
                                     <th>Title</th>
-                                    <th>Listing Id</th>
                                     <th>Location</th>
                                     <th>Full Price</th>
                                     <th>Status</th>
@@ -209,7 +210,7 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
             </div>
             <div className="booking-control">
                 <div className="booking-count-control">
-                    <p>bookings per page:</p>
+                    <p>Bookings per page:</p>
                     <div className="h-stack">
                         <Button theme={bookingCount == 10 ? ButtonTheme.DARK : ButtonTheme.HOLLOW_DARK} title="10"
                             onClick={() => {
@@ -240,7 +241,7 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
                             }} />
                     </div>
                     <div className="booking-page-control">
-                        <p>page #{bookingPage}:</p>
+                        <p>Page #{bookingPage}:</p>
                         <div className="h-stack">
                             {bookingPage > 1 &&
                                 <Button theme={ButtonTheme.DARK} title="prev" onClick={() => {

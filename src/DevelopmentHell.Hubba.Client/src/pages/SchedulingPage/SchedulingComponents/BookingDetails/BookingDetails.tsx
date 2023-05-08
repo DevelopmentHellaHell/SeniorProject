@@ -106,7 +106,13 @@ const BookingDetails: React.FC<IBookingDetailsProp> = (props) => {
                         <div className='h2'>
                             Confirmation number: {state.bookingId}
                         </div>
-                        <div className='h2'>Listing: {state.listingTitle}</div>
+                        <p>
+                            <div className='listing' onClick={() => (navigate("/viewlisting", { state: { listingId: state.listingId } }))}>
+                                <div>Listing: {state.listingTitle}</div>
+                                <div>Location: {state.listingLocation}</div>
+                            </div>
+                        </p>
+
                         {loaded && renderSummary(bookingDetailsData!.bookedTimeFrames)}
 
                         {cancelled && !cancellationConfirmed &&

@@ -71,6 +71,11 @@
   .listing-content .Ratings h2 {
     margin-top: 0;
   }
+
+  .rating-inputs {
+    display: flex;
+    gap: 5px;
+  }
   
   .listing-content .Ratings table {
     width: 100%;
