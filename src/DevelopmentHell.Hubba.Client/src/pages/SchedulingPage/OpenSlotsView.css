@@ -16,6 +16,15 @@
   color: rgb(var(--primary-text-dark));
   text-align: left;
 }
+.main-wrapper .wrapper-header {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+  font-size: 24px;
+  font-weight: 700;
+  padding-right: 20px;
+  padding-bottom: 20px;
+}
 
 .main-wrapper .second-wrapper {
   display: flex;
