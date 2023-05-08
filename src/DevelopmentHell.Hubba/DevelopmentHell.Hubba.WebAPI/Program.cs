@@ -105,11 +105,14 @@ builder.Services.AddSingleton<ITestingService, TestingService>(s =>
         new TestsDataAccess()
     );
 });
-//builder.Services.AddHttpsRedirection(options =>
-//{
-//    options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
-//    options.HttpsPort = 443;
-//});
+
+#if !DEBUG
+builder.Services.AddHttpsRedirection(options =>
+{
+    options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
+    options.HttpsPort = 443;
+});
+#endif
 
 // Transient new instance for every controller and service
 // Scoped is same object from same request but different for other requests??
@@ -637,25 +640,26 @@ app.UseStaticFiles(new StaticFileOptions
 });
 #endif
 
-#if DEBUG
-app.UseStaticFiles(); // <-- don't forget this
-app.UseStaticFiles(new StaticFileOptions
+//app.UseStaticFiles(); // <-- don't forget this
+//app.UseStaticFiles(new StaticFileOptions
+//{
+//    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), ".well-known", "acme-challenge")),
+//    RequestPath = new PathString("/.well-known/acme-challenge"),
+//    ServeUnknownFileTypes = true
+//});
+
+#if !DEBUG
+app.UseEndpoints(endpoints =>
 {
-    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), ".well-known", "acme-challenge")),
-    RequestPath = new PathString("/.well-known/acme-challenge"),
-    ServeUnknownFileTypes = true
+    endpoints.MapControllers();
+    endpoints.MapFallback(async context =>
+    {
+        context.Response.ContentType = "text/html";
+        await context.Response.SendFileAsync(Path.Combine("ClientBuild", "build", "index.html"));
+    });
 });
 #endif
 
-//app.UseEndpoints(endpoints =>
-//{
-//    endpoints.MapControllers();
-//    endpoints.MapFallback(async context =>
-//    {
-//        context.Response.ContentType = "text/html";
-//        await context.Response.SendFileAsync(Path.Combine("ClientBuild", "build", "index.html"));
-//    });
-//});
 #if DEBUG
 app.MapControllers();
 #endif
