@@ -19,6 +19,19 @@ export interface INotificationData {
     Tag: number,
 }
 
+interface IExpandableNotification {
+    DateCreated: Date,
+    Hide: boolean,
+    IsExpanded: boolean,
+    NotificationId: number,
+    Notifications: INotificationData[]
+}
+
+interface TableState {
+    expandedRows: Set<number>;
+  }
+  
+
 enum NotificationType {
     OTHER = 0,
     PROJECT_SHOWCASE = 1,
@@ -39,12 +52,21 @@ const REFRESH_COOLDOWN_MILLISECONDS = 5000;
 
 const NotificationPage: React.FC<INotificationPageProps> = (props) => {
     const [data, setData] = useState<INotificationData[]>([]);
+    const [groupedData, setGroupedData] = useState<INotificationData[][]>([]);
+    const [notificationData, setNotificationData] = useState<(INotificationData | IExpandableNotification)[]>([]);
     const [error , setError] = useState("");
     const [loaded, setLoaded] = useState(false);
     const [selectedNotifications, setSelectedNotifications] = useState<number[]>([]);
     const [filters, setFilters] = useState<NotificationType[]>([]);
     const [lastRefreshed, setLastRefreshed] = useState(Date.now() - REFRESH_COOLDOWN_MILLISECONDS);
     const prevDataRef = useRef<INotificationData[]>();
+
+ 
+    const initialState: TableState = {
+        expandedRows: new Set<number>(),
+    };
+
+    const [tableState, setTableState]   = useState<TableState>(initialState);
 
     const authData = Auth.getAccessData();
 
@@ -53,17 +75,83 @@ const NotificationPage: React.FC<INotificationPageProps> = (props) => {
         return null;
     }
 
+    const createGrouping = (notifications: INotificationData[]): INotificationData[][] => {
+        const groupedNotifications: INotificationData[][] = [];
+        // current group is first notification
+        let currentGroupedNotifications: INotificationData[] = [notifications[0]];
+        let prevNotification = notifications[0];
+
+        // populate current group from second notification
+        for (let i = 1; i < notifications.length; i++){
+            const currentNotification = notifications[i];
+            // check if the next notification was created within 1 minute
+            if (new Date(currentNotification.DateCreated).getTime() - new Date(prevNotification.DateCreated).getTime() <= 60000) {
+                currentGroupedNotifications.push(currentNotification);
+            }
+            // if the next notification was over a minute ago, push current group into array
+            // and check for next group using the new interval starting at currentNotification
+            else {
+                groupedNotifications.push(currentGroupedNotifications.reverse());
+                currentGroupedNotifications = [currentNotification];
+                prevNotification = currentNotification;
+            }
+        }
+        if (currentGroupedNotifications.length) {
+            groupedNotifications.push(currentGroupedNotifications.reverse());
+        }
+        return groupedNotifications.reverse();
+    }
+
     const getData = async () => {
         await Ajax.get<INotificationData[]>("/notification/getNotifications").then((response) => {
             setData(response.data && response.data.length ? response.data : []);
             setError(response.error);
             setLoaded(response.loaded);
+            if (response.data) {
+                setGroupedData(createGrouping(response.data));
+                console.log(groupedData);
+                setNotificationData(groupedData.map((group, index) => {
+                    let loadedNotifications: (INotificationData | IExpandableNotification)[] = [];
+                    if(group.length > 1){
+                        return { DateCreated: group[0].DateCreated,Hide: false,IsExpanded: false, NotificationId: -index, Notifications: group };
+                    }
+                    else{
+                        return group[0];
+                    }
+                }));
+            }
         });
     }
 
     useEffect(() => {
         getData();
     }, []);
+
+    useEffect(() => {
+        setGroupedData(createGrouping(data));
+        console.log(groupedData);
+        setNotificationData(groupedData.map((group, index) => {
+            let loadedNotifications: (INotificationData | IExpandableNotification)[] = [];
+            if(group.length > 1){
+                return { DateCreated: group[0].DateCreated,Hide: false,IsExpanded: false, NotificationId: -index, Notifications: group };
+            }
+            else{
+                return group[0];
+            }
+        }));
+    }, [data])
+
+    useEffect(() => {
+        setNotificationData(groupedData.map((group, index) => {
+            let loadedNotifications: (INotificationData | IExpandableNotification)[] = [];
+            if(group.length > 1){
+                return { DateCreated: group[0].DateCreated,Hide: false,IsExpanded: false, NotificationId: -index, Notifications: group };
+            }
+            else{
+                return group[0];
+            }
+        }));
+    }, [groupedData])
 
     useEffect(() => {
         prevDataRef.current = data;
@@ -89,6 +177,128 @@ const NotificationPage: React.FC<INotificationPageProps> = (props) => {
             </tr>
         );
     }
+
+    //keeps track of what rows are being traversed
+    const toggleRow = (rowIndex: number) => {
+        const expandedRows = new Set(tableState.expandedRows);
+        if (expandedRows.has(rowIndex)) {
+          expandedRows.delete(rowIndex);
+        } else {
+          expandedRows.add(rowIndex);
+        }
+        setTableState({ expandedRows });
+    };
+    
+
+    //creates the expandable rows or the 2d
+    const createExpandableRow = (notificationDataGroup: INotificationData[]) =>{
+        return(
+            <>
+            {notificationDataGroup.map((notificationData, index) => {
+                if (filters.length > 0 && !filters.includes(notificationData.Tag)) return null;
+                const id = notificationData.NotificationId;
+                return(
+                    <React.Fragment key={index}>
+                        <tr onClick={() => toggleRow(index)}>
+                            <td colSpan={3}>Grouping</td>
+                        </tr>
+                        {tableState.expandedRows.has(index) && (
+                            <tr>
+                                <td className="table-button-hide">
+                                    <Button theme={selectedNotifications.includes(id) ? ButtonTheme.DARK : ButtonTheme.HOLLOW_DARK} onClick={() => {
+                                        if (selectedNotifications.includes(id)) {
+                                            selectedNotifications.splice(selectedNotifications.indexOf(id), 1);
+                                            setSelectedNotifications([...selectedNotifications]);
+                                            return;
+                                        } 
+                                        setSelectedNotifications([...selectedNotifications, id]);
+                                    }} title={""}/>
+                                </td>
+                                <td>{notificationData.Message}</td>
+                                <td>{NotificationType[notificationData.Tag]}</td>
+                            </tr>
+                    )} 
+                    </React.Fragment>
+                );
+            })}
+            </>
+        )
+    };
+
+
+    const createNotificationRow = (notificationData: IExpandableNotification | INotificationData) => {
+        if ((notificationData as IExpandableNotification).Notifications !== undefined) {
+            const expandable = (notificationData as IExpandableNotification)
+
+            const id = notificationData.NotificationId;
+            return (
+                <React.Fragment key={notificationData.NotificationId}>
+                    <tr onClick={() => {
+                        if (expandable.IsExpanded) {
+                            setNotificationData((oldData) =>
+                                oldData.map((notificationDatum) =>
+                                    notificationDatum.NotificationId === notificationData.NotificationId
+                                        ? { ...notificationDatum, IsExpanded: false }
+                                        : notificationDatum
+                                )
+                            );
+                        }
+                        else {
+                            setNotificationData((oldData) =>
+                                oldData.map((notificationDatum) =>
+                                    notificationDatum.NotificationId === notificationData.NotificationId
+                                        ? { ...notificationDatum, IsExpanded: true }
+                                        : notificationDatum
+                                )
+                            );
+                        }
+                    }}>
+                        <td colSpan={3}>Grouped Notification {expandable.IsExpanded ? 'V' : '>'}</td>
+                    </tr>
+                    {expandable.IsExpanded
+                        &&
+                        expandable.Notifications.map((notification: INotificationData) => {
+                            if (filters.length > 0 && !filters.includes(notification.Tag)) return null;
+                            return <tr>
+                                <td className="table-button-hide">
+                                    <Button theme={selectedNotifications.includes(notification.NotificationId) ? ButtonTheme.DARK : ButtonTheme.HOLLOW_DARK} onClick={() => {
+                                        if (selectedNotifications.includes(notification.NotificationId)) {
+                                            selectedNotifications.splice(selectedNotifications.indexOf(notification.NotificationId), 1);
+                                            setSelectedNotifications([...selectedNotifications]);
+                                            return;
+                                        }
+                                        setSelectedNotifications([...selectedNotifications, notification.NotificationId]);
+                                    }} title={""} />
+                                </td>
+                                <td>{notification.Message}</td>
+                                <td>{NotificationType[notification.Tag]}</td>
+                            </tr>
+                        })
+                    }
+                </React.Fragment>
+            );
+                
+        }
+        else {
+            if (filters.length > 0 && !filters.includes((notificationData as INotificationData).Tag)) return null;
+            const id = notificationData.NotificationId;
+            return <tr>
+                <td className="table-button-hide">
+                    <Button theme={selectedNotifications.includes(id) ? ButtonTheme.DARK : ButtonTheme.HOLLOW_DARK} onClick={() => {
+                        if (selectedNotifications.includes(id)) {
+                            selectedNotifications.splice(selectedNotifications.indexOf(id), 1);
+                            setSelectedNotifications([...selectedNotifications]);
+                            return;
+                        } 
+                        setSelectedNotifications([...selectedNotifications, id]);
+                    }} title={""}/>
+                </td>
+                <td>{(notificationData as INotificationData).Message}</td>
+                <td>{NotificationType[(notificationData as INotificationData).Tag]}</td>
+            </tr>
+        }
+    };
+      
 
     const createFilterButton = (filter: NotificationType) => {
         return (
@@ -137,15 +347,15 @@ const NotificationPage: React.FC<INotificationPageProps> = (props) => {
                             </thead>
                             <tbody>
                                 {data.length == 0 &&
+                                
                                     <tr>
                                         <td></td>
                                         <td>You have no new notifications.</td>
                                         <td></td>
                                     </tr>
                                 }
-                                {loaded && data && data.map(value => {
-                                    if (filters.length > 0 && !filters.includes(value.Tag)) return <></>;
-                                    return createNotificationTableRow(value);
+                                {loaded && data && groupedData && groupedData.length > 0 && notificationData.map((notification) => {
+                                    return createNotificationRow(notification);
                                 })}
                             </tbody>
                         </table>

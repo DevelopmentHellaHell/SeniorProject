@@ -40,11 +40,9 @@ const MyListingsView: React.FC<IMyListingsViewProps> = (props) => {
             setData(response.data);
             if (response.error) {
                 setError(response.error);
-                console.log(response.error);
             }
             
             setLoaded(response.loaded);
-            console.log(response.data);
         }
 
         getData();

@@ -165,9 +165,10 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                     <div className="listing-content">
                         <div className="Title">
                             <h1>{data.Listing.title}</h1>
-                            <h3>Owner: {data.Listing.ownerUsername}</h3>
+                            <h2>Owner: {data.Listing.ownerUsername}</h2>
+                            <h2>Last Edited: {data.Listing.lastEdited.toLocaleString()}</h2>
                             {data.Listing.averageRating && 
-                                <h4>Average Rating: {data.Listing.averageRating}</h4>
+                                <h3>Average Rating: {data.Listing.averageRating}</h3>
                             }
                         </div>
 
@@ -175,19 +176,24 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                             <div className="listing-page-status"> {isPublished ? 'Public' : 'Draft'} </div>
                             {/** REDIRECT TO SCHEDULING FEATURE */}
                             {isPublished && authData?.sub != data.Listing.ownerId &&
+                            <div>
                             <Button title="Check Calendar"
                                 onClick={() => {
                                     navigate("/scheduling", {
                                         state: {
-                                            listingId: data?.Listing.listingId,
-                                            listingTitle: data?.Listing.title,
-                                            ownerId: data?.Listing.ownerId,
-                                            price: data?.Listing.price
+                                            listingId: data.Listing.listingId,
+                                            listingTitle: data.Listing.title,
+                                            listingLocation: data.Listing.location,
+                                            ownerId: data.Listing.ownerId,
+                                            price: data.Listing.price
                                         }
                                     })
                                 }} />
+
+                                <p><Button theme={ButtonTheme.DARK} onClick={() => {navigate(`/showcases/p/listing?l=${data.Listing.listingId}`)}} title={"View Showcases"}/></p>
+                                </div>
                             }
-                            {authData?.sub == data.Listing.ownerId && <div>
+                            {authData?.sub == data.Listing.ownerId && authData?.role != Auth.Roles.DEFAULT_USER && <div>
                                 { data.Listing.published && <p><Button theme={ButtonTheme.HOLLOW_DARK} onClick={async () => {
                                     const response = await Ajax.post("/listingprofile/unpublishListing", { listingId: data.Listing.listingId })
                                     if (response.error) {
@@ -201,8 +207,6 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                 <p><Button theme={ButtonTheme.HOLLOW_DARK} onClick={() => { navigate("/editlisting", { state: { listingId: data.Listing.listingId } }) }} title={"Edit Listing"} /></p>
                                 
                                 <p><Button theme={ButtonTheme.DARK} onClick={() => { handleDeleteClick() }} title={"Delete Listing"} /></p>
-
-                                <p><Button theme={ButtonTheme.DARK} onClick={() => {navigate(`/showcases/p/listing?l=${data.Listing.listingId}`)}} title={"View Showcases"}/></p>
                             </div>
                             }
                         </div>
@@ -268,7 +272,7 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                     }}/>
 
                                     
-                                    {data && data.Ratings && hasRating ? // TODO: REPLACE THIS CODE WITH: Check a rating already exists
+                                    {data && data.Ratings && hasRating ? 
                                         <div>
                                             <Button theme={ButtonTheme.DARK} title={"Edit Comment"} loading={!loaded} onClick={async () => {
                                                 setLoaded(false);
@@ -284,7 +288,6 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                                 
                                                 // TODO: Ajax call to edit
                                                 const response = await Ajax.post<null>('/listingprofile/editRating', { ListingId: data.Listing.listingId, Rating: rating.rating, Comment: rating.comment, Anonymous: rating.anonymous })
-                                                console.log(response)
                                                 if (response.error) {
                                                     setError("Listing review editing error. Refresh page or try again later.\n" + response.error);
                                                     return;
@@ -295,7 +298,6 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                             }}/> 
                                             <Button theme={ButtonTheme.DARK} title={"Delete Comment"} loading={!loaded} onClick={async () => {
                                                 const response = await Ajax.post<null>('/listingprofile/deleteRating', { ListingId: data.Listing.listingId })
-                                                console.log(response)
                                                 if (response.error) {
                                                     setError("Review deletion error. Refresh page or try again later.\n" + response.error);
                                                     return;

@@ -1,34 +1,32 @@
-﻿using Development.Hubba.JWTHandler.Service.Abstractions;
+﻿using System.Configuration;
+using Development.Hubba.JWTHandler.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
+using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
+using DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Implementations;
+using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
+using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
-using DevelopmentHell.Hubba.Models.DTO;
 using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.Models.DTO;
 using DevelopmentHell.Hubba.Notification.Service.Abstractions;
 using DevelopmentHell.Hubba.Notification.Service.Implementations;
-using DevelopmentHell.Hubba.Registration.Manager;
+using DevelopmentHell.Hubba.Registration.Manager.Abstractions;
+using DevelopmentHell.Hubba.Registration.Manager.Implementations;
+using DevelopmentHell.Hubba.Registration.Service.Abstractions;
+using DevelopmentHell.Hubba.Registration.Service.Implementations;
+using DevelopmentHell.Hubba.Scheduling.Manager.Abstraction;
 using DevelopmentHell.Hubba.Scheduling.Service.Abstractions;
 using DevelopmentHell.Hubba.Scheduling.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
-using System.Configuration;
-using DevelopmentHell.Hubba.Scheduling.Manager;
-using DevelopmentHell.Hubba.Registration.Service.Abstractions;
-using DevelopmentHell.Hubba.Registration.Manager.Abstractions;
-using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
-using DevelopmentHell.Hubba.Registration.Manager.Implementations;
-using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
-using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using DevelopmentHell.Hubba.Authentication.Service.Implementations;
-using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using Microsoft.IdentityModel.Tokens;
-using DevelopmentHell.Hubba.Scheduling.Manager.Abstraction;
 
 namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
 {
@@ -61,7 +59,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
         private readonly string _listingProfilesConnectionString = ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!;
         private readonly string _schedulingsConnectionString = ConfigurationManager.AppSettings["SchedulingsConnectionString"]!;
 
-        public SchedulingManagerTest() 
+        public SchedulingManagerTest()
         {
             //other services
             _loggerDataAccess = new LoggerDataAccess(
@@ -87,7 +85,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
                 _validationService,
                 _loggerService
             );
-            
+
             _authenticationService = new AuthenticationService(
                 _userAccountDataAccess,
                 new UserLoginDataAccess(
@@ -100,13 +98,13 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
                 _loggerService
             );
 
-            _authorizationService = new AuthorizationService(_userAccountDataAccess, _jwtHandlerService,_loggerService);
+            _authorizationService = new AuthorizationService(_userAccountDataAccess, _jwtHandlerService, _loggerService);
             _notificationService = new NotificationService(
                 new NotificationDataAccess(
                     ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
                     ConfigurationManager.AppSettings["UserNotificationsTable"]!
                 ),
-                new NotificationSettingsDataAccess (
+                new NotificationSettingsDataAccess(
                     ConfigurationManager.AppSettings["NotificationsConnectionString"]!,
                     ConfigurationManager.AppSettings["NotificationSettingsTable"]!
                 ),
@@ -117,7 +115,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
                 ConfigurationManager.AppSettings["JwtKey"]!,
                 new TestsDataAccess()
             );
-            
+
             // listingsDAO, listingAvailDAO, bookingsDAO, bookedTimeFramesDAO
             _listingsDataAccess = new ListingsDataAccess(
                 _listingProfilesConnectionString,
@@ -269,7 +267,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             int listingId = (int)testData["ListingId"];
             int month = 10;
             int year = 2023;
-            
+
             //Act
             var actual = await _schedulingManager.FindListingAvailabiityByMonth(listingId, month, year).ConfigureAwait(false);
 
@@ -294,7 +292,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
                 new ListingAvailabilityDTO() { AvailabilityId = avail_0, StartTime = DateTime.Today.AddDays(2).AddHours(15), EndTime = DateTime.Today.AddDays(2).AddHours(18) },
                 new ListingAvailabilityDTO(){ AvailabilityId = avail_1, StartTime = DateTime.Today.AddDays(3).AddHours(8), EndTime = DateTime.Today.AddDays(3).AddHours(18) },
             };
-            
+
             //Act
             var actual = await _schedulingManager.FindListingAvailabiityByMonth(listingId, month, year).ConfigureAwait(false);
 
@@ -332,13 +330,13 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             {
                 new BookedTimeFrame()
                 {
-                    ListingId = invalidListingId,                 
-                    AvailabilityId = availabilityId, 
+                    ListingId = invalidListingId,
+                    AvailabilityId = availabilityId,
                     StartDateTime = DateTime.Today.AddDays(2).AddHours(11),
-                    EndDateTime = DateTime.Today.AddDays(2).AddHours(12) 
+                    EndDateTime = DateTime.Today.AddDays(2).AddHours(12)
                 },
             };
-            
+
             //Act
             var actual = await _schedulingManager.ReserveBooking(userId, invalidListingId, fullPrice, chosenTimeFrames).ConfigureAwait(false);
 
@@ -374,9 +372,9 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             {
                 new BookedTimeFrame(){
                     ListingId = listingId,
-                    AvailabilityId = availabilityId, 
+                    AvailabilityId = availabilityId,
                     StartDateTime = DateTime.Today.AddDays(2).AddHours(11),
-                    EndDateTime = DateTime.Today.AddDays(2).AddHours(12) 
+                    EndDateTime = DateTime.Today.AddDays(2).AddHours(12)
                 },
             };
             //Act
@@ -401,9 +399,9 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
                 new BookedTimeFrame()
                 {
                     ListingId = listingId,
-                    AvailabilityId = availabilityId, 
+                    AvailabilityId = availabilityId,
                     StartDateTime = DateTime.Today.AddDays(2).AddHours(11),
-                    EndDateTime = DateTime.Today.AddDays(2).AddHours(12) 
+                    EndDateTime = DateTime.Today.AddDays(2).AddHours(12)
                 },
             };
             int randomUserId = 0;
@@ -412,7 +410,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             var actual = await _schedulingManager.ReserveBooking(randomUserId, listingId, fullPrice, chosenTimeFrames).ConfigureAwait(false);
 
             //Assert
-            Assert.IsNotNull (actual);
+            Assert.IsNotNull(actual);
             Assert.IsFalse(actual.IsSuccessful);
 
         }
@@ -456,8 +454,8 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             Assert.IsFalse(actual.IsSuccessful);
         }
 
-            [TestMethod]
-        public async Task ReserveBooking_ChosenTimeFramesAlreadyBooked_Failed() 
+        [TestMethod]
+        public async Task ReserveBooking_ChosenTimeFramesAlreadyBooked_Failed()
         {
             // Arrange
             //  - Setup user and initial state
@@ -483,9 +481,9 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
                 new BookedTimeFrame()
                 {
                     ListingId = listingId,
-                    AvailabilityId = availabilityId, 
+                    AvailabilityId = availabilityId,
                     StartDateTime = DateTime.Today.AddDays(2).AddHours(9),
-                    EndDateTime = DateTime.Today.AddDays(2).AddHours(11) 
+                    EndDateTime = DateTime.Today.AddDays(2).AddHours(11)
                 },
             };
             //Act
@@ -515,7 +513,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             }
             //  - Setup test data
             var testData = await SetUpTestData().ConfigureAwait(false);
-            int listingId = (int) testData["ListingId"];
+            int listingId = (int)testData["ListingId"];
             int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId!;
             float fullPrice = 100;
             List<BookedTimeFrame> chosenTimeFrames = new()
@@ -523,9 +521,9 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
                 new BookedTimeFrame()
                 {
                     ListingId = listingId,
-                    AvailabilityId = availabilityId, 
+                    AvailabilityId = availabilityId,
                     StartDateTime = DateTime.Today.AddDays(2).AddHours(11),
-                    EndDateTime = DateTime.Today.AddDays(2).AddHours(12) 
+                    EndDateTime = DateTime.Today.AddDays(2).AddHours(12)
                 },
             };
 
@@ -559,7 +557,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             var testData = await SetUpTestData().ConfigureAwait(false);
             int listingId = (int)testData["ListingId"];
             int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId!;
-            
+
             List<BookedTimeFrame> chosenTimeFrames = new()
             {
                 new BookedTimeFrame()
@@ -588,7 +586,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             int userId = ((Booking)testData["Booking"]).UserId;
             int listingId = (int)testData["ListingId"];
             int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId!;
-            
+
             List<BookedTimeFrame> chosenTimeFrames = new()
             {
                 new BookedTimeFrame()
@@ -617,7 +615,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
             int userId = ((Booking)testData["Booking"]).UserId;
             int listingId = (int)testData["ListingId"];
             int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId!;
-            
+
             int nonExistingBookingId = 0;
             //Act
             var actual = await _schedulingManager.CancelBooking(userId, nonExistingBookingId).ConfigureAwait(false);
@@ -654,9 +652,9 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
                 new BookedTimeFrame()
                 {
                     ListingId = listingId,
-                    AvailabilityId = availabilityId, 
+                    AvailabilityId = availabilityId,
                     StartDateTime = DateTime.Today.AddDays(2).AddHours(11),
-                    EndDateTime = DateTime.Today.AddDays(2).AddHours(12) 
+                    EndDateTime = DateTime.Today.AddDays(2).AddHours(12)
                 },
             };
 
@@ -719,43 +717,43 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Manager
         [TestMethod]
         public async Task GetBookingDetails()
         {
-			// Arrange
-			//  - Setup user and initial state
-			var credentialEmail = "test@gmail.com";
-			var credentialPassword = "12345678";
-			await _registrationManager.Register(credentialEmail, credentialPassword).ConfigureAwait(false);
-			var userIdResult = await _userAccountDataAccess.GetId(credentialEmail).ConfigureAwait(false);
-			var userId = userIdResult.Payload;
+            // Arrange
+            //  - Setup user and initial state
+            var credentialEmail = "test@gmail.com";
+            var credentialPassword = "12345678";
+            await _registrationManager.Register(credentialEmail, credentialPassword).ConfigureAwait(false);
+            var userIdResult = await _userAccountDataAccess.GetId(credentialEmail).ConfigureAwait(false);
+            var userId = userIdResult.Payload;
 
-			var accessTokenResult = await _authorizationService.GenerateAccessToken(userId, false).ConfigureAwait(false);
-			var idTokenResult = _authenticationService.GenerateIdToken(userId, accessTokenResult.Payload!);
-			if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
-			{
-				_testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
+            var accessTokenResult = await _authorizationService.GenerateAccessToken(userId, false).ConfigureAwait(false);
+            var idTokenResult = _authenticationService.GenerateIdToken(userId, accessTokenResult.Payload!);
+            if (accessTokenResult.IsSuccessful && idTokenResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
 
-			}
-			//  - Setup test data
-			var testData = await SetUpTestData().ConfigureAwait(false);
-			int listingId = (int)testData["ListingId"];
-			int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId!;
-			float fullPrice = 100;
-			List<BookedTimeFrame> chosenTimeFrames = new()
-			{
-				new BookedTimeFrame(){ListingId = listingId, AvailabilityId = availabilityId, StartDateTime = DateTime.Today.AddDays(2).AddHours(11),EndDateTime = DateTime.Today.AddDays(2).AddHours(12) },
-			};
+            }
+            //  - Setup test data
+            var testData = await SetUpTestData().ConfigureAwait(false);
+            int listingId = (int)testData["ListingId"];
+            int availabilityId = (int)((List<ListingAvailability>)testData["ListingAvailabilities"])[0].AvailabilityId!;
+            float fullPrice = 100;
+            List<BookedTimeFrame> chosenTimeFrames = new()
+            {
+                new BookedTimeFrame(){ListingId = listingId, AvailabilityId = availabilityId, StartDateTime = DateTime.Today.AddDays(2).AddHours(11),EndDateTime = DateTime.Today.AddDays(2).AddHours(12) },
+            };
 
-			// reserve a booking
-			var reserveBooking = await _schedulingManager.ReserveBooking(userId, listingId, fullPrice, chosenTimeFrames).ConfigureAwait(false);
-			int bookingId = reserveBooking.Payload!.BookingId;
-			var cancelBooking = await _schedulingManager.CancelBooking(userId, bookingId).ConfigureAwait(false);
+            // reserve a booking
+            var reserveBooking = await _schedulingManager.ReserveBooking(userId, listingId, fullPrice, chosenTimeFrames).ConfigureAwait(false);
+            int bookingId = reserveBooking.Payload!.BookingId;
+            var cancelBooking = await _schedulingManager.CancelBooking(userId, bookingId).ConfigureAwait(false);
 
-			//Act
-			var actual = await _schedulingManager.GetBookingDetails(userId, bookingId).ConfigureAwait(false);
+            //Act
+            var actual = await _schedulingManager.GetBookingDetails(userId, bookingId).ConfigureAwait(false);
 
-			//Assert
-			Assert.IsNotNull(actual);
-			Assert.IsTrue(actual.IsSuccessful);
+            //Assert
+            Assert.IsNotNull(actual);
+            Assert.IsTrue(actual.IsSuccessful);
             Assert.IsTrue(actual.Payload!.GetType() == typeof(BookingViewDTO));
-		}
+        }
     }
 }

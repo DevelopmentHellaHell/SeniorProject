@@ -4,18 +4,12 @@ using DevelopmentHell.Hubba.Models.DTO;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
     public class ListingsDataAccess : IListingsDataAccess
     {
-        
+
         private readonly InsertDataAccess _insertDataAccess;
         private readonly UpdateDataAccess _updateDataAccess;
         private readonly SelectDataAccess _selectDataAccess;
@@ -290,27 +284,28 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return result;
         }
 
-        public async Task<Result<List<Dictionary<string, object>>>> Curate(int offset = 0) {
-			var result = await _executeDataAccess.Execute("CurateListings", new Dictionary<string, object>() {
-				{ "Offset", offset },
-			}).ConfigureAwait(false);
+        public async Task<Result<List<Dictionary<string, object>>>> Curate(int offset = 0)
+        {
+            var result = await _executeDataAccess.Execute("CurateListings", new Dictionary<string, object>() {
+                { "Offset", offset },
+            }).ConfigureAwait(false);
 
-			return result;
-		}
+            return result;
+        }
 
-		public async Task<Result<List<Dictionary<string, object>>>> Search(string query, int offset = 0, double FTTWeight = 0.5, double RWeight = 0.25, double RCWeight = 0.25)
-		{
-			var result = await _executeDataAccess.Execute("SearchListings", new Dictionary<string, object>()
-			{
-				{ "Query", query },
-				{ "Offset", offset },
-				{ "FTTableRankWeight", FTTWeight },
-				{ "RatingsRankWeight", RWeight },
-				{ "RatingsCountRankWeight", RCWeight },
-			}).ConfigureAwait(false);
+        public async Task<Result<List<Dictionary<string, object>>>> Search(string query, int offset = 0, double FTTWeight = 0.5, double RWeight = 0.25, double RCWeight = 0.25)
+        {
+            var result = await _executeDataAccess.Execute("SearchListings", new Dictionary<string, object>()
+            {
+                { "Query", query },
+                { "Offset", offset },
+                { "FTTableRankWeight", FTTWeight },
+                { "RatingsRankWeight", RWeight },
+                { "RatingsCountRankWeight", RCWeight },
+            }).ConfigureAwait(false);
 
-			return result;
-		}
+            return result;
+        }
 
         public async Task<Result> UnpublishListing(int listingId)
         {
@@ -328,13 +323,13 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             return updateResult;
         }
-        public async Task<Result<List<Reservations>>> GetReservationsSearch(int ownerID, string query)
+        public async Task<Result<List<BookingHistory>>> GetBookingHistorySearch(int userId, string query)
         {
-            List<Reservations> result = new List<Reservations>();
-            var queryResult = await _executeDataAccess.Execute("SearchListingHistory", new Dictionary<string, object>()
+            List<BookingHistory> result = new List<BookingHistory>();
+            var queryResult = await _executeDataAccess.Execute("SearchBookingHistory", new Dictionary<string, object>()
             {
                 {"Query", query },
-                {"UserId", ownerID}
+                {"UserId", userId}
             }).ConfigureAwait(false);
 
             if (!queryResult.IsSuccessful)
@@ -347,16 +342,18 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
             foreach (var row in queryResult.Payload)
             {
-                result.Add(new Reservations()
+                result.Add(new BookingHistory()
                 {
-                    OwnerId = (int)row[nameof(Reservations.OwnerId)],
-                    UserId = (int)row[nameof(Reservations.UserId)],
-                    ListingId = (int)row[nameof(Reservations.ListingId)],
-                    Title = (string)row[nameof(Reservations.Title)]
+                    BookingId = (int)row[nameof(BookingHistory.BookingId)],
+                    ListingId = (int)row[nameof(BookingHistory.ListingId)],
+                    FullPrice = decimal.ToDouble((decimal)row[nameof(BookingHistory.FullPrice)]),
+                    BookingStatusId = (int)row[nameof(BookingHistory.BookingStatusId)],
+                    Title = (string)row[nameof(BookingHistory.Title)],
+                    Location = (string)row[nameof(BookingHistory.Location)]
                 });
             }
 
-            return Result<List<Reservations>>.Success(result);
+            return Result<List<BookingHistory>>.Success(result);
         }
     }
 }

@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using DevelopmentHell.Hubba.Models;
-using Microsoft.AspNetCore.Http;
-using DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions;
+﻿using DevelopmentHell.Hubba.Models;
 
 namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions
 {
@@ -34,8 +26,9 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions
         Task<Result<List<CommentReport>>> GetAllCommentReports();
         Task<Result<List<CommentReport>>> GetCommentReports(long commentId);
         Task<Result<double>> LikeShowcase(string showcaseId);
-        Task<Result<string>> CreateShowcase(int listingId, string title, string description, List<Tuple<string,string>> files);
-        Task<Result> EditShowcase(string showcaseId, int? listingId, string? title, string? description, List<Tuple<string,string>>? files);
+        Task<Result<string>> CreateShowcase(int listingId, string title, string description, List<Tuple<string, string>> files);
+        Task<Result> EditShowcase(string showcaseId, int? listingId, string? title, string? description, List<Tuple<string, string>>? files);
+        Task<Result> OrderShowcase(string showcaseId, string order);
         Task<Result> DeleteShowcase(string showcaseId);
         Task<Result> Publish(string showcaseId, int? listingId);
         Task<Result> Unpublish(string showcaseId);

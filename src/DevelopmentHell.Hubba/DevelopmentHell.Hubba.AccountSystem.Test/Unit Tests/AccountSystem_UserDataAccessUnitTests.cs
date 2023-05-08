@@ -1,4 +1,6 @@
-﻿using Development.Hubba.JWTHandler.Service.Abstractions;
+﻿using System.Configuration;
+using System.Security.Claims;
+using Development.Hubba.JWTHandler.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
 using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
 using DevelopmentHell.Hubba.Authentication.Service.Implementations;
@@ -12,19 +14,10 @@ using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Manager.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
-using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.AccountSystem.Test.Unit_Tests
 {
@@ -43,7 +36,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Unit_Tests
         private readonly AuthenticationManager _authenticationManager;
         private readonly TestingService _testingService;
 
-        public AccountSystem_UserDataAccessUnitTests() 
+        public AccountSystem_UserDataAccessUnitTests()
         {
             LoggerService loggerService = new LoggerService(
                 new LoggerDataAccess(
@@ -176,7 +169,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Unit_Tests
             var updateResult = await _userAccountDataAccess.SaveEmailAlterations(newAccountId, newEmail);
             var getResult = await _userAccountDataAccess.GetId(newEmail).ConfigureAwait(false);
             int userId = getResult.Payload;
-            
+
             // Assert
             Assert.IsTrue(updateResult.IsSuccessful);
             Assert.AreEqual(userId, newAccountId);
@@ -261,7 +254,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Unit_Tests
             Result<HashData> hashData = _cryptographyService.HashString(password, salt);
             var passwordHash = Convert.ToBase64String(hashData.Payload!.Hash!);
 
-            
+
             // Assert 
             Assert.IsTrue(updateResult.IsSuccessful);
             Assert.AreNotEqual(newHashPassword, getHash);

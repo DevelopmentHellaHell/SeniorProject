@@ -1,0 +1,41 @@
+.booking-history-container {
+    position: relative;;
+    padding-left: 2rem;
+    padding-bottom: 4rem;
+}
+.booking-history-wrapper {
+    color: rgb(var(--primary-text-dark));
+    text-align: left;
+    padding-bottom: 2.5rem;
+}
+.filters-wrapper {
+    display: flex;
+    justify-content: right;
+    padding-bottom: 1rem;
+}
+.filters{
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: right;
+    width: 600px;
+}
+.table-listing-title p{
+    cursor: pointer;
+    text-align: left;
+}
+.table-listing-title:hover {
+    color: rgb(var(--secondary-text-dark));
+    text-decoration: underline;
+}
+.actions-wrapper {
+    padding: 1rem;
+}
+.actions {
+    display: flex;
+    justify-content: left;
+}
+.h-stack {
+    display: flex;
+    gap: 5px;
+}

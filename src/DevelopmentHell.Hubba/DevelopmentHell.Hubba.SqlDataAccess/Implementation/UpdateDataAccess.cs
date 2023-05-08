@@ -1,6 +1,6 @@
-﻿using DevelopmentHell.Hubba.Models;
+﻿using System.Text;
+using DevelopmentHell.Hubba.Models;
 using Microsoft.Data.SqlClient;
-using System.Text;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 {

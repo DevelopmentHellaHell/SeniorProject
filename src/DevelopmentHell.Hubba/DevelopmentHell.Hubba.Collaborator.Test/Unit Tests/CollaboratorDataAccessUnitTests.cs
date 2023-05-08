@@ -1,4 +1,6 @@
-﻿using Development.Hubba.JWTHandler.Service.Abstractions;
+﻿using System.Configuration;
+using System.Security.Claims;
+using Development.Hubba.JWTHandler.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
 using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
 using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
@@ -6,7 +8,6 @@ using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Implementations;
 using DevelopmentHell.Hubba.Collaborator.Service.Abstractions;
-using DevelopmentHell.Hubba.Collaborator.Service.Implementations;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
 using DevelopmentHell.Hubba.Email.Service.Implementations;
@@ -20,18 +21,10 @@ using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
-using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.Collaborator.Test.Unit_Tests
 {
@@ -374,11 +367,11 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Unit_Tests
         {
             return new CollaboratorProfile()
             {
-                Name="Test",
-                ContactInfo="Test street",
-                Description="Testing",
-                CollabUrls=new List<string>() { "www.example.com"},
-                Published=true,
+                Name = "Test",
+                ContactInfo = "Test street",
+                Description = "Testing",
+                CollabUrls = new List<string>() { "www.example.com" },
+                Published = true,
             };
         }
 

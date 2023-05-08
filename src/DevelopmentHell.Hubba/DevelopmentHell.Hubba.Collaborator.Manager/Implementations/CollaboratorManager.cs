@@ -1,14 +1,11 @@
-﻿using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
+﻿using System.Security.Claims;
 using DevelopmentHell.Hubba.Collaborator.Manager.Abstractions;
 using DevelopmentHell.Hubba.Collaborator.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.WebAPI.DTO.Collaborator;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Identity.Client;
-using System.Security.Claims;
 using IAuthorizationService = DevelopmentHell.Hubba.Authorization.Service.Abstractions.IAuthorizationService;
 
 namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
@@ -21,7 +18,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
         private ICollaboratorService _collaboratorService;
 
 
-        public CollaboratorManager(ICollaboratorService collaboratorService, IAuthorizationService authorizationService, 
+        public CollaboratorManager(ICollaboratorService collaboratorService, IAuthorizationService authorizationService,
             ILoggerService loggerService, IValidationService validationService)
         {
             _authorizationService = authorizationService;
@@ -102,12 +99,12 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             {
                 return new(Result.Failure("Unable to create collaborator. No files uploaded.", StatusCodes.Status412PreconditionFailed));
             }
-            if(collabDTO.UploadedFiles.Length > 10)
+            if (collabDTO.UploadedFiles.Length > 10)
             {
                 return new(Result.Failure("Unable to create collaborator. More than 10 files uploaded.", StatusCodes.Status412PreconditionFailed));
             }
             // check if collaborator files are valid
-            foreach(var file in collabDTO.UploadedFiles)
+            foreach (var file in collabDTO.UploadedFiles)
             {
                 var validImageResult = _validationService.ValidateImageFile(file);
                 if (!validImageResult.IsSuccessful)
@@ -180,7 +177,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             // get ownerid of collaborator
             var getCollabAccountId = await _collaboratorService.GetOwnerId(collabId).ConfigureAwait(false);
 
-            if(!getCollabAccountId.IsSuccessful)
+            if (!getCollabAccountId.IsSuccessful)
             {
                 _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Could not find owner id of collaborator.");
                 return new(Result.Failure("Unable to delete collaborator. Could not find owner of collaborator profile. " +
@@ -202,7 +199,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             }
 
             var deletionResult = await _collaboratorService.DeleteCollaborator(collabId).ConfigureAwait(false);
-            if(!(deletionResult.IsSuccessful))
+            if (!(deletionResult.IsSuccessful))
             {
                 _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Unable to delete collaborator.");
                 return new(Result.Failure("Unable to delete collaborator. " +
@@ -237,14 +234,14 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             int.TryParse(accountIDStr, out int accountIdInt);
 
             var getCollabAccountId = await _collaboratorService.GetOwnerId(collabId).ConfigureAwait(false);
-            if(!getCollabAccountId.IsSuccessful)
+            if (!getCollabAccountId.IsSuccessful)
             {
                 _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Unable to find owner id of collaborator for removal.");
                 return new(Result.Failure("Profile removal failed. Unable to find associated collaborator profile. " +
                     "Refresh page or try again later.", StatusCodes.Status404NotFound));
             }
             int ownerId = getCollabAccountId.Payload;
-            
+
             // check if the user is authorized to delete
             Result authorizationResult = _authorizationService.Authorize(new string[] { "AdminUser" });
             if (!(authorizationResult.IsSuccessful) && ownerId != accountIdInt)
@@ -282,13 +279,13 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             int.TryParse(accountIDStr, out int accountIdInt);
 
             var getCollaboratorId = await _collaboratorService.GetCollaboratorId(accountIdInt).ConfigureAwait(false);
-            if(!getCollaboratorId.IsSuccessful)
+            if (!getCollaboratorId.IsSuccessful)
             {
                 _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Unable to find collaborator for removal.");
                 return new(Result.Failure("Profile removal failed. Unable to collaborator profile. " +
                     "Refresh page or try again later.", StatusCodes.Status412PreconditionFailed));
             }
-            if(getCollaboratorId.Payload == null)
+            if (getCollaboratorId.Payload == null)
             {
                 _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Account has no collaborator to remove.");
                 return new(Result.Failure("Profile removal failed. Account has no collaborator profile. " +
@@ -405,7 +402,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             int uploadedCount = 0;
             int removedCount = 0;
             if (collabFiles != null)
-                 uploadedCount = collabFiles.Length;
+                uploadedCount = collabFiles.Length;
             if (removedFiles != null)
                 removedCount = removedFiles.Length;
 
@@ -454,7 +451,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             {
                 return new(Result.Failure("A minimum of 1 file needs to be stored on the server to display a collaborator profile, " +
                     "excluding the profile picture.", StatusCodes.Status412PreconditionFailed));
-             
+
             }
 
             var validateCollab = _validationService.ValidateCollaboratorAllowEmptyFiles(collab);
@@ -509,7 +506,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
                 return new(Result.Failure("Profile failed to load. " +
                     "Refresh page or try again later.", StatusCodes.Status500InternalServerError));
             }
-            if(getCollabResult.Payload == null)
+            if (getCollabResult.Payload == null)
             {
                 _loggerService.Log(Models.LogLevel.ERROR, Category.BUSINESS, "Cannot find collaborator.");
                 return new(Result.Failure("Profile failed to load. Could not find collaborator profile. " +
@@ -517,7 +514,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
             }
 
             // check if the profile is publicly visible
-            if(!getCollabResult.Payload!.Published)
+            if (!getCollabResult.Payload!.Published)
             {
                 // check if this is the owner
                 var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
@@ -639,8 +636,9 @@ namespace DevelopmentHell.Hubba.Collaborator.Manager.Implementations
                 return new(Result.Failure("Vote error. " + voteResult.ErrorMessage +
                     " Refresh page or try again later.", StatusCodes.Status500InternalServerError));
             }
-            return new Result() { 
-                IsSuccessful= true,
+            return new Result()
+            {
+                IsSuccessful = true,
                 StatusCode = StatusCodes.Status202Accepted
             };
 

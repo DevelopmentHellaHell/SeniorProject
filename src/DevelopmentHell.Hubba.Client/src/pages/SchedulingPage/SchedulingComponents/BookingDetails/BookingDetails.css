@@ -39,10 +39,16 @@
     color: rgb(var(--primary-text-dark));
 }
 
-.confirmation-card .h2 {
+.confirmation-card .listing {
     font-size: 18px;
     font-weight: 400;
     color: rgb(var(--primary-text-dark));
+}
+
+.confirmation-card .listing:hover {
+    color: rgb(var(--secondary-text-dark));
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 .details {
@@ -60,6 +66,11 @@
 .details .info {
     padding-left: 20px;
     justify-content: center;
+}
+
+.info .success {
+    color: rgb(var(--success-text));
+    font-weight: 700;
 }
 
 .info-bold {

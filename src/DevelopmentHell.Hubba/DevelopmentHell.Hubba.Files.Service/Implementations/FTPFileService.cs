@@ -1,7 +1,6 @@
-﻿using System.Net;
-using DevelopmentHell.Hubba.Files.Service.Abstractions;
-using DevelopmentHell.Hubba.Models;
+﻿using DevelopmentHell.Hubba.Files.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
+using DevelopmentHell.Hubba.Models;
 using FluentFTP;
 using FluentFTP.Exceptions;
 using FluentFTP.Helpers;
@@ -22,8 +21,8 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
         private readonly AsyncFtpClient _ftpClient;
         public FTPFileService(string ftpServer, string ftpUsername, string ftpPassword, ILoggerService loggerService)
         {
-            _ftpServer = "ftp://"+ftpServer;
-            _httpServer = "http://"+ftpServer;
+            _ftpServer = "ftp://" + ftpServer;
+            _httpServer = "http://" + ftpServer;
             _ftpUsername = ftpUsername;
             _ftpPassword = ftpPassword;
             _loggerService = loggerService;
@@ -87,7 +86,7 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
         {
             if (await _ftpClient.FileExists(filePath))
             {
-                return Result<string>.Success(_httpServer+"/"+filePath);
+                return Result<string>.Success(_httpServer + "/" + filePath);
             }
             return new(Result.Failure("Failed to Check for file existence"));
         }
@@ -113,7 +112,7 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
         public async Task<Result> UploadDir(string dirPath, List<Tuple<string, byte[]>> fileNameData)
         {
             bool passed = true;
-            foreach(var file in fileNameData)
+            foreach (var file in fileNameData)
             {
                 var status = await _ftpClient.UploadBytes(file.Item2, dirPath + "/" + file.Item1);
                 if (status.IsFailure())
@@ -146,6 +145,12 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
                 return new(Result.Failure($"Upload failed: {status.ToString()}"));
             }
             return Result.Success();
+        }
+
+
+        public Task<Result> RenameFile(string filePath, string fileName, string newFileName)
+        {
+            throw new NotImplementedException();
         }
     }
 }

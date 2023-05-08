@@ -63,11 +63,11 @@ const EditProjectShowcaseCommentPage: React.FC<IEditProjectShowcaseCommentPagePr
                     setLoaded(true);
                     setShowcaseId(result.data?.showcaseId.toString() ?? "");
                 } else {
-                    setError(result.error);
+                    setError("Unable to load comment.");
                 }
             })
             .catch((error) => {
-                setError(error);
+                setError("Database failed to respond.");
             });
     }, []);
 
@@ -94,11 +94,11 @@ const EditProjectShowcaseCommentPage: React.FC<IEditProjectShowcaseCommentPagePr
                                         if (!result.error) {
                                             navigate(`/showcases/p/view?s=${showcaseId}`);
                                         } else {
-                                            setError(result.error);
+                                            setError("Project showcase comment was not edited.");
                                         }
                                     })
                                     .catch((error) => {
-                                        setError(error);
+                                        setError("Database failed to respond.");
                                     });
                             }} />
                         </div>
@@ -107,7 +107,7 @@ const EditProjectShowcaseCommentPage: React.FC<IEditProjectShowcaseCommentPagePr
                     
                 </div>
             </div>
-            <p className='error-output'>{error ? error + " please try again later" : ""}</p>
+            <p className='error-output'>{error ? error + " Refresh page or try again later." : ""}</p>
             <Footer />
         </div>
     );

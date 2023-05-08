@@ -1,4 +1,5 @@
-﻿using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
+﻿using System.Configuration;
+using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
@@ -10,7 +11,6 @@ using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using System.Configuration;
 
 namespace DevelopmentHell.Hubba.AccountDeletion.Test.Integration_Tests
 {

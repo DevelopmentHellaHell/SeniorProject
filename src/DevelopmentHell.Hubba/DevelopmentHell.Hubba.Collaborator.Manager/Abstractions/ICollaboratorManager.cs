@@ -1,7 +1,6 @@
 ﻿
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.WebAPI.DTO.Collaborator;
-using Microsoft.AspNetCore.Http;
 
 namespace DevelopmentHell.Hubba.Collaborator.Manager.Abstractions
 {

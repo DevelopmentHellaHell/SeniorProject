@@ -1,7 +1,6 @@
 ﻿using DevelopmentHell.Hubba.Models;
-using Microsoft.AspNetCore.Http;
 using DevelopmentHell.Hubba.Models.DTO;
-using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Http;
 
 namespace DevelopmentHell.Hubba.Validation.Service.Abstractions
 {

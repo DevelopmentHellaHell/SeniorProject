@@ -93,7 +93,6 @@ const CreateProjectShowcasePage: React.FC<ICreateProjectShowcasePageProps> = (pr
               if (fileDataList.length === files.length) {
                 // set state with the file data list
                 setFileData(fileDataList);
-                console.log("file data: ", fileDataList);
               }
       
               resolve();
@@ -103,13 +102,10 @@ const CreateProjectShowcasePage: React.FC<ICreateProjectShowcasePageProps> = (pr
           })));
           setProcCreate(true);
       
-          console.log("file data: ", fileDataList);
           const response = await Ajax.post<string>("/showcases/new", { files: fileDataList,  title: title, description: description, listingId:  listingId }).then(
             (response) => {
                 if (response.error) {
                     setError(response.error);
-                    console.log(response.error)
-                    console.log(response)
                     setProcCreate(false);
                   } else {
                     navigate(`/showcases/p/view?s=${response.data}`);
@@ -118,7 +114,6 @@ const CreateProjectShowcasePage: React.FC<ICreateProjectShowcasePageProps> = (pr
           );
         } catch (error) {
           //setError(error);
-          console.log(error);
         }
       };
 

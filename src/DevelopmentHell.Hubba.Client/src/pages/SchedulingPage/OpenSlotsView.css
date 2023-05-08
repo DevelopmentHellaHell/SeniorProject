@@ -12,20 +12,28 @@
 }
 
 .opentimeslots-view-container .opentimeslots-view-content .main-wrapper {
-  padding: 20px 20px;
+  padding: 0px 20px 20px 20px;
   color: rgb(var(--primary-text-dark));
   text-align: left;
+}
+.main-wrapper .wrapper-header {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+  font-size: 24px;
+  font-weight: 700;
+  padding-right: 20px;
+  padding-bottom: 20px;
 }
 
 .main-wrapper .second-wrapper {
   display: flex;
-  padding: 20px 20px;
+  padding: 20px 0px 20px 0px;
   color: rgb(var(--primary-text-dark));
   text-align: left;
 }
 
 .main-wrapper .second-wrapper .view-wrapper {
-  padding-left: 20px;
   padding-right: 20px;
   padding-bottom: 20px;
   color: rgb(var(--primary-text-dark));
@@ -33,7 +41,7 @@
 }
 
 .main-wrapper .second-wrapper .slots-card {
-  width: 250px;
+  width: fit-content;
   padding-bottom: 20px;
   color: rgb(var(--primary-text-dark));
   text-align: center;
@@ -43,6 +51,7 @@
 
 .main-wrapper .second-wrapper .slots-card .info {
   color: rgb(var(--secondary-text-dark));
+  padding: 0px 10px 0px 10px;
   justify-content: center;
 }
 
@@ -53,22 +62,23 @@
 
 .main-wrapper .second-wrapper .slots-card .halfdaywrapper {
   display: flex;
-  flex-direction: row;
-  padding-left: 20px;
-  padding-right: 20px;
-  padding-bottom: 10px;
+  flex-direction: column;
+  padding: 20px 20px 0px 20px;
   justify-content: center;
 }
 
 .main-wrapper .second-wrapper .slots-card .halfdaywrapper .halfday {
   display: flex;
-  flex-flow: column;
-  padding-bottom: 10px
+  flex-flow: row wrap;
+  padding-left: 20px;
+  padding-bottom: 30px;
+  justify-content: left;
+}
+.halfday>* {
+  flex: 0 0 15%;
 }
 
 .main-wrapper .second-wrapper .slots-card .halfdaywrapper .halfday .buttons {
-  display: flex;
-  flex-direction: column;
   justify-content: center;
   padding-left: 3px;
   padding-right: 3px;
@@ -130,10 +140,6 @@
 .calendar .header .text{
   width: 220px;
   font-size: 28px;
-}
-
-.calendar .header .buttons{
-  
 }
 
 .calendar .month {
@@ -218,6 +224,10 @@
 .details .info {
   padding-left: 20px;
   justify-content: center;
+}
+.info .success {
+  color: rgb(var(--success-text));
+  font-weight: 700;
 }
 .info-bold {
   display: flex;

@@ -81,7 +81,7 @@ const ListingProjectShowcasesPage: React.FC<IListingProjectShowcasePageProps> = 
             setData(response.data);
         }
         else {
-            setError("Failed to load project showcases.");
+            setError("Unable to load project showcases. Refresh page or try again later.");
         }
     }
 

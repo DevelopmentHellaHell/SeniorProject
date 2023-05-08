@@ -1,4 +1,6 @@
-﻿using Development.Hubba.JWTHandler.Service.Abstractions;
+﻿using System.Configuration;
+using System.Security.Claims;
+using Development.Hubba.JWTHandler.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
 using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
 using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
@@ -19,8 +21,6 @@ using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using System.Configuration;
-using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.Authentication.Test
 {

@@ -1,12 +1,11 @@
-﻿using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.Models.DTO;
+﻿using System.Configuration;
+using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Scheduling.Service.Abstractions;
 using DevelopmentHell.Hubba.Scheduling.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
-using System.Configuration;
 
 namespace DevelopmentHell.Hubba.Scheduling.Test.Service
 {
@@ -17,7 +16,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
         private readonly IListingsDataAccess _listingDAO;
         private readonly IListingAvailabilitiesDataAccess _listingAvailabilityDAO;
         private readonly IListingHistoryDataAccess _listingHistoryDAO;
-        
+
         private readonly IBookingsDataAccess _bookingDAO;
         private readonly IBookedTimeFramesDataAccess _bookedTimeFrameDAO;
 
@@ -81,7 +80,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
                         EndTime = DateTime.Today.AddDays(3).AddHours(20)
                     }
                 };
-            
+
 
             // create Listing Availability
             var createAvailability = await _listingAvailabilityDAO.AddListingAvailabilities(listingAvailabilities).ConfigureAwait(false);
@@ -289,7 +288,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.Service
                 BookingStatusId = BookingStatus.CONFIRMED,
                 CreationDate = DateTime.Now,
                 LastEditUser = 1,
-                TimeFrames = new List < BookedTimeFrame > ()
+                TimeFrames = new List<BookedTimeFrame>()
                 {
                     new BookedTimeFrame()
                     {

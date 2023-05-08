@@ -125,7 +125,6 @@ const DiscoverPage: React.FC<IDiscoverPageProps> = (props) => {
             //         Title: "Empty",
             //         TotalRatings: 0,
             //     }, 5);
-            //     console.log(response.data);
             //     fill(response.data.collaborators, {
             //         CollaboratorId: -1,
             //         Name: "Empty",

@@ -1,6 +1,4 @@
-﻿using DevelopmentHell.Hubba.Models;
-
-namespace DevelopmentHell.Hubba.WebAPI.DTO.Scheduling
+﻿namespace DevelopmentHell.Hubba.WebAPI.DTO.Scheduling
 {
     public class ReserveDTO
     {

@@ -1,4 +1,6 @@
-﻿using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
+﻿using System.Configuration;
+using System.Security.Claims;
+using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Files.Service.Abstractions;
 using DevelopmentHell.Hubba.ListingProfile.Service.Abstractions;
@@ -8,12 +10,6 @@ using DevelopmentHell.Hubba.Models.DTO;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.ListingProfile.Manager.Abstractions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing.Constraints;
-using Microsoft.AspNetCore.StaticFiles;
-using System.ComponentModel.DataAnnotations;
-using System.Configuration;
-using System.Data;
-using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
 {
@@ -127,9 +123,9 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 Console.WriteLine(getUserListingsResult.ErrorMessage);
                 return new(Result.Failure("Unable to retrieve user listings.", StatusCodes.Status400BadRequest));
             }
-            
+
             var payload = getUserListingsResult.Payload;
-            return Result<List<ListingViewDTO>>.Success(payload);
+            return Result<List<ListingViewDTO>>.Success(payload!);
         }
 
         public async Task<Result<Dictionary<string, object>>> ViewListing(int listingId)
@@ -163,7 +159,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                     return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
                 }
             }
-            
+
             payload.Add("Listing", getListingResult.Payload);
 
             //get availabilities
@@ -172,7 +168,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             {
                 return new(Result.Failure(getListingResult.ErrorMessage!, StatusCodes.Status400BadRequest));
             }
-            payload.Add("Availabilities", getListingAvailabilityResult.Payload);
+            payload.Add("Availabilities", getListingAvailabilityResult.Payload!);
 
 
             //get files
@@ -182,14 +178,14 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             {
                 return new(Result.Failure(getPictureFiles.ErrorMessage!, StatusCodes.Status400BadRequest));
             }
-            files.AddRange(getPictureFiles.Payload);
+            files.AddRange(getPictureFiles.Payload!);
 
             Result<List<string>> getVideoFiles = await _fileService.GetFilesInDir("ListingProfiles/" + listingId + "/Videos").ConfigureAwait(false);
             if (!getVideoFiles.IsSuccessful)
             {
                 return new(Result.Failure(getVideoFiles.ErrorMessage!, StatusCodes.Status400BadRequest));
             }
-            files.AddRange(getVideoFiles.Payload);
+            files.AddRange(getVideoFiles.Payload!);
             payload.Add("Files", files);
 
             //get rating comments
@@ -198,7 +194,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             {
                 return new(Result.Failure(getListingRatingsResult.ErrorMessage!, StatusCodes.Status400BadRequest));
             }
-            payload.Add("Ratings", getListingRatingsResult.Payload);
+            payload.Add("Ratings", getListingRatingsResult.Payload!);
 
             await _fileService.Disconnect().ConfigureAwait(false);
 
@@ -235,7 +231,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 var value = column.GetValue(listing);
                 if (value is null || column.Name == "ListingId" || column.Name == "OwnerId" || column.Name == "Title") continue;
 
-                
+
                 if (column.Name == "Description" || column.Name == "Location")
                 {
                     Result validationResult = _validationService.ValidateBodyText((string)value);
@@ -263,7 +259,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 return new(Result.Failure("Unable to check updated listing.", StatusCodes.Status400BadRequest));
             }
 
-            if (getUpdatedListing.Payload.Description is null || getUpdatedListing.Payload.Price is null || getUpdatedListing.Payload.Location is null)
+            if (getUpdatedListing.Payload?.Description is null || getUpdatedListing.Payload.Price is null || getUpdatedListing.Payload.Location is null)
             {
                 Result unpublish = await _listingsService.UnpublishListing(listing.ListingId).ConfigureAwait(false);
                 if (!unpublish.IsSuccessful)
@@ -277,7 +273,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
 
         public async Task<Result> EditListingAvailabilities(ListingAvailabilitiesReactDTO listingAvailabilities)
         {
-            //authorize
+            //authoriz
             if (!_authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" }).IsSuccessful)
             {
                 return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
@@ -293,7 +289,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             int userId = int.Parse(stringAccountId);
 
             //validate user is owner
-            if (userId != listingAvailabilities.reactAvailabilities[0].OwnerId)
+            if (listingAvailabilities.reactAvailabilities is null || listingAvailabilities.reactAvailabilities.Count == 0 || userId != listingAvailabilities.reactAvailabilities[0].OwnerId)
             {
                 return new(Result.Failure("Unauthorized user.", StatusCodes.Status400BadRequest));
             }
@@ -346,7 +342,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                     {
                         return new(Result.Failure(validationResult.ErrorMessage!, StatusCodes.Status400BadRequest));
                     }
-                }                
+                }
 
                 if (listingAvailability.Action == AvailabilityAction.Delete)
                 {
@@ -377,7 +373,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                     errorMessage += "Unable to add new listing availabilities.\n";
                 }
             }
-            
+
             //update listingavailabilties
             if (updateListingAvailabilities.Count > 0)
             {
@@ -401,14 +397,14 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
 
 
             }
-            
+
             if (errorFound)
             {
                 return new(Result.Failure(errorMessage, StatusCodes.Status400BadRequest));
             }
 
             Result<List<ListingAvailabilityViewDTO>> availabilitiesCheck = await _listingsService.GetListingAvailabilities(listingId).ConfigureAwait(false);
-            if (!availabilitiesCheck.IsSuccessful)
+            if (!availabilitiesCheck.IsSuccessful || availabilitiesCheck.Payload is null)
             {
                 return new(Result.Failure("Unable to check remaining availabilities", StatusCodes.Status400BadRequest));
             }
@@ -444,7 +440,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             Result<int> getListingOwnerIdResult = await _listingsService.GetListingOwnerId(listingId).ConfigureAwait(false);
             if (!getListingOwnerIdResult.IsSuccessful)
             {
-                return new(Result.Failure(getListingOwnerIdResult.ErrorMessage, StatusCodes.Status400BadRequest));
+                return new(Result.Failure(getListingOwnerIdResult.ErrorMessage!, StatusCodes.Status400BadRequest));
             }
 
             if (userId != getListingOwnerIdResult.Payload)
@@ -541,7 +537,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             }
 
             //get files
-            var filesStored = _fileService.GetFilesInDir("ListingProfiles/" + listingId + "/Pictures").Result.Payload.Count();
+            var filesStored = (await _fileService.GetFilesInDir("ListingProfiles/" + listingId + "/Pictures").ConfigureAwait(false)).Payload!.Count();
             if (filesStored == 0)
             {
                 return new(Result.Failure("Listing contains no pictures", StatusCodes.Status400BadRequest));
@@ -737,14 +733,14 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
             }
 
 
-            Result<List<string>> getFiles = await _fileService.GetFilesInDir("ListingProfiles/" + listingId +"/Pictures/").ConfigureAwait(false);
+            Result<List<string>> getFiles = await _fileService.GetFilesInDir("ListingProfiles/" + listingId + "/Pictures/").ConfigureAwait(false);
             if (!getFiles.IsSuccessful)
             {
                 return new(Result.Failure(getFiles.ErrorMessage!, StatusCodes.Status400BadRequest));
             }
 
             await _fileService.Disconnect().ConfigureAwait(false);
-            return Result<List<string>>.Success(getFiles.Payload);
+            return Result<List<string>>.Success(getFiles.Payload!);
         }
 
         public async Task<Result> EditListingFiles(int listingId, List<string>? deleteListingNames, List<Tuple<string, string>>? addListingFiles)
@@ -813,15 +809,9 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                             uploadErrorFound = true;
                         }
                     }
-                    catch (FluentFTP.Exceptions.FtpException ex)
-                    {
-                        // handle FluentFTP exceptions
-                        //fileUploadResults.ErrorMessage += "Failed to upload " + file.Key + Path.GetExtension(file.Key) + "\n";
-                        fileUploadResults.ErrorMessage += "Failed to upload";
-                        uploadErrorFound = true;
-                    }
                     catch (Exception ex)
                     {
+                        _loggerService.Error(Category.BUSINESS, ex.Message);
                         // handle other exceptions
                         //fileUploadResults.ErrorMessage += "Failed to upload " + file.Key + Path.GetExtension(file.Key) + "\n";
                         fileUploadResults.ErrorMessage += "Failed to upload";
@@ -842,15 +832,9 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                             uploadErrorFound = true;
                         }
                     }
-                    catch (FluentFTP.Exceptions.FtpException ex)
-                    {
-                        // handle FluentFTP exceptions
-                        //fileUploadResults.ErrorMessage += "Failed to upload " + file.Key + Path.GetExtension(file.Key) + "\n";
-                        fileUploadResults.ErrorMessage += "Failed to upload";
-                        uploadErrorFound = true;
-                    }
                     catch (Exception ex)
                     {
+                        _loggerService.Error(Category.BUSINESS, ex.Message);
                         // handle other exceptions
                         //fileUploadResults.ErrorMessage += "Failed to upload " + file.Key + Path.GetExtension(file.Key) + "\n";
                         fileUploadResults.ErrorMessage += "Failed to upload";
@@ -894,16 +878,16 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                 }
                 if (deleteErrorFound)
                 {
-                    return new(Result.Failure(fileDeleteResults.ErrorMessage, StatusCodes.Status400BadRequest));
+                    return new(Result.Failure(fileDeleteResults.ErrorMessage!, StatusCodes.Status400BadRequest));
                 }
 
-                picturesStored = _fileService.GetFilesInDir(dir + "Pictures/").Result.Payload.Count();
+                picturesStored = (await _fileService.GetFilesInDir(dir + "Pictures/").ConfigureAwait(false)).Payload!.Count();
                 if (picturesStored == 0)
                 {
                     Result unpublish = await _listingsService.UnpublishListing(listingId).ConfigureAwait(false);
                 }
             }
-            await  _fileService.Disconnect().ConfigureAwait(false);
+            await _fileService.Disconnect().ConfigureAwait(false);
 
             return Result.Success();
         }

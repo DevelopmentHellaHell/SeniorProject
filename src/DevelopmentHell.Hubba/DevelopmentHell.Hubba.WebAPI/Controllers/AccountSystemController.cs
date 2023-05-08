@@ -24,13 +24,13 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 {
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
-              
+
                 var result = await _accountSystemManager.VerifyAccount().ConfigureAwait(false);
                 if (!result.IsSuccessful)
                 {
                     return StatusCode(result.StatusCode, result.ErrorMessage);
                 }
-                
+
                 return StatusCode(result.StatusCode);
             }).ConfigureAwait(false);
         }
@@ -178,7 +178,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         [Route("cancelBooking")]
         public async Task<IActionResult> CancelBooking(CancelBookingDTO cancelBookingInfo)
         {
-            return await GuardedWorkload(async() =>
+            return await GuardedWorkload(async () =>
             {
                 if (!ModelState.IsValid)
                 {
@@ -186,7 +186,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 }
 
                 var result = await _accountSystemManager.CancelBooking(cancelBookingInfo.bookingId).ConfigureAwait(false);
-                if(!result.IsSuccessful) 
+                if (!result.IsSuccessful)
                 {
                     return StatusCode(result.StatusCode, result.ErrorMessage);
                 }
@@ -220,8 +220,8 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         }
 
         [HttpPost]
-        [Route("getReservations")]
-        public async Task<IActionResult> GetReservations(GetReservationsDTO reservationInfo)
+        [Route("getBookingHistorySearch")]
+        public async Task<IActionResult> GetBookingHistorySearch(GetReservationQueryDTO query)
         {
             return await GuardedWorkload(async () =>
             {
@@ -230,32 +230,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
 
-                var sort = reservationInfo.sort;
-                var reservationCount = reservationInfo.reservationCount;
-                var page = reservationInfo.page;
-
-                var result = await _accountSystemManager.GetReservations(sort!, reservationCount, page).ConfigureAwait(false);
-                if (!result.IsSuccessful)
-                {
-                    return StatusCode(result.StatusCode, result.ErrorMessage);
-                }
-
-                return StatusCode(result.StatusCode, result.Payload);
-            }).ConfigureAwait(false);
-        }
-
-        [HttpPost]
-        [Route("getReservationsQuery")]
-        public async Task<IActionResult> GetReservationsQuery(GetReservationQueryDTO query)
-        {
-            return await GuardedWorkload(async () =>
-            {
-                if (!ModelState.IsValid)
-                {
-                    return StatusCode(StatusCodes.Status400BadRequest);
-                }
-
-                var result = await _accountSystemManager.GetReservationsQuery(query.query!).ConfigureAwait(false);
+                var result = await _accountSystemManager.GetBookingHistorySearch(query.query!).ConfigureAwait(false);
                 if (!result.IsSuccessful)
                 {
                     return StatusCode(result.StatusCode, result.ErrorMessage);

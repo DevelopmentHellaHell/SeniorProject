@@ -1,6 +1,5 @@
 ﻿
 using DevelopmentHell.Hubba.Models;
-using Microsoft.AspNetCore.Http;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
 {

@@ -6,9 +6,6 @@ using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Models.DTO;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
-using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
-using Microsoft.AspNetCore.Http.Features;
-using System.Reflection;
 
 namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
 {
@@ -68,7 +65,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
                 return result;
             }
 
-            
+
             List<ListingViewDTO> listingDTOList = new();
             List<Listing> payload = getUserListingsResult.Payload!;
             foreach (Listing listing in payload)
@@ -84,13 +81,14 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
                     LastEdited = (DateTime)listing.LastEdited!,
                     Published = (bool)listing.Published!,
                 };
-                
+
                 double? value = null;
                 if (getOwnerAverageRatings.Payload is not null)
                 {
-                    if (getOwnerAverageRatings.Payload.TryGetValue(temp.ListingId, out double val)) {
+                    if (getOwnerAverageRatings.Payload.TryGetValue(temp.ListingId, out double val))
+                    {
                         value = val;
-                    }  
+                    }
                 }
                 temp.AverageRating = value;
 
@@ -180,7 +178,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
 
             result.IsSuccessful = true;
             List<ListingAvailabilityViewDTO> listingAvailabilitiesViewDTOList = new();
-            List<ListingAvailability> payload = getListingAvailabilitiesResult.Payload;
+            List<ListingAvailability> payload = getListingAvailabilitiesResult.Payload!;
             foreach (ListingAvailability listingAvailability in payload)
             {
                 ListingAvailabilityViewDTO temp = new ListingAvailabilityViewDTO()
@@ -298,7 +296,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Service.Implementations
 
 
             List<ListingRatingViewDTO> listingRatingDTOList = new();
-            List<ListingRating> payload = getListingRatingsResult.Payload;
+            List<ListingRating> payload = getListingRatingsResult.Payload!;
             foreach (ListingRating listingRating in payload)
             {
                 ListingRatingViewDTO temp = new ListingRatingViewDTO()

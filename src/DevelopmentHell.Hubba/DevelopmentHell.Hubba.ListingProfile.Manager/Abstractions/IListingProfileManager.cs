@@ -1,6 +1,5 @@
 ﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Models.DTO;
-using Microsoft.AspNetCore.Http;
 
 namespace DevelopmentHell.ListingProfile.Manager.Abstractions
 {
@@ -15,7 +14,7 @@ namespace DevelopmentHell.ListingProfile.Manager.Abstractions
 
         Task<Result> EditListingAvailabilities(ListingAvailabilitiesReactDTO listingAvailabilities);
 
-        Task<Result> EditListingFiles(int listingId, List<string> deleteFileNames, List<Tuple<string, string>> addListingFiles);
+        Task<Result> EditListingFiles(int listingId, List<string>? deleteFileNames, List<Tuple<string, string>>? addListingFiles);
 
         Task<Result> DeleteListing(int listingId);
 

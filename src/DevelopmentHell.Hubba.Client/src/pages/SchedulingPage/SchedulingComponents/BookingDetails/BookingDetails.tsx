@@ -25,12 +25,14 @@ const BookingDetails: React.FC<IBookingDetailsProp> = (props) => {
     const localeUSLanguage: string = "en-US";
     const localeUSCurrency: object = { style: "currency", currency: "USD" };
     const localeUSTime: object = { hour: "2-digit", minute: "2-digit" };
-   
+
     const { state } = useLocation();
     const [loaded, setLoaded] = useState(false);
     const [refresh, setRefresh] = useState(false);
     const [error, setError] = useState("");
     const [bookingDetailsData, setBookingDetailsData] = useState<IBookingDetails | null>(null);
+    const [cancelled, setCancelled] = useState(false);
+    const [cancellationConfirmed, setCancellationConfirmed] = useState(false);
 
     const navigate = useNavigate();
 
@@ -53,7 +55,7 @@ const BookingDetails: React.FC<IBookingDetailsProp> = (props) => {
             });
     };
     useEffect(() => {
-        getBookingDetails()
+        getBookingDetails();
     }, [])
 
     const renderSummary = (bookedTimeFrames: IBookedTimeFrame[]) => {
@@ -104,19 +106,69 @@ const BookingDetails: React.FC<IBookingDetailsProp> = (props) => {
                         <div className='h2'>
                             Confirmation number: {state.bookingId}
                         </div>
-                        <div className='h2'>Listing: {state.listingTitle}</div>
+                        <p>
+                            <div className='listing' onClick={() => (navigate("/viewlisting", { state: { listingId: state.listingId } }))}>
+                                <div>Listing: {state.listingTitle}</div>
+                                <div>Location: {state.listingLocation}</div>
+                            </div>
+                        </p>
+
                         {loaded && renderSummary(bookingDetailsData!.bookedTimeFrames)}
+
+                        {cancelled && !cancellationConfirmed &&
+                            <div className='info'>
+                                <p className='error'> You're about to cancel a booking. Once confirmed, this can't be undone. Are you sure? </p>
+                                <div className='buttons'>
+                                    <Button theme={ButtonTheme.HOLLOW_DARK} title="Yes" onClick={async () => {
+                                        const response = await Ajax.post("accountsystem/cancelbooking", { bookingId: state.bookingId });
+                                        if (!response.error) {
+                                            setCancellationConfirmed(true);
+                                        } else {
+                                            setCancelled(false);
+                                            onError(response.error);
+                                        }
+                                    }} />
+                                    <Button theme={ButtonTheme.DARK} title="No" onClick={() => navigate("/account", { state: { view: AccountViews.BOOKING_HISTORY } })} />
+                                </div>
+                            </div>
+                        }
+
+                        {!cancelled && !cancellationConfirmed &&
+                            <div className='buttons'>
+                                <Button theme={ButtonTheme.HOLLOW_DARK} title="Cancel Booking"
+                                    onClick={async () => {
+                                        setCancelled(true);
+                                        setError("");
+                                    }}
+                                />
+
+                                <Button title="Close" theme={ButtonTheme.DARK}
+                                    onClick={() => {
+                                        setRefresh(true);
+                                        navigate("/account", { state: { view: AccountViews.BOOKING_HISTORY } });
+                                    }}
+                                />
+                            </div>
+                        }
+
+                        {cancellationConfirmed && !error &&
+                            <div className='info'>
+                                <p className='success'>Booking cancelled.</p>
+                                <div className='buttons'>
+                                    <Button title="Close" theme={ButtonTheme.DARK}
+                                        onClick={() => {
+                                            setRefresh(true);
+                                            navigate("/account", { state: { view: AccountViews.BOOKING_HISTORY } });
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        }
                         {error &&
                             <div className="error">
                                 {error}
-                            </div>}
-
-                        <div className='buttons'>
-                            <Button title="Close" theme={ButtonTheme.DARK} onClick={() => {
-                                setRefresh(true);
-                                navigate("/account", { state: { view: AccountViews.BOOKING_HISTORY }})
-                            }} />
-                        </div>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>

@@ -1,13 +1,7 @@
-﻿using Azure;
-using DevelopmentHell.Hubba.Models;
+﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
@@ -54,7 +48,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             {
                 return new(Result.Failure(insertResult.ErrorMessage));
             }
-            
+
             return Result<int>.Success(insertResult.Payload);
         }
         /// <summary>
@@ -71,8 +65,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 deleteFilters.Add(new Comparator(filter.Item1, "=", filter.Item2));
             }
 
-            var deleteResult = await _deleteDataAccess.Delete( _tableName,deleteFilters).ConfigureAwait(false);
-            if(!deleteResult.IsSuccessful)
+            var deleteResult = await _deleteDataAccess.Delete(_tableName, deleteFilters).ConfigureAwait(false);
+            if (!deleteResult.IsSuccessful)
             {
                 return new(Result.Failure(deleteResult.ErrorMessage));
             }
@@ -84,7 +78,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// </summary>
         /// <param name="filters"></param>
         /// <returns>List<Booking> in Payload</returns>
-        public async Task<Result<List<Booking>>> GetBooking(List<Tuple<string,object>> filters)
+        public async Task<Result<List<Booking>>> GetBooking(List<Tuple<string, object>> filters)
         {
             if (filters.Count == 0)
             {
@@ -104,16 +98,16 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             List<Comparator> comparators = new();
             foreach (var filter in filters)
             {
-                comparators.Add(new Comparator(filter.Item1,"=", filter.Item2));
+                comparators.Add(new Comparator(filter.Item1, "=", filter.Item2));
             }
-            
+
 
             var selectResult = await _selectDataAccess.Select(
                 SQLManip.InnerJoinTables(
                     new Joiner(
-                        _tableName, 
-                        "BookingStatuses", 
-                        nameof(Booking.BookingStatusId), 
+                        _tableName,
+                        "BookingStatuses",
+                        nameof(Booking.BookingStatusId),
                         nameof(Booking.BookingStatusId))),
                 columns,
                 comparators
@@ -153,14 +147,14 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// </summary>
         /// <param name="booking"></param>
         /// <returns>Bool in Payload</returns>
-        public async Task<Result<bool>> UpdateBooking(Dictionary<string,object> values, List<Comparator> filters)
+        public async Task<Result<bool>> UpdateBooking(Dictionary<string, object> values, List<Comparator> filters)
         {
-            var  updateResult = await _updateDataAccess.Update (_tableName, filters, values).ConfigureAwait(false);
-            if(!updateResult.IsSuccessful)
+            var updateResult = await _updateDataAccess.Update(_tableName, filters, values).ConfigureAwait(false);
+            if (!updateResult.IsSuccessful)
             {
                 return new(Result.Failure(updateResult.ErrorMessage, updateResult.StatusCode));
             }
-            return new (Result.Success());
+            return new(Result.Success());
         }
 
         public async Task<Result<List<BookingHistory>>> GetBookingHistory(int userId, int bookingCount, int page)
@@ -183,7 +177,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     nameof(BookingHistory.Location)
                 },
                 new List<Comparator>()
-                { 
+                {
                     new Comparator("UserId", "=", userId)
                 },
                 "",
@@ -191,14 +185,14 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 bookingCount,
                 (page - 1) * bookingCount
             ).ConfigureAwait(false);
-            if (!selectResult.IsSuccessful || selectResult.Payload is null) 
+            if (!selectResult.IsSuccessful || selectResult.Payload is null)
             {
                 return new(Result.Failure("Booking Data Access Error"));
             }
 
             else
             {
-                foreach(var row in selectResult.Payload)
+                foreach (var row in selectResult.Payload)
                 {
                     result.Add(new BookingHistory()
                     {

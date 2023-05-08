@@ -162,7 +162,6 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
                     {getListItem(AccountViews.LOGIN_SECURITY, view)}
                     {getListItem(AccountViews.NOTIFICATION_SETTINGS, view)}
                     {getListItem(AccountViews.BOOKING_HISTORY, view)}
-                    {getListItem(AccountViews.MANAGE_LISTINGS, view)}
                     {getListItem(AccountViews.PROJECT_SHOWCASES, view)}
                     {getListItem(AccountViews.COLLABORATOR_PROFILE, view)}
                 </Sidebar>
