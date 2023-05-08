@@ -353,16 +353,19 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                     _logger.Error(Category.BUSINESS, $"Unable to get showcase Details: {testResult.ErrorMessage}", "ProjectShowcaseService");
                     return new(Result.Failure(testResult.ErrorMessage!));
                 }
-                var checkResult = await VerifyOwnership(showcaseId);
-                if (!checkResult.IsSuccessful)
+                if (testResult.Payload is not null && !(bool)testResult.Payload["IsPublished"])
                 {
-                    _logger.Error(Category.BUSINESS, $"Unable to verify ownership of showcase: {checkResult.ErrorMessage}", "ProjectShowcaseManager");
-                    return new(Result.Failure("Unable to verify ownership of showcase."));
-                }
-                if (!checkResult.Payload && !(bool)testResult.Payload!["IsPublished"])
-                {
-                    _logger.Warning(Category.BUSINESS, $"Unauthorized attempt to get comments: {checkResult.Payload}", "ProjectShowcaseManager");
-                    return new(Result.Failure("Unauthorized access.", 401));
+                    var checkResult = await VerifyOwnership(showcaseId);
+                    if (!checkResult.IsSuccessful)
+                    {
+                        _logger.Error(Category.BUSINESS, $"Unable to verify ownership of showcase: {checkResult.ErrorMessage}", "ProjectShowcaseManager");
+                        return new(Result.Failure("Unable to verify ownership of showcase."));
+                    }
+                    if (!checkResult.Payload && !(bool)testResult.Payload!["IsPublished"])
+                    {
+                        _logger.Warning(Category.BUSINESS, $"Unauthorized attempt to get comments: {checkResult.Payload}", "ProjectShowcaseManager");
+                        return new(Result.Failure("Unauthorized access.", 401));
+                    }
                 }
 
                 return await _projectShowcaseService.GetComments(showcaseId, (int)commentCount, (int)page).ConfigureAwait(false);

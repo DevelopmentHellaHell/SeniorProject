@@ -113,7 +113,7 @@ const LinkListingShowcasePagePage: React.FC<ILinkListingShowcasePagePageProps> =
                     );
                 }
                 else {
-                    setError("Project was not linked. Refresh page or try again later.");
+                    setError("Project was not linked. Refresh page or try again later. "+response.error);
                     setData((prevData) =>
                         prevData.map((showcaseData) =>
                             showcaseData.id === showcaseId
@@ -141,7 +141,7 @@ const LinkListingShowcasePagePage: React.FC<ILinkListingShowcasePagePageProps> =
             }
         }
         else {
-            setError("Unable to load project showcase. Refresh page or try again later.");
+            setError("Unable to load project showcase. Refresh page or try again later. Unable to retrieve User Showcases.");
         }
     }
 
@@ -185,6 +185,7 @@ const LinkListingShowcasePagePage: React.FC<ILinkListingShowcasePagePageProps> =
                     </div>
                 </div>
                 </div>
+                <p>{error}</p>
             </div>
 
 
