@@ -165,9 +165,10 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                     <div className="listing-content">
                         <div className="Title">
                             <h1>{data.Listing.title}</h1>
-                            <h3>Owner: {data.Listing.ownerUsername}</h3>
+                            <h2>Owner: {data.Listing.ownerUsername}</h2>
+                            <h2>Last Edited: {data.Listing.lastEdited.toLocaleString()}</h2>
                             {data.Listing.averageRating && 
-                                <h4>Average Rating: {data.Listing.averageRating}</h4>
+                                <h3>Average Rating: {data.Listing.averageRating}</h3>
                             }
                         </div>
 
@@ -188,7 +189,7 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                     })
                                 }} />
                             }
-                            {authData?.sub == data.Listing.ownerId && <div>
+                            {authData?.sub == data.Listing.ownerId && authData?.role != Auth.Roles.DEFAULT_USER && <div>
                                 { data.Listing.published && <p><Button theme={ButtonTheme.HOLLOW_DARK} onClick={async () => {
                                     const response = await Ajax.post("/listingprofile/unpublishListing", { listingId: data.Listing.listingId })
                                     if (response.error) {
@@ -269,7 +270,7 @@ const ViewListingPage: React.FC<IViewListingPageProps> = (props) => {
                                     }}/>
 
                                     
-                                    {data && data.Ratings && hasRating ? // TODO: REPLACE THIS CODE WITH: Check a rating already exists
+                                    {data && data.Ratings && hasRating ? 
                                         <div>
                                             <Button theme={ButtonTheme.DARK} title={"Edit Comment"} loading={!loaded} onClick={async () => {
                                                 setLoaded(false);

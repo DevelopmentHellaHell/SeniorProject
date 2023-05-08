@@ -251,7 +251,7 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
                     </h2>
                     <p><Button theme={ButtonTheme.LIGHT} title="Save Changes" onClick={ handleSaveChanges } /> </p>
                     <p>
-                        { isPublished && authData?.sub == data.Listing.ownerId ? (
+                        { isPublished && authData?.role !== Auth.Roles.DEFAULT_USER &&  authData?.sub == data.Listing.ownerId ? (
                             <>
                             <p>
                             <Button theme={ButtonTheme.HOLLOW_DARK} onClick={() => {
@@ -295,7 +295,8 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
 
                 <div className="Title">
                     <h1 className="listing-page__title">{data.Listing.title}</h1>
-                    <h3>Owner: {data.Listing.ownerUsername}</h3>
+                    <h2>Owner: {data.Listing.ownerUsername}</h2>
+                    <h2>Last Edited: {data.Listing.lastEdited.toLocaleString()}</h2>
                 </div>
 
                 <div className="Files">
