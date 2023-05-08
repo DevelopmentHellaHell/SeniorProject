@@ -467,7 +467,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE PROCEDURE [dbo].[SearchBookingHistory] @Query NVARCHAR(200), @UserId INT
 AS
-SELECT L.OwnerId, L.ListingId, L.Title, B.UserId, B.FullPrice, L.Location, CAST(FT.Rank AS FLOAT) / ISNULL((NULLIF(MAX(FT.Rank) OVER(), 0)), 1) AS Score
+SELECT B.BookingId, L.ListingId, B.FullPrice, B.BookingStatusId, L.Title, L.Location, CAST(FT.Rank AS FLOAT) / ISNULL((NULLIF(MAX(FT.Rank) OVER(), 0)), 1) AS Score
 FROM [DevelopmentHell.Hubba.ListingProfiles].[dbo].[Listings] AS L
 INNER JOIN FREETEXTTABLE(
     [DevelopmentHell.Hubba.ListingProfiles].[dbo].[Listings],
@@ -476,7 +476,7 @@ INNER JOIN FREETEXTTABLE(
 ) AS FT
 ON L.ListingId = FT.[Key]
 LEFT JOIN (
-    SELECT ListingId, UserId, FullPrice
+    SELECT BookingId, FullPrice, BookingStatusId, ListingId, UserId
     FROM [DevelopmentHell.Hubba.ListingProfiles].[dbo].[Bookings]
 ) as B
 ON L.ListingId = B.ListingId
