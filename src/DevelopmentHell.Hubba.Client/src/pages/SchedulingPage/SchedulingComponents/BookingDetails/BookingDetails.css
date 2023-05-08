@@ -62,6 +62,11 @@
     justify-content: center;
 }
 
+.info .success {
+    color: rgb(var(--success-text));
+    font-weight: 700;
+}
+
 .info-bold {
     display: flex;
     flex-flow: row;

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Ajax } from "../../../Ajax"
 import Button, { ButtonTheme } from "../../../components/Button/Button";
 import BookingDetails from "../../SchedulingPage/SchedulingComponents/BookingDetails/BookingDetails";
-
+import "./BookingHistoryView.css";
 interface IBookingHistoryProps {
 
 }
@@ -19,8 +19,8 @@ export interface IBookingHistoryData {
 
 enum BookingStatus {
     CONFIRMED = 1,
-    PENDING = 2,
-    MOTIFIED = 3,
+    // PENDING = 2,
+    // MODIFIED = 3,
     CANCELLED = 4,
 }
 
@@ -28,12 +28,16 @@ const Filters: {
     [type in BookingStatus]: string
 } = {
     [BookingStatus.CONFIRMED]: "Confirmed",
-    [BookingStatus.PENDING]: "Pending",
-    [BookingStatus.MOTIFIED]: "Motified",
+    // [BookingStatus.PENDING]: "Pending",
+    // [BookingStatus.MODIFIED]: "Modified",
     [BookingStatus.CANCELLED]: "Cancelled",
 }
 
 const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
+    const localeUSLanguage: string = "en-US";
+    const localeUSCurrency: object = { style: "currency", currency: "USD" };
+    const localeUSTime: object = { hour: "2-digit", minute: "2-digit" };
+
     const navigate = useNavigate();
     const [data, setData] = useState<IBookingHistoryData[]>([]);
     const [error, setError] = useState("");
@@ -41,16 +45,16 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
     const [showDetails, setShowDetails] = useState(false);
     const [filters, setFilters] = useState<BookingStatus[]>([]);
     const [showBookingId, setShowBookingId] = useState(0);
-    
-   
+
+
     const [bookingPage, setBookingPage] = useState(1);
     const [bookingCount, setBookingCount] = useState(10);
-   
+
     const [selectBooking, setSelectedBooking] = useState<number[]>([]);
     const prevDataRef = useRef<IBookingHistoryData[]>();
 
-    const getData = async () => { 
-        await Ajax.post<IBookingHistoryData[]>("/accountsystem/getbookinghistory", {bookingCount: bookingCount, page: bookingPage}).then((response) => {
+    const getData = async () => {
+        await Ajax.post<IBookingHistoryData[]>("/accountsystem/getbookinghistory", { bookingCount: bookingCount, page: bookingPage }).then((response) => {
             setData(response.data && response.data.length ? response.data : []);
             setError(response.error);
             setLoaded(response.loaded);
@@ -80,10 +84,12 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
                             setSelectedBooking([...selectBooking, bookingId]);
                         }} title={""} />}
                 </td>
-                <td>{bookingHistoryData.title}</td>
+                <td className="table-listing-title" onClick={() => {navigate('/viewListing', { state: { listingId: bookingHistoryData.listingId} })}}>
+                    <p>{bookingHistoryData.title}</p>
+                </td>
                 <td>{bookingHistoryData.listingId}</td>
                 <td>{bookingHistoryData.location}</td>
-                <td>{bookingHistoryData.fullPrice}</td>
+                <td>{bookingHistoryData.fullPrice.toLocaleString(localeUSLanguage, localeUSCurrency)}</td>
                 <td>{BookingStatus[bookingHistoryData.bookingStatusId]}</td>
                 <td className="view-btn-cell">
                     {bookingHistoryData.bookingStatusId == BookingStatus.CONFIRMED &&
@@ -99,7 +105,7 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
                                         }
                                     })
                                 }}
-                                title={"View"}
+                                title={"View Booking"}
                             />
                         </div>
                     }
@@ -116,10 +122,10 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
                         filters.splice(filters.indexOf(filter), 1);
                         setFilters([...filters]);
                         return;
-                    } 
+                    }
 
                     setFilters([...filters, filter]);
-                }}/>
+                }} />
             </div>
         );
     }
@@ -132,10 +138,10 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
                         <h1>Booking History</h1>
                         <div className="filters-wrapper">
                             <div className="filters">
-                                <p>Filters:</p>                                
-                                {filters.length > 0 && 
-                                    <Button title="Clear" theme={ButtonTheme.DARK} onClick={() => 
-                                        setFilters([])}/>
+                                <p>Filters:</p>
+                                {filters.length > 0 &&
+                                    <Button title="Clear" theme={ButtonTheme.DARK} onClick={() =>
+                                        setFilters([])} />
                                 }
                                 {Object.keys(Filters).map(key => {
                                     return createFilterButton(+key as BookingStatus);
@@ -197,7 +203,7 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
                                     }} />
                             </div>
                         </div>
-                                    
+
                     </div>
                 }
             </div>
@@ -206,32 +212,32 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
                     <p>bookings per page:</p>
                     <div className="h-stack">
                         <Button theme={bookingCount == 10 ? ButtonTheme.DARK : ButtonTheme.HOLLOW_DARK} title="10"
-                        onClick={() => {
-                            if (bookingCount != 10){
-                                setLoaded(false);
-                                setBookingPage(1);
-                                setBookingCount(10);
-                                getData();
-                            }
-                        }}></Button>
-                        <Button theme={bookingCount == 20 ? ButtonTheme.DARK : ButtonTheme.HOLLOW_DARK} title="20" 
-                        onClick={() => {
-                            if (bookingCount != 20){
-                                setLoaded(false);
-                                setBookingPage(1);
-                                setBookingCount(20);
-                                getData();
-                            }
-                        }}/>
-                        <Button theme={bookingCount == 50 ? ButtonTheme.DARK : ButtonTheme.HOLLOW_DARK} title="50" 
-                        onClick={() => {
-                            if (bookingCount != 50){
-                                setLoaded(false);
-                                setBookingPage(1);
-                                setBookingCount(50);
-                                getData();
-                            }
-                        }}/>
+                            onClick={() => {
+                                if (bookingCount != 10) {
+                                    setLoaded(false);
+                                    setBookingPage(1);
+                                    setBookingCount(10);
+                                    getData();
+                                }
+                            }}></Button>
+                        <Button theme={bookingCount == 20 ? ButtonTheme.DARK : ButtonTheme.HOLLOW_DARK} title="20"
+                            onClick={() => {
+                                if (bookingCount != 20) {
+                                    setLoaded(false);
+                                    setBookingPage(1);
+                                    setBookingCount(20);
+                                    getData();
+                                }
+                            }} />
+                        <Button theme={bookingCount == 50 ? ButtonTheme.DARK : ButtonTheme.HOLLOW_DARK} title="50"
+                            onClick={() => {
+                                if (bookingCount != 50) {
+                                    setLoaded(false);
+                                    setBookingPage(1);
+                                    setBookingCount(50);
+                                    getData();
+                                }
+                            }} />
                     </div>
                     <div className="booking-page-control">
                         <p>page #{bookingPage}:</p>
@@ -246,13 +252,13 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
                                 <Button theme={ButtonTheme.DARK} title="next" onClick={() => {
                                     setBookingPage(bookingPage + 1);
                                     getData();
-                                }}/>
+                                }} />
                             }
                         </div>
                     </div>
                 </div>
             </div>
-            {error && 
+            {error &&
                 <p className="error">{error}</p>
             }
         </div>

@@ -87,13 +87,13 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager.Abstraction
 		}
 		public async Task<Result<bool>> CancelBooking(int userId, int bookingId)
 		{
-			// TODO implement
 			// Authorize user 
 			var authzUser = AuthorizeUser(userId);
 			if (!authzUser.IsSuccessful)
 			{
 				return new(Result.Failure(authzUser.ErrorMessage!, authzUser.StatusCode));
 			}
+
 			// User must have a booking with BookingId
 			var getBooking = await _bookingService.GetBookingByBookingId(bookingId).ConfigureAwait(false);
 			if (!getBooking.IsSuccessful || getBooking.Payload == null)
@@ -108,12 +108,28 @@ namespace DevelopmentHell.Hubba.Scheduling.Manager.Abstraction
 			}
 			int listingId = getBooking.Payload.ListingId;
 
+			// Cancellation 48hrs before booking starts
+			DateTime cancelDate = DateTime.Now;
+			var getBookedTimeFrames = await _bookingService.GetBookedTimeFramesByBookingId(bookingId).ConfigureAwait(false);
+			if (!getBookedTimeFrames.IsSuccessful)
+			{
+				_loggerService.Log(LogLevel.ERROR, Category.DATA, getBookedTimeFrames.ErrorMessage!);
+				return new(Result.Failure("Can't retreive booking. Please refresh page or try again later"));
+			}
+			TimeSpan timeDifference = getBookedTimeFrames.Payload![0].StartDateTime - cancelDate;
+			if (timeDifference.TotalHours <= 48) 
+			{
+				_loggerService.Log(LogLevel.WARNING, Category.BUSINESS, "Attempt to cancel a booking less than 48hrs before starting time");
+				return new(Result.Failure("Request denied. Cancellation request must be 48hrs prior to the booking's start time."));
+			}
+
 			// If Booking already cancelled
 			if (getBooking.Payload.BookingStatusId == BookingStatus.CANCELLED)
 			{
 				_loggerService.Log(LogLevel.WARNING, Category.BUSINESS, getBooking.ErrorMessage!);
 				return new(Result.Failure("Booking already cancelled.", StatusCodes.Status400BadRequest));
 			}
+
 			// Get Listing ownerId
 			var getListingDetails = await _availabilityService.GetListingDetails(getBooking.Payload.ListingId).ConfigureAwait(false);
 			if (!getListingDetails.IsSuccessful)

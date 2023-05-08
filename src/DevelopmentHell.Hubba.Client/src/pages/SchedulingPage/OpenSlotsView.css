@@ -132,10 +132,6 @@
   font-size: 28px;
 }
 
-.calendar .header .buttons{
-  
-}
-
 .calendar .month {
   padding-bottom: 50px;
 }
@@ -218,6 +214,10 @@
 .details .info {
   padding-left: 20px;
   justify-content: center;
+}
+.info .success {
+  color: rgb(var(--success-text));
+  font-weight: 700;
 }
 .info-bold {
   display: flex;

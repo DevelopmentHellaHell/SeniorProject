@@ -170,6 +170,8 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
             {
                 return new (Result.Failure("More than 1 Bookings returned" ));
             }
+
+            
             return Result<Booking>.Success(getBooking.Payload[0]);
         }
         

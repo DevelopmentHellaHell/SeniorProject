@@ -1,0 +1,31 @@
+.booking-history-wrapper {
+    color: rgb(var(--primary-text-dark));
+    text-align: left;
+    padding-bottom: 2.5rem;
+    padding-left: 20px;
+}
+.filters-wrapper {
+    display: flex;
+    justify-content: right;
+    padding-bottom: 1rem;
+}
+.filters{
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: right;
+    width: 600px;
+}
+.table-listing-title p{
+    cursor: pointer;
+}
+.table-listing-title:hover {
+    color: rgb(var(--secondary-text-dark));
+}
+.actions-wrapper {
+    padding: 1rem;
+}
+.actions {
+    display: flex;
+    justify-content: right;
+}

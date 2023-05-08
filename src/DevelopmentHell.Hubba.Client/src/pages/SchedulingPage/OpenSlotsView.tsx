@@ -159,7 +159,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
         const today: Date = new Date();
         getListingAvailabilityData(today.getFullYear(), today.getMonth() + 1);
         setInitialDate(today.toDateString());
-    },[])
+    },[onDoneBooking])
     
     const convertToMonthName = (initialDate: number) => {
         switch (initialDate) {
@@ -483,7 +483,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                 }
                 {onSuccess &&
                     <div className='info'>
-                        <p> Booking confirmed. </p>
+                        <p className='success'> Booking confirmed. </p>
                         <div className='buttons'>
                             <Button title="Close" theme={ButtonTheme.DARK} onClick={() => {
                                 setOnDoneBooking(true);
