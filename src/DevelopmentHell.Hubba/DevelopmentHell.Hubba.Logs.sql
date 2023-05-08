@@ -11,9 +11,9 @@ GO
 CREATE DATABASE [DevelopmentHell.Hubba.Logs]
  CONTAINMENT = NONE
  ON  PRIMARY 
-( NAME = N'DevelopmentHell.Hubba.Logs', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\DATA\DevelopmentHell.Hubba.Logs.mdf' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB )
+( NAME = N'DevelopmentHell.Hubba.Logs', FILENAME = N'/var/opt/mssql/data/DevelopmentHell.Hubba.Logs.mdf' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB )
  LOG ON 
-( NAME = N'DevelopmentHell.Hubba.Logs_log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\DATA\DevelopmentHell.Hubba.Logs_log.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )
+( NAME = N'DevelopmentHell.Hubba.Logs_log', FILENAME = N'/var/opt/mssql/data/DevelopmentHell.Hubba.Logs_log.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )
  WITH CATALOG_COLLATION = DATABASE_DEFAULT, LEDGER = OFF
 GO
 ALTER DATABASE [DevelopmentHell.Hubba.Logs] SET COMPATIBILITY_LEVEL = 150
