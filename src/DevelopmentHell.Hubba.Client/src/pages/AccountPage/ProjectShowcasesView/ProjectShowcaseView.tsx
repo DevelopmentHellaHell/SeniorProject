@@ -167,7 +167,9 @@ const ProjectShowcaseView: React.FC<IProjectShowcaseViewProps> = (props) => {
     const getData = async () => {
         await Ajax.get<IShowcaseData[]>("/showcases/user").then((response) => {
             setData(response.data && response.data.length ? response.data : []);
-            setError("Unable to load project showcase. Refresh page or try again later.");
+            if (response.error) {
+                setError("Unable to load project showcase. Refresh page or try again later. " + response.error);
+            }
             setLoaded(response.loaded);
         });
     }
