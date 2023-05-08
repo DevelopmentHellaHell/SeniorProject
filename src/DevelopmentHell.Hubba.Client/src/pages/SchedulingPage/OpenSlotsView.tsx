@@ -530,7 +530,11 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                 {!showConfirmation && loaded &&
                     <div className="main-wrapper">
                         <h1>{state.listingTitle}</h1>
-                        <h2>{state.price.toLocaleString(localeUSLanguage, localeUSCurrency)}/hour</h2>
+                        <div className='wrapper-header'>
+                            <div>{state.listingLocation}</div>
+                            <div>{state.price.toLocaleString(localeUSLanguage, localeUSCurrency)}/hour</div>
+                        </div>
+                        
                         <div className='second-wrapper'>
                             <div className="view-wrapper">
                                 <div className='calendar'>
