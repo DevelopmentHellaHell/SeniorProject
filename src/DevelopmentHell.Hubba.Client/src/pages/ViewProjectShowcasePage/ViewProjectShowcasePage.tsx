@@ -83,13 +83,13 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                     setComments(response.data.comments);
                 }
                 else {
-                    setCommentsError("Unable to load comments")
+                    setCommentsError("Unable to load comments. Refresh page or try again later.")
                 }
                 if (response.data.showcase) {
                     setShowcase(response.data.showcase);
                 }
                 else {
-                    setShowcaseError("Unable to load showcase")
+                    setShowcaseError("Unable to load project showcase. Refresh page or try again later.")
                 }
                 if (response.data.filePaths) {
                     setImages(response.data.filePaths);
@@ -98,7 +98,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                     }
                 }
                 else {
-                    setImagesError("Unable to load images")
+                    setImagesError("Unable to load images. Refresh page or try again later.")
                 }
                 setShowcaseLikes(response.data.showcase.rating);
             }
@@ -108,8 +108,8 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                 setImagesLoaded(true);
             }
             else {
-                setShowcaseError(response.error);
-                setCommentsError("Unable to load comments")
+                setShowcaseError("Unable to load project showcase. Refresh page or try again later.");
+                setCommentsError("Unable to load comments. Refresh page or try again later.")
             }
         });
     }
@@ -118,8 +118,8 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
         await Ajax.get<IShowcaseComment[]>(`/showcases/comments?s=${showcaseId}&c=${commentCount}&p=${commentPage}`).then((response) => {
             setComments(response.data && response.data.length ? response.data : []);
             setCommentsLoaded(response.loaded);
-            setCommentsError(response.error);
             if (response.error) {
+                setCommentsError("Unable to load comments. Refresh page or try again later.");
                 alert(response.error);
             }
         });
@@ -130,7 +130,9 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
             if (response.data) {
                 setShowcase(response.data);
             }
-            setShowcaseError(response.error);
+            if (response.error){
+                setShowcaseError("Unable to load project showcase. Refresh page or try again later.");
+            }
             setShowcaseLoaded(response.loaded);
         });
     }
@@ -140,7 +142,9 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
             if (response.data) {
                 setImages(response.data);
             }
-            setImagesError(response.error);
+            if (response.error) {
+                setImagesError("Unable to load images. Refresh page or try again later.");
+            }
             setImagesLoaded(response.loaded);
         });
     }
@@ -221,10 +225,10 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                                         <button className="report-submission-button" onClick={() => {
                                                             Ajax.post(`/showcases/report?s=${showcaseId}`, { reasonText: reportText }).then((response) => {
                                                                 if (response.error) {
-                                                                    alert(response.error);
+                                                                    alert("Project showcase was not reported. Refresh page or try again later.");
                                                                 }
                                                                 if (response.data) {
-                                                                    alert("Report submitted successfully");
+                                                                    alert("Project showcase reported successfully");
                                                                 }
                                                             });
                                                             setReportText("");
@@ -251,7 +255,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                             navigate(`/viewlisting`, { state: { listingId: showcase.listingId } });
                                         }
                                         else {
-                                            alert("Unable to navigate to listing.")
+                                            alert("Unable to navigate to listing. Refresh page or try again later.")
                                         }
                                     }} />
                                 }
@@ -264,7 +268,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                                     setShowcaseLikes(showcaseLikes + 1);
                                                 }
                                                 else {
-                                                    alert("Unable to like at this time.");
+                                                    alert("Project showcase like error. Unable to like project showcase. Refresh page or try again later.");
                                                 }
                                             });
                                         }}
@@ -326,7 +330,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                         setCommentsLoaded(false);
                                         Ajax.post(`/showcases/comments?s=${showcaseId}`, { commentText: commentText }).then((response) => {
                                             if (response.error) {
-                                                setCommentsError(response.error);
+                                                setCommentsError("Unable to load comments. Refresh page or try again later.");
                                             }
                                             else {
                                                 alert("Comment submitted successfully");
@@ -355,7 +359,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                                             <button onClick={() => {
                                                                 Ajax.post(`/showcases/comments/delete?cid=${comment.id}`, {}).then((response) => {
                                                                     if (response.error) {
-                                                                        alert(response.error);
+                                                                        alert("Project showcase comment was not removed. Refresh page or try again later.");
                                                                     }
                                                                     if (response.data) {
                                                                         alert("Comment deleted successfully");
@@ -372,10 +376,10 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                                         <p className="down-vote" onClick={() => {
                                                             Ajax.post(`/showcases/comments/rate?s=${showcaseId}&cid=${comment.id}&r=false`, { commentText: commentText }).then((response) => {
                                                                 if (response.error) {
-                                                                    alert(response.error);
+                                                                    alert("Project showcase vote was not successful. Refresh page or try again later.");
                                                                 }
                                                                 if (response.data) {
-                                                                    alert("Comment submitted successfully");
+                                                                    alert("Project showcase vote successful.");
                                                                     getComments();
                                                                 }
                                                             });
@@ -384,10 +388,10 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                                                         <p className="up-vote" onClick={() => {
                                                             Ajax.post(`/showcases/comments/rate?s=${showcaseId}&cid=${comment.id}&r=true`, { commentText: commentText }).then((response) => {
                                                                 if (response.error) {
-                                                                    alert(response.error);
+                                                                    alert("Project showcase vote was not successful. Refresh page or try again later.");
                                                                 }
                                                                 if (response.data) {
-                                                                    alert("Comment submitted successfully");
+                                                                    alert("Project showcase vote successful.");
                                                                     getComments();
                                                                 }
                                                             });
