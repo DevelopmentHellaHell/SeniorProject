@@ -454,7 +454,7 @@ namespace DevelopmentHell.Hubba.Notification.Test.Integration_Tests
         public async Task Cleanup()
         {
             var cleanup = await _testingService.DeleteAllRecords().ConfigureAwait(false);
-            Console.WriteLine(cleanup.ErrorMessage);
+            //Console.WriteLine(cleanup.ErrorMessage);
         }
     }
 }

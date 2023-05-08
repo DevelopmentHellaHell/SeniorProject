@@ -425,7 +425,7 @@ namespace DevelopmentHell.Hubba.Registration.Test
 
             // Assert
             Assert.IsTrue(actual.IsSuccessful == expected.IsSuccessful);
-            Console.WriteLine(actual.ErrorMessage);
+            //Console.WriteLine(actual.ErrorMessage);
         }
 
         /* 

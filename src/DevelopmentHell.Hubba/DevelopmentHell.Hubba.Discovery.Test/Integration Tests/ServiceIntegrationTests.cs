@@ -168,7 +168,7 @@ namespace DevelopmentHell.Hubba.Discovery.Test
 
             // Act
             var result = await _discoveryService.GetCurated(offset);
-            Console.WriteLine(result.ErrorMessage);
+            //Console.WriteLine(result.ErrorMessage);
             // Assert
             Assert.IsTrue(result.IsSuccessful == expectedSuccess);
             Assert.IsNotNull(result.Payload);

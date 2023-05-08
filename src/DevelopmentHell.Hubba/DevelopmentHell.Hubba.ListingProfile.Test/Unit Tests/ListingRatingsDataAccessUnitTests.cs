@@ -174,7 +174,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
 
             // Actual
             var actual = await _ratingDataAccess.GetAverageRating(Feature.Listing, listingId).ConfigureAwait(false);
-            Console.WriteLine(actual.ErrorMessage);
+            //Console.WriteLine(actual.ErrorMessage);
 
             //Assert
             Assert.IsTrue(actual.IsSuccessful == expected);

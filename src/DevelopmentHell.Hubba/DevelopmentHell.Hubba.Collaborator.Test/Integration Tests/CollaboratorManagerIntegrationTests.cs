@@ -239,7 +239,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             Result actual = await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
 
             //Assert
-            Console.WriteLine(actual.ErrorMessage);
+            //Console.WriteLine(actual.ErrorMessage);
 
             Assert.IsTrue(actual.IsSuccessful);
         }
@@ -276,7 +276,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             Result actual = await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
 
             //Assert
-            Console.WriteLine(actual.ErrorMessage);
+            //Console.WriteLine(actual.ErrorMessage);
             Assert.IsTrue(actual.IsSuccessful);
 
         }
@@ -318,7 +318,7 @@ namespace DevelopmentHell.Hubba.Collaborator.Test.Integration_Tests
             Result actual = await _collaboratorManager.CreateCollaborator(collab).ConfigureAwait(false);
 
             //Assert
-            Console.WriteLine(actual.ErrorMessage);
+            //Console.WriteLine(actual.ErrorMessage);
             Assert.IsTrue(actual.IsSuccessful);
         }
 

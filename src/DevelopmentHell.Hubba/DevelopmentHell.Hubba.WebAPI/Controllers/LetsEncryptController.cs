@@ -10,11 +10,11 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
         [Route("acme-challenge/{filename}")]
         public IActionResult GetChallenge(string filename)
         {
-            Console.WriteLine("endpoint hit");
+            //Console.WriteLine("endpoint hit");
             var filePath = $"./.well-known/acme-challenge/{filename}";
             if (System.IO.File.Exists(filePath))
             {
-                Console.WriteLine("found");
+                //Console.WriteLine("found");
                 var fileContent = System.IO.File.ReadAllText(filePath);
                 return new ContentResult
                 {
@@ -25,7 +25,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             }
             else
             {
-                Console.WriteLine("not found");
+                //Console.WriteLine("not found");
                 return NotFound();
             }
         }

@@ -47,7 +47,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
                 }
                 catch (SqlException e)
                 {
-                    Console.WriteLine(e.ToString());
+                    //Console.WriteLine(e.ToString());
                     connectionAvailible = false;
                 }
             }
