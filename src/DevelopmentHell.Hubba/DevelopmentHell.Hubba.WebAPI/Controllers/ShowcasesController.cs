@@ -785,5 +785,29 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("link")]
+        public async Task<IActionResult> LinkShowcase([FromQuery(Name = "s")] string showcaseId, [FromQuery(Name = "l")] int listingId)
+        {
+            try
+            {
+                if (showcaseId == null)
+                {
+                    return BadRequest("ShowcaseId missing from request");
+                }
+                var linkResult = await _projectShowcaseManager.Link(showcaseId, listingId);
+                if (!linkResult.IsSuccessful)
+                {
+                    return GetFuncCode((int)linkResult.StatusCode!)(GetErrorMessage(linkResult.StatusCode));
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning(Models.Category.SERVER, $"Error in ReportShowcase: {ex.Message}", "ShowcaseController");
+                return StatusCode(500, "Unknown exception occured when attempting to complete your request");
+            }
+        }
     }
 }

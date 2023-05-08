@@ -131,7 +131,6 @@ const CreateProjectShowcasePage: React.FC<ICreateProjectShowcasePageProps> = (pr
 
     return (
         <div className="create-project-showcase-container">
-            {!authData && <NavbarGuest />}
             <NavbarUser />
 
             <div className="create-project-showcase-content">

@@ -95,43 +95,46 @@ const ListingProjectShowcasesPage: React.FC<IListingProjectShowcasePageProps> = 
             <NavbarUser />
             <div className="listing-project-showcases-content">
                 <div className="v-stack">
-                <div className="listing-project-showcases-header">
+                    <div className="listing-project-showcases-header">
                         <h1>Project Showcases</h1>
                         <Button theme={ButtonTheme.DARK} onClick={() => {
                             navigate(`/showcases/p/new?l=${searchParams.get("l")}`);
-                        }} title= "Create new Showcase"/>
-                    <p>Here you can view all the project showcases for this listing.</p>
-                </div>
-                <div className="listing-project-showcases-body">
-                    <div className="listing-project-showcases-wrapper">
-                        <table className="my-showcases-table">
-                            <thead className="my-showcases-table-header">
-                                <tr>
-                                    <th className="header-likes">
-                                        <LikeButton size={"20"} defaultOn={true} enabled={false}
-                                            OnUnlike={function (...args: any[]) {
-                                                throw new Error("Function not implemented.");
-                                            }}
-                                            OnLike={function (...args: any[]) {
-                                                throw new Error("Function not implemented.");
-                                            }} />
-                                    </th>
-                                    <th className="header-listing">Linked Listing</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {data && data.length == 0 &&
-                                    <tr>
-                                        <td colSpan={2}>No project showcases found.</td>
-                                    </tr>
-                                }
-                                {data && data.map(value => {
-                                    return createShowcaseTableRow(value);
-                                })}
-                            </tbody>
-                        </table>
+                        }} title="Create new Showcase" />
+                        <p>Here you can view all the project showcases for this listing.</p>
+                        <Button theme={ButtonTheme.DARK} onClick={() => {
+                            navigate(`/showcases/p/link?l=${searchParams.get("l")}`);
+                        }} title="Link My Showcase(s)" />
                     </div>
-                </div>
+                    <div className="listing-project-showcases-body">
+                        <div className="listing-project-showcases-wrapper">
+                            <table className="my-showcases-table">
+                                <thead className="my-showcases-table-header">
+                                    <tr>
+                                        <th className="header-likes">
+                                            <LikeButton size={"20"} defaultOn={true} enabled={false}
+                                                OnUnlike={function (...args: any[]) {
+                                                    throw new Error("Function not implemented.");
+                                                }}
+                                                OnLike={function (...args: any[]) {
+                                                    throw new Error("Function not implemented.");
+                                                }} />
+                                        </th>
+                                        <th className="header-listing">Linked Listing</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {data && data.length == 0 &&
+                                        <tr>
+                                            <td colSpan={2}>No project showcases found.</td>
+                                        </tr>
+                                    }
+                                    {data && data.map(value => {
+                                        return createShowcaseTableRow(value);
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
 

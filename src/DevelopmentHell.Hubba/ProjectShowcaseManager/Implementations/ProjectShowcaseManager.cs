@@ -713,7 +713,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 var checkResult2 = await _listingProfileService.CheckListingHistory(listingId, int.Parse((Thread.CurrentPrincipal as ClaimsPrincipal)?.FindFirstValue("sub")!)).ConfigureAwait(false);
                 if (!checkResult2.IsSuccessful)
                 {
-                    _logger.Error(Category.BUSINESS, $"Unable to verify user history with listing: {checkResult2.ErrorMessage}", "ProjectShwocaseManager");
+                    _logger.Error(Category.BUSINESS, $"Unable to verify user history with listing: {checkResult2.ErrorMessage}", "ProjectShowcaseManager");
                     return new(Result.Failure("Unable to verify user history with listing"));
                 }
                 if (!checkResult2.Payload!)

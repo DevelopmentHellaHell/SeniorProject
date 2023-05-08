@@ -27,6 +27,7 @@ import CreateProjectShowcasePage from "./pages/CreateProjectShowcasePage/CreateP
 import EditProjectShowcasePage from "./pages/EditProjectShowcasePage/EditProjectShowcasePage";
 import EditProjectShowcaseCommentPage from "./pages/EditProjectShowcaseCommentPage/EditProjectShowcaseCommentPage";
 import ListingProjectShowcasesPage from "./pages/ListingProjectShowcasesPage/ListingProjectShowcasesPage";
+import LinkListingShowcasePage from "./pages/LinkListingShowcasePage/LinkListingShowcasePage";
 import BookingDetails from "./pages/SchedulingPage/SchedulingComponents/BookingDetails/BookingDetails";
 
 interface IAppProps {
@@ -78,6 +79,7 @@ const App: React.FC<IAppProps> = (props) => {
 							<Route path="/showcases/p/new" element={<CreateProjectShowcasePage />}/>
 							<Route path="/showcases/p/edit" element={<EditProjectShowcasePage />}/>
 							<Route path="/showcases/p/comments/edit" element={<EditProjectShowcaseCommentPage />}/>
+							<Route path="/showcases/p/link" element={<LinkListingShowcasePage />}/>
 						</Route>
 						<Route path="/" element={<PrivateRoute redirectPath={"/login"} allowedRoles={[Auth.Roles.ADMIN_USER]}/>}>
 							<Route path="/admin-dashboard" element={<AdminDashboardPage />} />
