@@ -376,7 +376,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
             {
                 ListingId = listingId,
                 OwnerId = realEmailId,
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)).ToString(),
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(3)).ToString(),
                 StartTime = "09:00",
                 EndTime = "12:00",
                 Action = AvailabilityAction.Add
@@ -387,7 +387,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
                 ListingId = listingId,
                 OwnerId = realEmailId,
                 StartTime = "13:30",
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)).ToString(),
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(3)).ToString(),
                 EndTime = "16:30",
                 Action = AvailabilityAction.Add,
             };
@@ -487,7 +487,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
             {
                 ListingId = listingId,
                 OwnerId = testEmailId2,
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)).ToString(),
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(3)).ToString(),
                 StartTime = "09:00",
                 EndTime = "12:00",
                 Action = AvailabilityAction.Add
@@ -498,7 +498,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
                 ListingId = listingId,
                 OwnerId = testEmailId2,
                 StartTime = "13:30",
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)).ToString(),
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(3)).ToString(),
                 EndTime = "16:30",
                 Action = AvailabilityAction.Add,
             };
@@ -593,7 +593,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
             {
                 ListingId = listingId,
                 OwnerId = testEmailId3,
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)).ToString(),
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(3)).ToString(),
                 StartTime = "09:00",
                 EndTime = "12:00",
                 Action = AvailabilityAction.Add
@@ -604,7 +604,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
                 ListingId = listingId,
                 OwnerId = testEmailId3,
                 StartTime = "13:30",
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)).ToString(),
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(3)).ToString(),
                 EndTime = "16:30",
                 Action = AvailabilityAction.Add,
             };
