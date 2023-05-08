@@ -227,8 +227,11 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
             // pfp is optional
             if (collab.PfpUrl != null)
             {
-                result.ErrorMessage = "Profile picture url provided does not meet expected format.";
-                return result;
+                if (string.IsNullOrEmpty(collab.PfpUrl))
+                {
+                    result.ErrorMessage = "Profile picture url provided does not meet expected format.";
+                    return result;
+                }
             }
 
             // checking uploaded file requirements
