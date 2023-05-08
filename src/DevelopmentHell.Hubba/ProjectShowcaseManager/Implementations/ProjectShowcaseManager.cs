@@ -107,10 +107,10 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                     return new(Result.Failure("Unable to Create Showcase."));
                 }
 
+                var createDir = await _fileService.CreateDir($"ProjectShowcases/{createResult.Payload!}");
                 for (int i = 0; i < files.Count; i++)
                 {
                     byte[] bytes = Convert.FromBase64String(files[i].Item2);
-                    var crateDir = await _fileService.CreateDir($"ProjectShowcases/{createResult.Payload!}");
                     var uploadResult = await _fileService.UploadFile($"ProjectShowcases/{createResult.Payload!}",$"0{i}_{files[i].Item1}", bytes);
                     if (!uploadResult.IsSuccessful)
                     {
@@ -172,6 +172,13 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 {
                     _logger.Error(Category.BUSINESS, $"Unable to Delete Showcase: {deleteResult.ErrorMessage}", "ProjectShowcaseService");
                     return Result.Failure($"Unable to Delete showcase.");
+                }
+
+                var fileResult = await _fileService.DeleteDir($"ProjectShowcases /{showcaseId}");
+                if (!fileResult.IsSuccessful)
+                {
+                    _logger.Error(Category.BUSINESS, $"Unable to delete showcase files: {fileResult.ErrorMessage}", "FileService");
+                    return Result.Failure("Unabel to Delete Showcase");
                 }
 
                 return deleteResult;
