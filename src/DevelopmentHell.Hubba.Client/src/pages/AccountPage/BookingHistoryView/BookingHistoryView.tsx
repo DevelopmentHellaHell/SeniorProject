@@ -177,6 +177,7 @@ const BookingHistoryView: React.FC<IBookingHistoryProps> = (props) => {
                                     setError("");
                                     setLoaded(true);
                                 }}/>
+                                <Button title="Refresh" theme={ButtonTheme.HOLLOW_DARK} onClick={() => getData()}/>
                             </div>
                         </div>
                         <div className="filters-wrapper">
