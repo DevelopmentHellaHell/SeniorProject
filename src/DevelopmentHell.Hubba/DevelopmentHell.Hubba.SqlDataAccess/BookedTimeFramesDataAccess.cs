@@ -1,6 +1,5 @@
 ﻿
 using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 using Microsoft.AspNetCore.Http;
@@ -13,7 +12,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         private SelectDataAccess _selectDataAccess;
         private DeleteDataAccess _deleteDataAccess;
         private string _tableName;
-        public BookedTimeFramesDataAccess (string connectionString, string tablename)
+        public BookedTimeFramesDataAccess(string connectionString, string tablename)
         {
             _insertDataAccess = new InsertDataAccess(connectionString);
             _selectDataAccess = new SelectDataAccess(connectionString);
@@ -26,10 +25,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         /// <param name="timeframes"></param>
         /// <returns>Result</returns>
         public async Task<Result<bool>> CreateBookedTimeFrames(int bookingId, List<BookedTimeFrame> timeframes)
-        { 
+        {
             if (timeframes.Count == 0)
             {
-                return new ( Result.Failure("Chosen timeframes empty", StatusCodes.Status400BadRequest));
+                return new(Result.Failure("Chosen timeframes empty", StatusCodes.Status400BadRequest));
             }
             List<string> columns = new List<string>()
             {
@@ -40,7 +39,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 nameof(BookedTimeFrame.EndDateTime)
             };
             //pattern matching
-            List<List<object>> values =  timeframes.Select(timeframe => new List<object>()
+            List<List<object>> values = timeframes.Select(timeframe => new List<object>()
             {
                 bookingId,
                 timeframe.ListingId,
@@ -51,13 +50,13 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             var insertResult = await _insertDataAccess.BatchInsert(_tableName, columns, values).ConfigureAwait(false);
 
-            if (!insertResult.IsSuccessful) 
+            if (!insertResult.IsSuccessful)
             {
                 return new(Result.Failure(insertResult.ErrorMessage!));
             }
-            return new (Result<bool>.Success());
+            return new(Result<bool>.Success());
         }
-       
+
         /// <summary>
         /// Get BookedTimeFrame by BookingId or ListingId,
         /// sorted by StartDateTime
@@ -75,8 +74,8 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
-                new List<string>() 
-                { 
+                new List<string>()
+                {
                     nameof(BookedTimeFrame.BookingId),
                     nameof(BookedTimeFrame.ListingId),
                     nameof(BookedTimeFrame.AvailabilityId),
@@ -90,7 +89,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             if (!selectResult.IsSuccessful || selectResult.Payload is null)
             {
-                return new (Result.Failure(selectResult.ErrorMessage));
+                return new(Result.Failure(selectResult.ErrorMessage));
             }
             List<BookedTimeFrame> resultList = new();
             if (selectResult.Payload.Count > 0)
@@ -126,15 +125,15 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             List<Comparator> comparators = new();
             foreach (var filter in filters)
             {
-                comparators.Add(new Comparator( filter.Item1, "=", filter.Item2 ));
+                comparators.Add(new Comparator(filter.Item1, "=", filter.Item2));
             }
-            
+
             var deleteResult = await _deleteDataAccess.Delete(_tableName, comparators).ConfigureAwait(false);
-            if(!deleteResult.IsSuccessful)
+            if (!deleteResult.IsSuccessful)
             {
                 return new(Result.Failure(deleteResult.ErrorMessage));
             }
-            return new (Result<bool>.Success());
+            return new(Result<bool>.Success());
         }
     }
 }

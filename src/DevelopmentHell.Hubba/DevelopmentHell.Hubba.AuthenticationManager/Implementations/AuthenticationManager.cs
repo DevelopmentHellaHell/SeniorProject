@@ -1,12 +1,12 @@
-﻿using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
+﻿using System.Configuration;
+using System.Security.Claims;
+using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
 using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
-using System.Configuration;
-using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
 {
@@ -53,9 +53,9 @@ namespace DevelopmentHell.Hubba.Authentication.Manager.Implementations
             Result sendOTPResult = _otpService.SendOTP(email, otp);
             if (!sendOTPResult.IsSuccessful)
             {
-               result.IsSuccessful = false;
-               result.ErrorMessage = sendOTPResult.ErrorMessage;
-               return result;
+                result.IsSuccessful = false;
+                result.ErrorMessage = sendOTPResult.ErrorMessage;
+                return result;
             }
 
             string userHashKey = ConfigurationManager.AppSettings["UserHashKey"]!;

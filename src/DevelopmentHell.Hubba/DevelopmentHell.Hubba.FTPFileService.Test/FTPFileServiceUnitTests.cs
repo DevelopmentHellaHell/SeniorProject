@@ -1,10 +1,8 @@
-using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.Files.Service.Implementations;
-using DevelopmentHell.Hubba.Files.Service.Abstractions;
 using System.Configuration;
+using System.Text;
+using DevelopmentHell.Hubba.Files.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
-using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.StaticFiles;
@@ -35,7 +33,7 @@ namespace DevelopmentHell.Hubba.FTPFileService.Test
                 new Tuple<string, byte[]>($"{_now}_file2.txt", Encoding.ASCII.GetBytes("Text For File 2"))
             };
 
-            dirPath = "Testing/TestDir"; 
+            dirPath = "Testing/TestDir";
             _fileService = new Files.Service.Implementations.FTPFileService(
                 _ftpServer,
                 _ftpUsername,

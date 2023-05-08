@@ -1,12 +1,6 @@
 ﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
@@ -47,14 +41,14 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             Result<List<Dictionary<string, object>>> selectResult = await _selectDataAccess.Select(
                 _tableName,
                 new List<String>() { _fileId },
-                new List<Comparator>() { 
-                    new Comparator(_collaboratorId,"=", collabId) 
+                new List<Comparator>() {
+                    new Comparator(_collaboratorId,"=", collabId)
                 }
             ).ConfigureAwait(false);
-            
+
             if (!selectResult.IsSuccessful || selectResult.Payload is null)
             {
-                return new (Result.Failure("" + selectResult.ErrorMessage));
+                return new(Result.Failure("" + selectResult.ErrorMessage));
             }
 
             List<Dictionary<string, object>> payload = selectResult.Payload;

@@ -1,6 +1,4 @@
-﻿using System.Net.NetworkInformation;
-
-namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
+﻿namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 {
     public struct Comparator
     {

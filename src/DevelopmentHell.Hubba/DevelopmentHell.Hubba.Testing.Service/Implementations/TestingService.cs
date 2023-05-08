@@ -1,9 +1,9 @@
-﻿using Development.Hubba.JWTHandler.Service.Implementations;
+﻿using System.Security.Claims;
+using Development.Hubba.JWTHandler.Service.Implementations;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Models.Tests;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
-using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.Testing.Service.Implementations
 {

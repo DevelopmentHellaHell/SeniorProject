@@ -2,10 +2,9 @@
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 using DevelopmentHell.Hubba.Files.Service.Abstractions;
-using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
+using DevelopmentHell.Hubba.Models;
 using Microsoft.AspNetCore.Http;
-using static System.Net.WebRequestMethods;
 
 namespace DevelopmentHell.Hubba.Files.Service.Implementations
 {
@@ -182,38 +181,38 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
             }
         }
 
-    public async Task<Result> RenameFile(string filePath, string fileName, string newFileName)
-    {
-        string sourceKey = filePath + "/" + fileName;
-        string destinationKey = filePath + "/" + newFileName;
-
-        try
+        public async Task<Result> RenameFile(string filePath, string fileName, string newFileName)
         {
-            var copyRequest = new CopyObjectRequest
-            {
-                SourceBucket = _bucketName,
-                DestinationBucket = _bucketName,
-                SourceKey = sourceKey,
-                DestinationKey = destinationKey
-            };
+            string sourceKey = filePath + "/" + fileName;
+            string destinationKey = filePath + "/" + newFileName;
 
-            CopyObjectResponse copyResponse = await _s3Client.CopyObjectAsync(copyRequest);
-
-            if (copyResponse.HttpStatusCode == System.Net.HttpStatusCode.OK)
+            try
             {
-                await DeleteFile(sourceKey).ConfigureAwait(false);
+                var copyRequest = new CopyObjectRequest
+                {
+                    SourceBucket = _bucketName,
+                    DestinationBucket = _bucketName,
+                    SourceKey = sourceKey,
+                    DestinationKey = destinationKey
+                };
+
+                CopyObjectResponse copyResponse = await _s3Client.CopyObjectAsync(copyRequest);
+
+                if (copyResponse.HttpStatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    await DeleteFile(sourceKey).ConfigureAwait(false);
+                }
             }
+            catch (AmazonS3Exception ex)
+            {
+                return Result.Failure(ex.Message);
+            }
+
+            return Result.Failure("File rename operation failed.");
         }
-        catch (AmazonS3Exception ex)
-        {
-            return Result.Failure(ex.Message);
-        }
-
-        return Result.Failure("File rename operation failed.");
-    }
 
 
-    public async Task<Result> UploadIFormFile(string filePath, string fileName, IFormFile file)
+        public async Task<Result> UploadIFormFile(string filePath, string fileName, IFormFile file)
         {
             try
             {

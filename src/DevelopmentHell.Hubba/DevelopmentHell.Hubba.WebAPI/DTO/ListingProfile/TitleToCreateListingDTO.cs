@@ -3,6 +3,6 @@
     public class TitleToCreateListingDTO
     {
         public string Title { get; set; }
-        
+
     }
 }

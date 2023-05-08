@@ -3,11 +3,6 @@ using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
@@ -21,7 +16,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         private readonly string _listingIdColumm = "ListingId";
         private readonly string _userIdColumn = "UserId";
         private readonly string _tableName;
-        
+
 
         public ListingHistoryDataAccess(string connectionString, string tableName)
         {
@@ -130,7 +125,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             }
             else
             {
-                foreach(var row in selectResult.Payload) 
+                foreach (var row in selectResult.Payload)
                 {
                     result.Add(new Reservations()
                     {
@@ -144,6 +139,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
             return Result<List<Reservations>>.Success(result);
         }
 
-        
+
     }
 }

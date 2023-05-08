@@ -1,9 +1,4 @@
 ﻿using DevelopmentHell.Hubba.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
 {
@@ -16,7 +11,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
         Task<Result<List<Dictionary<string, object>>>> GetUserShowcases(int userId, bool includeDescription = true);
         Task<Result<List<Dictionary<string, object>>>> GetListingShowcases(int listingId);
         Task<Result<List<Dictionary<string, object>>>> GetComments(string showcaseId, int commentCount, int page);
-        Task<Result<Dictionary<string,object>>> GetComment(long commentId);
+        Task<Result<Dictionary<string, object>>> GetComment(long commentId);
         Task<Result<List<Dictionary<string, object>>>> GetAllShowcaseReports();
         Task<Result<List<Dictionary<string, object>>>> GetShowcaseReports(string showcaseId);
         Task<Result<List<Dictionary<string, object>>>> GetAllCommentReports();
@@ -40,6 +35,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
         Task<Result> LinkShowcaseListing(string showcaseId, int listingId);
 
         Task<Result<List<Dictionary<string, object>>>> Curate(int offset = 0);
-		Task<Result<List<Dictionary<string, object>>>> Search(string query, int offset = 0, double FTTWeight = 0.5, double RWeight = 0.5);
-	}
+        Task<Result<List<Dictionary<string, object>>>> Search(string query, int offset = 0, double FTTWeight = 0.5, double RWeight = 0.5);
+    }
 }

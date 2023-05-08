@@ -1,19 +1,19 @@
-﻿using DevelopmentHell.Hubba.Models;
+﻿using System.Configuration;
+using System.Data;
+using System.Security.Claims;
+using System.Text;
+using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
-using System.Configuration;
-using System.Data;
-using System.Security.Claims;
-using System.Text;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
-	public class CollaboratorsDataAccess : ICollaboratorsDataAccess
-	{
-		private readonly ExecuteDataAccess _executeDataAccess;
+    public class CollaboratorsDataAccess : ICollaboratorsDataAccess
+    {
+        private readonly ExecuteDataAccess _executeDataAccess;
         private InsertDataAccess _insertDataAccess;
         private SelectDataAccess _selectDataAccess;
         private DeleteDataAccess _deleteDataAccess;
@@ -28,14 +28,14 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
 
         public CollaboratorsDataAccess(string connectionString, string tableName)
-		{
-			_executeDataAccess = new ExecuteDataAccess(connectionString);
+        {
+            _executeDataAccess = new ExecuteDataAccess(connectionString);
             _insertDataAccess = new InsertDataAccess(connectionString);
             _selectDataAccess = new SelectDataAccess(connectionString);
             _deleteDataAccess = new DeleteDataAccess(connectionString);
             _updateDataAccess = new UpdateDataAccess(connectionString);
             _tableName = tableName;
-		}
+        }
 
         public async Task<Result> Delete(int collabId)
         {
@@ -83,7 +83,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                         sbColumn.Append(", ");
                     }
                     first = false;
-                    sbColumn.Append("c."+column);
+                    sbColumn.Append("c." + column);
                 }
 
                 insertQuery.CommandText = $"SELECT {sbColumn}, COUNT(uv.{_collaboratorIdColumn}) as Votes " +
@@ -91,10 +91,10 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     $"LEFT JOIN UserVotes uv on c.{_collaboratorIdColumn} = uv.{_collaboratorIdColumn} " +
                     $"WHERE {sbFilter} " +
                     $"GROUP BY {sbColumn}";
-                
+
                 var queryResult = await SendQuery(insertQuery).ConfigureAwait(false);
 
-                if(queryResult.Payload == null)
+                if (queryResult.Payload == null)
                 {
                     return new(Result.Failure("Server error: " + queryResult.ErrorMessage));
                 }
@@ -132,12 +132,12 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     collab.Availability = (string)payload[0]["Availability"];
                 }
 
-                
+
 
                 return new Result<CollaboratorProfile>()
                 {
                     IsSuccessful = true,
-                    Payload =collab
+                    Payload = collab
                 };
             }
         }
@@ -487,26 +487,26 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         }
 
         public async Task<Result<List<Dictionary<string, object>>>> Curate(int offset = 0)
-		{
-			var result = await _executeDataAccess.Execute("CurateCollaborators", new Dictionary<string, object>() {
-				{ "Offset", offset },
-			}).ConfigureAwait(false);
+        {
+            var result = await _executeDataAccess.Execute("CurateCollaborators", new Dictionary<string, object>() {
+                { "Offset", offset },
+            }).ConfigureAwait(false);
 
-			return result;
-		}
+            return result;
+        }
 
-		public async Task<Result<List<Dictionary<string, object>>>> Search(string query, int offset = 0, double FTTWeight = 0.5, double VCWeight = 0.5)
-		{
-			var result = await _executeDataAccess.Execute("SearchCollaborators", new Dictionary<string, object>()
-			{
-				{ "Query", query },
-				{ "Offset", offset },
-				{ "FTTableRankWeight", FTTWeight },
-				{ "VotesCountRankWeight", VCWeight },
-			}).ConfigureAwait(false);
+        public async Task<Result<List<Dictionary<string, object>>>> Search(string query, int offset = 0, double FTTWeight = 0.5, double VCWeight = 0.5)
+        {
+            var result = await _executeDataAccess.Execute("SearchCollaborators", new Dictionary<string, object>()
+            {
+                { "Query", query },
+                { "Offset", offset },
+                { "FTTableRankWeight", FTTWeight },
+                { "VotesCountRankWeight", VCWeight },
+            }).ConfigureAwait(false);
 
-			return result;
-		}
+            return result;
+        }
 
 
         private async Task<Result<List<Dictionary<string, object>>>> SendQuery(SqlCommand query)

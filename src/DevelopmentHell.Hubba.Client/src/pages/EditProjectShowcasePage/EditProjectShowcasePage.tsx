@@ -80,7 +80,7 @@ const EditProjectShowcasePage: React.FC<IEditProjectShowcasePageProps> = (props)
                     }
                 })
                 .catch((error) => {
-                    console.log(error);
+                    setError(error);
                 });
             Ajax.get<string[]> (`/showcases/files?s=${showcaseId}`)
                 .then((response) => {
@@ -155,13 +155,10 @@ const EditProjectShowcasePage: React.FC<IEditProjectShowcasePageProps> = (props)
                 (response) => {
                     if (response.error) {
                         setError(response.error);
-                        console.log(response.error)
-                        console.log(response)
                     }
                 }
             );
           }
-          console.log(sendingFiles);
           const response = await Ajax.post<string>(`/showcases/edit?s=${showcaseId}`, { files: sendingFiles ? fileDataList : null,  title: sendingTitle ? title : null, description: sendingDescription ? description : null}).then(
             (response) => 
             {
@@ -257,7 +254,6 @@ const EditProjectShowcasePage: React.FC<IEditProjectShowcasePageProps> = (props)
 
     const validatAndSetFileOrder = (fileOrder: string) => {
         if (fileOrder.length !== fileData.length) {
-            console.log (fileOrder.length+"!="+fileData.length);
             setError("File order must contain all file numbers");
             return;
         }
@@ -270,7 +266,6 @@ const EditProjectShowcasePage: React.FC<IEditProjectShowcasePageProps> = (props)
         const neededNums = new Set(Array.from(Array(fileData.length).keys()));
         numFileOrderSet.forEach((fileNum) => {
             if (!neededNums.has(fileNum)) {
-                console.log(neededNums+" does not contain "+fileNum);
                 setError("File order must contain all file numbers");
                 return;
             }

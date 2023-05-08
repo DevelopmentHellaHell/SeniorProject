@@ -1,9 +1,8 @@
-﻿using DevelopmentHell.Hubba.Models;
+﻿using System.Security.Claims;
+using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Identity.Client;
-using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
@@ -57,9 +56,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 },
                 _fileId
             ).ConfigureAwait(false);
-            
+
             // check if the insertion was successful
-            if(!insertResult.IsSuccessful) 
+            if (!insertResult.IsSuccessful)
             {
                 result.ErrorMessage = insertResult.ErrorMessage;
                 return result;
@@ -111,7 +110,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 result.ErrorMessage = insertResult.ErrorMessage;
                 return result;
             }
-            
+
             result.IsSuccessful = true;
             return result;
         }
@@ -128,7 +127,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 _tableName,
                 new List<String>() { _fileUrl },
                 _fileId,
-                fileIdsString                
+                fileIdsString
             ).ConfigureAwait(false);
 
             if (!selectResult.IsSuccessful || selectResult.Payload is null)

@@ -1,14 +1,11 @@
 ﻿
+using System.Globalization;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Models.DTO;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using Microsoft.AspNetCore.Http;
-using System.Globalization;
-using System.Diagnostics;
-using System.Globalization;
-using System.Net.NetworkInformation;
-using System.Reflection;
-using System.Text.RegularExpressions;
 
 namespace DevelopmentHell.Hubba.Validation.Service.Implementations
 {
@@ -18,7 +15,7 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
         {
 
         }
-        
+
         public Result ValidateEmail(string email)
         {
             Result result = new Result();
@@ -29,7 +26,7 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
             {
                 result.ErrorMessage = error;
                 return result;
-                
+
             }
 
             string regex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
@@ -468,7 +465,7 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
                         return result;
 
                     }
-                }   
+                }
                 else if (extension == ".mp4")
                 {
                     // Check if the video size is less than or equal to 300 MB
@@ -548,7 +545,7 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
                 result.ErrorMessage = file.FileName + " is an invalid file type.";
                 return result;
             }
-            
+
 
             result.IsSuccessful = true;
             return result;

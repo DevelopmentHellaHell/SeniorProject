@@ -1,22 +1,11 @@
-﻿using DevelopmentHell.Hubba.Models;
+﻿using System.Security.Claims;
+using System.Text;
+using DevelopmentHell.Hubba.Logging.Service.Abstractions;
+using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions;
+using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
-using System.Reflection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
-using System.Security.Cryptography;
-using DevelopmentHell.Hubba.Logging.Service.Abstractions;
-using Microsoft.Identity.Client;
-using System.Drawing.Printing;
-using DevelopmentHell.Hubba.SqlDataAccess;
-using System.Collections;
-using Azure;
 
 namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
 {
@@ -27,7 +16,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
         private readonly IValidationService _validationService;
         private readonly ILoggerService _logger;
 
-        public ProjectShowcaseService(IProjectShowcaseDataAccess projectShowcaseDataAccess, IUserAccountDataAccess userAccountDataAccess, IValidationService validationService, ILoggerService loggerService) 
+        public ProjectShowcaseService(IProjectShowcaseDataAccess projectShowcaseDataAccess, IUserAccountDataAccess userAccountDataAccess, IValidationService validationService, ILoggerService loggerService)
         {
             _userAccountDataAccess = userAccountDataAccess;
             _projectShowcaseDataAccess = projectShowcaseDataAccess;
@@ -36,7 +25,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
         }
 
 
-        private Dictionary<string,object> MapToAttDict(Dictionary<string,string> attToSqlVarMap, Dictionary<string,object> values)
+        private Dictionary<string, object> MapToAttDict(Dictionary<string, string> attToSqlVarMap, Dictionary<string, object> values)
         {
             Dictionary<string, object> nextDict = new Dictionary<string, object>();
             foreach (var attToSqlVar in attToSqlVarMap)
@@ -84,11 +73,11 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             {
                 if (!_validationService.ValidateTitle(title).IsSuccessful)
                 {
-                    return new(Result.Failure("Invalid title.",400));
+                    return new(Result.Failure("Invalid title.", 400));
                 }
                 if (!_validationService.ValidateBodyText(description).IsSuccessful)
                 {
-                    return new(Result.Failure("Invalid body.",400));
+                    return new(Result.Failure("Invalid body.", 400));
                 }
 
                 int accountId = int.Parse((Thread.CurrentPrincipal as ClaimsPrincipal)?.FindFirstValue("sub")!);
@@ -198,7 +187,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
                     return Result.Failure(editResult.ErrorMessage!);
                 }
 
-                return Result.Success();    
+                return Result.Success();
             }
             catch (Exception ex)
             {
@@ -398,10 +387,10 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
         public async Task<Result<List<Showcase>>> GetUserShowcases(int accountId, bool includeDetails = false)
         {
             try
-                {
+            {
                 var getResult = await _projectShowcaseDataAccess.GetUserShowcases(accountId).ConfigureAwait(false);
                 if (!getResult.IsSuccessful)
-                    {
+                {
                     return new(Result.Failure($"Error in getting showcases from DAC: {getResult.ErrorMessage}"));
                 }
                 List<Showcase> output = new();
@@ -422,7 +411,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
                 {
                     var valDict = MapToAttDict(varSqlVarMap, showcaseDict);
                     Showcase nextShowcase = new();
-                    nextShowcase.PublishTimestamp =  valDict["PublishTimestamp"].GetType() == typeof(DBNull) ? null : (DateTime)valDict["PublishTimestamp"];
+                    nextShowcase.PublishTimestamp = valDict["PublishTimestamp"].GetType() == typeof(DBNull) ? null : (DateTime)valDict["PublishTimestamp"];
                     nextShowcase.IsPublished = valDict["IsPublished"].GetType() == typeof(DBNull) ? null : (bool)valDict["IsPublished"];
                     nextShowcase.EditTimestamp = valDict["EditTimestamp"].GetType() == typeof(DBNull) ? null : (DateTime)valDict["EditTimestamp"];
                     nextShowcase.Title = valDict["Title"].GetType() == typeof(DBNull) ? null : (string)valDict["Title"];
@@ -443,7 +432,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
                 return Result<List<Showcase>>.Success(output);
             }
             catch (Exception ex)
-                {
+            {
                 _logger.Warning(Category.BUSINESS, $"Error in getting showcases: {ex.Message}", "ShowcaseService");
                 return new(Result.Failure("Error in getting showcases"));
             }
@@ -554,7 +543,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
 
                 if (selectResult.Payload != null)
                 {
-                    if ( selectResult.Payload["Description"].ToString()!.Length < 250)
+                    if (selectResult.Payload["Description"].ToString()!.Length < 250)
                     {
                         return Result.Failure("Description needs to be at least 250 characters", 400);
                     }
@@ -626,7 +615,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
                     }
                     return Result<int>.Success(updateCommentResult.Payload);
                 }
-                return new(Result.Failure("Rating is unchanged.",400));
+                return new(Result.Failure("Rating is unchanged.", 400));
             }
             catch (Exception ex)
             {
@@ -661,9 +650,9 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             {
                 int accountId = int.Parse((Thread.CurrentPrincipal as ClaimsPrincipal)?.FindFirstValue("sub")!);
                 var reportResult = await _projectShowcaseDataAccess.AddShowcaseReport(showcaseId, accountId, reasonText, DateTime.Now);
-                if (! reportResult.IsSuccessful)
+                if (!reportResult.IsSuccessful)
                 {
-                    return Result.Failure("Error in reporting showcase",400);
+                    return Result.Failure("Error in reporting showcase", 400);
                 }
 
                 return Result.Success();
@@ -680,7 +669,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations
             try
             {
                 var unlinkResult = await _projectShowcaseDataAccess.RemoveShowcaseListing(showcaseId);
-                if (! unlinkResult.IsSuccessful)
+                if (!unlinkResult.IsSuccessful)
                 {
                     return unlinkResult;
                 }

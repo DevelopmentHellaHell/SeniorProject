@@ -1,18 +1,11 @@
-﻿using DevelopmentHell.Hubba.Logging.Service.Abstractions;
-using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions;
-using DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions;
+﻿using System.Security.Claims;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Files.Service.Abstractions;
 using DevelopmentHell.Hubba.ListingProfile.Service.Abstractions;
-using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+using DevelopmentHell.Hubba.Logging.Service.Abstractions;
+using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions;
+using DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions;
 
 namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
 {
@@ -23,7 +16,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
         private readonly IListingProfileService _listingProfileService;
         private readonly ILoggerService _logger;
         private readonly IAuthorizationService _authorizationService;
-        public ProjectShowcaseManager(IProjectShowcaseService projectShowcaseService, IFileService fileService, IListingProfileService listingProfileService, ILoggerService loggerService, IAuthorizationService authorizationService) 
+        public ProjectShowcaseManager(IProjectShowcaseService projectShowcaseService, IFileService fileService, IListingProfileService listingProfileService, ILoggerService loggerService, IAuthorizationService authorizationService)
         {
             _projectShowcaseService = projectShowcaseService;
             _fileService = fileService;
@@ -44,7 +37,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
             return Result<List<string>>.Success(getFilesResult.Payload!);
         }
-        
+
         public async Task<Result> AddComment(string showcaseId, string commentText)
         {
 
@@ -73,7 +66,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
         }
 
-        public async Task<Result<string>> CreateShowcase(int listingId, string title, string description, List<Tuple<string,string>> files)
+        public async Task<Result<string>> CreateShowcase(int listingId, string title, string description, List<Tuple<string, string>> files)
         {
             try
             {
@@ -81,7 +74,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 if (!authResult.IsSuccessful)
                 {
                     _logger.Warning(Category.BUSINESS, $"Unauthorized attempt to create a showcase", "AuthorizationService");
-                    return new(Result.Failure("Unauthorized attempt to create a showcase",401));
+                    return new(Result.Failure("Unauthorized attempt to create a showcase", 401));
                 }
 
                 if (listingId != 0)
@@ -111,7 +104,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 for (int i = 0; i < files.Count; i++)
                 {
                     byte[] bytes = Convert.FromBase64String(files[i].Item2);
-                    var uploadResult = await _fileService.UploadFile($"ProjectShowcases/{createResult.Payload!}",$"{i}_{files[i].Item1}", bytes);
+                    var uploadResult = await _fileService.UploadFile($"ProjectShowcases/{createResult.Payload!}", $"{i}_{files[i].Item1}", bytes);
                     if (!uploadResult.IsSuccessful)
                     {
                         await _fileService.Disconnect();
@@ -250,12 +243,12 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 var fileOrder = new Dictionary<int, string>();
 
                 string dirPath = $"ProjectShowcases/{showcaseId}";
-                foreach(string filePath in filePaths)
+                foreach (string filePath in filePaths)
                 {
                     var orderNum = int.Parse(filePath.Split("/").Last().Split("_").First());
-                    if(!fileOrder.TryAdd(orderNum, filePath.Split("/").Last().Split("_", 1).Last()))
+                    if (!fileOrder.TryAdd(orderNum, filePath.Split("/").Last().Split("_", 1).Last()))
                     {
-                        await _fileService.DeleteFile(dirPath+ filePath.Split("/").Last().Split("_", 1).Last()).ConfigureAwait(false);
+                        await _fileService.DeleteFile(dirPath + filePath.Split("/").Last().Split("_", 1).Last()).ConfigureAwait(false);
                     }
                 }
 
@@ -272,7 +265,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
             }
         }
 
-        public async Task<Result> EditShowcase(string showcaseId, int? listingId, string? title, string? description, List<Tuple<string,string>>? files)
+        public async Task<Result> EditShowcase(string showcaseId, int? listingId, string? title, string? description, List<Tuple<string, string>>? files)
         {
             try
             {
@@ -322,7 +315,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                     for (int i = 0; i < files.Count; i++)
                     {
                         byte[] bytes = Convert.FromBase64String(files[i].Item2);
-                        var uploadResult = await _fileService.UploadFile($"ProjectShowcases/{showcaseId}", $"0{i+1}_{files[i].Item1}", bytes);
+                        var uploadResult = await _fileService.UploadFile($"ProjectShowcases/{showcaseId}", $"0{i + 1}_{files[i].Item1}", bytes);
                         await _fileService.Disconnect();
                         if (!uploadResult.IsSuccessful)
                         {
@@ -369,7 +362,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 if (!checkResult.Payload && !(bool)testResult.Payload!["IsPublished"])
                 {
                     _logger.Warning(Category.BUSINESS, $"Unauthorized attempt to get comments: {checkResult.Payload}", "ProjectShowcaseManager");
-                    return new(Result.Failure("Unauthorized access.",401));
+                    return new(Result.Failure("Unauthorized access.", 401));
                 }
 
                 return await _projectShowcaseService.GetComments(showcaseId, (int)commentCount, (int)page).ConfigureAwait(false);
@@ -490,7 +483,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 {
                     output.FilePaths = getFilesResult.Payload;
                 }
-                
+
 
                 var getCommentsResult = await _projectShowcaseService.GetComments(showcaseId, 10, 1).ConfigureAwait(false);
                 if (!getCommentsResult.IsSuccessful)
@@ -632,7 +625,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
 
                 return await _projectShowcaseService.LikeShowcase(showcaseId).ConfigureAwait(false);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.Warning(Category.BUSINESS, $"Error in liking showcase: {ex.Message}", "ShowcaseManager");
                 return new(Result.Failure("Error in liking showcase"));
@@ -725,7 +718,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
                 if (!authResult.IsSuccessful)
                 {
                     _logger.Warning(Category.BUSINESS, $"Authorization failure: {authResult.ErrorMessage}", "ProjectShowcaseManager");
-                    return new(Result.Failure("Unauthorized attempt to Report comment",401));
+                    return new(Result.Failure("Unauthorized attempt to Report comment", 401));
                 }
 
                 return await _projectShowcaseService.ReportComment(commentId, reasonText).ConfigureAwait(false);
@@ -865,7 +858,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations
         public async Task<Result<bool>> VerifyOwnership(string showcaseId)
         {
             var authResult = _authorizationService.Authorize(new string[] { "VerifiedUser", "AdminUser" });
-            if(!authResult.IsSuccessful)
+            if (!authResult.IsSuccessful)
             {
                 return new()
                 {

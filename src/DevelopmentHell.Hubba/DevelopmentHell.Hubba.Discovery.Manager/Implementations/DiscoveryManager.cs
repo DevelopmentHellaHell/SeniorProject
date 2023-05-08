@@ -3,7 +3,6 @@ using DevelopmentHell.Hubba.Discovery.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
 
 namespace DevelopmentHell.Hubba.Discovery.Manager.Implementations
 {
@@ -12,29 +11,30 @@ namespace DevelopmentHell.Hubba.Discovery.Manager.Implementations
         private readonly IDiscoveryService _discoveryService;
         private readonly ILoggerService _loggerService;
 
-        public DiscoveryManager(IDiscoveryService discoveryService, ILoggerService loggerService) {
+        public DiscoveryManager(IDiscoveryService discoveryService, ILoggerService loggerService)
+        {
             _discoveryService = discoveryService;
             _loggerService = loggerService;
         }
 
         public async Task<Result<Dictionary<string, List<Dictionary<string, object>>?>>> GetCurated(int offset)
         {
-			if (offset < 0)
-			{
-				return new(Result.Failure("Invalid offset.", StatusCodes.Status400BadRequest));
-			}
+            if (offset < 0)
+            {
+                return new(Result.Failure("Invalid offset.", StatusCodes.Status400BadRequest));
+            }
 
-			var result = await _discoveryService.GetCurated(offset).ConfigureAwait(false);
+            var result = await _discoveryService.GetCurated(offset).ConfigureAwait(false);
             if (!result.IsSuccessful)
             {
                 _loggerService.Log(LogLevel.ERROR, Category.BUSINESS, result.ErrorMessage!);
-                return new (Result.Failure("Discovery curated data error. Refresh page or try again later.", result.StatusCode));
+                return new(Result.Failure("Discovery curated data error. Refresh page or try again later.", result.StatusCode));
             }
 
             var payload = result.Payload!;
 
             return Result<Dictionary<string, List<Dictionary<string, object>>?>>.Success(payload);
-		}
+        }
 
         public async Task<Result<List<Dictionary<string, object>>>> GetSearch(string query, string category, string filter, int offset)
         {
@@ -53,16 +53,16 @@ namespace DevelopmentHell.Hubba.Discovery.Manager.Implementations
                 return new(Result.Failure("Query is empty.", StatusCodes.Status400BadRequest));
             }
 
-			var result = await _discoveryService.GetSearch(query, category, filter, offset).ConfigureAwait(false);
-			if (!result.IsSuccessful)
-			{
+            var result = await _discoveryService.GetSearch(query, category, filter, offset).ConfigureAwait(false);
+            if (!result.IsSuccessful)
+            {
                 _loggerService.Log(LogLevel.ERROR, Category.BUSINESS, result.ErrorMessage!);
-				return new(Result.Failure("Discovery search error. Refresh page or try again later.", result.StatusCode));
-			}
+                return new(Result.Failure("Discovery search error. Refresh page or try again later.", result.StatusCode));
+            }
 
-			var payload = result.Payload!;
+            var payload = result.Payload!;
 
-			return Result<List<Dictionary<string, object>>>.Success(payload);
-		}
-	}
+            return Result<List<Dictionary<string, object>>>.Success(payload);
+        }
+    }
 }

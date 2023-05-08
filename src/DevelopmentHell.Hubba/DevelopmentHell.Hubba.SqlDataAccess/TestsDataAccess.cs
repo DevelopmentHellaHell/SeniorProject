@@ -1,7 +1,7 @@
-﻿using DevelopmentHell.Hubba.Models;
+﻿using System.Configuration;
+using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Models.Tests;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
-using System.Configuration;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {

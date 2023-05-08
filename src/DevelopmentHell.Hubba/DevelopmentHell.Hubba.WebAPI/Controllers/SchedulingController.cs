@@ -95,23 +95,23 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
 
         [HttpPost]
         [Route("getbookingdetails")]
-        public async Task<IActionResult> GetBookingDetails (BookingViewDTO bookingViewDTO)
+        public async Task<IActionResult> GetBookingDetails(BookingViewDTO bookingViewDTO)
         {
-			return await GuardedWorkload(async () =>
-			{
-				if (!ModelState.IsValid)
-				{
-					return StatusCode(StatusCodes.Status400BadRequest);
-				}
+            return await GuardedWorkload(async () =>
+            {
+                if (!ModelState.IsValid)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest);
+                }
 
-				var result = await _schedulingManager.GetBookingDetails((int)bookingViewDTO.UserId!, bookingViewDTO.BookingId).ConfigureAwait(false);
-				if (!result.IsSuccessful)
-				{
-					return StatusCode(result.StatusCode, result.ErrorMessage);
-				}
+                var result = await _schedulingManager.GetBookingDetails((int)bookingViewDTO.UserId!, bookingViewDTO.BookingId).ConfigureAwait(false);
+                if (!result.IsSuccessful)
+                {
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
+                }
 
-				return StatusCode(result.StatusCode, result.Payload);
-			}).ConfigureAwait(false);
-		}
+                return StatusCode(result.StatusCode, result.Payload);
+            }).ConfigureAwait(false);
+        }
     }
 }

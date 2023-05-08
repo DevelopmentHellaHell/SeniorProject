@@ -1,4 +1,5 @@
-﻿using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
+﻿using System.Security.Claims;
+using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.CellPhoneProvider.Service.Abstractions;
 using DevelopmentHell.Hubba.Email.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
@@ -6,7 +7,6 @@ using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Notification.Manager.Abstractions;
 using DevelopmentHell.Hubba.Notification.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
-using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.Notification.Manager.Implementations
 {

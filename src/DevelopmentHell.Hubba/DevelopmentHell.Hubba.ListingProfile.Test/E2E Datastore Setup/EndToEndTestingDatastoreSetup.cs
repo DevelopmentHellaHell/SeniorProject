@@ -1,6 +1,14 @@
-﻿using Development.Hubba.JWTHandler.Service.Implementations;
+﻿using System.Configuration;
+using System.Security.Claims;
+using Development.Hubba.JWTHandler.Service.Implementations;
 using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
+using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
+using DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Implementations;
+using DevelopmentHell.Hubba.Collaborator.Manager.Abstractions;
+using DevelopmentHell.Hubba.Collaborator.Manager.Implementations;
+using DevelopmentHell.Hubba.Collaborator.Service.Abstractions;
+using DevelopmentHell.Hubba.Collaborator.Service.Implementations;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
 using DevelopmentHell.Hubba.Email.Service.Implementations;
@@ -9,33 +17,22 @@ using DevelopmentHell.Hubba.Files.Service.Implementations;
 using DevelopmentHell.Hubba.ListingProfile.Manager.Implementations;
 using DevelopmentHell.Hubba.ListingProfile.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
+using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.Models.DTO;
 using DevelopmentHell.Hubba.Notification.Service.Implementations;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Manager.Abstractions;
 using DevelopmentHell.Hubba.Registration.Manager.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
-using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess;
+using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
-using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using DevelopmentHell.ListingProfile.Manager.Abstractions;
-using DevelopmentHell.Hubba.Models;
-using System.Security.Claims;
-using System.Configuration;
-using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
-using DevelopmentHell.Hubba.Authentication.Service.Implementations;
-using DevelopmentHell.Hubba.Models.DTO;
-using Microsoft.Identity.Client;
-using DevelopmentHell.Hubba.Registration.Service.Abstractions;
-using DevelopmentHell.Hubba.WebAPI.DTO.Collaborator;
-using Microsoft.AspNetCore.Http;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
-using DevelopmentHell.Hubba.Collaborator.Service.Abstractions;
-using DevelopmentHell.Hubba.Collaborator.Manager.Abstractions;
-using DevelopmentHell.Hubba.Collaborator.Service.Implementations;
-using DevelopmentHell.Hubba.Collaborator.Manager.Implementations;
-using Development.Hubba.JWTHandler.Service.Abstractions;
+using DevelopmentHell.Hubba.Validation.Service.Implementations;
+using DevelopmentHell.Hubba.WebAPI.DTO.Collaborator;
+using DevelopmentHell.ListingProfile.Manager.Abstractions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
 
 namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
@@ -301,13 +298,13 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
                 );
 
             _collaboratorManager = new CollaboratorManager(
-                _collaboratorService, 
+                _collaboratorService,
                 new AuthorizationService(
                     _userAccountDataAccess,
                     new JWTHandlerService(_jwtKey),
                     loggerService
-                ), 
-                loggerService, 
+                ),
+                loggerService,
                 _validationService
             );
         }
@@ -369,7 +366,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
             var file1Name = "dumb_slatt.png";
             tempFiles.Add(new Tuple<string, string>(file1Name, file1));
 
-            await _listingProfileManager.EditListingFiles(listingId, null, tempFiles).ConfigureAwait(false);
+            await _listingProfileManager.EditListingFiles(listingId, new (), tempFiles).ConfigureAwait(false);
             List<ListingAvailabilityReactDTO> listingAvailabilityReactDTOs = new List<ListingAvailabilityReactDTO>();
 
             ListingAvailabilityReactDTO avail1 = new ListingAvailabilityReactDTO()
@@ -480,7 +477,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
             file1Name = "im the best.png";
             tempFiles.Add(new Tuple<string, string>(file1Name, file1));
 
-            await _listingProfileManager.EditListingFiles(listingId, null, tempFiles).ConfigureAwait(false);
+            await _listingProfileManager.EditListingFiles(listingId, new (), tempFiles).ConfigureAwait(false);
             listingAvailabilityReactDTOs = new List<ListingAvailabilityReactDTO>();
 
             avail1 = new ListingAvailabilityReactDTO()
@@ -586,7 +583,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
             file1Name = "too lazy.png";
             tempFiles.Add(new Tuple<string, string>(file1Name, file1));
 
-            await _listingProfileManager.EditListingFiles(listingId, null, tempFiles).ConfigureAwait(false);
+            await _listingProfileManager.EditListingFiles(listingId, new List<string>(), tempFiles).ConfigureAwait(false);
             listingAvailabilityReactDTOs = new List<ListingAvailabilityReactDTO>();
 
             avail1 = new ListingAvailabilityReactDTO()
