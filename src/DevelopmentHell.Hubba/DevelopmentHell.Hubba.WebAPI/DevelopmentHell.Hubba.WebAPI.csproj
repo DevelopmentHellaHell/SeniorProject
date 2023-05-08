@@ -59,19 +59,16 @@
     <Content Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="ClientBuild\build\manifest.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>
     <None Update="ClientBuild\build\index.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="ClientBuild\build\static\css\main.19bbc81b.css">
+    <None Update="ClientBuild\build\static\css\main.2ddc9989.css">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="ClientBuild\build\static\js\main.85932132.js">
+    <None Update="ClientBuild\build\static\js\main.8f81164f.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

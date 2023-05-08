@@ -67,6 +67,7 @@ using DevelopmentHell.Hubba.UserManagement.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
 using DevelopmentHell.ListingProfile.Manager.Abstractions;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Net.Http.Headers;
 using HubbaAuthenticationManager = DevelopmentHell.Hubba.Authentication.Manager.Implementations;
 using HubbaConfig = System.Configuration;
@@ -75,7 +76,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-#if !DEBUG
+
 builder.WebHost.ConfigureKestrel((context, options) =>
 {
     options.ConfigureHttpsDefaults(httpsOptions =>
@@ -83,7 +84,7 @@ builder.WebHost.ConfigureKestrel((context, options) =>
         httpsOptions.ServerCertificate = LoadCertificate();
     });
 });
-#endif
+
 
 builder.Services.AddSingleton<ITestingService, TestingService>(s =>
 {
@@ -93,13 +94,6 @@ builder.Services.AddSingleton<ITestingService, TestingService>(s =>
     );
 });
 
-#if !DEBUG
-builder.Services.AddHttpsRedirection(options =>
-{
-    options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
-    options.HttpsPort = 443;
-});
-#endif
 
 builder.Services.AddSingleton<ILoggerService, LoggerService>(s =>
 {
@@ -615,14 +609,14 @@ app.UseRouting();
 
 app.UseDefaultFiles();
 
-#if !DEBUG
+
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
         Path.Combine(Directory.GetCurrentDirectory(), "ClientBuild", "build")),
     RequestPath = "/ClientBuild/build"
 });
-#endif
+
 
 //app.UseStaticFiles();
 //app.UseStaticFiles(new StaticFileOptions
@@ -632,7 +626,7 @@ app.UseStaticFiles(new StaticFileOptions
 //    ServeUnknownFileTypes = true
 //});
 
-#if !DEBUG
+
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
@@ -642,7 +636,7 @@ app.UseEndpoints(endpoints =>
         await context.Response.SendFileAsync(Path.Combine("ClientBuild", "build", "index.html"));
     });
 });
-#endif
+
 
 #if DEBUG
 app.MapControllers();
@@ -650,7 +644,7 @@ app.MapControllers();
 
 app.Run();
 
-#if !DEBUG
+
 X509Certificate2 LoadCertificate()
 {
     // Load your Origin CA certificate and private key here
@@ -659,4 +653,3 @@ X509Certificate2 LoadCertificate()
     var cert = new X509Certificate2(certificatePath, privateKeyPath);
     return cert;
 }
-#endif
