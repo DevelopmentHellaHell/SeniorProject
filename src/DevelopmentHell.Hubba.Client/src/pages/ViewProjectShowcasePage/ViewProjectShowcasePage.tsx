@@ -84,13 +84,13 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                     setComments(response.data.comments);
                 }
                 else {
-                    setCommentsError("Unable to load comments. Refresh page or try again later.")
+                    setCommentsError("Unable to load comments. Refresh page or try again later. " + response.error)
                 }
                 if (response.data.showcase) {
                     setShowcase(response.data.showcase);
                 }
                 else {
-                    setShowcaseError("Unable to load project showcase. Refresh page or try again later.")
+                    setShowcaseError("Unable to load project showcase. Refresh page or try again later. " + response.error)
                 }
                 if (response.data.filePaths) {
                     setImages(response.data.filePaths);
@@ -99,7 +99,7 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                     }
                 }
                 else {
-                    setImagesError("Unable to load images. Refresh page or try again later.")
+                    setImagesError("Unable to load images. Refresh page or try again later. " + response.error)
                 }
                 setShowcaseLikes(response.data.showcase.rating);
             }
