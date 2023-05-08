@@ -5,6 +5,7 @@ using DevelopmentHell.Hubba.Files.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using Microsoft.AspNetCore.Http;
+using static System.Net.WebRequestMethods;
 
 namespace DevelopmentHell.Hubba.Files.Service.Implementations
 {
@@ -101,7 +102,8 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
                     Key = filePath
                 };
                 await _s3Client.GetObjectMetadataAsync(request);
-                return Result<string>.Success(filePath);
+                var baseUrl = $"https://{_bucketName}.s3.amazonaws.com/";
+                return Result<string>.Success(baseUrl + filePath);
             }
             catch (Exception)
             {
@@ -122,6 +124,10 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
                 var outFiles = new List<string>();
                 foreach (var obj in listObjectsResponse.S3Objects)
                 {
+                    if (obj.Key.Equals(dirPath.EndsWith("/") ? dirPath : dirPath + "/"))
+                    {
+                        continue;
+                    }
                     outFiles.Add($"https://{_bucketName}.s3.amazonaws.com/{obj.Key}");
                 }
                 return Result<List<string>>.Success(outFiles);
