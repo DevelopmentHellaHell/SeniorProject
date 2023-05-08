@@ -21,7 +21,7 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
             _bucketName = bucketName;
             _loggerService = loggerService;
 
-            _s3Client = new AmazonS3Client(accessKeyId, secretKey, Amazon.RegionEndpoint.USEast1);
+            _s3Client = new AmazonS3Client(accessKeyId, secretKey, Amazon.RegionEndpoint.USWest1);
             _transferUtility = new TransferUtility(_s3Client);
         }
 
