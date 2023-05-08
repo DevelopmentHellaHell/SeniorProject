@@ -389,9 +389,7 @@ builder.Services.AddTransient<IListingHistoryDataAccess, ListingHistoryDataAcces
 		HubbaConfig.ConfigurationManager.AppSettings["ListingHistoryTable"]!
 ));
 
-builder.Services.AddTransient<IListingProfileManager, ListingProfileManager>(s =>
-    new ListingProfileManager
-    (
+builder.Services.AddTransient<IListingProfileService, ListingProfileService>(s =>
         new ListingProfileService
         (
             s.GetService<IListingsDataAccess>()!,
@@ -408,7 +406,13 @@ builder.Services.AddTransient<IListingProfileManager, ListingProfileManager>(s =
                 HubbaConfig.ConfigurationManager.AppSettings["UserAccountsTable"]!
             ),
             s.GetService<ILoggerService>()!
-        ),
+    )
+); 
+
+builder.Services.AddTransient<IListingProfileManager, ListingProfileManager>(s =>
+    new ListingProfileManager
+    (
+        s.GetService<IListingProfileService>()!,
         s.GetService<IFileService>()!,
         s.GetService<IAuthorizationService>()!,
         s.GetService<ILoggerService>()!,
