@@ -12,7 +12,8 @@ namespace DevelopmentHell.Hubba.AccountSystem.Manager.Abstractions
         Task<Result> UpdateUserName(string firstName, string lastName);
         Task<Result<AccountSystemSettings>> GetAccountSettings();
         Task<Result> CancelBooking(int bookingId);
-        Task<Result<List<BookingHistory>>> GetBookingHistory();
-        Task<Result<List<Reservations>>> GetReservations();
+        Task<Result<List<BookingHistory>>> GetBookingHistory(int bookingCount, int page);
+        Task<Result<List<Reservations>>> GetReservations(string sort, int reservationCount, int page);
+        Task<Result<List<Reservations>>> GetReservationsQuery(string query);
     }
 }

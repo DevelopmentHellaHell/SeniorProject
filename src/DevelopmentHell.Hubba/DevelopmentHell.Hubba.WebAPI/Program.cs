@@ -73,6 +73,7 @@ using DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.Hosting;
 using System.Security.Cryptography.X509Certificates;
+using DevelopmentHell.Hubba.ListingProfile.Service.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -86,13 +87,13 @@ builder.Services.AddControllers();
 //    });
 //});
 
-builder.WebHost.ConfigureKestrel((context, options) =>
-{
-    options.ConfigureHttpsDefaults(httpsOptions =>
-    {
-        httpsOptions.ServerCertificate = LoadCertificate();
-    });
-});
+//builder.WebHost.ConfigureKestrel((context, options) =>
+//{
+//    options.ConfigureHttpsDefaults(httpsOptions =>
+//    {
+//        httpsOptions.ServerCertificate = LoadCertificate();
+//    });
+//});
 
 builder.Services.AddSingleton<ITestingService, TestingService>(s =>
 {
@@ -498,6 +499,10 @@ builder.Services.AddTransient<IAccountSystemManager, AccountSystemManager>(s =>
         (
             HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
             HubbaConfig.ConfigurationManager.AppSettings["ListingHistoryTable"]!
+        ),
+        new ListingsDataAccess(
+            HubbaConfig.ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+            HubbaConfig.ConfigurationManager.AppSettings["ListingsTable"]!
         ),
             s.GetService<ILoggerService>()!
         ),
