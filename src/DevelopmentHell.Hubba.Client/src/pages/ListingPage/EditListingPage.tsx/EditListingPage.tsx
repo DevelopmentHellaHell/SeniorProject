@@ -260,6 +260,7 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
             const response = await Ajax.post<null>("/listingprofile/editListing", data?.Listing );
             if (response.error) {
                 setError("Listing edits error. Refresh page or try again later./n" + response.error);
+                return;
             } 
         }
 
@@ -277,6 +278,7 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
               const response = await Ajax.post<null>("/listingprofile/editListingAvailabilities", { reactAvailabilities: availabilities });
               if (response.error) {
                 setError("Listing edits error. Refresh page or try again later.\n" + response.error);
+                return;
               }
         }
 
@@ -302,9 +304,11 @@ const EditListingPage: React.FC<IListingPageProps> = (props) => {
               if (response.error) {
                 setError(response.error+ "\nRefresh page and try again.");
                 setFileData(null);
+                return;
               }
             } catch (error) {
                 setError(error+ "\nRefresh page and try again.");
+                return;
             }
         }
         if (!attemptPublish) {

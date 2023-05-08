@@ -460,28 +460,15 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
 
                 if (extension == ".jpg" || extension == ".jpeg" || extension == ".png")
                 {
-                    using (var stream = new MemoryStream(Convert.FromBase64String(file.Item2)))
-                    using (var image = System.Drawing.Image.FromStream(stream))
+                    // Check if the image size is less than or equal to 25 MB
+                    if (Convert.FromBase64String(file.Item2).Length > 25 * 1024 * 1024)
                     {
-                        if (image.RawFormat.Equals(System.Drawing.Imaging.ImageFormat.Jpeg) ||
-                            image.RawFormat.Equals(System.Drawing.Imaging.ImageFormat.Png))
-                        {
-                            // Check if the image size is less than or equal to 25 MB
-                            if (Convert.FromBase64String(file.Item2).Length > 25 * 1024 * 1024)
-                            {
-                                result.IsSuccessful = false;
-                                result.ErrorMessage = file.Item1 + " is too large.";
-                                return result;
-                            }
-                        }
-                        else
-                        {
-                            result.IsSuccessful = false;
-                            result.ErrorMessage = file.Item1 + " is an invalid image file type.";
-                            return result;
-                        }
+                        result.IsSuccessful = false;
+                        result.ErrorMessage = file.Item1 + " is too large.";
+                        return result;
+
                     }
-                }
+                }   
                 else if (extension == ".mp4")
                 {
                     // Check if the video size is less than or equal to 300 MB

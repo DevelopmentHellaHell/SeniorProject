@@ -875,6 +875,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Manager.Implementations
                         Result deleteResult = await _fileService.DeleteFile(dir + "/Pictures/" + filename).ConfigureAwait(false);
                         if (!deleteResult.IsSuccessful)
                         {
+                            Console.WriteLine(deleteResult.ErrorMessage);
                             fileDeleteResults.ErrorMessage += "Failed to delete " + filename + "\n";
                             deleteErrorFound = true;
                         }
