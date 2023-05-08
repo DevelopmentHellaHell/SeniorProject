@@ -123,6 +123,9 @@ const ViewProjectShowcasePage: React.FC<IViewProjectShowcasePageProps> = (props)
                 setCommentsError("Unable to load comments. Refresh page or try again later.");
                 alert(response.error);
             }
+            else {
+                setCommentsError("");
+            }
         });
     }
 
