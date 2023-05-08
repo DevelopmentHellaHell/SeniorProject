@@ -35,7 +35,7 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
                     Key = dirPath.EndsWith("/") ? dirPath : dirPath + "/",
                     ContentBody = string.Empty
                 };
-                await _s3Client.PutObjectAsync(putObjectRequest);
+                await _s3Client.PutObjectAsync(putObjectRequest).ConfigureAwait(false);
                 return Result.Success();
             }
             catch (Exception ex)
@@ -53,13 +53,13 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
                     BucketName = _bucketName,
                     Prefix = dirPath.EndsWith("/") ? dirPath : dirPath + "/"
                 };
-                var listObjectsResponse = await _s3Client.ListObjectsV2Async(listObjectsRequest);
+                var listObjectsResponse = await _s3Client.ListObjectsV2Async(listObjectsRequest).ConfigureAwait(false);
                 var deleteObjectsRequest = new DeleteObjectsRequest { BucketName = _bucketName };
 
                 deleteObjectsRequest.Objects.AddRange(
                     listObjectsResponse.S3Objects.Select(obj => new KeyVersion { Key = obj.Key }));
 
-                await _s3Client.DeleteObjectsAsync(deleteObjectsRequest);
+                await _s3Client.DeleteObjectsAsync(deleteObjectsRequest).ConfigureAwait(false);
                 return Result.Success();
             }
             catch (Exception ex)
@@ -77,7 +77,7 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
                     BucketName = _bucketName,
                     Key = filePath
                 };
-                await _s3Client.DeleteObjectAsync(deleteObjectRequest);
+                await _s3Client.DeleteObjectAsync(deleteObjectRequest).ConfigureAwait(false);
                 return Result.Success();
             }
             catch (Exception ex)
@@ -101,7 +101,7 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
                     BucketName = _bucketName,
                     Key = filePath
                 };
-                await _s3Client.GetObjectMetadataAsync(request);
+                await _s3Client.GetObjectMetadataAsync(request).ConfigureAwait(false);
                 var baseUrl = $"https://{_bucketName}.s3.amazonaws.com/";
                 return Result<string>.Success(baseUrl + filePath);
             }
@@ -120,7 +120,7 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
                     BucketName = _bucketName,
                     Prefix = dirPath.EndsWith("/") ? dirPath : dirPath + "/"
                 };
-                var listObjectsResponse = await _s3Client.ListObjectsV2Async(listObjectsRequest);
+                var listObjectsResponse = await _s3Client.ListObjectsV2Async(listObjectsRequest).ConfigureAwait(false);
                 var outFiles = new List<string>();
                 foreach (var obj in listObjectsResponse.S3Objects)
                 {
@@ -154,7 +154,7 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
 
             try
             {
-                await Task.WhenAll(putTasks);
+                await Task.WhenAll(putTasks).ConfigureAwait(false);
                 return Result.Success();
             }
             catch (Exception ex)
@@ -173,7 +173,7 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
                     Key = $"{filePath}/{fileName}",
                     InputStream = new MemoryStream(fileData)
                 };
-                await _transferUtility.UploadAsync(request);
+                await _transferUtility.UploadAsync(request).ConfigureAwait(false);
                 return Result.Success();
             }
             catch (Exception ex)
@@ -192,7 +192,7 @@ namespace DevelopmentHell.Hubba.Files.Service.Implementations
                     Key = $"{filePath}/{fileName}",
                     InputStream = file.OpenReadStream()
                 };
-                await _transferUtility.UploadAsync(request);
+                await _transferUtility.UploadAsync(request).ConfigureAwait(false);
                 return Result.Success();
             }
             catch (Exception ex)
