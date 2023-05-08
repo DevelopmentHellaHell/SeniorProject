@@ -89,15 +89,15 @@ const CollaboratorPage: React.FC<ICollaboratorPage> = (props) => {
                                 <div className="collaborator-page-vote-title-wrapper">
                                     <div className="collaborator-page-votes-wrapper">
                                         <div className="vote-control">
-                                                <div className="h-stack">
-                                                    <p id='up-vote' className="up-vote" onClick={() => {
-                                                        handleUpvoteClick();
-                                                    }}>↑</p>
-                                                    <p className="down-vote" onClick={() => {
-                                                        handleDownvoteClick();
-                                                    }}>↓</p> 
-                                                </div>
+                                            <div className="v-stack">
+                                                <p id='up-vote' className="up-vote" onClick={() => {
+                                                    handleUpvoteClick();
+                                                }}>↑</p>
+                                                <p className="down-vote" onClick={() => {
+                                                    handleDownvoteClick();
+                                                }}>↓</p> 
                                             </div>
+                                        </div>
                                         <div className = "vote-count">
                                             <p id="vote-count-label" className="vote-count-label">
                                                 {data.votes ? data.votes: 0}
