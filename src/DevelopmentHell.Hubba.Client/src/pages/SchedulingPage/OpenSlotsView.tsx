@@ -270,11 +270,11 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                     </div>}
                 <div className='halfdaywrapper'>
                     <div className='halfday'>
-                        <h4> AM </h4>
+                        {/* <h4> AM </h4> */}
                         {renderHalfDay(hoursArrayAM)}
                     </div>
                     <div className='halfday'>
-                        <h4> PM </h4>
+                        {/* <h4> PM </h4> */}
                         {renderHalfDay(hoursArrayPM)}
                     </div>
                 </div>
@@ -511,7 +511,7 @@ const OpenSlotsView: React.FC<IOpenTimeSlotsProp> = (props) => {
                     <div className='opentimeslots-sidebar-wrapper'>
                         {renderSidebar(sidebarError)}
                         {renderSummary(bookedTimeFrames)}
-                        {readyToSubmit &&
+                        {readyToSubmit && bookedTimeFrames.length > 0 &&
                             <div className='buttons'>
                                 <Button title="Reserve" theme={ButtonTheme.DARK} onClick={async () => {
                                     if (state.ownerId.toString() == authData?.sub) {
