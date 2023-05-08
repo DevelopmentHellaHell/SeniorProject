@@ -87,13 +87,13 @@ builder.Services.AddControllers();
 //    });
 //});
 
-builder.WebHost.ConfigureKestrel((context, options) =>
-{
-    options.ConfigureHttpsDefaults(httpsOptions =>
-    {
-        httpsOptions.ServerCertificate = LoadCertificate();
-    });
-});
+//builder.WebHost.ConfigureKestrel((context, options) =>
+//{
+//    options.ConfigureHttpsDefaults(httpsOptions =>
+//    {
+//        httpsOptions.ServerCertificate = LoadCertificate();
+//    });
+//});
 
 builder.Services.AddSingleton<ITestingService, TestingService>(s =>
 {
