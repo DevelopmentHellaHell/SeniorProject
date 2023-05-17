@@ -1,7 +1,5 @@
 using DevelopmentHell.Hubba.Models;
 using Microsoft.Data.SqlClient;
-using System.Windows.Markup;
-using System.Runtime.CompilerServices;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 {
@@ -20,7 +18,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                 bool first = true;
                 foreach (KeyValuePair<string, object> pair in values)
                 {
-                    if(pair.Value == null) continue;
+                    if (pair.Value == null) continue;
                     if (!first)
                     {
                         columnString += ", ";
@@ -84,7 +82,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 
                     insertQuery.Parameters.Add(new SqlParameter(pair.Key, pair.Value));
                 }
-                
+
                 var tableVar = "@INSERTEDENTRY";
                 insertQuery.CommandText = string.Format(
                     "DECLARE {4} TABLE ({3} INT); \n" +
@@ -92,7 +90,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                     "({1}) " +
                     "OUTPUT INSERTED.{3} INTO {4} " +
                     "VALUES ({2}); \n" +
-                    "SELECT {3} FROM {4}", 
+                    "SELECT {3} FROM {4}",
                     table, columnString, valueString, ouputColumn, tableVar);
 
                 var insertResult = await SendScalarQuery(insertQuery).ConfigureAwait(false);

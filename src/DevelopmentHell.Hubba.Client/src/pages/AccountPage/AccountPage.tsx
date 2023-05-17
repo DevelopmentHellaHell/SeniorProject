@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { redirect, useNavigate } from "react-router-dom";
+import { redirect, useLocation, useNavigate } from "react-router-dom";
 import { Auth } from "../../Auth";
 import Footer from "../../components/Footer/Footer";
 import NavbarUser from "../../components/NavbarUser/NavbarUser";
@@ -14,24 +14,33 @@ import CollaboratorEditView from "./CollaboratorProfileView/CollaboratorEditView
 import CollaboratorDeletionView from "./CollaboratorProfileView/CollaboratorDeletionView/CollaboratorDeletionView";
 import { Ajax } from "../../Ajax";
 import ProjectShowcaseView from "./ProjectShowcasesView/ProjectShowcaseView";
+import UpdatePasswordView from "./LoginSecurityView/UpdatePasswordView/UpdatePasswordView";
+import OtpVerificationPasswordView from "./LoginSecurityView/UpdatePasswordView/OtpVerificationPasswordView";
+import OtpVerificationEmailView from "./EditProfileView/OtpVerificationEmailView";
+import EditProfileView from "./EditProfileView/EditProfileView";
+import UpdateEmailView from "./EditProfileView/UpdateEmail";
+import BookingHistoryView from "./BookingHistoryView/BookingHistoryView";
 
 interface IAccountPageProps {
 
 }
 
-enum AccountViews {
+export enum AccountViews {
     EDIT_PROFILE = "Edit Profile",
+    EDIT_PROFILE_UPDATE_EMAIL = "Update Email",
     LOGIN_SECURITY = "Login & Security",
     LOGIN_SECURITY_UPDATE_PASSWORD = "Update Password",
     LOGIN_SECURITY_ACCOUNT_DELETION = "Account Deletion",
     NOTIFICATION_SETTINGS = "Notification Settings",
-    SCHEDULING_HISTORY = "Scheduling History",
+    BOOKING_HISTORY = "Booking History",
     MANAGE_LISTINGS = "Manage Listings",
     PROJECT_SHOWCASES = "Project Showcases",
     COLLABORATOR_PROFILE = "Collaborator Profile",
     COLLABORATOR_PROFILE_REMOVAL = "Collaborator Profile Removal",
     COLLABORATOR_PROFILE_EDIT = "Collaborator Profile Update",
     COLLABORATOR_PROFILE_DELETION = "Collaborator Profile Deletion",
+    OTP_VIEW_PW = "Otp Pw",
+    OTP_VIEW_EMAIL = "Otp Email",
 }
 
 const SubViews: {
@@ -39,15 +48,17 @@ const SubViews: {
 } = {
     [AccountViews.LOGIN_SECURITY]: [AccountViews.LOGIN_SECURITY_ACCOUNT_DELETION, AccountViews.LOGIN_SECURITY_UPDATE_PASSWORD],
     [AccountViews.COLLABORATOR_PROFILE]: [ AccountViews.COLLABORATOR_PROFILE_EDIT, AccountViews.COLLABORATOR_PROFILE_REMOVAL, AccountViews.COLLABORATOR_PROFILE_DELETION],
+    [AccountViews.OTP_VIEW_PW]: [AccountViews.LOGIN_SECURITY_UPDATE_PASSWORD],
+    [AccountViews.EDIT_PROFILE]: [AccountViews.OTP_VIEW_EMAIL],
+    [AccountViews.OTP_VIEW_EMAIL]: [AccountViews.EDIT_PROFILE_UPDATE_EMAIL],
 }
 
 const AccountPage: React.FC<IAccountPageProps> = (props) => {
-    const [view, setView] = useState(AccountViews.EDIT_PROFILE);
+    const { state } = useLocation();
+    const [view, setView] = useState(state ? state.view : AccountViews.EDIT_PROFILE);
     const authData = Auth.getAccessData();
     const accountId = authData?.sub;
     const [collaboratorId, setCollaboratorId] = useState<number>();
-
-
     const navigate = useNavigate();
 
     if (!authData) {
@@ -58,20 +69,29 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
     const renderView = (view: AccountViews) => {
         switch(view) {
             case AccountViews.EDIT_PROFILE:
-                return <></>; //TODO
+                return <EditProfileView
+                    onUpdateClick={() => { setView(AccountViews.OTP_VIEW_EMAIL)}}
+                />; //TODO
             case AccountViews.LOGIN_SECURITY:
                 return <LoginSecurityView
-                    onUpdateClick={() => { setView(AccountViews.LOGIN_SECURITY_UPDATE_PASSWORD) }}
+                    onUpdateClick={() => { setView(AccountViews.OTP_VIEW_PW) }}
                     onDeleteClick={() => { setView(AccountViews.LOGIN_SECURITY_ACCOUNT_DELETION) }}
                 />;
             case AccountViews.LOGIN_SECURITY_UPDATE_PASSWORD:
-                return <></>; //TODO
+                return <UpdatePasswordView 
+                    onCancelClick={() => { setView(AccountViews.LOGIN_SECURITY) }}
+                    onSuccess={() => {setView(AccountViews.LOGIN_SECURITY)}}
+                />; //TODO
+                case AccountViews.EDIT_PROFILE_UPDATE_EMAIL:
+                    return <UpdateEmailView 
+                        onCancelClick={() => { setView(AccountViews.LOGIN_SECURITY) }}
+                    />; //TODO
             case AccountViews.LOGIN_SECURITY_ACCOUNT_DELETION:
                 return <DeleteAccountView onCancelClick={() => { setView(AccountViews.LOGIN_SECURITY) }}/>;
             case AccountViews.NOTIFICATION_SETTINGS:
                 return <NotificationSettingsView />; //TODO
-            case AccountViews.SCHEDULING_HISTORY:
-                return <></>; //TODO
+            case AccountViews.BOOKING_HISTORY:
+                return <BookingHistoryView/>; //TODO
             case AccountViews.MANAGE_LISTINGS:
                 return <></>; //TODO
             case AccountViews.PROJECT_SHOWCASES:
@@ -89,7 +109,12 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
                 return <CollaboratorRemovalView onCancelClick={() => { setView(AccountViews.COLLABORATOR_PROFILE)}}/>; 
             case AccountViews.COLLABORATOR_PROFILE_DELETION:
                 return <CollaboratorDeletionView onCancelClick={() => { setView(AccountViews.COLLABORATOR_PROFILE)}}/>; 
-     
+            case AccountViews.OTP_VIEW_PW:
+                return <OtpVerificationPasswordView
+                        onSuccess={() => {setView(AccountViews.LOGIN_SECURITY_UPDATE_PASSWORD)}}/>;
+            case AccountViews.OTP_VIEW_EMAIL:
+                return <OtpVerificationEmailView
+                    onSuccess={() => {setView(AccountViews.EDIT_PROFILE_UPDATE_EMAIL)}}/>;
         }
     }
 
@@ -109,7 +134,7 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
         if(response.data){
             const responseCollabId = await Ajax.post<number>("/collaborator/getCollaboratorId", {AccountId: accountId});
             if(responseCollabId.data){
-                navigate("/collaborator", { state: { CollaboratorId: responseCollabId.data }});
+                navigate("/collaborators", { state: { CollaboratorId: responseCollabId.data }});
             }
         }
         setCollaboratorId(undefined);
@@ -136,8 +161,7 @@ const AccountPage: React.FC<IAccountPageProps> = (props) => {
                     {getListItem(AccountViews.EDIT_PROFILE, view)}
                     {getListItem(AccountViews.LOGIN_SECURITY, view)}
                     {getListItem(AccountViews.NOTIFICATION_SETTINGS, view)}
-                    {getListItem(AccountViews.SCHEDULING_HISTORY, view)}
-                    {getListItem(AccountViews.MANAGE_LISTINGS, view)}
+                    {getListItem(AccountViews.BOOKING_HISTORY, view)}
                     {getListItem(AccountViews.PROJECT_SHOWCASES, view)}
                     {getListItem(AccountViews.COLLABORATOR_PROFILE, view)}
                 </Sidebar>

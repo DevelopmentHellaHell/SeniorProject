@@ -1,7 +1,8 @@
 import axios, { AxiosError } from "axios";
 
 const app = axios.create({
-    baseURL: "https://localhost:7137",
+    //baseURL: "https://localhost:7137",
+    baseURL: "https://hubbaswag.com",
     headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',

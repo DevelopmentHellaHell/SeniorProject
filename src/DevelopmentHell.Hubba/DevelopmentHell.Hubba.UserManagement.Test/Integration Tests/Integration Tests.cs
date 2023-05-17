@@ -1,3 +1,4 @@
+using System.Configuration;
 using Development.Hubba.JWTHandler.Service.Implementations;
 using DevelopmentHell.Hubba.AccountDeletion.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Implementations;
@@ -15,7 +16,6 @@ using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.UserManagement.Manager.Implementations;
 using DevelopmentHell.Hubba.UserManagement.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using System.Configuration;
 
 namespace DevelopmentHell.Hubba.UserManagement.Test
 {

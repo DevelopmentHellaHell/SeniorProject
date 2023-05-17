@@ -1,3 +1,5 @@
+using System.Configuration;
+using System.Security.Claims;
 using Development.Hubba.JWTHandler.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
 using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
@@ -14,8 +16,6 @@ using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using System.Configuration;
-using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.Authorization.Test
 {

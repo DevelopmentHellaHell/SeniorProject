@@ -1,4 +1,6 @@
-﻿using Development.Hubba.JWTHandler.Service.Abstractions;
+﻿using System.Configuration;
+using System.Security.Claims;
+using Development.Hubba.JWTHandler.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
 using DevelopmentHell.Hubba.AccountSystem.Implementations;
 using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
@@ -8,19 +10,15 @@ using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
 using DevelopmentHell.Hubba.Email.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.Notification.Service.Abstractions;
 using DevelopmentHell.Hubba.Notification.Service.Implementations;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Manager.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
-using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Configuration;
-using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
 {
@@ -40,7 +38,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
         private readonly OTPService _otpService;
         private readonly AuthenticationManager _authenticationManager;
 
-        public ServiceIntegrationTests() 
+        public ServiceIntegrationTests()
         {
             LoggerService loggerService = new LoggerService(
                 new LoggerDataAccess(
@@ -54,6 +52,19 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
             );
             _accountSystemService = new AccountSystemService(
                 _userAccountDataAccess,
+            new BookingsDataAccess(
+                ConfigurationManager.AppSettings["SchedulingsConnectionString"]!,
+                ConfigurationManager.AppSettings["BookingsTable"]!
+            ),
+            new ListingHistoryDataAccess
+            (
+                ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+                ConfigurationManager.AppSettings["ListingHistoryTable"]!
+            ),
+           new ListingsDataAccess(
+                ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+                ConfigurationManager.AppSettings["ListingsTable"]!
+            ),
                 loggerService
             );
             _cryptographyService = new CryptographyService(
@@ -245,7 +256,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
 
             string newEmail = "test1@gmail.com";
             await _accountSystemService.CheckNewEmail(newEmail).ConfigureAwait(false);
-            
+
             // Actual 
             var updateResult = await _accountSystemService.UpdateEmailInformation(newAccountId, newEmail).ConfigureAwait(false);
 

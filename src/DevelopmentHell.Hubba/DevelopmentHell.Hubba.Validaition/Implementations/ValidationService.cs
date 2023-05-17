@@ -1,14 +1,11 @@
 ﻿
+using System.Globalization;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Models.DTO;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using Microsoft.AspNetCore.Http;
-using System.Globalization;
-using System.Diagnostics;
-using System.Globalization;
-using System.Net.NetworkInformation;
-using System.Reflection;
-using System.Text.RegularExpressions;
 
 namespace DevelopmentHell.Hubba.Validation.Service.Implementations
 {
@@ -18,7 +15,7 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
         {
 
         }
-        
+
         public Result ValidateEmail(string email)
         {
             Result result = new Result();
@@ -29,7 +26,7 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
             {
                 result.ErrorMessage = error;
                 return result;
-                
+
             }
 
             string regex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
@@ -226,14 +223,15 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
                 return result;
             }
 
-            Regex regex = new(@"^((https?)://)?((www.)?[a-z0-9]+(.[a-z]+)|(([0-9]{1,3}.){3}([0-9]{1,3})))(/[a-zA-Z0-9#.]+/?)*/?$");
-
             // checking profile picture requirements
             // pfp is optional
-            if (collab.PfpUrl != null && !regex.IsMatch(collab.PfpUrl))
+            if (collab.PfpUrl != null)
             {
-                result.ErrorMessage = "Profile picture url provided does not meet expected format.";
-                return result;
+                if (string.IsNullOrEmpty(collab.PfpUrl))
+                {
+                    result.ErrorMessage = "Profile picture url provided does not meet expected format.";
+                    return result;
+                }
             }
 
             // checking uploaded file requirements
@@ -256,11 +254,6 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
                     result.ErrorMessage = "An uploaded file url does not meet system requirements.";
                     return result;
                 }
-                if (!regex.IsMatch(collabUrl))
-                {
-                    result.ErrorMessage = "An uploaded file url does not meet expected format.";
-                    return result;
-                }
             }
 
             result.IsSuccessful = true;
@@ -270,13 +263,6 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
         public Result ValidateImageFile(IFormFile file)
         {
             Result result = new Result();
-            if (!Regex.IsMatch(file.FileName, @"^[a-zA-Z0-9_. ]*$"))
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "File names must consist of only letters, numbers, spaces, and underscores.";
-                result.StatusCode = StatusCodes.Status412PreconditionFailed;
-                return result;
-            }
             if (file == null || file.Length == 0)
             {
                 result.IsSuccessful = false;
@@ -460,26 +446,13 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
 
                 if (extension == ".jpg" || extension == ".jpeg" || extension == ".png")
                 {
-                    using (var stream = new MemoryStream(Convert.FromBase64String(file.Item2)))
-                    using (var image = System.Drawing.Image.FromStream(stream))
+                    // Check if the image size is less than or equal to 25 MB
+                    if (Convert.FromBase64String(file.Item2).Length > 25 * 1024 * 1024)
                     {
-                        if (image.RawFormat.Equals(System.Drawing.Imaging.ImageFormat.Jpeg) ||
-                            image.RawFormat.Equals(System.Drawing.Imaging.ImageFormat.Png))
-                        {
-                            // Check if the image size is less than or equal to 25 MB
-                            if (Convert.FromBase64String(file.Item2).Length > 25 * 1024 * 1024)
-                            {
-                                result.IsSuccessful = false;
-                                result.ErrorMessage = file.Item1 + " is too large.";
-                                return result;
-                            }
-                        }
-                        else
-                        {
-                            result.IsSuccessful = false;
-                            result.ErrorMessage = file.Item1 + " is an invalid image file type.";
-                            return result;
-                        }
+                        result.IsSuccessful = false;
+                        result.ErrorMessage = file.Item1 + " is too large.";
+                        return result;
+
                     }
                 }
                 else if (extension == ".mp4")
@@ -508,18 +481,10 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
         {
             Result result = new Result();
 
-
-            if (!Regex.IsMatch(file.FileName, @"^[a-zA-Z0-9_.]*$"))
-            {
-                result.IsSuccessful = false;
-                result.ErrorMessage = "File names must consist of only letters, numbers, and underscores.";
-                return result;
-            }
-
             if (file == null || file.Length == 0)
             {
                 result.IsSuccessful = false;
-                result.ErrorMessage = $"File {file.FileName} is empty";
+                result.ErrorMessage = $"File is empty";
                 return result;
             }
 
@@ -569,7 +534,7 @@ namespace DevelopmentHell.Hubba.Validation.Service.Implementations
                 result.ErrorMessage = file.FileName + " is an invalid file type.";
                 return result;
             }
-            
+
 
             result.IsSuccessful = true;
             return result;

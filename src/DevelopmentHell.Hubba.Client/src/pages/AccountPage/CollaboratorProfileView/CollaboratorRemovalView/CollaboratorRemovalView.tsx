@@ -4,6 +4,8 @@ import { Ajax } from "../../../../Ajax";
 import { Auth } from "../../../../Auth";
 import Button from "../../../../components/Button/Button";
 import "./CollaboratorRemovalView.css";
+import { AccountViews } from "../../AccountPage";
+import { useNavigate } from "react-router-dom";
 
 interface ICollaboratorRemoval {
     onCancelClick: () => void;
@@ -14,6 +16,8 @@ const CollaboratorRemovalView: React.FC<ICollaboratorRemoval> = (props) => {
     const [loaded, setLoaded] = useState(true);
 
     const [success, setSuccess] = useState("");
+
+    const navigate = useNavigate();
 
     const authData = Auth.getAccessData();
     const accountId = authData?.sub;
@@ -47,6 +51,8 @@ const CollaboratorRemovalView: React.FC<ICollaboratorRemoval> = (props) => {
                     }
                     setSuccess("Successfully removed all collaborator details.");
                     setLoaded(true);
+                    window.location.reload();
+                    navigate("/account", { state: { view: AccountViews.COLLABORATOR_PROFILE }});
                 }}/>
             </div>
             {error &&

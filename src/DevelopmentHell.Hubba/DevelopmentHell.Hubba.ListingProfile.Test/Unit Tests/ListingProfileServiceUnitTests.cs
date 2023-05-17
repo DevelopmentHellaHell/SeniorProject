@@ -1,36 +1,20 @@
-﻿using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
+﻿using System.Configuration;
+using Development.Hubba.JWTHandler.Service.Implementations;
+using DevelopmentHell.Hubba.Authorization.Service.Implementations;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
-using DevelopmentHell.Hubba.Logging.Service.Implementations;
-using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
-using DevelopmentHell.Hubba.SqlDataAccess;
-using DevelopmentHell.Hubba.Testing.Service.Abstractions;
-using DevelopmentHell.Hubba.Testing.Service.Implementations;
-using DevelopmentHell.Hubba.Validation.Service.Abstractions;
-using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Configuration;
 using DevelopmentHell.Hubba.ListingProfile.Service.Abstractions;
 using DevelopmentHell.Hubba.ListingProfile.Service.Implementations;
-using System.Runtime.InteropServices;
+using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Models.DTO;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using DevelopmentHell.Hubba.Notification.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Manager.Abstractions;
 using DevelopmentHell.Hubba.Registration.Manager.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
-using DevelopmentHell.Hubba.Logging.Service.Abstractions;
-using DevelopmentHell.Hubba.Registration.Service.Abstractions;
-using DevelopmentHell.Hubba.Authorization.Service.Implementations;
-using Development.Hubba.JWTHandler.Service.Implementations;
-using DevelopmentHell.Hubba.Notification.Service.Implementations;
-using DevelopmentHell.Hubba.Models;
-using System.Xml.Linq;
-using static Azure.Core.HttpHeader;
-using System.Collections;
-using System.Reflection;
+using DevelopmentHell.Hubba.SqlDataAccess;
+using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
+using DevelopmentHell.Hubba.Testing.Service.Abstractions;
+using DevelopmentHell.Hubba.Testing.Service.Implementations;
+using DevelopmentHell.Hubba.Validation.Service.Implementations;
 
 namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
 {
@@ -139,7 +123,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
 
             _listingsDataAccess = new ListingsDataAccess(_listingProfileConnectionString, _listingsTable);
 
-            _userAccountDataAccess = new UserAccountDataAccess( _userConnectionString, _userAccountsTable );
+            _userAccountDataAccess = new UserAccountDataAccess(_userConnectionString, _userAccountsTable);
 
             _listingAvailabilitiesDataAccess = new ListingAvailabilitiesDataAccess(_listingProfileConnectionString, _listingAvailabilitiesTable);
 
@@ -264,7 +248,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
             var price = 56.39;
             var location = "1000 lol flexin";
             var username = "jeffrey";
-            
+
             var expected = true;
 
 
@@ -405,7 +389,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
 
             //Act
             var actual = await _listingProfileService.GetListingRatings(listingId).ConfigureAwait(false);
-            Console.WriteLine(actual.ErrorMessage);
+            //Console.WriteLine(actual.ErrorMessage);
 
             //Assert
             Assert.IsTrue(actual.IsSuccessful == expected);
@@ -855,7 +839,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
             deleteList.Add(temp2);
 
             //Act
-            
+
             var actual = await _listingProfileService.DeleteListingAvailabilities(deleteList).ConfigureAwait(false);
             var get = await _listingProfileService.GetListingAvailabilities(listingId).ConfigureAwait(false);
 
@@ -1025,7 +1009,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
             int listingId = (int)listingIdResult.Payload;
 
             var userId = 2;
-           
+
 
             var expected = true;
             var expectedValue = false;

@@ -40,11 +40,9 @@ const MyListingsView: React.FC<IMyListingsViewProps> = (props) => {
             setData(response.data);
             if (response.error) {
                 setError(response.error);
-                console.log(response.error);
             }
             
             setLoaded(response.loaded);
-            console.log(response.data);
         }
 
         getData();
@@ -66,10 +64,10 @@ const MyListingsView: React.FC<IMyListingsViewProps> = (props) => {
              <table>
                 <thead>
                     <tr>
-                        <th></th>
-                        <th className="Listing Title">Listing Title</th>
-                        <th className="Rating">Average Rating</th>
-                        <th className="Status">Status</th>
+                        <th style={{width: '10%'}}></th>
+                        <th style={{width: '70%'}} className="Listing Title">Listing Title</th>
+                        <th style={{width: '10%'}}className="Rating">Average Rating</th>
+                        <th style={{width: '10%'}}className="Status">Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -88,23 +86,26 @@ const MyListingsView: React.FC<IMyListingsViewProps> = (props) => {
                 {(title==undefined || title=='') && !showSubmitButton &&
                 <Button theme={ButtonTheme.DARK} onClick={() => { setShowTitleField(true) }} title={"Create Listing"} />
                 
-                    }
-                    {
-                            title!==undefined && showSubmitButton && title!== '' &&
-                            <Button theme={ButtonTheme.DARK} onClick={async () => { 
-                                title!==undefined;
-                                const response = await Ajax.post("/listingprofile/createListing", {title} );
-                                if (response.error) {
-                                    setError(response.error);
-                                }
-                                setShowTitleField(false);
-                                window.location.reload();
-                                return;
-                            }} title={"Submit"} />
-                        }       
+                }
+            </div>
+            
+            <div className="create-listing-process">
+                {
+                    title!==undefined && showSubmitButton && title!== '' &&
+                    <Button theme={ButtonTheme.DARK} onClick={async () => { 
+                        title!==undefined;
+                        const response = await Ajax.post("/listingprofile/createListing", {title} );
+                        if (response.error) {
+                            setError(response.error);
+                        }
+                        setShowTitleField(false);
+                        window.location.reload();
+                        return;
+                    }} title={"Submit"} />
+                }       
                 { showTitleField && 
                     <div className="input-field">
-                        <label>Title</label>
+                        <label id="title-label-input">Title </label>
                         <input id="title-input" type="text" maxLength={50} placeholder="Title" onChange={
                             (event: React.ChangeEvent<HTMLInputElement>) => {
                             setTitle(event.target.value);
@@ -116,7 +117,6 @@ const MyListingsView: React.FC<IMyListingsViewProps> = (props) => {
                 }
             </div>
         </div>
-
     )
 }
 

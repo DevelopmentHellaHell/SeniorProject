@@ -1,0 +1,117 @@
+.bookingdetails-view-container {
+    position: relative;
+    display: flex;
+    flex-flow: column;
+    flex-grow: 1
+}
+
+.bookingdetails-view-container .bookingdetails-view-content {
+    display: flex;
+    padding-bottom: 2.5rem;
+    flex-grow: 1;
+}
+
+.bookingdetails-view-content .bookingdetails-wrapper {
+    display: flex;
+    width: 100%;
+    color: rgb(var(--primary-text-dark));
+    justify-content: center;
+    align-items: center;
+    padding: 20px 70px;
+}
+
+.bookingdetails-wrapper .confirmation-card {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    background-color: rgb(var(--primary-background-light));
+    padding: 20px 70px;
+    border: none;
+    border-radius: 10px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.confirmation-card .h1 {
+    font-size: 32px;
+    font-weight: 600;
+    color: rgb(var(--primary-text-dark));
+}
+
+.confirmation-card .listing {
+    font-size: 18px;
+    font-weight: 400;
+    color: rgb(var(--primary-text-dark));
+}
+
+.confirmation-card .listing:hover {
+    color: rgb(var(--secondary-text-dark));
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.details {
+    display: flex;
+    flex-flow: column;
+    color: rgb(var(--secondary-text-dark));
+    text-align: left;
+    width: fit-content;
+    font-size: 14px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    justify-content: center;
+}
+
+.details .info {
+    padding-left: 20px;
+    justify-content: center;
+}
+
+.info .success {
+    color: rgb(var(--success-text));
+    font-weight: 700;
+}
+
+.info-bold {
+    display: flex;
+    flex-flow: row;
+    color: rgb(var(--primary-text-dark));
+    font-weight: 600;
+    text-align: center;
+    justify-content: center;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border-top: 1px dotted;
+}
+
+.info-bold .info-left {
+    display: flex;
+    flex-flow: column;
+    color: rgb(var(--secondary-text-dark));
+    text-align: left;
+    padding-top: 10px;
+}
+
+.info-bold .info-right {
+    display: flex;
+    flex-flow: column;
+    color: rgb(var(--secondary-text-dark));
+    text-align: right;
+    padding-top: 10px;
+}
+
+.info-bold .block {
+    width: 120px;
+}
+
+.confirmation-card .error {
+    color: rgb(var(--error-text));
+}
+
+.confirmation-card .buttons {
+    display: flex;
+    flex-flow: row;
+    gap: 20px;
+    justify-content: center;
+}

@@ -120,7 +120,7 @@ describe('Navigate to Notification Settings', () => {
         // demonstrate selecting notification and deleting it
         cy.get(".table-button-hide" ).first().click();
         cy.get(".table-button-hide" ).first().should('have.css', 'color', `rgb(77, 100, 106)`);
-        cy.contains("Delete").click();
+        cy.contains("Hide").click();
 
         // demonstrate clear all
         cy.contains("Clear All").click();

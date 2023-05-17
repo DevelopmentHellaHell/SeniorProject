@@ -1,10 +1,10 @@
-﻿using DevelopmentHell.Hubba.AccountDeletion.Manager.Abstraction;
+﻿using System.Security.Claims;
+using DevelopmentHell.Hubba.AccountDeletion.Manager.Abstraction;
 using DevelopmentHell.Hubba.AccountDeletion.Service.Abstractions;
 using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
 using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Models;
-using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations
 {
@@ -109,7 +109,7 @@ namespace DevelopmentHell.Hubba.AccountDeletion.Manager.Implementations
 
                     if (thisAccountIDInt == accountId)
                     {
-						Result<string> logoutResult = _authenticationService.Logout();
+                        Result<string> logoutResult = _authenticationService.Logout();
                         result.Payload = logoutResult.Payload!;
                     }
 

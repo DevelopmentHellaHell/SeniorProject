@@ -1,20 +1,15 @@
-﻿using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
+﻿using System.Configuration;
+using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
-using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
+using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.Models.DTO;
 using DevelopmentHell.Hubba.SqlDataAccess;
+using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Configuration;
-using DevelopmentHell.Hubba.Models;
-using DevelopmentHell.Hubba.Models.DTO;
 
 namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
 {
@@ -179,7 +174,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
 
             // Actual
             var actual = await _ratingDataAccess.GetAverageRating(Feature.Listing, listingId).ConfigureAwait(false);
-            Console.WriteLine(actual.ErrorMessage);
+            //Console.WriteLine(actual.ErrorMessage);
 
             //Assert
             Assert.IsTrue(actual.IsSuccessful == expected);
@@ -578,8 +573,8 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.Unit_Tests
             ListingRatingEditorDTO ratingEdit = new ListingRatingEditorDTO()
             {
 
-                ListingId= listingId,
-                UserId= userId,
+                ListingId = listingId,
+                UserId = userId,
                 Rating = newRating,
             };
 

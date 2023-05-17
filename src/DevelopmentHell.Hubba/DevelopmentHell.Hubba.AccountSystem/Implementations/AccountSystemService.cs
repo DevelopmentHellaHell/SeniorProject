@@ -9,11 +9,17 @@ namespace DevelopmentHell.Hubba.AccountSystem.Implementations
     public class AccountSystemService : IAccountSystemService
     {
         private IUserAccountDataAccess _userAccountDataAccess;
+        private IBookingsDataAccess _bookingDataAccess;
+        private IListingHistoryDataAccess _listHistoryDataAccess;
+        private IListingsDataAccess _listingDataAccess;
         private ILoggerService _loggerService;
 
-        public AccountSystemService(IUserAccountDataAccess userAccountDataAccess, ILoggerService loggerService)
+        public AccountSystemService(IUserAccountDataAccess userAccountDataAccess, IBookingsDataAccess bookingsDataAccess, IListingHistoryDataAccess listingHistoryDataAccess, IListingsDataAccess listingsDataAccess, ILoggerService loggerService)
         {
             _userAccountDataAccess = userAccountDataAccess;
+            _bookingDataAccess = bookingsDataAccess;
+            _listHistoryDataAccess = listingHistoryDataAccess;
+            _listingDataAccess = listingsDataAccess;
             _loggerService = loggerService;
         }
         //TODO: Remember to write what needs to be checked in this layer
@@ -37,14 +43,14 @@ namespace DevelopmentHell.Hubba.AccountSystem.Implementations
         public async Task<Result> UpdateUserName(int userId, string? firstName, string? lastName)
         {
             Result result = new Result();
-            if (firstName == null && lastName == null) //MOVE
+            if (firstName == null && lastName == null)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Please enter a valid name for First Name and/or Last Name. ";
                 return result;
             }
             Result updateResult = await _userAccountDataAccess.UpdateUserName(userId, firstName!, lastName!).ConfigureAwait(false);
-            if (!updateResult.IsSuccessful) 
+            if (!updateResult.IsSuccessful)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = updateResult.ErrorMessage;
@@ -56,7 +62,17 @@ namespace DevelopmentHell.Hubba.AccountSystem.Implementations
 
         public async Task<Result<AccountSystemSettings>> GetAccountSettings(int userId)
         {
-            return await _userAccountDataAccess.GetAccountSettings(userId).ConfigureAwait(false);
+            Result<AccountSystemSettings> result = new Result<AccountSystemSettings>();
+            Result<AccountSystemSettings> getResult = await _userAccountDataAccess.GetAccountSettings(userId).ConfigureAwait(false);
+            if (!getResult.IsSuccessful)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessage = getResult.ErrorMessage;
+                return result;
+            }
+            result.IsSuccessful = true;
+            result.Payload = getResult.Payload;
+            return result;
         }
 
         public async Task<Result> CheckNewEmail(string newEmail)
@@ -73,5 +89,14 @@ namespace DevelopmentHell.Hubba.AccountSystem.Implementations
             return result;
         }
 
+        public async Task<Result<List<BookingHistory>>> GetBookingHistory(int userId, int bookingCount, int page)
+        {
+            return await _bookingDataAccess.GetBookingHistory(userId, bookingCount, page).ConfigureAwait(false);
+        }
+
+        public async Task<Result<List<BookingHistory>>> GetBookingHistorySearch(int userId, string query)
+        {
+            return await _listingDataAccess.GetBookingHistorySearch(userId, query).ConfigureAwait(false);
+        }
     }
 }

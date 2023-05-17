@@ -44,7 +44,7 @@ namespace DevelopmentHell.Hubba.Registration.Service.Implementations
             if (!getResult.IsSuccessful)
             {
 
-                Console.WriteLine(getResult.ErrorMessage);
+                //Console.WriteLine(getResult.ErrorMessage);
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Unable to check for previous use of email. Retry again or contact system administrator";
                 return result;

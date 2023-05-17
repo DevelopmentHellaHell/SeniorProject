@@ -19,6 +19,11 @@
     flex-direction: column;
 }
 
+
+.view-project-showcase-container .view-project-showcase-content .view-project-showcase-wrapper .showcase-description div i, a, h1, h2, h3, h4, h5, h6, p, span, strong {
+    word-wrap: break-word;
+}
+
 .view-project-showcase-wrapper {
     color: rgb(var(--primary-text-dark));
     padding-bottom: 2.5rem;
@@ -60,7 +65,7 @@
     user-select: none;
 }
 
-.view-project-showcase-wrapper .comment .vote-control .h-stack {
+.view-project-showcase-wrapper .comment .vote-control .h-stack p{
     font-size: 20px;
     vertical-align: middle;
     margin: 0;

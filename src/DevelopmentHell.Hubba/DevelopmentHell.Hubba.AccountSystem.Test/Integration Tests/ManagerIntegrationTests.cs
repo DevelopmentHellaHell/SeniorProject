@@ -1,4 +1,6 @@
-﻿using Development.Hubba.JWTHandler.Service.Abstractions;
+﻿using System.Configuration;
+using System.Security.Claims;
+using Development.Hubba.JWTHandler.Service.Abstractions;
 using Development.Hubba.JWTHandler.Service.Implementations;
 using DevelopmentHell.Hubba.AccountSystem.Abstractions;
 using DevelopmentHell.Hubba.AccountSystem.Implementations;
@@ -10,23 +12,20 @@ using DevelopmentHell.Hubba.CellPhoneProvider.Service.Implementations;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
 using DevelopmentHell.Hubba.Email.Service.Implementations;
-using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Notification.Manager.Implementations;
 using DevelopmentHell.Hubba.Notification.Service.Implementations;
-using DevelopmentHell.Hubba.OneTimePassword.Service.Abstractions;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Manager.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
+using DevelopmentHell.Hubba.Scheduling.Manager.Abstraction;
+using DevelopmentHell.Hubba.Scheduling.Service.Implementations;
 using DevelopmentHell.Hubba.SqlDataAccess;
-using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Configuration;
-using System.Security.Claims;
 
 namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
 {
@@ -39,6 +38,14 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
         private readonly AuthenticationService _authenticationService;
         private readonly RegistrationService _registrationService;
         private readonly NotificationManager _notificationManager;
+        private readonly ListingsDataAccess _listingsDataAccess;
+        private readonly ListingAvailabilitiesDataAccess _listingAvailabilitiesDataAccess;
+        private readonly BookingsDataAccess _bookingsDataAccess;
+        private readonly BookedTimeFramesDataAccess _bookedTimeFramesDataAccess;
+        private readonly ListingHistoryDataAccess _listingHistoryDataAccess;
+        private readonly BookingService _bookingService;
+        private readonly AvailabilityService _availabilityService;
+        private readonly SchedulingManager _schedulingManager;
         private readonly AccountSystemManager _accountSystemManager;
         private readonly RegistrationManager _registrationManager;
         private readonly AuthenticationManager _authenticationManager;
@@ -47,8 +54,9 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
         private readonly ICryptographyService _cryptographyService;
         private readonly OTPService _otpService;
         private readonly OTPDataAccess _otpDataAccess;
+        private readonly ISchedulingManager _schedlingManager;
 
-        public ManagerIntegrationTests() 
+        public ManagerIntegrationTests()
         {
             _otpDataAccess = new OTPDataAccess(
                     ConfigurationManager.AppSettings["UsersConnectionString"]!,
@@ -67,6 +75,18 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
             );
             _accountSystemService = new AccountSystemService(
                 _userAccountDataAccess,
+            new BookingsDataAccess(
+                ConfigurationManager.AppSettings["SchedulingsConnectionString"]!,
+                ConfigurationManager.AppSettings["BookingsTable"]!
+            ),
+            new ListingHistoryDataAccess(
+                ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+                ConfigurationManager.AppSettings["ListingHistoryTable"]!
+            ),
+            new ListingsDataAccess(
+                ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+                ConfigurationManager.AppSettings["ListingsTable"]!
+            ),
                 loggerService
             );
             _cryptographyService = new CryptographyService(
@@ -147,6 +167,39 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
                 loggerService
             );
 
+            // listingsDAO, listingAvailDAO, bookingsDAO, bookedTimeFramesDAO
+            _listingsDataAccess = new ListingsDataAccess(
+                ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+                ConfigurationManager.AppSettings["ListingsTable"]!
+            );
+            _listingAvailabilitiesDataAccess = new ListingAvailabilitiesDataAccess(
+                ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+                ConfigurationManager.AppSettings["ListingAvailabilitiesTable"]!
+            );
+            _bookingsDataAccess = new BookingsDataAccess(
+                ConfigurationManager.AppSettings["SchedulingsConnectionString"]!,
+                ConfigurationManager.AppSettings["BookingsTable"]!
+            );
+            _bookedTimeFramesDataAccess = new BookedTimeFramesDataAccess(
+                ConfigurationManager.AppSettings["SchedulingsConnectionString"]!,
+                ConfigurationManager.AppSettings["BookedTimeFramesTable"]!
+            );
+            _listingHistoryDataAccess = new ListingHistoryDataAccess(
+                ConfigurationManager.AppSettings["ListingProfilesConnectionString"]!,
+                ConfigurationManager.AppSettings["ListingHistoryTable"]!
+            );
+            // bookingService, availabilityService
+            _bookingService = new BookingService(_bookingsDataAccess, _bookedTimeFramesDataAccess, _listingHistoryDataAccess);
+            _availabilityService = new AvailabilityService(_listingsDataAccess, _listingAvailabilitiesDataAccess, _bookedTimeFramesDataAccess);
+
+            _schedulingManager = new SchedulingManager(
+                _bookingService,
+                _availabilityService,
+                _authorizationService,
+                _notificationService,
+                loggerService
+            );
+
             _accountSystemManager = new AccountSystemManager(
                 _accountSystemService,
                 _otpService,
@@ -154,6 +207,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
                 _cryptographyService,
                 _notificationManager,
                 new ValidationService(),
+                _schedlingManager,
                 loggerService
             );
             _registrationManager = new RegistrationManager(
@@ -326,7 +380,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
             }
             actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 
-            
+
             // Actual 
             var verifyResult = await _accountSystemManager.VerifyNewEmail("test2@gmail.com");
 
@@ -371,7 +425,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
         }
 
         [TestMethod]
-        public async Task OTPVerification_VerifyAccount() 
+        public async Task OTPVerification_VerifyAccount()
         {
             // Arrange
             string email = "test@gmail.com";
@@ -442,7 +496,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
             Assert.AreNotEqual(otp, newOtp);
         }
 
-        [TestMethod] 
+        [TestMethod]
         public async Task UpdateEmail()
         {
             // Arrange
@@ -585,7 +639,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
             if (authenticatedResult.IsSuccessful)
             {
                 _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
- 
+
             }
             actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
 
@@ -793,7 +847,7 @@ namespace DevelopmentHell.Hubba.AccountSystem.Test.Integration_Tests
         [TestCleanup]
         public async Task Cleanup()
         {
-            await _testingService.DeleteAllRecords().ConfigureAwait(false); 
+            await _testingService.DeleteAllRecords().ConfigureAwait(false);
         }
     }
 }

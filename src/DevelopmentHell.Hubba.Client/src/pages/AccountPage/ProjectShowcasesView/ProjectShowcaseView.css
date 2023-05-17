@@ -1,4 +1,21 @@
 
+.my-showcases-wrapper .table-pubstatus .published-yes-proc{
+    fill: #84adb7;
+    stroke: #7e7e7e;
+    stroke-width: 3px;
+}
+
+
+.my-showcases-wrapper .table-pubstatus .published-no-proc{
+    fill: #ffffff;
+    stroke: #7e7e7e;
+    stroke-width: 3px;
+}
+
+.my-showcases-wrapper .table-pubstatus .published-no,.published-yes .vector-circle{
+    cursor: pointer;
+}
+
 .my-showcases-wrapper .table-pubstatus .published-yes{
     fill: #4d646a;
     stroke: #101010;
@@ -62,6 +79,11 @@
 
 .my-showcases-wrapper table {
     width: 100%;
+    border: 0px solid black;
+}
+
+.my-showcases-wrapper .table-listing p{
+    cursor: pointer;
 }
 
 .my-showcases-wrapper .table-rating {
@@ -84,14 +106,18 @@
     min-width: 80px;
 }
 
+.my-showcases-wrapper .header-message, .table-message {
+    min-width: 250px;
+    max-width: 250px;
+    border: 0px solid black;
+    border-collapse: collapse;
+    margin: 3px
+}
+
 .my-showcases.wrapper .table-title {
     cursor: pointer;
 }
 
 .my-showcases-wrapper .h-stack button {
     margin: 3px;
-}
-
-.my-showcases-wrapper .table-pubstatus .vector-circle{
-    cursor: pointer;
 }

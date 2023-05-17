@@ -17,5 +17,8 @@ export default defineConfig({
     
     standardEmail: "hubba@gmail.com",
     standardPassword: '12345678',
+
+    alternativePassword: 'abcdefghi',
+    wrongPassword: '123456789'
   }
 });

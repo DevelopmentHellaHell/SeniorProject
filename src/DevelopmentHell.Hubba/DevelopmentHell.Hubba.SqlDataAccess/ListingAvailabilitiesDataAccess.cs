@@ -1,18 +1,11 @@
 ﻿
 
+using System.Data;
+using System.Text;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Models.DTO;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
-using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Reflection;
-using System.Security.Cryptography.Xml;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
@@ -104,7 +97,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 new List<Comparator>()
                 {
                     new Comparator(_listingIdColumn, "=", listingId),
-                }
+                },
+                "",
+                "StartTime"
             ).ConfigureAwait(false);
 
             if (!selectResult.IsSuccessful)

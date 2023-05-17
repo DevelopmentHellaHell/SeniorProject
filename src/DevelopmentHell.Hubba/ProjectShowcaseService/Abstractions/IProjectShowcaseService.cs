@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DevelopmentHell.Hubba.Models;
-using Microsoft.AspNetCore.Http;
+﻿using DevelopmentHell.Hubba.Models;
 
 namespace DevelopmentHell.Hubba.ProjectShowcase
 {
@@ -60,6 +54,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions
         Task<Result<Dictionary<string, object>>> GetCommentDetails(long commentId);
         Task<Result<Showcase>> GetShowcase(string showcaseId);
         Task<Result<List<Showcase>>> GetUserShowcases(int userId, bool includeDescription = true);
+        Task<Result<List<Showcase>>> GetListingShowcases(int listingId);
         Task<Result<List<ShowcaseComment>>> GetComments(string showcaseId, int commentCount, int page);
         Task<Result<ShowcaseComment>> GetComment(long commentId);
         Task<Result<List<ShowcaseReport>>> GetAllShowcaseReports();
@@ -79,5 +74,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions
         Task<Result> ReportComment(long commentId, string reasonText);
         Task<Result> ReportShowcase(string showcaseId, string reasonText);
         Task<Result> Unlink(string showcaseId);
+        Task<Result> Link(string showcaseId, int listingId);
     }
 }

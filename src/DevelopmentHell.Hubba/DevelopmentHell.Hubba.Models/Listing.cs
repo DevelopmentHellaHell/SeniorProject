@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-namespace DevelopmentHell.Hubba.Models
+﻿namespace DevelopmentHell.Hubba.Models
 {
     public class Listing
     {

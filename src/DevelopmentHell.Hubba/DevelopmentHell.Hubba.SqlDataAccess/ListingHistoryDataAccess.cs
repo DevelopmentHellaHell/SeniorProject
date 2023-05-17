@@ -1,17 +1,14 @@
 ﻿
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
+using DevelopmentHell.Hubba.SqlDataAccess.Implementation;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
 {
     public class ListingHistoryDataAccess : IListingHistoryDataAccess
     {
+        private readonly ExecuteDataAccess _executeDataAccess;
         private readonly InsertDataAccess _insertDataAccess;
         private readonly UpdateDataAccess _updateDataAccess;
         private readonly SelectDataAccess _selectDataAccess;
@@ -19,10 +16,11 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         private readonly string _listingIdColumm = "ListingId";
         private readonly string _userIdColumn = "UserId";
         private readonly string _tableName;
-        
+
 
         public ListingHistoryDataAccess(string connectionString, string tableName)
         {
+            _executeDataAccess = new ExecuteDataAccess(connectionString);
             _insertDataAccess = new InsertDataAccess(connectionString);
             _updateDataAccess = new UpdateDataAccess(connectionString);
             _selectDataAccess = new SelectDataAccess(connectionString);
@@ -94,5 +92,53 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
 
             return deleteResult;
         }
+
+        public async Task<Result<List<Reservations>>> GetReservations(int ownerID, string sort, int reservationCount, int page)
+        {
+            List<Reservations> result = new List<Reservations>();
+            var selectResult = await _selectDataAccess.Select(
+                SQLManip.InnerJoinTables(
+                    new Joiner(
+                        _tableName,
+                        "Listings",
+                        nameof(Reservations.ListingId),
+                        nameof(Reservations.ListingId))),
+                new List<string>()
+                {
+                    nameof(Reservations.OwnerId),
+                    _tableName + "." + nameof(Reservations.ListingId),
+                    nameof(Reservations.UserId),
+                    nameof(Reservations.Title)
+                },
+                new List<Comparator>()
+                {
+                    new Comparator("OwnerId", "=", ownerID)
+                },
+                "",
+                sort,
+                reservationCount,
+                (page - 1) * reservationCount
+            ).ConfigureAwait(false);
+            if (!selectResult.IsSuccessful || selectResult.Payload is null)
+            {
+                return new(Result.Failure("Reservation Access Error"));
+            }
+            else
+            {
+                foreach (var row in selectResult.Payload)
+                {
+                    result.Add(new Reservations()
+                    {
+                        OwnerId = (int)row[nameof(Reservations.OwnerId)],
+                        UserId = (int)row[nameof(Reservations.UserId)],
+                        ListingId = (int)row[nameof(Reservations.ListingId)],
+                        Title = (string)row[nameof(Reservations.Title)]
+                    });
+                }
+            }
+            return Result<List<Reservations>>.Success(result);
+        }
+
+
     }
 }

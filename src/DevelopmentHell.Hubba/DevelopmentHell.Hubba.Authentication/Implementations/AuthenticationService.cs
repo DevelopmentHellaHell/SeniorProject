@@ -41,7 +41,7 @@ namespace DevelopmentHell.Hubba.Authentication.Service.Implementations
             Result<UserAccount> userHashData = await _userAccountDataAccess.GetHashData(email).ConfigureAwait(false);
             UserAccount payload = userHashData.Payload!;
             if (!userHashData.IsSuccessful || payload is null)
-            { 
+            {
                 result.IsSuccessful = false;
                 result.ErrorMessage = "Invalid email or password provided. Retry again or contact system admin";
                 return result;

@@ -1,8 +1,7 @@
-﻿using DevelopmentHell.Hubba.Models;
-using Microsoft.Data.SqlClient;
-using System.Data;
-using System.Data.Common;
+﻿using System.Data;
 using System.Text;
+using DevelopmentHell.Hubba.Models;
+using Microsoft.Data.SqlClient;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
 {
@@ -59,7 +58,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
             //TODO add implementation for group by, order by, having
             using (SqlCommand insertQuery = new SqlCommand())
             {
-
                 bool first = true;
                 StringBuilder sbFilter = new();
                 StringBuilder sbColumn = new();
@@ -70,7 +68,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                         sbFilter.Append(" AND ");
                     }
                     first = false;
-                    sbFilter.Append($"{filter.Key} {filter.Op} @{filter.Key.ToString()!.Replace(".","")}");
+                    sbFilter.Append($"{filter.Key} {filter.Op} @{filter.Key.ToString()!.Replace(".", "")}");
 
                     insertQuery.Parameters.Add(new SqlParameter(filter.Key.ToString()!.Replace(".", ""), filter.Value.ToString()));
                 }
@@ -113,7 +111,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
             {
                 bool first = true;
                 StringBuilder sbInValues = new();
-                foreach(string value in inValues)
+                foreach (string value in inValues)
                 {
                     if (!first)
                     {
@@ -140,7 +138,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Implementations
                 return await SendQuery(insertQuery).ConfigureAwait(false);
             }
         }
-        public async Task<Result<List<Dictionary<string, object>>>> SelectInnerJoin(List<string> columns, List<Comparator> filters, 
+        public async Task<Result<List<Dictionary<string, object>>>> SelectInnerJoin(List<string> columns, List<Comparator> filters,
             string table1, string table2, string columnJoin1, string columnJoin2)
         {
             using (SqlCommand insertQuery = new SqlCommand())

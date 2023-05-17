@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using DevelopmentHell.Hubba.Models;
+﻿using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess
@@ -364,7 +363,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 }
             ).ConfigureAwait(false);
 
-            if (!selectResult.IsSuccessful || selectResult.Payload.Count != 1)
+            if (!selectResult.IsSuccessful || selectResult.Payload!.Count != 1)
             {
                 result.IsSuccessful = false;
                 result.ErrorMessage = selectResult.ErrorMessage;
@@ -387,7 +386,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 {
                     new Comparator(_email, "=", email)
                 },
-                new Dictionary<string, object>()
+                new Dictionary<string, object?>()
                 {
                     {_hash, newHashPassword}
                 }
@@ -414,7 +413,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 {
                     new Comparator(_id, "=", userId)
                 },
-                new Dictionary<string, object>()
+                new Dictionary<string, object?>()
                 {
                     {_email, newEmail}
                 }
@@ -481,7 +480,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
         {
             Result updateResult = new Result();
 
-            if (firstName == null) 
+            if (firstName == null)
             {
                 updateResult = await _updateDataAccess.Update(
                     _tableName,
@@ -489,7 +488,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     {
                         new Comparator(_id, "=", userId),
                     },
-                    new Dictionary<string, object>
+                    new Dictionary<string, object?>
                     {
                         {_lastName, lastName!}
                     }
@@ -505,9 +504,9 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                     {
                     new Comparator(_id, "=", userId),
                     },
-                    new Dictionary<string, object>
+                    new Dictionary<string, object?>
                     {
-                    {_firstName, firstName!}
+                        {_firstName, firstName!}
                     }
                 ).ConfigureAwait(false);
 
@@ -520,7 +519,7 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 {
                     new Comparator(_id, "=", userId),
                 },
-                new Dictionary<string, object>
+                new Dictionary<string, object?>
                 {
                     {_firstName, firstName!},
                     {_lastName, lastName!}
@@ -563,7 +562,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess
                 FirstName = payload.First()[_firstName] == DBNull.Value ? null : (string)payload.First()[_firstName],
                 LastName = payload.First()[_lastName] == DBNull.Value ? null : (string)payload.First()[_lastName]
             };
-
 
             return result;
         }

@@ -1,6 +1,14 @@
-﻿using Development.Hubba.JWTHandler.Service.Implementations;
+﻿using System.Configuration;
+using System.Security.Claims;
+using Development.Hubba.JWTHandler.Service.Implementations;
 using DevelopmentHell.Hubba.Authentication.Manager.Abstractions;
+using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
+using DevelopmentHell.Hubba.Authentication.Service.Implementations;
 using DevelopmentHell.Hubba.Authorization.Service.Implementations;
+using DevelopmentHell.Hubba.Collaborator.Manager.Abstractions;
+using DevelopmentHell.Hubba.Collaborator.Manager.Implementations;
+using DevelopmentHell.Hubba.Collaborator.Service.Abstractions;
+using DevelopmentHell.Hubba.Collaborator.Service.Implementations;
 using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
 using DevelopmentHell.Hubba.Email.Service.Implementations;
@@ -9,24 +17,23 @@ using DevelopmentHell.Hubba.Files.Service.Implementations;
 using DevelopmentHell.Hubba.ListingProfile.Manager.Implementations;
 using DevelopmentHell.Hubba.ListingProfile.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
+using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.Models.DTO;
 using DevelopmentHell.Hubba.Notification.Service.Implementations;
 using DevelopmentHell.Hubba.OneTimePassword.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Manager.Abstractions;
 using DevelopmentHell.Hubba.Registration.Manager.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
-using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess;
+using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
+using DevelopmentHell.Hubba.Validation.Service.Abstractions;
 using DevelopmentHell.Hubba.Validation.Service.Implementations;
+using DevelopmentHell.Hubba.WebAPI.DTO.Collaborator;
 using DevelopmentHell.ListingProfile.Manager.Abstractions;
-using DevelopmentHell.Hubba.Models;
-using System.Security.Claims;
-using System.Configuration;
-using DevelopmentHell.Hubba.Authentication.Manager.Implementations;
-using DevelopmentHell.Hubba.Authentication.Service.Implementations;
-using DevelopmentHell.Hubba.Models.DTO;
-using Microsoft.Identity.Client;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
 {
@@ -41,11 +48,16 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
         private readonly IListingsDataAccess _listingsDataAccess;
         private readonly IUserAccountDataAccess _userAccountDataAccess;
         private readonly IRegistrationManager _registrationManager;
+        private readonly ICollaboratorService _collaboratorService;
+        private readonly ICollaboratorsDataAccess _collaboratorsDataAccess;
+        private readonly ICollaboratorFileDataAccess _collaboratorFileDataAccess;
+        private readonly ICollaboratorManager _collaboratorManager;
         private readonly IListingAvailabilitiesDataAccess _listingAvailabilitiesDataAccess;
         private readonly IListingHistoryDataAccess _listingHistoryDataAccess;
         private readonly IOTPDataAccess _otpDataAccess;
         private readonly ICryptographyService _cryptographyService;
         private readonly IFileService _fileService;
+        private readonly IValidationService _validationService;
 
         private readonly string _userConnectionString = ConfigurationManager.AppSettings["UsersConnectionString"]!;
         private readonly string _userAccountsTable = ConfigurationManager.AppSettings["UserAccountsTable"]!;
@@ -79,6 +91,9 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
         private readonly string testEmail1 = "jonathon90210@hotmail.com";
         private readonly string testEmail2 = "yuumienjoyer@gmail.com";
         private readonly string testEmail3 = "itsyaboyfrank@hubba.com";
+        private readonly string testEmail4 = "yuumi4lyf@gmail.com";
+        private readonly string testEmail5 = "testingDummy@test.com";
+        private readonly string testEmail6 = "kevinislame@yahoo.com";
         private readonly string dummyIp = "172.168.2.8";
 
         public EndToEndTestingDatastoreSetup()
@@ -253,14 +268,45 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
             _listingHistoryDataAccess = new ListingHistoryDataAccess(_listingProfileConnectionString, _listingHistoryTable);
 
             _otpDataAccess = new OTPDataAccess(_userConnectionString, _userOTPsTable);
-        }
 
-        [TestInitialize]
-        public async Task Setup()
-        {
-            await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.LISTING_PROFILES).ConfigureAwait(false);
-            await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.USERS).ConfigureAwait(false);
-            await _fileService.DeleteDir(dirPath).ConfigureAwait(false);
+            _validationService = new ValidationService();
+
+            _collaboratorsDataAccess = new CollaboratorsDataAccess(
+                    ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!,
+                    ConfigurationManager.AppSettings["CollaboratorsTable"]!);
+            _collaboratorFileDataAccess = new CollaboratorFileDataAccess(
+                    ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!,
+                    ConfigurationManager.AppSettings["CollaboratorFilesTable"]!);
+
+            _collaboratorService = new CollaboratorService(
+                _collaboratorsDataAccess,
+                _collaboratorFileDataAccess,
+                new CollaboratorFileJunctionDataAccess(
+                    ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!,
+                    ConfigurationManager.AppSettings["CollaboratorFileJunctionTable"]!),
+                new CollaboratorUserVoteDataAccess(
+                    ConfigurationManager.AppSettings["CollaboratorProfilesConnectionString"]!,
+                    ConfigurationManager.AppSettings["CollaboratorUserVotesTable"]!),
+                new FTPFileService(
+                            ConfigurationManager.AppSettings["FTPServer"]!,
+                            ConfigurationManager.AppSettings["FTPUsername"]!,
+                            ConfigurationManager.AppSettings["FTPPassword"]!,
+                            loggerService
+                        ),
+                loggerService,
+                _validationService
+                );
+
+            _collaboratorManager = new CollaboratorManager(
+                _collaboratorService,
+                new AuthorizationService(
+                    _userAccountDataAccess,
+                    new JWTHandlerService(_jwtKey),
+                    loggerService
+                ),
+                loggerService,
+                _validationService
+            );
         }
 
         [TestMethod]
@@ -320,14 +366,14 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
             var file1Name = "dumb_slatt.png";
             tempFiles.Add(new Tuple<string, string>(file1Name, file1));
 
-            await _listingProfileManager.EditListingFiles(listingId, null, tempFiles).ConfigureAwait(false);
+            await _listingProfileManager.EditListingFiles(listingId, new (), tempFiles).ConfigureAwait(false);
             List<ListingAvailabilityReactDTO> listingAvailabilityReactDTOs = new List<ListingAvailabilityReactDTO>();
 
             ListingAvailabilityReactDTO avail1 = new ListingAvailabilityReactDTO()
             {
                 ListingId = listingId,
                 OwnerId = realEmailId,
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)).ToString(),
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(3)).ToString(),
                 StartTime = "09:00",
                 EndTime = "12:00",
                 Action = AvailabilityAction.Add
@@ -338,7 +384,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
                 ListingId = listingId,
                 OwnerId = realEmailId,
                 StartTime = "13:30",
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)).ToString(),
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(3)).ToString(),
                 EndTime = "16:30",
                 Action = AvailabilityAction.Add,
             };
@@ -431,14 +477,14 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
             file1Name = "im the best.png";
             tempFiles.Add(new Tuple<string, string>(file1Name, file1));
 
-            await _listingProfileManager.EditListingFiles(listingId, null, tempFiles).ConfigureAwait(false);
+            await _listingProfileManager.EditListingFiles(listingId, new (), tempFiles).ConfigureAwait(false);
             listingAvailabilityReactDTOs = new List<ListingAvailabilityReactDTO>();
 
             avail1 = new ListingAvailabilityReactDTO()
             {
                 ListingId = listingId,
                 OwnerId = testEmailId2,
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)).ToString(),
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(3)).ToString(),
                 StartTime = "09:00",
                 EndTime = "12:00",
                 Action = AvailabilityAction.Add
@@ -449,7 +495,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
                 ListingId = listingId,
                 OwnerId = testEmailId2,
                 StartTime = "13:30",
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)).ToString(),
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(3)).ToString(),
                 EndTime = "16:30",
                 Action = AvailabilityAction.Add,
             };
@@ -537,14 +583,14 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
             file1Name = "too lazy.png";
             tempFiles.Add(new Tuple<string, string>(file1Name, file1));
 
-            await _listingProfileManager.EditListingFiles(listingId, null, tempFiles).ConfigureAwait(false);
+            await _listingProfileManager.EditListingFiles(listingId, new List<string>(), tempFiles).ConfigureAwait(false);
             listingAvailabilityReactDTOs = new List<ListingAvailabilityReactDTO>();
 
             avail1 = new ListingAvailabilityReactDTO()
             {
                 ListingId = listingId,
                 OwnerId = testEmailId3,
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)).ToString(),
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(3)).ToString(),
                 StartTime = "09:00",
                 EndTime = "12:00",
                 Action = AvailabilityAction.Add
@@ -555,7 +601,7 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
                 ListingId = listingId,
                 OwnerId = testEmailId3,
                 StartTime = "13:30",
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)).ToString(),
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(3)).ToString(),
                 EndTime = "16:30",
                 Action = AvailabilityAction.Add,
             };
@@ -579,6 +625,85 @@ namespace DevelopmentHell.Hubba.ListingProfile.Test.NewFolder
                 actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             }
 
+        }
+
+        [TestMethod]
+        public async Task CollaboratorProfileSetUp()
+        {
+
+            //Arrange
+            string email = "test@gmail.com";
+            string password = "12345678";
+            await _registrationManager.Register(email, password).ConfigureAwait(false);
+            var accountIdResult = await _userAccountDataAccess.GetId(email).ConfigureAwait(false);
+            int accountId = accountIdResult.Payload;
+
+            // log in as user
+
+            var loginResult = await _authenticationManager.Login(email, password, dummyIp).ConfigureAwait(false);
+            Result<byte[]> getOtp = await _otpDataAccess.GetOTP(accountId).ConfigureAwait(false);
+            string otp = _cryptographyService.Decrypt(getOtp.Payload!);
+            _testingService.DecodeJWT(loginResult.Payload!);
+            var authenticatedResult = await _authenticationManager.AuthenticateOTP(otp, dummyIp).ConfigureAwait(false);
+            ClaimsPrincipal? actualPrincipal = null;
+            if (authenticatedResult.IsSuccessful)
+            {
+                _testingService.DecodeJWT(authenticatedResult.Payload!.Item1, authenticatedResult.Payload!.Item2);
+                actualPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            }
+
+
+            // TODO: Change file path to local repository
+            string imagePath = "C:\\Users\\bryan\\Desktop\\School Repos\\2022-2023\\SEM 1\\CECS 491A-04\\SeniorProject\\src\\DevelopmentHell.Hubba.Client\\cypress\\fixtures\\Crypto Mine.png";
+
+            IFormFile file = CreateFormFileFromFilePath(imagePath);
+
+
+
+            var files = new[] { file };
+
+            var exampleCollaborator = new CreateCollaboratorDTO()
+            {
+                Name = "Woodwork",
+                PfpFile = null,
+                ContactInfo = "123 Avenue Wood Village, CA",
+                Tags = "woodie, super strong, carpenter",
+                Description = "I can build big old tables and chairs",
+                Availability = "I'm free whenever",
+                UploadedFiles = files,
+                Published = true
+            };
+
+            //Act
+            Result actual = await _collaboratorManager.CreateCollaborator(exampleCollaborator).ConfigureAwait(false);
+
+            //Assert
+            //Console.WriteLine(actual.ErrorMessage);
+
+            Assert.IsTrue(actual.IsSuccessful);
+        }
+
+        public IFormFile CreateFormFileFromFilePath(string filePath)
+        {
+            var fileName = Path.GetFileName(filePath);
+            var stream = new FileStream(filePath, FileMode.Open);
+            var formFile = new FormFile(stream, 0, stream.Length, "file", fileName)
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = GetContentType(fileName)
+            };
+
+            return formFile;
+        }
+        public static string GetContentType(string fileName)
+        {
+            var provider = new FileExtensionContentTypeProvider();
+            string contentType;
+            if (!provider.TryGetContentType(fileName, out contentType!))
+            {
+                contentType = "application/octet-stream";
+            }
+            return contentType;
         }
     }
 }

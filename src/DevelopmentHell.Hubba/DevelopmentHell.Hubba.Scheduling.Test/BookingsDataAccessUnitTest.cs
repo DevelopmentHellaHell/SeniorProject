@@ -1,10 +1,10 @@
+using System.Configuration;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Implementations;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
-using System.Configuration;
 
 namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
 {
@@ -22,7 +22,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
         private readonly IListingsDataAccess _listingDAO;
         private readonly IBookingsDataAccess _bookingDAO;
         private readonly ITestingService _testingService;
-        
+
         public BookingsDataAccessUnitTest()
         {
             _listingDAO = new ListingsDataAccess(_listingConnectionString, _listingsTable);
@@ -33,9 +33,9 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
         [TestCleanup]
         public async Task CleanUp()
         {
-            await _testingService.DeleteDatabaseRecords(Models.Tests.Databases.LISTING_PROFILES).ConfigureAwait(false);
+            await _testingService.DeleteTableRecords(Models.Tests.Databases.LISTING_PROFILES, Models.Tests.Tables.BOOKINGS).ConfigureAwait(false);
         }
-        
+
         private async Task<Result<int>> CreateListing()
         {
             int ownerId = 100;
@@ -44,7 +44,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
             var getListingId = await _listingDAO.GetListingId(ownerId, title).ConfigureAwait(false);
             return getListingId;
         }
-        
+
         [TestMethod]
         public async Task CreateBooking_Successful()
         {
@@ -57,7 +57,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
                 ListingId = listingId.Payload,
                 FullPrice = 150,
                 BookingStatusId = BookingStatus.CONFIRMED,
-                CreationDate = DateTime.Now, 
+                CreationDate = DateTime.Now,
                 LastEditUser = 1,
                 TimeFrames = new List<BookedTimeFrame>
                 {
@@ -70,7 +70,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
                     }
                 }
             };
-            var expected = new Result<int>() { IsSuccessful = true};
+            var expected = new Result<int>() { IsSuccessful = true };
 
             //Act
             var actual = await _bookingDAO.CreateBooking(booking).ConfigureAwait(false);
@@ -105,8 +105,8 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
             //Act
             var createBooking = await _bookingDAO.CreateBooking(booking).ConfigureAwait(false);
             var actual = await _bookingDAO.CreateBooking(booking).ConfigureAwait(false);
-            
-            
+
+
             //Assert
             Assert.IsNotNull(actual.Payload);
             Assert.IsTrue(actual.IsSuccessful);
@@ -152,7 +152,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
             };
             var createBooking = await _bookingDAO.CreateBooking(booking).ConfigureAwait(false);
             int bookingId = createBooking.Payload;
-            List<Tuple<string,object>> filter = new() { new Tuple<string, object>(nameof(Booking.BookingId), bookingId) };
+            List<Tuple<string, object>> filter = new() { new Tuple<string, object>(nameof(Booking.BookingId), bookingId) };
 
             //Act
             Result actual = await _bookingDAO.DeleteBooking(filter).ConfigureAwait(false);
@@ -243,9 +243,9 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
                 CreationDate = DateTime.Now,
                 LastEditUser = 1
             };
-            var createBooking = await _bookingDAO.CreateBooking(booking).ConfigureAwait (false);
+            var createBooking = await _bookingDAO.CreateBooking(booking).ConfigureAwait(false);
             int bookingId = createBooking.Payload;
-            Dictionary<string, object> values = new() 
+            Dictionary<string, object> values = new()
             {
                 {nameof(Booking.BookingStatusId), (int)BookingStatus.CANCELLED}
             };
@@ -259,7 +259,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Test.DAL
             //Act
             var actual = await _bookingDAO.UpdateBooking(values, comparators).ConfigureAwait(false);
             var getBooking = await _bookingDAO.GetBooking(filter).ConfigureAwait(false);
-            var expected = getBooking.Payload[0];
+            var expected = getBooking.Payload![0];
 
             //Assert
             Assert.IsNotNull(actual);

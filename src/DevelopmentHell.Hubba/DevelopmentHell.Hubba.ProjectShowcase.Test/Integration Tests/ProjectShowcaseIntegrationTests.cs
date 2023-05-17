@@ -1,38 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DevelopmentHell.Hubba.Cryptography.Service.Abstractions;
+﻿using System.Configuration;
+using Development.Hubba.JWTHandler.Service.Abstractions;
+using Development.Hubba.JWTHandler.Service.Implementations;
+using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
+using DevelopmentHell.Hubba.Authentication.Service.Implementations;
+using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
+using DevelopmentHell.Hubba.Authorization.Service.Implementations;
 using DevelopmentHell.Hubba.Cryptography.Service.Implementations;
 using DevelopmentHell.Hubba.Files.Service.Abstractions;
+using DevelopmentHell.Hubba.Files.Service.Implementations;
+using DevelopmentHell.Hubba.ListingProfile.Service.Abstractions;
+using DevelopmentHell.Hubba.ListingProfile.Service.Implementations;
 using DevelopmentHell.Hubba.Logging.Service.Abstractions;
 using DevelopmentHell.Hubba.Logging.Service.Implementations;
 using DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions;
 using DevelopmentHell.Hubba.ProjectShowcase.Manager.Implementations;
 using DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions;
 using DevelopmentHell.Hubba.ProjectShowcase.Service.Implementations;
-using DevelopmentHell.Hubba.SqlDataAccess;
-using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
-using DevelopmentHell.Hubba.Validation.Service.Abstractions;
-using DevelopmentHell.Hubba.Validation.Service.Implementations;
-using DevelopmentHell.Hubba.Authorization.Service.Abstractions;
-using System.Configuration;
-using DevelopmentHell.Hubba.Authorization.Service.Implementations;
-using DevelopmentHell.Hubba.Authentication.Service.Abstractions;
-using DevelopmentHell.Hubba.Authentication.Service.Implementations;
-using Development.Hubba.JWTHandler.Service.Abstractions;
-using Development.Hubba.JWTHandler.Service.Implementations;
-using DevelopmentHell.Hubba.Files.Service.Implementations;
-using DevelopmentHell.Hubba.Testing.Service.Abstractions;
-using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using DevelopmentHell.Hubba.Registration.Service.Abstractions;
 using DevelopmentHell.Hubba.Registration.Service.Implementations;
-using Microsoft.AspNetCore.Http;
-using Moq;
-using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.Design;
-
+using DevelopmentHell.Hubba.SqlDataAccess;
+using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
+using DevelopmentHell.Hubba.Testing.Service.Abstractions;
+using DevelopmentHell.Hubba.Testing.Service.Implementations;
+using DevelopmentHell.Hubba.Validation.Service.Abstractions;
+using DevelopmentHell.Hubba.Validation.Service.Implementations;
 
 namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
 {
@@ -63,6 +54,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
         private readonly ILoggerService _loggerService;
         private readonly IFileService _fileService;
         private readonly IAuthorizationService _authorizationService;
+        private readonly IListingProfileService _listingProfileService;
         private readonly ILoggerDataAccess _loggerDataAccess;
         private readonly IJWTHandlerService _jwtHandlerService;
 
@@ -114,6 +106,23 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
                 _ftpUsername,
                 _ftpPassword,
                 _loggerService);
+            _listingProfileService = new ListingProfileService(
+                new ListingsDataAccess(
+                    _showcaseConnectionString,
+                    ConfigurationManager.AppSettings["ListingsTable"]!),
+                new ListingAvailabilitiesDataAccess(
+                    _showcaseConnectionString,
+                    ConfigurationManager.AppSettings["ListingAvailabilitiesTable"]!),
+                new ListingHistoryDataAccess(
+                    _showcaseConnectionString,
+                    ConfigurationManager.AppSettings["ListingHistoryTable"]!),
+                new RatingDataAccess(
+                    _showcaseConnectionString,
+                    ConfigurationManager.AppSettings["ListingRatingsTable"]!),
+                _userAccountDataAccess,
+                _loggerService
+                );
+
             _jwtHandlerService = new JWTHandlerService(
                 _jwtKey);
             _authorizationService = new AuthorizationService(
@@ -123,6 +132,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             _projectShowcaseManager = new ProjectShowcaseManager(
                 _projectShowcaseService,
                 _fileService,
+                _listingProfileService,
                 _loggerService,
                 _authorizationService);
 
@@ -214,7 +224,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
                 _testingService.DecodeJWT(accessTokenResult.Payload!, idTokenResult.Payload!);
             }
             var insertResult = await _projectShowcaseManager.CreateShowcase(3, "title", "description", new() { new(file1Name, file1) });
-            Assert.IsTrue(insertResult.IsSuccessful);
 
             var getResult = await _projectShowcaseDataAccess.GetShowcase(insertResult.Payload!).ConfigureAwait(false);
             Assert.IsTrue(getResult.IsSuccessful);
@@ -242,8 +251,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             }
             var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
             Assert.IsTrue(insertResult.IsSuccessful);
-            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
-            Assert.IsTrue(fileResult.IsSuccessful);
 
 
             var addResult = await _projectShowcaseDataAccess.AddComment(showcaseId1, accountId, "new comment", DateTime.UtcNow).ConfigureAwait(false);
@@ -282,8 +289,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             }
             var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
             Assert.IsTrue(insertResult.IsSuccessful);
-            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
-            Assert.IsTrue(fileResult.IsSuccessful);
 
             var deleteResult = await _projectShowcaseManager.DeleteShowcase(showcaseId1).ConfigureAwait(false);
             Assert.IsTrue(deleteResult.IsSuccessful);
@@ -314,8 +319,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             }
             var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
             Assert.IsTrue(insertResult.IsSuccessful);
-            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
-            Assert.IsTrue(fileResult.IsSuccessful);
             var addResult = await _projectShowcaseDataAccess.AddComment(showcaseId1, accountId, "new comment", DateTime.UtcNow).ConfigureAwait(false);
             Assert.IsTrue(addResult.IsSuccessful);
             var commentResult = await _projectShowcaseDataAccess.GetComments(showcaseId1, 10, 1).ConfigureAwait(false);
@@ -347,8 +350,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             }
             var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
             Assert.IsTrue(insertResult.IsSuccessful);
-            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
-            Assert.IsTrue(fileResult.IsSuccessful);
 
             var editResult = await _projectShowcaseManager.EditShowcase(showcaseId1, null, "New Title", null, null);
             Assert.IsTrue(editResult.IsSuccessful);
@@ -378,8 +379,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             }
             var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
             Assert.IsTrue(insertResult.IsSuccessful);
-            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
-            Assert.IsTrue(fileResult.IsSuccessful);
 
             var insertCommentResult = await _projectShowcaseDataAccess.AddComment(showcaseId1, accountId, "Test Comment 1", DateTime.UtcNow);
             Assert.IsTrue(insertCommentResult.IsSuccessful);
@@ -429,8 +428,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             }
             var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
             Assert.IsTrue(insertResult.IsSuccessful);
-            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
-            Assert.IsTrue(fileResult.IsSuccessful);
 
             var insertCommentResult = await _projectShowcaseDataAccess.AddComment(showcaseId1, accountId, "Test Comment 1", DateTime.UtcNow);
             Assert.IsTrue(insertCommentResult.IsSuccessful);
@@ -453,7 +450,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
         public async Task GetAllCommentReportsSuccess()
         {
             var start = DateTime.UtcNow;
-            var regResult = await _registrationService.RegisterAccount(email1, password);
+            var regResult = await _registrationService.RegisterAccount(email1, password, "AdminUser");
             Assert.IsTrue(regResult.IsSuccessful);
             await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
             var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
@@ -467,8 +464,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             }
             var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
             Assert.IsTrue(insertResult.IsSuccessful);
-            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
-            Assert.IsTrue(fileResult.IsSuccessful);
 
             var insertCommentResult = await _projectShowcaseDataAccess.AddComment(showcaseId1, accountId, "Test Comment 1", DateTime.UtcNow);
             Assert.IsTrue(insertCommentResult.IsSuccessful);
@@ -484,10 +479,10 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             var addCommentReportResult = await _projectShowcaseDataAccess.AddCommentReport(commentId, accountId, "reason", DateTime.UtcNow).ConfigureAwait(false);
             Assert.IsTrue(addCommentReportResult.IsSuccessful);
             var addCommentReportResult2 = await _projectShowcaseDataAccess.AddCommentReport(commentId2, accountId, "reason2", DateTime.UtcNow.AddSeconds(2)).ConfigureAwait(false);
-            Assert.IsTrue(addCommentReportResult.IsSuccessful);
+            Assert.IsTrue(addCommentReportResult2.IsSuccessful);
 
             var getResult = await _projectShowcaseManager.GetAllCommentReports().ConfigureAwait(false);
-            Assert.IsTrue(getResult.IsSuccessful);
+            Assert.IsTrue(getResult.IsSuccessful, getResult.ErrorMessage);
 
             bool passed1 = false;
             bool passed2 = false;
@@ -515,7 +510,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
         public async Task GetCommentReportsSuccess()
         {
             var start = DateTime.UtcNow;
-            var regResult = await _registrationService.RegisterAccount(email1, password);
+            var regResult = await _registrationService.RegisterAccount(email1, password, "AdminUser");
             Assert.IsTrue(regResult.IsSuccessful);
             await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
             var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
@@ -529,8 +524,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             }
             var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
             Assert.IsTrue(insertResult.IsSuccessful);
-            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
-            Assert.IsTrue(fileResult.IsSuccessful);
 
             var insertCommentResult = await _projectShowcaseDataAccess.AddComment(showcaseId1, accountId, "Test Comment 1", DateTime.UtcNow);
             Assert.IsTrue(insertCommentResult.IsSuccessful);
@@ -546,7 +539,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             var addCommentReportResult = await _projectShowcaseDataAccess.AddCommentReport(commentId, accountId, "reason", DateTime.UtcNow).ConfigureAwait(false);
             Assert.IsTrue(addCommentReportResult.IsSuccessful);
             var addCommentReportResult2 = await _projectShowcaseDataAccess.AddCommentReport(commentId2, accountId, "reason2", DateTime.UtcNow.AddSeconds(2)).ConfigureAwait(false);
-            Assert.IsTrue(addCommentReportResult.IsSuccessful);
+            Assert.IsTrue(addCommentReportResult2.IsSuccessful);
 
             var getResult = await _projectShowcaseManager.GetCommentReports(commentId).ConfigureAwait(false);
             Assert.IsTrue(getResult.IsSuccessful);
@@ -583,12 +576,10 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             }
             var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
             Assert.IsTrue(insertResult.IsSuccessful);
-            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
-            Assert.IsTrue(fileResult.IsSuccessful);
 
             var getResult = await _projectShowcaseManager.GetShowcase(showcaseId1);
             Assert.IsTrue(getResult.IsSuccessful);
-            //Assert.IsTrue((string)getResult.Payload!.Showcase!.Title == "title");
+            Assert.IsTrue((string)getResult.Payload!.Title! == "title");
             var timeElapsed = DateTime.UtcNow - start;
             Assert.IsTrue(timeElapsed.Seconds <= 3);
 
@@ -599,7 +590,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
         public async Task GetUserShowcasesSuccess()
         {
             var start = DateTime.UtcNow;
-            var regResult = await _registrationService.RegisterAccount(email1, password);
+            var regResult = await _registrationService.RegisterAccount(email1, password, "AdminUser");
             Assert.IsTrue(regResult.IsSuccessful);
             await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
             var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
@@ -613,12 +604,8 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             }
             var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
             Assert.IsTrue(insertResult.IsSuccessful);
-            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
-            Assert.IsTrue(fileResult.IsSuccessful);
-            var insertResult2 = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId2, 3, "title", "description", DateTime.UtcNow);
-            Assert.IsTrue(insertResult.IsSuccessful);
-            var fileResult2 = await _fileService.UploadFile($"/showcases/{showcaseId2}", file2Name, Convert.FromBase64String(file1));
-            Assert.IsTrue(fileResult.IsSuccessful);
+            var insertResult2 = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId2, 3, "title2", "description", DateTime.UtcNow);
+            Assert.IsTrue(insertResult2.IsSuccessful);
 
             var getResult = await _projectShowcaseManager.GetUserShowcases(accountId).ConfigureAwait(false);
             Assert.IsTrue(getResult.IsSuccessful);
@@ -633,7 +620,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
         public async Task GetAllShowcaseReportsSuccess()
         {
             var start = DateTime.UtcNow;
-            var regResult = await _registrationService.RegisterAccount(email1, password);
+            var regResult = await _registrationService.RegisterAccount(email1, password, "AdminUser");
             Assert.IsTrue(regResult.IsSuccessful);
             await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
             var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
@@ -647,12 +634,8 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             }
             var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
             Assert.IsTrue(insertResult.IsSuccessful);
-            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
-            Assert.IsTrue(fileResult.IsSuccessful);
             var insertResult2 = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId2, 3, "title", "description", DateTime.UtcNow);
-            Assert.IsTrue(insertResult.IsSuccessful);
-            var fileResult2 = await _fileService.UploadFile($"/showcases/{showcaseId2}", file2Name, Convert.FromBase64String(file1));
-            Assert.IsTrue(fileResult.IsSuccessful);
+            Assert.IsTrue(insertResult2.IsSuccessful);
 
             var reportResult1 = await _projectShowcaseDataAccess.AddShowcaseReport(showcaseId1, accountId, "reason", DateTime.UtcNow).ConfigureAwait(false);
             Assert.IsTrue(reportResult1.IsSuccessful);
@@ -672,7 +655,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
         public async Task GetShowcaseReportsSuccess()
         {
             var start = DateTime.UtcNow;
-            var regResult = await _registrationService.RegisterAccount(email1, password);
+            var regResult = await _registrationService.RegisterAccount(email1, password, "AdminUser");
             Assert.IsTrue(regResult.IsSuccessful);
             await _registrationService.RegisterAccount(email1, password).ConfigureAwait(false);
             var accountIdResult = await _userAccountDataAccess.GetId(email1).ConfigureAwait(false);
@@ -686,12 +669,8 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             }
             var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
             Assert.IsTrue(insertResult.IsSuccessful);
-            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
-            Assert.IsTrue(fileResult.IsSuccessful);
             var insertResult2 = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId2, 3, "title", "description", DateTime.UtcNow);
-            Assert.IsTrue(insertResult.IsSuccessful);
-            var fileResult2 = await _fileService.UploadFile($"/showcases/{showcaseId2}", file2Name, Convert.FromBase64String(file1));
-            Assert.IsTrue(fileResult.IsSuccessful);
+            Assert.IsTrue(insertResult2.IsSuccessful);
             var reportResult1 = await _projectShowcaseDataAccess.AddShowcaseReport(showcaseId1, accountId, "reason", DateTime.UtcNow).ConfigureAwait(false);
             Assert.IsTrue(reportResult1.IsSuccessful);
             var reportResult2 = await _projectShowcaseDataAccess.AddShowcaseReport(showcaseId2, accountId, "reason2", DateTime.UtcNow).ConfigureAwait(false);
@@ -724,8 +703,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             }
             var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
             Assert.IsTrue(insertResult.IsSuccessful);
-            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
-            Assert.IsTrue(fileResult.IsSuccessful);
 
             var likeResult = await _projectShowcaseManager.LikeShowcase(showcaseId1).ConfigureAwait(false);
             Assert.IsTrue(likeResult.IsSuccessful);
@@ -757,8 +734,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             }
             var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
             Assert.IsTrue(insertResult.IsSuccessful);
-            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
-            Assert.IsTrue(fileResult.IsSuccessful);
 
             var publishResult = await _projectShowcaseManager.Publish(showcaseId1, 3).ConfigureAwait(false);
             Assert.IsTrue(publishResult.IsSuccessful);
@@ -790,8 +765,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             }
             var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
             Assert.IsTrue(insertResult.IsSuccessful);
-            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
-            Assert.IsTrue(fileResult.IsSuccessful);
 
             var insertCommentResult = await _projectShowcaseDataAccess.AddComment(showcaseId1, accountId, "Test Comment 1", DateTime.UtcNow);
             Assert.IsTrue(insertCommentResult.IsSuccessful);
@@ -831,8 +804,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             }
             var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
             Assert.IsTrue(insertResult.IsSuccessful);
-            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
-            Assert.IsTrue(fileResult.IsSuccessful);
 
             var insertCommentResult = await _projectShowcaseDataAccess.AddComment(showcaseId1, accountId, "Test Comment 1", DateTime.UtcNow);
             Assert.IsTrue(insertCommentResult.IsSuccessful);
@@ -881,8 +852,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             }
             var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
             Assert.IsTrue(insertResult.IsSuccessful);
-            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
-            Assert.IsTrue(fileResult.IsSuccessful);
 
             var reportResult1 = await _projectShowcaseManager.ReportShowcase(showcaseId1, "reason").ConfigureAwait(false);
             Assert.IsTrue(reportResult1.IsSuccessful);
@@ -914,8 +883,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             }
             var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
             Assert.IsTrue(insertResult.IsSuccessful);
-            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
-            Assert.IsTrue(fileResult.IsSuccessful);
 
             var unlinkResult = await _projectShowcaseManager.Unlink(showcaseId1).ConfigureAwait(false);
             Assert.IsTrue(unlinkResult.IsSuccessful);
@@ -923,7 +890,7 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             var getResult = await _projectShowcaseDataAccess.GetDetails(showcaseId1).ConfigureAwait(false);
             Assert.IsTrue(getResult.IsSuccessful);
 
-            Assert.IsTrue((int)getResult.Payload!["ListingId"] == null);
+            Assert.IsTrue(getResult.Payload!["ListingId"] == DBNull.Value);
             var timeElapsed = DateTime.UtcNow - start;
             Assert.IsTrue(timeElapsed.Seconds <= 3);
         }
@@ -947,8 +914,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Test.Integration_Tests
             }
             var insertResult = await _projectShowcaseDataAccess.InsertShowcase(accountId, showcaseId1, 3, "title", "description", DateTime.UtcNow);
             Assert.IsTrue(insertResult.IsSuccessful);
-            var fileResult = await _fileService.UploadFile($"/showcases/{showcaseId1}", file1Name, Convert.FromBase64String(file1));
-            Assert.IsTrue(fileResult.IsSuccessful);
 
             var unpublishResult = await _projectShowcaseManager.Unpublish(showcaseId1).ConfigureAwait(false);
             Assert.IsTrue(unpublishResult.IsSuccessful);

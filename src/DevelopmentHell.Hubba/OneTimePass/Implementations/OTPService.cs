@@ -25,6 +25,7 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service.Implementations
         {
             Random random = new((int)(DateTime.Now.Ticks << 4 >> 4));
             string otp = new(Enumerable.Repeat(validChars, 8).Select(s => s[random.Next(s.Length)]).ToArray());
+
             byte[] eotp = _cryptographyService.Encrypt(otp);
             DateTime expiration = DateTime.Now.AddMinutes(2); // TODO: move to config
 
@@ -67,11 +68,12 @@ namespace DevelopmentHell.Hubba.OneTimePassword.Service.Implementations
                 IsSuccessful = false,
             };
 
+            //Console.WriteLine(otp);
             Result sendEmail = _emailService.SendEmail(email, "Hubba Authentication", $"Your one time password is: {otp}");
             if (!sendEmail.IsSuccessful)
             {
-                result.ErrorMessage = "Serverside issue sending the OTP, please try again later.";
-                return result;
+                 result.ErrorMessage = "Serverside issue sending the OTP, please try again later.";
+                 return result;
             }
 
             result.IsSuccessful = true;

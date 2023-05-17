@@ -1,4 +1,5 @@
 ﻿using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.Models.DTO;
 using DevelopmentHell.Hubba.Scheduling.Manager.Abstraction;
 using DevelopmentHell.Hubba.WebAPI.DTO.Scheduling;
 using Microsoft.AspNetCore.Mvc;
@@ -47,7 +48,7 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
                 List<BookedTimeFrame> chosenTimeFrames = new();
-                foreach( var item in reserveDTO.ChosenTimeFrames)
+                foreach (var item in reserveDTO.ChosenTimeFrames)
                 {
                     chosenTimeFrames.Add(new BookedTimeFrame()
                     {
@@ -83,6 +84,27 @@ namespace DevelopmentHell.Hubba.WebAPI.Controllers
                 }
 
                 var result = await _schedulingManager.CancelBooking(cancelBookingDTO.UserId, cancelBookingDTO.BookingId).ConfigureAwait(false);
+                if (!result.IsSuccessful)
+                {
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
+                }
+
+                return StatusCode(result.StatusCode, result.Payload);
+            }).ConfigureAwait(false);
+        }
+
+        [HttpPost]
+        [Route("getbookingdetails")]
+        public async Task<IActionResult> GetBookingDetails(BookingViewDTO bookingViewDTO)
+        {
+            return await GuardedWorkload(async () =>
+            {
+                if (!ModelState.IsValid)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest);
+                }
+
+                var result = await _schedulingManager.GetBookingDetails((int)bookingViewDTO.UserId!, bookingViewDTO.BookingId).ConfigureAwait(false);
                 if (!result.IsSuccessful)
                 {
                     return StatusCode(result.StatusCode, result.ErrorMessage);

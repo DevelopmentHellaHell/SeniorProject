@@ -30,7 +30,7 @@ const ProjectShowcaseCard: React.FC<IProjectShowcaseCardProps> = (props) => {
     }, [props.data]);
 
     return (
-        <div className="project-showcase-card" onClick={() => { navigate(`/showcases/view?s=${props.data.Id}`) }}>
+        <div className="project-showcase-card" onClick={() => { navigate(`/showcases/p/view?s=${props.data.Id}`) }}>
             {!error &&
                 <div>
                      <img className="thumbnail" src={thumbnail} />

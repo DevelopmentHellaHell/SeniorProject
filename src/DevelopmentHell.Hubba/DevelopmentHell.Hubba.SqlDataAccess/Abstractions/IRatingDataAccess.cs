@@ -1,5 +1,5 @@
-﻿using DevelopmentHell.Hubba.Models.DTO;
-using DevelopmentHell.Hubba.Models;
+﻿using DevelopmentHell.Hubba.Models;
+using DevelopmentHell.Hubba.Models.DTO;
 
 namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
 {

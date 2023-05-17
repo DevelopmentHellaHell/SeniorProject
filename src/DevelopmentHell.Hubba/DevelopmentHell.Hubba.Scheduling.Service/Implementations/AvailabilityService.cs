@@ -3,11 +3,6 @@ using DevelopmentHell.Hubba.Models.DTO;
 using DevelopmentHell.Hubba.Scheduling.Service.Abstractions;
 using DevelopmentHell.Hubba.SqlDataAccess.Abstractions;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
 {
@@ -52,16 +47,16 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
             };
             // Get BookedTimeFrames by ListingId, AvailabilityId
             var getBookedTimeFrames = await ExecuteAvailabilityService(() => _bookedTimeFrameDAO.GetBookedTimeFrames(filters));
-            if (!getBookedTimeFrames.IsSuccessful) 
+            if (!getBookedTimeFrames.IsSuccessful)
             {
-                return new(Result.Failure(getBookedTimeFrames.ErrorMessage));
+                return new(Result.Failure(getBookedTimeFrames.ErrorMessage!));
             }
-            if(getBookedTimeFrames.Payload.Count == 0)
+            if (getBookedTimeFrames.Payload?.Count == 0)
             {
                 return new(Result.Success());
             }
             // Check if the time frame overlaps with any booked time frame
-            foreach (var bookedTimeFrame in getBookedTimeFrames.Payload)
+            foreach (var bookedTimeFrame in getBookedTimeFrames.Payload!)
             {
                 if (chosenTimeFrame.StartDateTime < bookedTimeFrame.EndDateTime
                     && chosenTimeFrame.EndDateTime > bookedTimeFrame.StartDateTime)
@@ -75,9 +70,10 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
         }
         public async Task<Result<List<ListingAvailabilityDTO>>> GetOpenTimeSlotsByMonth(int listingId, int month, int year)
         {
+            //sorted list of Availability
             var getListingAvailabilityByMonth = await ExecuteAvailabilityService(() =>
                 _availabilityDAO.GetListingAvailabilitiesByMonth(listingId, month, year)).ConfigureAwait(false);
-            
+
             // sorted list of BookedTimeFrame by ListingId
             var getBookedTimeFramesByListing = await ExecuteAvailabilityService(() => _bookedTimeFrameDAO.GetBookedTimeFrames
                 (new List<Tuple<string, object>>()
@@ -87,7 +83,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
             ).ConfigureAwait(false);
 
             List<ListingAvailabilityDTO> openTimeSlotsDTO = new();
-            foreach (var availability in getListingAvailabilityByMonth.Payload)
+            foreach (var availability in getListingAvailabilityByMonth.Payload!)
             {
                 var lastEnd = availability.StartTime; //latest open slots
                 if (!getBookedTimeFramesByListing.IsSuccessful || getBookedTimeFramesByListing.Payload == null)
@@ -104,7 +100,7 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
                             {
                                 lastEnd = bookedTimeFrame.EndDateTime; //update lastEnd
                             }
-                            if (bookedTimeFrame.StartDateTime > lastEnd && bookedTimeFrame.EndDateTime < availability.EndTime) //booked time in between lastEnd and availability.EndTime
+                            if (bookedTimeFrame.StartDateTime > lastEnd && bookedTimeFrame.EndDateTime <= availability.EndTime) //booked time in between lastEnd and availability.EndTime
                             {
                                 openTimeSlotsDTO.Add(new ListingAvailabilityDTO()
                                 {
@@ -118,17 +114,17 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
                         }
                     }
                 }
-                
+
                 if (lastEnd < availability.EndTime) // add the remaining open slots of the date
                 {
                     openTimeSlotsDTO.Add(new ListingAvailabilityDTO()
                     {
                         ListingId = listingId,
-                        AvailabilityId = (int)availability.AvailabilityId,
+                        AvailabilityId = (int)availability.AvailabilityId!,
                         StartTime = lastEnd,
                         EndTime = availability.EndTime
                     });
-                    }
+                }
             }
             return Result<List<ListingAvailabilityDTO>>.Success(openTimeSlotsDTO);
             //return Result<List<Tuple<int, DateTime, DateTime>>>.Success(openTimeSlots);
@@ -145,15 +141,15 @@ namespace DevelopmentHell.Hubba.Scheduling.Service.Implementations
 
             if (!getListings.IsSuccessful)
             {
-                return new(Result.Failure(getListings.ErrorMessage, getListings.StatusCode));
+                return new(Result.Failure(getListings.ErrorMessage!, getListings.StatusCode));
             }
             // return needed Listing's details for the Booking View
             BookingViewDTO bookingViewDTO = new()
             {
-                OwnerId = getListings.Payload.OwnerId,
+                OwnerId = getListings.Payload?.OwnerId,
                 ListingId = listingId,
-                ListingTitle = getListings.Payload.Title,
-                ListingLocation = getListings.Payload.Location
+                ListingTitle = getListings.Payload?.Title,
+                ListingLocation = getListings.Payload?.Location
             };
             return Result<BookingViewDTO>.Success(bookingViewDTO);
         }

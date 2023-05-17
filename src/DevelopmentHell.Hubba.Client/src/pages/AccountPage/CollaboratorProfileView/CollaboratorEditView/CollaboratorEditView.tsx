@@ -29,6 +29,7 @@ const CollaboratorEditPage: React.FC<ICollaboratorEditPageProps> = (props) => {
     const [loaded, setLoaded] = useState<boolean>(true);
     const [data, setData] = useState<ICollaboratorData | null>(null);
    
+    const navigate = useNavigate();
     const authData = Auth.getAccessData();
 
     const [published, setPublished] = useState<boolean>(false);
@@ -51,10 +52,8 @@ const CollaboratorEditPage: React.FC<ICollaboratorEditPageProps> = (props) => {
     }
 
     useEffect(() => {
-        console.log("CollaboratorId: " + props.collaboratorId)
         if(props.collaboratorId){
             const getData = async () => {
-                // console.log("Ran getData")
                 const response = await Ajax.post<ICollaboratorData>("collaborator/getcollaborator", {CollaboratorId: props.collaboratorId});
                 setData(response.data);
                 setError(response.error);
@@ -128,8 +127,7 @@ const CollaboratorEditPage: React.FC<ICollaboratorEditPageProps> = (props) => {
         }
         if(uploadedPhotos){
             var length = uploadedPhotos.length;
-            for(var i=0;i<length;i++){
-                console.log(uploadedPhotos[i])
+            for(var i=0;i<length;i++) {
                 formData.append("UploadedFiles", uploadedPhotos[i]);
             }
         }
@@ -139,25 +137,29 @@ const CollaboratorEditPage: React.FC<ICollaboratorEditPageProps> = (props) => {
         }
         if(props.collaboratorId){
             const response = await Ajax.postFormData("/collaborator/editcollaborator", formData);
-            console.log(response);
             if(response.error){
                 setError(response.error);
                 return;
             }
-            setSuccess("Successfully submitted.");
-            setError(null);
         }
         else{
             const response = await Ajax.postFormData("/collaborator/createcollaborator", formData);
-            console.log(response);
             if(response.error){
                 setError(response.error)
                 return;
             }
-            setSuccess("Successfully submitted.");
-            setError(null);
         }
-        
+
+        setSuccess("Successfully submitted.");
+        setError(null);
+
+        const response = await Ajax.post<boolean>("/collaborator/hascollaborator", { AccountId: authData.sub });
+        if(response.data){
+            const responseCollabId = await Ajax.post<number>("/collaborator/getCollaboratorId", { AccountId: authData.sub });
+            if(responseCollabId.data){
+                navigate("/collaborators", { state: { CollaboratorId: responseCollabId.data }});
+            }
+        }
     };
 
     return(

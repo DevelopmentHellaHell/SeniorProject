@@ -1,12 +1,11 @@
-using DevelopmentHell.Hubba.Logging.Service.Implementations;
+using System.Configuration;
+using System.Diagnostics;
 using DevelopmentHell.Hubba.Models;
 using DevelopmentHell.Hubba.Models.Tests;
 using DevelopmentHell.Hubba.SqlDataAccess;
 using DevelopmentHell.Hubba.Testing.Service.Abstractions;
 using DevelopmentHell.Hubba.Testing.Service.Implementations;
 using Microsoft.Data.SqlClient;
-using System.Configuration;
-using System.Diagnostics;
 
 namespace DevelopmentHell.Hubba.Logging.Test
 {
@@ -48,7 +47,7 @@ namespace DevelopmentHell.Hubba.Logging.Test
                 }
                 catch (SqlException e)
                 {
-                    Console.WriteLine(e.ToString());
+                    //Console.WriteLine(e.ToString());
                     connectionAvailible = false;
                 }
             }

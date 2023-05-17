@@ -22,5 +22,6 @@ namespace DevelopmentHell.Hubba.SqlDataAccess.Abstractions
         Task<Result<List<Dictionary<string, object>>>> Curate(int offset = 0);
         Task<Result<List<Dictionary<string, object>>>> Search(string query, int offset = 0, double FTTWeight = 0.5, double RWeight = 0.25, double RCWeight = 0.25);
         Task<Result> UnpublishListing(int listingId);
+        Task<Result<List<BookingHistory>>> GetBookingHistorySearch(int userID, string query);
     }
 }

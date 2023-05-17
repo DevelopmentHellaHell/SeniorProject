@@ -1,7 +1,7 @@
-﻿using DevelopmentHell.Hubba.Email.Service.Abstractions;
-using DevelopmentHell.Hubba.Models;
-using System.Net;
+﻿using System.Net;
 using System.Net.Mail;
+using DevelopmentHell.Hubba.Email.Service.Abstractions;
+using DevelopmentHell.Hubba.Models;
 
 namespace DevelopmentHell.Hubba.Email.Service.Implementations
 {
@@ -41,8 +41,7 @@ namespace DevelopmentHell.Hubba.Email.Service.Implementations
             Result result = new Result();
             try
             {
-                //if (!_disableSend) client.Send(message);
-                Console.WriteLine(body);
+                if (!_disableSend) client.Send(message);
                 result.IsSuccessful = true;
                 return result;
             }

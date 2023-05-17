@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using DevelopmentHell.Hubba.Models;
-using Microsoft.AspNetCore.Http;
-using DevelopmentHell.Hubba.ProjectShowcase.Service.Abstractions;
+﻿using DevelopmentHell.Hubba.Models;
 
 namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions
 {
@@ -23,8 +15,10 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions
         Task<Result<bool>> VerifyOwnership(string showcaseId);
         Task<Result<bool>> VerifyCommentOwnership(long commentId);
         Task<Result<List<string>>> GetShowcaseFiles(string showcaseId);
-        Task<Result<PackagedShowcase>> GetShowcase(string showcaseId);
+        Task<Result<Showcase>> GetShowcase(string showcaseId);
+        Task<Result<PackagedShowcase>> GetPackagedShowcase(string showcaseId);
         Task<Result<List<Showcase>>> GetUserShowcases(int userId, bool includeDescription = true);
+        Task<Result<List<Showcase>>> GetListingShowcases(int listingId);
         Task<Result<List<ShowcaseReport>>> GetAllShowcaseReports();
         Task<Result<List<ShowcaseReport>>> GetShowcaseReports(string showcaseId);
         Task<Result<List<ShowcaseComment>>> GetComments(string showcaseId, int? commentCount = 10, int? page = 1);
@@ -32,8 +26,9 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions
         Task<Result<List<CommentReport>>> GetAllCommentReports();
         Task<Result<List<CommentReport>>> GetCommentReports(long commentId);
         Task<Result<double>> LikeShowcase(string showcaseId);
-        Task<Result<string>> CreateShowcase(int listingId, string title, string description, List<Tuple<string,string>> files);
-        Task<Result> EditShowcase(string showcaseId, int? listingId, string? title, string? description, List<Tuple<string,string>>? files);
+        Task<Result<string>> CreateShowcase(int listingId, string title, string description, List<Tuple<string, string>> files);
+        Task<Result> EditShowcase(string showcaseId, int? listingId, string? title, string? description, List<Tuple<string, string>>? files);
+        Task<Result> OrderShowcase(string showcaseId, string order);
         Task<Result> DeleteShowcase(string showcaseId);
         Task<Result> Publish(string showcaseId, int? listingId);
         Task<Result> Unpublish(string showcaseId);
@@ -44,5 +39,6 @@ namespace DevelopmentHell.Hubba.ProjectShowcase.Manager.Abstractions
         Task<Result> ReportComment(long commentId, string reasonText);
         Task<Result> ReportShowcase(string showcaseId, string reasonText);
         Task<Result> Unlink(string showcaseId);
+        Task<Result> Link(string showcaseId, int listingId);
     }
 }
